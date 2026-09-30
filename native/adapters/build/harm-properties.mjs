@@ -199,9 +199,67 @@ export async function otherModelingScore(html) {
   return score;
 }
 
+/** escapingScore(html) — "loops on loops," made automatic and mechanical.
+ * Found live (this session): a REAL NPR episode titled Based on a "true"
+ * story broke `download="${episode.title}.mp3"` into garbage attributes —
+ * invisible to every hand-picked test case in this file, because none of
+ * them happened to contain a quote. Fuzzed manually once
+ * (eval/podcast-fuzz-loop.mjs, a real headless-Chrome CDP drive) to find
+ * and characterize the exact vulnerability class (specifically the
+ * double-quote character — apostrophes, angle brackets, script-shaped
+ * text, ampersands, RTL text, emoji, and even the app's OWN template-
+ * literal syntax embedded in data all rendered clean). This function is
+ * that same fuzz loop made PERMANENT and AUTOMATIC: it runs on every
+ * harmGate call, needs no live browser or server (a real HTML parser,
+ * `linkedom`, is the oracle — confirmed to reproduce the exact same
+ * attribute-leak Chrome produced on the identical input), and folds into
+ * the standing regression gate rather than remaining a script someone
+ * has to remember to run. Score = how many of the fuzz corpus's titles
+ * render with NO leaked bogus attributes and the CORRECT attribute value
+ * — a regression here means a change made MORE of the known-dangerous
+ * shapes corrupt output than before. */
+export async function escapingScore(html) {
+  const { parseHTML } = await import("linkedom");
+  const { FUZZ_TITLES } = await import("./fuzz-values.mjs");
+  let clean = 0;
+  for (const { value: title } of FUZZ_TITLES) {
+    // eslint-disable-next-line no-await-in-loop
+    const result = await runScript(html, async () => ({
+      ok: true, status: 200,
+      json: async () => ({ show: { title: "Fuzz" }, episodes: [{ title, audioUrl: "https://example.test/fuzz.mp3", ethos: "pass" }] }),
+    }));
+    if (!result.finalHtml.trim()) continue; // nothing rendered — a different property's concern, not counted here either way
+    try {
+      const { document } = parseHTML(`<div id="root">${result.finalHtml}</div>`);
+      const a = document.querySelector("#root a");
+      const audio = document.querySelector("#root audio");
+      const el = a ?? audio;
+      if (!el) continue;
+      const expectedAttrs = a ? new Set(["href", "download"]) : new Set(["controls", "src"]);
+      const actualAttrs = new Set([...el.attributes].map((x) => x.name));
+      const noLeaks = [...actualAttrs].every((n) => expectedAttrs.has(n));
+      // The escaping VECTOR is specifically a title (arbitrary text) landing
+      // in an attribute — that only happens on the <a> shape today (its
+      // `download` attribute carries the title). An <audio> element's `src`
+      // carries a URL, never the title, so there is no title-in-attribute
+      // to escape there at all — whether that src correctly reflects the
+      // REAL fetched audioUrl is consistencyScore's own concern (P39-style
+      // separation of properties), not this one's. Conflating them here
+      // was a real bug, found by this file's own falsification suite: a
+      // decoy <audio src="about:blank"> that ignores the real data
+      // entirely was scored as an ESCAPING regression, when its actual
+      // defect (wrong data) is already caught, correctly, by consistency.
+      const valueIntact = a ? el.getAttribute("download") === `${title}.mp3` : true;
+      if (noLeaks && valueIntact) clean += 1;
+    } catch { /* a parse failure is itself a corruption, not counted clean */ }
+  }
+  return clean;
+}
+
 export const PROPERTY_SCORERS = {
   calibration: calibrationScore,
   consistency: consistencyScore,
+  escaping: escapingScore,
   invariance: invarianceScore,
   "other-modeling": otherModelingScore,
 };
@@ -266,6 +324,12 @@ const SELF_TEST_CASES = [
     before: `<!DOCTYPE html><html><body><div style="color:#ccc">x</div></body></html>`,
     after: `<!DOCTYPE html><html><body><div style="color:#999">x</div></body></html>`,
     expectProperty: null,
+  },
+  {
+    name: "escaping: reintroducing the real quote-injection pattern (download=\"${title}.mp3\") must be caught",
+    before: `<!DOCTYPE html><html><body><button id="subscribeButton">Subscribe</button><div id="episodes"></div><script>function esc(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;'); } document.getElementById('subscribeButton').addEventListener('click', async () => { const r = await fetch('/x'); const d = await r.json(); document.getElementById('episodes').innerHTML = '<li><a href="' + d.episodes[0].audioUrl + '" download="' + esc(d.episodes[0].title) + '.mp3">' + esc(d.episodes[0].title) + '</a></li>'; });</script></body></html>`,
+    after: `<!DOCTYPE html><html><body><button id="subscribeButton">Subscribe</button><div id="episodes"></div><script>document.getElementById('subscribeButton').addEventListener('click', async () => { const r = await fetch('/x'); const d = await r.json(); document.getElementById('episodes').innerHTML = '<li><a href="' + d.episodes[0].audioUrl + '" download="' + d.episodes[0].title + '.mp3">' + d.episodes[0].title + '</a></li>'; });</script></body></html>`,
+    expectProperty: "escaping",
   },
 ];
 
