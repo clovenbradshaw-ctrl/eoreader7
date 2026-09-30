@@ -35,11 +35,15 @@ const EXTRACT_EXPR = `(() => {
   };
   const els = [];
   let n = 0;
-  for (const el of document.querySelectorAll("h1, h3, p, button, input, .ethos-badge")) {
+  for (const el of document.querySelectorAll("h1, h3, p, button, input, .ethos-badge, .episode")) {
     const rect = el.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) continue;
     const cs = getComputedStyle(el);
     n += 1;
+    // .episode itself matches its OWN closest(".episode") too (closest()
+    // includes the element itself), so it must be checked before the
+    // descendant h3/p branches or it would fall through to a bare "div".
+    const isEpisodeContainer = el.classList && el.classList.contains("episode");
     els.push({
       id: el.tagName.toLowerCase() + "-" + n,
       tag: el.tagName.toLowerCase(),
@@ -47,7 +51,8 @@ const EXTRACT_EXPR = `(() => {
       // the DECLARED selector this element is actually reachable through in
       // the style anchor's own source — never guessed from tag alone, since
       // .episode h3 / .episode p are NOT the same rule as a bare h3/p.
-      selector: el.tagName.toLowerCase() === "button" ? "button"
+      selector: isEpisodeContainer ? ".episode"
+        : el.tagName.toLowerCase() === "button" ? "button"
         : el.tagName.toLowerCase() === "input" ? 'input[type="text"]'
         : (el.className && el.className.includes("ethos-badge")) ? ".ethos-badge"
         : el.closest(".episode") && el.tagName.toLowerCase() === "h3" ? ".episode h3"
@@ -57,6 +62,11 @@ const EXTRACT_EXPR = `(() => {
       bold: parseInt(cs.fontWeight, 10) >= 600,
       color: parseRgb(cs.color),
       backgroundColor: parseRgb(cs.backgroundColor === "rgba(0, 0, 0, 0)" ? getComputedStyle(document.body).backgroundColor : cs.backgroundColor),
+      // Only captured for the container itself: the two conventions the
+      // repair loop's own roundness/elevation strategies actually target
+      // (organs/girard.js). Without this, neither strategy's own effect is
+      // visible to anything reading changed/persisted off a bridge.
+      borderRadiusPx: isEpisodeContainer ? parseFloat(cs.borderRadius) || 0 : null,
       areaPx: rect.width * rect.height,
       rect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right },
       // The element's own text — element-referents.js's disambiguator: two

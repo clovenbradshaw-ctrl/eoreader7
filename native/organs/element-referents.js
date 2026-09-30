@@ -66,6 +66,7 @@ function kindOf(el) {
   if (sel === "button") return "button";
   if (sel.includes('input[type="text"]') || tag === "input") return "input";
   if (sel === ".ethos-badge") return "badge";
+  if (sel === ".episode") return "episode-row";
   if (sel === ".episode h3") return "episode-title";
   if (sel === ".episode p") return "episode-detail";
   if (tag === "h1") return "heading";
@@ -158,7 +159,8 @@ export function bridgeElementReferents(beforeRefs, afterRefs) {
     const sameVisualFace = JSON.stringify(b.raw?.backgroundColor) === JSON.stringify(a.raw?.backgroundColor)
       && JSON.stringify(b.raw?.color) === JSON.stringify(a.raw?.color)
       && b.raw?.fontSizePx === a.raw?.fontSizePx
-      && b.raw?.bold === a.raw?.bold;
+      && b.raw?.bold === a.raw?.bold
+      && (b.raw?.borderRadiusPx ?? null) === (a.raw?.borderRadiusPx ?? null);
     (sameVisualFace ? persisted : changed).push({ before: b, after: a, confidence });
   }
 

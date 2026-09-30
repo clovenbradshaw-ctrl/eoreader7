@@ -11,8 +11,10 @@ function round1() {
   return [
     { id: "h1-1", tag: "h1", selector: "h1", text: "My Podcast App", rect: { top: 0 }, color: [0, 0, 0], backgroundColor: [255, 255, 255], fontSizePx: 24, bold: true },
     { id: "button-1", tag: "button", selector: "button", text: "Subscribe", rect: { top: 20 }, color: [255, 255, 255], backgroundColor: [255, 0, 0], fontSizePx: 14, bold: false },
+    { id: "div-1", tag: "div", selector: ".episode", text: "Episode 1: Hello World The first episode.", rect: { top: 45 }, color: [0, 0, 0], backgroundColor: [255, 255, 255], borderRadiusPx: 0, fontSizePx: 16, bold: false },
     { id: "h3-1", tag: "h3", selector: ".episode h3", text: "Episode 1: Hello World", rect: { top: 50 }, color: [0, 0, 0], backgroundColor: [255, 255, 255], fontSizePx: 16, bold: true },
     { id: "p-1", tag: "p", selector: ".episode p", text: "The first episode.", rect: { top: 60 }, color: [50, 50, 50], backgroundColor: [255, 255, 255], fontSizePx: 12, bold: false },
+    { id: "div-2", tag: "div", selector: ".episode", text: "Episode 2: Goodbye The second episode.", rect: { top: 85 }, color: [0, 0, 0], backgroundColor: [255, 255, 255], borderRadiusPx: 0, fontSizePx: 16, bold: false },
     { id: "h3-2", tag: "h3", selector: ".episode h3", text: "Episode 2: Goodbye", rect: { top: 90 }, color: [0, 0, 0], backgroundColor: [255, 255, 255], fontSizePx: 16, bold: true },
     { id: "p-2", tag: "p", selector: ".episode p", text: "The second episode.", rect: { top: 100 }, color: [50, 50, 50], backgroundColor: [255, 255, 255], fontSizePx: 12, bold: false },
   ];
@@ -54,6 +56,31 @@ test("bridgeElementReferents: an unchanged round reports everything persisted, n
   assert.equal(b.changed.length, 0);
   assert.equal(b.appeared.length, 0);
   assert.equal(b.vanished.length, 0);
+});
+
+test("establishElementReferents: .episode containers get their own episode-row referent, distinct from their h3/p children", () => {
+  const refs = establishElementReferents(round1());
+  const rows = refs.filter((r) => r.kind === "episode-row");
+  assert.equal(rows.length, 2);
+  assert.notEqual(rows[0].ref, rows[1].ref);
+});
+
+test("bridgeElementReferents: closes the real gap found in the live e2e run — a roundness/elevation fix on the .episode CONTAINER (borderRadius + background) is detected as CHANGED", () => {
+  // This reproduces exactly what the live repair loop's elevation
+  // strategy landed on 2026-09-30: extractElements previously never
+  // queried `.episode` at all, so this mutation — the one the repair
+  // strategies actually make — was structurally invisible to any bridge.
+  const before = establishElementReferents(round1());
+  const elevated = round1().map((el) => (el.selector === ".episode"
+    ? { ...el, backgroundColor: [21, 21, 26], borderRadiusPx: 8 }
+    : el));
+  const after = establishElementReferents(elevated);
+  const b = bridgeElementReferents(before, after);
+  const rows = b.changed.filter((x) => x.before.kind === "episode-row");
+  assert.equal(rows.length, 2, "both episode-row containers must be reported as changed");
+  // Everything ELSE (the titles/details inside them) is untouched and
+  // must still read as persisted — the change is scoped to the container.
+  assert.ok(b.persisted.some((x) => x.before.kind === "episode-title"));
 });
 
 test("bridgeElementReferents: a color-only edit is CHANGED, not vanished+appeared — same referent, different face", () => {
