@@ -122,3 +122,20 @@ test("repair styles: `edit` shows the previous code beside the failures; `fresh`
   assert.doesNotMatch(fresh, /MARKER_PREVIOUS_CODE/); assert.match(fresh, /Grosvenor Road/); assert.match(fresh, /from the start/);
   assert.equal(unitPrompt(contract, { repair: "fresh" }), unitPrompt(contract), "with no failures the two styles are the same first draw");
 });
+
+test("a function that returns the same result for different inputs while the oracle fails one is told it copied an answer; a function that legitimately gives two inputs one answer is not", async () => {
+  const { constantOutput, testUnit } = await import("./app-units.mjs");
+  const s = (rows) => rows.map(([label, arg, out, failed]) => ({ label, args: [arg], out, failed }));
+  assert.deepEqual(constantOutput(s([["a", 1, [0], false], ["b", 2, [0], true]])), { runs: ["a", "b"] });
+  assert.equal(constantOutput(s([["a", 1, [0], false], ["b", 2, [0], false]])), null, "both right with one answer: fine");
+  assert.equal(constantOutput(s([["a", 1, [0], true], ["b", 2, [1], true]])), null, "different answers");
+  assert.equal(constantOutput(s([["a", 1, [0], true], ["a2", 1, [0], true]])), null, "the same input twice is not a constant");
+  const contract = { name: "f", params: ["x"], doc: "d", returns: "[]", sampleJson: { n: 1 }, runs: [
+    { label: "shown", args: () => [{ n: 1 }], check: (o) => (JSON.stringify(o) === "[1]" ? [] : ["wrong"]) },
+    { label: "unseen", args: () => [{ n: 2 }], check: (o) => (JSON.stringify(o) === "[2]" ? [] : [`[0] is ${JSON.stringify(o)}, the recorded data says [2]`]) },
+  ] };
+  const copied = testUnit(`function f(x) { return [1]; }`, contract);
+  assert.equal(copied.ok, false); assert.match(copied.failures[0], /identical result for different inputs \("shown", "unseen"\)/);
+  assert.equal(testUnit(`function f(x) { return [1]; }`, { ...contract, hints: false }).failures.some((m) => /identical result/.test(m)), false, "switchable, like the others");
+  assert.equal(testUnit(`function f(x) { return [x.n]; }`, contract).ok, true);
+});

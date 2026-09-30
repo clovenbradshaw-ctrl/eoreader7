@@ -133,6 +133,7 @@ export function testUnit(code, contract) {
   try { fn = loadUnit(code, contract.name, { resolve: contract.resolve === false ? null : { declared }, cards: contract.cards !== false }); } catch (e) { return { ok: false, failures: [`does not compile or declare ${contract.name}: ${String(e.message).slice(0, 160)}`] }; }
   const r = testFunction(fn, contract);
   if (!r.ok && contract.hints !== false) for (const v of constReassigned(code)) r.failures.unshift(`\`${v}\` is declared with const and assigned again — declare it with let`);
+  if (contract.hints !== false && r.constant) r.failures.unshift(`the function returns the identical result for different inputs (${r.constant.runs.map((l) => `"${l}"`).join(", ")}) — compute the result from the input; do not copy the example's answer`);
   if (contract.hints !== false) for (const g of r.ignored ?? []) r.failures.unshift(`the function gives the same result for ${g.param} = ${g.values.map((v) => JSON.stringify(v)).join(" and ")}, but the recorded data differs — the result must depend on \`${g.param}\``);
   return { ...r, declared, resolutions: fn.resolutions?.() ?? [] };
 }
@@ -190,18 +191,40 @@ export function ignoredParams(seen, params) {
   return out;
 }
 
+/**
+ * A function that returns the SAME result for different inputs while the oracle fails one of them is copying an answer, not computing one
+ * (measured 2026-09-30: gemma2:2b wrote `const times = [0, 330, ...]; return { stop, route: "14", times }` — the shown example as a literal —
+ * and handed the identical code back after "times.length is 5, the recorded data says 4"). The oracle's own message names a LENGTH; this names the
+ * mistake. Found by behaviour, so it cannot fire on a function that legitimately gives two inputs one answer and passes both.
+ */
+export function constantOutput(seen) {
+  const byOut = new Map();
+  for (const r of seen) {
+    if (!r.args || r.out === undefined) continue;
+    const k = JSON.stringify(r.out);
+    if (!byOut.has(k)) byOut.set(k, []);
+    byOut.get(k).push(r);
+  }
+  for (const rs of byOut.values()) {
+    const inputs = new Set(rs.map((r) => JSON.stringify(r.args)));
+    if (inputs.size >= 2 && rs.some((r) => r.failed)) return { runs: rs.map((r) => r.label).filter(Boolean).slice(0, 3) };
+  }
+  return null;
+}
+
 /** The oracle's runs against an already-loaded function — a drawn unit, or a COMPOSITION of drawn leaves. */
 export function testFunction(fn, contract) {
   const failures = [], seen = [];
   for (const run of contract.runs) {
     let out, args;
-    try { args = run.args(contract.sampleJson ?? contract.sampleText); out = fn(...args); } catch (e) { failures.push(`${run.label}: threw ${String(e.message).slice(0, 140)}`); seen.push({ args, out: undefined, failed: true }); continue; }
+    try { args = run.args(contract.sampleJson ?? contract.sampleText); out = fn(...args); } catch (e) { failures.push(`${run.label}: threw ${String(e.message).slice(0, 140)}`); seen.push({ label: run.label, args, out: undefined, failed: true }); continue; }
     let f = [];
     try { f = run.check(out, contract.sampleJson ?? contract.sampleText); for (const m of f) failures.push(`${run.label}: ${pointed(m, args, contract.params)}`); } catch (e) { failures.push(`${run.label}: the oracle could not read the output (${String(e.message).slice(0, 100)})`); f = ["unreadable"]; }
-    seen.push({ args, out, failed: f.length > 0 });
+    seen.push({ label: run.label, args, out, failed: f.length > 0 });
   }
   const ignored = failures.length ? ignoredParams(seen, contract.params) : [];
-  return { ok: failures.length === 0, failures, ignored };
+  const constant = failures.length ? constantOutput(seen) : null;
+  return { ok: failures.length === 0, failures, ignored, constant };
 }
 
 /** The hash a verified unit is cached under: contract text + oracle source + sample. A changed contract, test or sample is a new unit. */
