@@ -104,12 +104,27 @@ export function declaredAliases(contract) {
   try { const args = contract.example?.input?.(); return args ? declaredFromExample(args, contract.example.output(contract.sampleJson ?? contract.sampleText)) : {}; } catch { return {}; }
 }
 
+/**
+ * Parameters the function never reads. A small model that has the right idea often writes the metric case and forgets the parameter that
+ * selects the other (`units`); the oracle then says "imperial: temp is 17, the recorded data says 63", which names a value but not the
+ * mistake. This names the mistake. Advisory: it is added to a FAILING verdict only, so a function that passes with a parameter unread
+ * (legitimately) is never failed for it. Approximate (a regex over source): a name appearing anywhere after the signature counts as read.
+ */
+export function unusedParams(code, name, params) {
+  const at = String(code).search(new RegExp(`(?:function\\s+${name}\\s*\\(|(?:const|let|var)\\s+${name}\\s*=)`));
+  if (at < 0) return [];
+  const close = String(code).indexOf(")", at); // the end of the signature; everything after it is the body (braced or an arrow expression)
+  const body = close < 0 ? "" : String(code).slice(close + 1);
+  return params.filter((p) => !new RegExp(`(^|[^\\w$.])${p}(?![\\w$])`).test(body));
+}
+
 /** A unit is tested BEHIND the key-referent layer: the idea (`tz`) resolves to the real key (`timezone`) when exactly one real key qualifies; the resolutions come back with the verdict. */
 export function testUnit(code, contract) {
   let fn;
   const declared = declaredAliases(contract);
   try { fn = loadUnit(code, contract.name, { resolve: { declared } }); } catch (e) { return { ok: false, failures: [`does not compile or declare ${contract.name}: ${String(e.message).slice(0, 160)}`] }; }
   const r = testFunction(fn, contract);
+  if (!r.ok) for (const p of unusedParams(code, contract.name, contract.params)) r.failures.unshift(`the function never reads its parameter \`${p}\` — the result must depend on it`);
   return { ...r, declared, resolutions: fn.resolutions?.() ?? [] };
 }
 

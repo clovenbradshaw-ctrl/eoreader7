@@ -74,3 +74,22 @@ test("the prompt shows the cards and the contract hash moves with them; a contra
   assert.doesNotMatch(unitPrompt({ ...contract, cards: false }), /already exist/);
   assert.notEqual(contractHash(contract), contractHash({ ...contract, cards: false }));
 });
+
+test("a failing unit that never reads a parameter is told so; a passing one is never failed for it", async () => {
+  const { unusedParams, testUnit } = await import("./app-units.mjs");
+  assert.deepEqual(unusedParams(`function f(a, units) { return { t: a.c }; }`, "f", ["a", "units"]), ["units"]);
+  assert.deepEqual(unusedParams(`function f(a, units) { return units === "imperial" ? celsiusToFahrenheit(a.c) : a.c; }`, "f", ["a", "units"]), []);
+  assert.deepEqual(unusedParams(`const f = (a, units) => a.c * 2;`, "f", ["a", "units"]), ["units"]);
+  assert.deepEqual(unusedParams(`const f = (a, units) => units ? a.c : 0;`, "f", ["a", "units"]), [], "an arrow expression body counts");
+  assert.deepEqual(unusedParams(`function f(a, units) { return a.units; }`, "f", ["a", "units"]), ["units"], "a property named units is not the parameter");
+  const contract = { name: "f", params: ["a", "units"], doc: "d", returns: "{}", sampleJson: { c: 10 }, runs: [
+    { label: "metric", args: () => [{ c: 10 }, "metric"], check: (o) => (o.t === 10 ? [] : [`t is ${o.t}`]) },
+    { label: "imperial", args: () => [{ c: 10 }, "imperial"], check: (o) => (o.t === 50 ? [] : [`t is ${o.t}, the recorded data says 50`]) },
+  ] };
+  const ignoring = testUnit(`function f(a, units) { return { t: a.c }; }`, contract);
+  assert.equal(ignoring.ok, false); assert.match(ignoring.failures[0], /never reads its parameter `units`/);
+  const reading = testUnit(`function f(a, units) { return { t: units === "imperial" ? cToF(a.c) : a.c }; }`, contract);
+  assert.equal(reading.ok, true); assert.deepEqual(reading.failures, []);
+  const legit = testUnit(`function f(a, units) { return { t: 10 }; }`, { ...contract, runs: [contract.runs[0]] });
+  assert.equal(legit.ok, true, "passes with a parameter unread: never failed for it");
+});
