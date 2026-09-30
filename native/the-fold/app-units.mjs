@@ -32,6 +32,7 @@ import crypto from "node:crypto";
 import { deposit, routeOrderFor } from "../kernel/stigmergy.js";
 import { loadUnit, UNIT_RUN_TIMEOUT_MS } from "./unit-wall.mjs";
 import { declaredFromExample, KEY_REFERENTS_SCHEMA } from "../organs/key-referents.js";
+import { CARDS_SCHEMA, cardsDoc } from "../organs/cards.js";
 export { loadUnit, UNIT_RUN_TIMEOUT_MS };
 
 /** Redraws of one unit with one mouth, after the first, each carrying the oracle's failures. Set by hand 2026-09-30. */
@@ -68,6 +69,7 @@ export function unitPrompt(contract, { failures = [], previous = null, skeleton 
     contract.doc,
     `It must return this shape:\n${contract.returns}`,
     contract.notes ? `Notes:\n${contract.notes}` : null,
+    contract.cards === false ? null : `These functions already exist — call them, do not write them yourself, and do not declare them:\n${cardsDoc()}`,
     `Here is a real example of the ${contract.paramDoc ?? contract.params[0]} it receives (long lists are cut to their first items):\n${sample}`,
     workedExample(contract),
     skeleton && skeletonOf(contract) ? `Start from this skeleton — keep the keys and their order, replace every ___ with an expression (add any lines before the return that you need):\n${skeletonOf(contract)}` : null,
@@ -151,7 +153,7 @@ export function testFunction(fn, contract) {
 
 /** The hash a verified unit is cached under: contract text + oracle source + sample. A changed contract, test or sample is a new unit. */
 export function contractHash(contract) {
-  return sha(JSON.stringify([contract.name, contract.params, contract.doc, contract.returns, contract.notes ?? "", contract.runs.map((r) => r.label + String(r.check)).join("|"), sha(contract.sampleText ?? JSON.stringify(contract.sampleJson ?? null)), contract.shown ?? "", workedExample(contract) ?? "", contract.salt ?? "", KEY_REFERENTS_SCHEMA, JSON.stringify(declaredAliases(contract))]));
+  return sha(JSON.stringify([contract.name, contract.params, contract.doc, contract.returns, contract.notes ?? "", contract.runs.map((r) => r.label + String(r.check)).join("|"), sha(contract.sampleText ?? JSON.stringify(contract.sampleJson ?? null)), contract.shown ?? "", workedExample(contract) ?? "", contract.salt ?? "", KEY_REFERENTS_SCHEMA, JSON.stringify(declaredAliases(contract)), contract.cards === false ? "" : sha(CARDS_SCHEMA + cardsDoc())]));
 }
 
 export function openUnitCache(dir) {

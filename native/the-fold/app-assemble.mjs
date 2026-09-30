@@ -6,6 +6,7 @@
 //   index.html          computed from the comp specs (app-render.mjs)
 //   server.mjs          computed glue (app-template/server.mjs), verbatim
 //   lib/unit-wall.mjs   the empty-context wall the units run behind
+//   lib/key-referents.js, lib/cards.js   the referent layer and the verified operations (organs/, verbatim)
 //   lib/stigmergy.js    the trail layer the provider order is learned with (kernel/stigmergy.js, verbatim)
 //   lib/compose.mjs     the computed walk over rows that turns leaves into the five full parsers
 //   units/<name>.js     the verified LEAVES, each exactly the bytes that passed its oracle
@@ -44,8 +45,9 @@ export function assembleApp({ outDir, appName = "Weather & Fuel", weatherSpec, f
   files.push(w("index.html", page.html));
   files.push(w("server.mjs", fs.readFileSync(path.join(here, "app-template", "server.mjs"))));
   // the wall imports the key-referent layer by its repo path; in the bundle both sit in lib/
-  files.push(w("lib/unit-wall.mjs", fs.readFileSync(path.join(here, "unit-wall.mjs"), "utf8").replace('"../organs/key-referents.js"', '"./key-referents.js"')));
+  files.push(w("lib/unit-wall.mjs", fs.readFileSync(path.join(here, "unit-wall.mjs"), "utf8").replace('"../organs/key-referents.js"', '"./key-referents.js"').replace('"../organs/cards.js"', '"./cards.js"')));
   files.push(w("lib/key-referents.js", fs.readFileSync(path.join(here, "..", "organs", "key-referents.js"))));
+  files.push(w("lib/cards.js", fs.readFileSync(path.join(here, "..", "organs", "cards.js"))));
   files.push(w("lib/compose.mjs", fs.readFileSync(path.join(here, "app-compose.mjs"))));
   files.push(w("lib/stigmergy.js", fs.readFileSync(path.join(here, "..", "kernel", "stigmergy.js"))));
   const manifest = {

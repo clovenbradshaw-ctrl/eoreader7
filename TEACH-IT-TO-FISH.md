@@ -76,6 +76,7 @@ as an organ but not yet reachable from the prompt, **L**earned (the prompt alone
 | 10 | **Repair loops that repeat themselves** — a mouth returning byte-identical code after being shown the failure. | Notice, stop spending rounds on it, and route by trails (stigmergy) — never by size. | **B** (`makeUnit` skips identical redraws) |
 | 11 | **Provider failure** — Overpass was unreachable through the egress relay mid-run. | Rank providers by learned trails at run time and fall back (a second station source, Nominatim, was added by hand). | **B** in the generated app; **S** for choosing the fallback |
 | 12 | **Vision ceiling on CPU** — one 720×1280 read takes 265–375 s against a 120 s timeout. | Measure the box and size the budget; say what it cost. | **S** (`ER7_VISION_TIMEOUT_MS`) |
+| 13 | **Arithmetic and formatting the small model re-implements wrongly** — measured on the first six leaves from 1.5B/2B coders with only the referent layer on (gen3, 2026-09-30): 0 of 6 verified. The failures were operations, not ideas: a temperature unit chosen wrongly, a compass bearing turned into index `8` for `"S"`, a clock time printed `0000:00`, "undefined" inside a joined label, `deg2rad is not defined`, a `const` reassigned. | Hold the operations as **cards** made out once and verified against independent values; the model is asked only to CALL the right one, and a near name resolves to the one card it means (§4b). Lovelace's own formulation: *the operations and the things operated on are separate*. | **B → in the path** — `organs/cards.js` (12 cards, pinned by `cards.test.mjs`), declared into the unit wall before a unit's code, listed in the unit prompt, copied into the generated app. Open: the card list is hand-made — the wall records every call that matched no card (`unresolved`), and that record is the work list for the next card |
 
 Add a row for every steer. Move a row to **L** only when a fresh prompt-only run proves it.
 
@@ -108,6 +109,32 @@ key the object **really has** and records that it did:
 comp label ↔ source key ↔ output name (row 6); **pointing** for ambiguities — the small model picks one candidate
 by index, it never writes the key; and a learned-alias trail (stigmergy) so a resolution that passed its test is
 remembered for the next schema.
+
+## 4b. The cards (row 13) — *the operation is not the thing operated on*
+
+`native/organs/cards.js`, bound in `native/the-fold/unit-wall.mjs` (`cardPrelude`).
+
+> *"A card made out once covers an infinite number of particular cases."* — the Analytical Engine's own division of
+> labour: the operations are separate from the variables they are applied to.
+
+What a 1.5B–2B coder gets wrong is almost never the idea. It is the arithmetic and the formatting it was asked to
+re-implement from nothing every time. So those operations are written **once**, verified against values written down
+independently of the code (`cards.test.mjs`: 0 °C = 32 °F, 172.8° = `S`, `"300"` = `03:00`, London–Paris ≈ 344 km), and
+declared into the unit's empty-context vm *before* the unit's code. The model is asked to call, not to compute.
+
+- **Resolved, not guessed.** A called name goes through the same wall as a read key (`resolveCard`): exact, same
+  letters, truncation, abbreviation, then the words of the card's name in order (`toFahrenheit` and `cToF` are
+  `celsiusToFahrenheit`; `round` is `roundTo`). Exactly one card or nothing. `mph` starts three conversions and names
+  none — a typed ambiguity, the read stays a `ReferenceError` the model is shown.
+- **Recorded both ways.** Every binding is written with its basis; every call that matched **no** card is written as
+  `unresolved`. That second list is how the system finds out which card to make out next — the work list is the
+  record, not a person's guess (still a person writes the card; closing *that* is row 13's open half).
+- **The unit's own code wins.** A unit that declares its own `compass16` (function or `const`) keeps it; nothing is
+  redeclared.
+- **Not a hole in the wall.** The cards are plain function declarations in the same empty context: no `process`, no
+  `require`, no `fetch`.
+- **A control arm.** `loadUnit(code, name, { cards: false })` and `contract.cards === false` exist so the effect can be
+  measured with and without, per leaf, on the same mouths.
 
 ## 5. Where this stands
 
