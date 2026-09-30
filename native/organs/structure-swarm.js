@@ -14,6 +14,7 @@ export const TRANSFORMS = Object.freeze(["diff1", "diff8", "diff64", "fast4", "f
 export const STATS = Object.freeze(["std", "skew", "kurt", "acf1", "acf8", "acf64", "slope", "peak", "trend"]);
 export const MAX_DEPTH = 3;        // declared: transforms per pipeline
 export const Z_OK = 3;             // declared: a pipeline that clears this against its null lays a trail (the search-aware ceiling decides what is REPORTED)
+export const EXPLORE = 0.35;       // declared: chance an ant scouts a random allowed move instead of following the strongest trail (kernel's own 10% only ever reorders the FIRST hop)
 export const ROUNDS = 3, ANTS = 24; // declared: a colony is ROUNDS generations of ANTS ants
 const lcg = (seed) => { let s = seed >>> 0 || 1; return () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296); };
 const key = (spec) => spec.join(">");
@@ -25,8 +26,9 @@ export function walk(trails, { rng, now, tried = new Set() }) {
     for (let d = 0; ; d++) {
       const head = prev ? `swarm|after:${prev}` : "swarm|start";
       const routes = d >= MAX_DEPTH ? [...STATS] : [...TRANSFORMS, ...STATS];
-      const order = routeOrderFor(trails, head, { now, routes, rng }).filter((r) => routes.includes(r)); // a trail may name a move this step no longer allows
-      const step = order[Math.min(attempt > 6 ? Math.floor(rng() * order.length) : 0, order.length - 1)];
+      // a trail may name a move this step no longer allows; and repeating the move just made (differencing twice, detrending twice) is a variant, not a discovery
+      const order = routeOrderFor(trails, head, { now, routes, rng }).filter((r) => routes.includes(r) && r !== prev);
+      const step = rng() < EXPLORE || attempt > 6 ? order[Math.floor(rng() * order.length)] : order[0];
       spec.push(step); if (STATS.includes(step)) break; prev = step;
     }
     if (!tried.has(key(spec))) return spec;
@@ -53,8 +55,12 @@ export async function colony({ evalBatch, ceilingOf, trails = {}, rounds = ROUND
   const ceiling = await ceilingOf(all.map((x) => x.spec), seed);
   const found = [];
   for (const x of all) for (const nul of ["shuffle", "phase"]) { const z = x[`z_${nul}`] ?? 0; if (z > ceiling[nul] && x.stat != null) found.push({ spec: x.spec, null: nul, z, stat: x.stat, gloss: x.gloss, over: z / Math.max(ceiling[nul], 1e-9) }); }
-  // Redundancy: many pipelines see one thing. Keep the strongest two per (final statistic, null), then the ten strongest overall.
-  const seen = new Map(); const structures = [];
-  for (const f of found.sort((a, b) => b.z - a.z)) { const k = `${f.spec.at(-1)}|${f.null}`; const n = seen.get(k) ?? 0; if (n < 2) { seen.set(k, n + 1); structures.push(f); } }
-  return { trails: t, tried: all.length, results: all, ceiling, structures: structures.slice(0, 10), foundBeforeDedupe: found.length, log };
+  // Redundancy: many pipelines see one thing. Per null, keep the strongest two per final statistic (parsimony-ranked), then cap the null's list.
+  // A find that beats only the SHUFFLE null says "order matters" — true of any correlated series — so it is capped lower than one that beats the
+  // PHASE null (nonlinear structure the spectrum cannot explain), which is the informative kind.
+  const rank = (f) => f.z / (1 + 0.25 * (f.spec.length - 1)), CAP = { phase: 5, shuffle: 3 };
+  const seen = new Map(), per = { phase: 0, shuffle: 0 }, structures = [];
+  for (const f of found.sort((a, b) => rank(b) - rank(a))) { const k = `${f.spec.at(-1)}|${f.null}`; const n = seen.get(k) ?? 0; if (n < 2 && per[f.null] < CAP[f.null]) { seen.set(k, n + 1); per[f.null]++; structures.push(f); } }
+  structures.sort((a, b) => (b.null === "phase") - (a.null === "phase") || rank(b) - rank(a));
+  return { trails: t, tried: all.length, results: all, ceiling, structures, foundBeforeDedupe: found.length, log };
 }

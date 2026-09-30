@@ -198,7 +198,15 @@ export function jsCheckSyntax(text, fileName = "check.js") {
   if (script === null || script.ok) return script;
   const mod = nodeCheckOnce(text, true);
   if (mod === null) return null;
-  return mod.ok ? mod : script;
+  // Both goals failed: script-mode's own failure is the ONLY reason module
+  // mode ever runs, so once we're here, module mode's diagnosis is the
+  // relevant one even when it also fails — never fall back to script's
+  // error, which for any import/export-using file is always the same
+  // generic "Unexpected token" regardless of the file's REAL problem
+  // (measured live: this masked a genuine, unrelated syntax error several
+  // lines later behind an identical, wrong message on every one of 5
+  // consecutive rounds).
+  return mod;
 }
 
 // ---------------------------------------------------------------------------

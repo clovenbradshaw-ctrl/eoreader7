@@ -713,6 +713,15 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       // W&P and Alice). The source is still named on the edge for
       // provenance; the identity is never derived from it or position.
       const sourceScope = String(encounter.source ?? "text");
+      // THE BYTE ADDRESS (2026-09-29, the provenance wiring): rel.offset is
+      // sentence-relative (match.index in the encounter's material), so the
+      // edge carries the ABSOLUTE byte offset too — the encounter anchor's
+      // start plus the relation offset. scope.offset stays the relative
+      // position (edge identity); scope.byteOffset is the address downstream
+      // renders as `source#start`. Never a guessed address: when the anchor
+      // or the offset is absent, byteOffset is null and the note carries no
+      // span — the holograph renders the typed gap instead.
+      const encounterBase = Number(encounter?.anchor?.start);
       const edges = relations.map((rel, index) => {
         // content-addressed: the edge's own content (source, relation,
         // subject, object, offset) IS its identity — same content dedups,
@@ -734,7 +743,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
             resolveParticipant(rel.end2 ?? rel.object, cache.matcher, sequencePosition, index, "end2"),
           ],
           witness: ewit,
-          scope: { sequencePosition, offset: rel.offset },
+          scope: { sequencePosition, offset: rel.offset, byteOffset: (Number.isFinite(encounterBase) && Number.isFinite(rel.offset)) ? encounterBase + rel.offset : null },
           eo: { op: rel.grain?.operator ?? "CON", grain: grain ?? "Figure" },
         // compositionStanding: whether this relation FORM is eligible to be
         // carried as portable experience or composed with another relation.

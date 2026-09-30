@@ -210,10 +210,24 @@ export async function blindspotFindings(code, { language = "python" } = {}) {
       findings = webBlindspots(code);
     }
   } catch (e) {
-    return { findings: [], error: String(e?.message ?? e), basis: "blindspot archon (Popper) — scan failed (disclosed)" };
+    return { findings: [], examined: false, error: String(e?.message ?? e), basis: "blindspot archon (Popper) — scan failed (disclosed)" };
+  }
+  // The JS path is a single-pattern scan, not the full AST + taint analysis
+  // the python path runs — disclosed on the record (coverage + gap), never a
+  // silent whole-view claim. The python path already discloses its own
+  // residue the same way (`unparseable` findings when the code does not parse).
+  if (language !== "python") {
+    return {
+      findings,
+      examined: true,
+      coverage: "single-pattern",
+      gap: "js-blindspot-partial",
+      basis: "blindspot archon (Popper) — the whole-view properties a single window cannot hold (unfalsifiable tests, timing-unsafe compares, leaked resources, and cross-function taint paths); a witness, never a proof",
+    };
   }
   return {
     findings,
+    examined: true,
     basis: "blindspot archon (Popper) — the whole-view properties a single window cannot hold (unfalsifiable tests, timing-unsafe compares, leaked resources, and cross-function taint paths); a witness, never a proof",
   };
 }

@@ -133,6 +133,16 @@ test("jsCheckSyntax: broken JS fails with node's own line number", () => {
   assert.equal(later.error.lineno, 4);
 });
 
+test("jsCheckSyntax: an export-using file's REAL error wins, not the generic script-mode 'export' rejection (2026-09-29, measured live)", () => {
+  const bad = jsCheckSyntax(
+    'export function parseFeed(xmlText) {\n  const items = xmlText.match(/x/g);\n  const bad = "y".match(/<enclosure url="([^"]+)" type="audio\\/mpeg"/>/);\n  return items;\n}\n',
+    "x.js",
+  );
+  assert.equal(bad.ok, false);
+  assert.doesNotMatch(bad.error.msg, /export/i);
+  assert.equal(bad.error.lineno, 3);
+});
+
 test("jsCheckSyntax: error shape is exact, missing fields null never invented", () => {
   const bad = jsCheckSyntax("const x = ;\n", "x.js");
   assert.deepEqual(Object.keys(bad.error).sort(), ["line", "lineno", "msg", "offset"]);

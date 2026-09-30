@@ -116,6 +116,14 @@ export const CAPACITIES = Object.freeze([
     what: "the interpretive ground of a judgment, declared before the judgment runs — a declaration gate with typed refusals (undeclared_frame naming every missing piece), content-addressed frame ids stamped onto verdicts, and the cross_frame wall: verdicts from different declared grounds never compare silently (the live specimen: one suite reading 54/58 under one engine provider and 52/58 under the other, invisible until the frame was declared). Typing: Differentiate·Interpretation at Ground grain — DEF·Atmosphere, Clearing. BUILT FROM ITS DEPTH-SIBLINGS by pre-registered derivation (def-ground-derivation.md, committed before the module) — NUL·Ground's declared-numbers gate and SEG·Ground's extent-and-units, transposed to the calculus column; the sibling-derived design passed its own e2e (both real providers as two frames over one material) UNMODIFIED, which is §VIII.2's first earned point.",
   }),
   Object.freeze({
+    id: "setting",
+    terrain: "Atmosphere",
+    op: "DEF",
+    module: "eoreader7/native/organs/tschichold.js",
+    fn: "readSetting",
+    what: "the TYPOGRAPHIC ground a reading stands on, read off the bytes before any word is read and declared THROUGH frame.js's declareFrame (reader, bench giver, the setting's own numbers — wrap width, baseline indent, rules fired, level 1/T) — so two readings set differently meet the cross_frame wall instead of comparing silently. Registered 2026-09-28 (Tschichold) from a measured specimen: folding the archons' originals out of live_priors, the most 'distinctive' typographic facts were the EDITIONS' (Wikisource's one-space indent vs Gutenberg's two, the editor's line numbers, page UI inside headings, a doubled fetch), and the-fold/medium.js read first words as blank on 98–100% of lines in 19 of 57 works (ASCII classes). Rules are primitives over bytes plus a bench (live_priors/derived-priors/typography-priors) learned from originals and CV looks, each falsified on similar-but-not-identical material; two passes — the edition's artifacts removed before the author's conventions are read. Typing: Differentiate·Interpretation at Ground grain — DEF·Atmosphere, Clearing, the same cell as `frame`, which it composes rather than duplicates.",
+  }),
+  Object.freeze({
     id: "priors",
     terrain: "Lens",
     op: "DEF",
@@ -507,6 +515,37 @@ export const CAPACITIES = Object.freeze([
     module: "eoreader7/native/adapters/code/code-time.js",
     fn: "codeTime",
     what: "Partee's organ (kernel/temporal-reference.js, UNCHANGED) reading a program: a declaration establishes a binding's time and advances that name's ground, a reference resolves against the name's live grounds, a use before its declaration is the organ's own typed no_candidate. The modality-transfer proof (eval/lavar/modality-transfer.mjs, 2026-09-25): three wirings into text never moved the referred-time organ under sentence reversal; in code, on every file, reversed statement order lands bound and no_candidate rows outside every shuffled draw (arrow.js: bound 146→53 against 81–105, gaps 25→118 against 66–90) — reversal is worse than disorder because every use is then before its definition. Same cell as narrative-time: the advance is the ambient ground every later reference reads against. Statements are lines, hoisting reads as source order, both said in the file.",
+  }),
+
+  // ── the what organ (2026-09-16) ────────────────────────────────────────
+  // Reconstructing what a GIANT code hunk IS — a minified bundle, a build
+  // artifact — from its own structural bytes: the module map (Vite deps /
+  // hashed asset names / imports), the vendor stack (library and bundler
+  // fingerprints in the bytes), the feature modules, endpoint/route literals,
+  // declaration banners, and the source syntax's own declared names (codeGist,
+  // dmdCut injected). Answer is an account of the bytes, never a verdict; a
+  // giant hunk is scanned within a declared window with every skipped byte
+  // disclosed. Typing reasoned per this table's own hand-check discipline:
+  // declaring the artifact's identity from structural evidence is
+  // Differentiate·Interpretation at Figure grain — DEF·Lens, the same cell
+  // `interlocutor` and `priors` occupy for who-is-speaking, here for
+  // what-is-this. Reference-only (module: what.js; runs through a caller
+  // composing it, not through capacity-runner.js).
+  //
+  // Restored 2026-09-29 from the 2026-09-23 WIP stash ("WIP on main:
+  // a97497a") that stranded it: organs/what.test.mjs has pinned this row
+  // since the organ was published (b07545d), whose "17/17" only holds on a
+  // tree carrying the row uncommitted. The same stash holds the organ's
+  // drafted Reading-Spec entries, never committed; their numbers have since
+  // gone to other entries, so the "S129" in what.js and what.test.mjs does
+  // not name this organ's own, and this row cites none.
+  Object.freeze({
+    id: "what",
+    terrain: "Lens",
+    op: "DEF",
+    module: "eoreader7/native/organs/what.js",
+    fn: "whatIsThis",
+    what: "what IS this giant hunk — the archon of artifact identity (Cuvier: 'show me a bone and I will reconstruct the beast'): a giant minified bundle's own structural bytes (module map, vendor stack, feature modules, endpoint literals, banners, declared names) reconstructed into an account of what the artifact IS, with every byte skipped disclosed and every claim byte-anchored. The same reconstruction also reads a GraphQL schema artifact (introspection JSON): type inventory, root operations, Connection pagination, mutation Payloads, enums, unions, domain vocabulary, mutation verbs. The admission fix that makes a 3.2 MB bundle step-able is adapters/code/encounters.js (codeEncounters, never a 1.8 MB 'sentence').",
   }),
 ]);
 

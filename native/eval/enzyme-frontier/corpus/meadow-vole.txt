@@ -1,0 +1,21 @@
+# The meadow vole — a stable grounding fixture
+# (written 2026-09-29 FOR this eval; fixture prose, not a world claim.
+# Grounding is checked against THESE BYTES, never the world.)
+
+The meadow vole (Microtus pennsylvanicus) is a small rodent of the
+northeastern grasslands. Adults weigh between 33 and 65 grams, and the
+body measures 8 to 13 centimeters without the tail.
+
+Voles eat grasses, sedges, and the bark of young saplings in winter.
+They cut runways through the thatch — narrow clipped paths, an inch
+wide — and line their nests with shredded grass. A single meadow may
+hold forty voles to the acre in a peak year.
+
+Breeding runs from March through October. A female bears litters of
+four to six pups, and the pups open their eyes on the eighth day. Owls,
+hawks, foxes, and weasels hunt the vole; the short-eared owl takes more
+voles than any other predator in these fields.
+
+The vole does not hibernate. Under the snow it keeps its runways open,
+feeding on cached stems through the cold months. Spring melt floods the
+low runways, and the colony rebuilds on higher ground.

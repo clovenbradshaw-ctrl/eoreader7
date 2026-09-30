@@ -53,10 +53,10 @@ export function anthropicConfigured() {
   return ANTHROPIC_ON && Boolean(apiKey());
 }
 
-function anthropicHeaders() {
+function anthropicHeaders(overrideKey) {
   return {
     "content-type": "application/json",
-    "x-api-key": apiKey(),
+    "x-api-key": overrideKey || apiKey(),
     "anthropic-version": ANTHROPIC_VERSION,
   };
 }
@@ -251,10 +251,10 @@ async function* readSse(res, signal) {
 export async function* streamAnthropicText(
   { modelID },
   messages,
-  { maxTokens = 1024, kelsen = null, signal = null, onNote = null, timeoutMs = ANTHROPIC_TIMEOUT_MS } = {},
+  { maxTokens = 1024, kelsen = null, signal = null, onNote = null, timeoutMs = ANTHROPIC_TIMEOUT_MS, apiKeyOverride = null } = {},
 ) {
   if (!modelID) throw new Error("streamAnthropicText: modelID required");
-  if (!anthropicConfigured()) throw new Error("streamAnthropicText: ANTHROPIC_API_KEY is not set");
+  if (!apiKeyOverride && !anthropicConfigured()) throw new Error("streamAnthropicText: ANTHROPIC_API_KEY is not set");
   const { system, messages: anthropicMessages } = toAnthropicMessages(messages);
   if (!anthropicMessages?.length) throw new Error("streamAnthropicText: empty prompt");
 
@@ -276,7 +276,7 @@ export async function* streamAnthropicText(
     try {
       res = await fetch(`${ANTHROPIC_URL}/v1/messages`, {
         method: "POST",
-        headers: anthropicHeaders(),
+        headers: anthropicHeaders(apiKeyOverride),
         signal: pctrl.signal,
         body: JSON.stringify({
           model: modelID,

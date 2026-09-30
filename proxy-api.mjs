@@ -288,8 +288,34 @@ export function humanizeNote(note) {
         : note.operator === "CONTENT+FIELD"
           ? `Surfaced via the address ladder + the field's resemblance (${note.fan} total, ${note.boost} by resemblance).`
           : `Surfaced material via ${note.operator} (${note.fan} candidate window(s)).`;
-    case "void":
+    case "void": {
+      // A5: the void note is NOT one shape — a caller may attach the
+      // measured subtype ({kind, power, verdict}) and it must read
+      // distinctly in plain language. No thresholds invented here: the
+      // mapping renders only what the note carries; absent subtype falls
+      // back to the legacy gap/reason line.
+      const sub = note?.kind === "reach" && note?.power === "unknown"
+        ? "reach-unknown"
+        : note?.kind === "scan" && note?.verdict === "insufficient"
+          ? "insufficient scan"
+          : note?.verdict === "tied"
+            ? "tied evidence"
+            : note?.power === "unmeasured" || note?.kind === "unmeasured"
+              ? "unmeasured"
+              : null;
+      if (sub) return `Nothing addressed the question (${sub}${note.gap ? ` — ${note.gap}` : ""}${note.reason ? `: ${note.reason}` : ""}).`;
       return `Nothing addressed the question (${note.gap}${note.reason ? `: ${note.reason}` : ""}).`;
+    }
+    // A6: a ledger born without a declared frame is surface-silent unless
+    // named — frameOf reports {gap:"no_frame"} and never invents one
+    // (native/kernel/notes.js). The thinking panel must carry the gap.
+    case "no_frame":
+      return note.detail ? `No frame declared — ${note.detail}.` : `No frame declared — the reading stood nowhere in particular.`;
+    // A6: expectation_violated rides through as the record's own words —
+    // a passthrough, never a paraphrase (the frame is supposed to record
+    // interpretations, not perform them).
+    case "expectation_violated":
+      return note.detail ?? note.description ?? `An expectation was violated${note.basis ? ` — ${note.basis}` : ""}.`;
     case "composed":
       return `Composed ${note.relations} relation edge(s), ${note.bindings} referent binding(s), ${note.hyperlexicon} hyperlexicon entr${note.hyperlexicon === 1 ? "y" : "ies"}.`;
     case "wiki_lookup":
@@ -457,12 +483,47 @@ export function humanizeNote(note) {
 // prose itself is well-formed. This is additive only — a case where a
 // mechanism won the race, or a claim actually bound to a source, is
 // untouched.
+// LAW 6 — the mouth relays a void, never declares one (2026-09-29). The
+// grounding gate above voids a model-winner with zero bound claims; this
+// detector is its prose-side companion: a PURE regex over the mouth's own
+// text that names emptiness claims ("nothing else", "no mention",
+// "there is no", "never mentioned") so a caller holding
+// void.satisfied===false can keep them tagged as unclaimed. It NEVER blocks
+// prose — it only reports. /v1/ask already returns void.satisfied +
+// disclosed.unchecked alongside the answer (proxy.mjs gatedReading site),
+// verified 2026-09-29 — the gate is callable, the prose untouched.
+export const MOUTH_VOID_CLAIM_RE = /nothing else|no .*mention|there is no|never mentioned/i;
+
+export function mouthVoidClaim(text) {
+  const s = String(text ?? "");
+  const voidClaim = MOUTH_VOID_CLAIM_RE.test(s);
+  return { voidClaim, basis: voidClaim ? "the mouth's own prose claims emptiness — relayed, never a ledger void" : null };
+}
+
 export function groundingGate(readingObj, race) {
   if (!readingObj || !race) return readingObj;
   const claimsCount = readingObj.reading?.claims?.length ?? readingObj.claims?.length ?? 0;
   if (race.winner === "model" && claimsCount === 0) {
-    if (readingObj.void) readingObj.void = { ...readingObj.void, satisfied: false };
-    if (readingObj.satisfaction) readingObj.satisfaction = { ...readingObj.satisfaction, ok: false };
+    if (readingObj.void) readingObj.void = { ...readingObj.void, satisfied: false, basis: "the grounding gate: no claim bound to a source — an unchecked model guess never satisfies a void" };
+    if (readingObj.satisfaction) {
+      const prior = readingObj.satisfaction;
+      // THE GATE DISCLOSES ITSELF (2026-09-29, falsified by the podcast
+      // proof): ok used to flip to false while failures stayed empty and
+      // basis kept claiming "compiles and runs clean" — three fields in the
+      // same object disagreeing about the same verdict. The gate's reason
+      // now rides the fields it changes: a failure of kind `ungrounded`, a
+      // counted strain, and a basis that names the gate and why it fired.
+      const alreadyGated = (prior.failures ?? []).some((f) => f?.kind === "ungrounded");
+      readingObj.satisfaction = {
+        ...prior,
+        ok: false,
+        ...(alreadyGated ? {} : {
+          failures: [...(prior.failures ?? []), { kind: "ungrounded", detail: "no claim bound to a source — the grounding gate flips ok to false; the mechanical score above stands only as mechanics, never as standing" }],
+          totalStrain: (prior.totalStrain ?? 0) + 1,
+        }),
+        basis: `${prior.basis ?? "satisfaction"} — GROUNDING GATE: no claim bound to a source, so ok is false; the mechanical verdict is disclosed, never the standing`,
+      };
+    }
     readingObj.disclosed = {
       ...(readingObj.disclosed ?? null),
       unchecked: true,
@@ -483,11 +544,34 @@ export function groundingGate(readingObj, race) {
 // result`) is the fix itself: a narrow-but-present `result.reading` can never
 // again cause void/satisfaction to be silently dropped.
 export function gatedReading(result, race) {
-  return groundingGate({
+  // A6: the frame gap rides as passthrough — result.frameGap is frameOf's
+  // own output ({gap:"no_frame"} or {declared,...}), null when the caller
+  // supplied none. Never invented here (proxy-api stays pure: no engine
+  // imports); a missing gap is a typed absence, never a guessed frame.
+  // Verified 2026-09-29: /v1/ask returns void.satisfied + disclosed.unchecked
+  // beside the answer via this shared pick — the caller can gate on them.
+  const gated = groundingGate({
     void: result?.void ?? null,
     satisfaction: result?.satisfaction ?? null,
     reading: result?.reading ?? null,
+    frameGap: result?.frameGap ?? result?.frame ?? null,
   }, race);
+  // A1-close: an emptiness claim in the mouth's own prose with no satisfied
+  // void on the ledger is tagged, never blocked. Falsifier: prose claiming
+  // emptiness beside a satisfied void, or non-emptiness prose, carries none.
+  try {
+    const text = result?.text ?? race?.text ?? "";
+    const { voidClaim } = mouthVoidClaim(text);
+    const satisfied = gated?.void?.satisfied ?? null;
+    if (voidClaim && satisfied === false) {
+      gated.disclosed = {
+        ...(gated?.disclosed ?? null),
+        unclaimedEmptiness: true,
+        unclaimedEmptinessBasis: "the mouth's prose claims emptiness with no satisfied void on the ledger — relayed prose, never a ledger finding",
+      };
+    }
+  } catch { /* tagging never breaks the gate */ }
+  return gated;
 }
 
 export function openAIResponse({ id, model, text, created, usage, reading }) {

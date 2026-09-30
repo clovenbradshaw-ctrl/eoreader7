@@ -80,6 +80,19 @@ export function createForWhom({ id, giver = null, question = null, ground = null
   });
 }
 
+/** encounterOrder(a, b) — READING order for encounter keys. Keys that end in a
+ * byte address ("source#start-end") compare by source, then by START AS A
+ * NUMBER; a string sort put "s#100-109" before "s#20-29" and scrambled the
+ * discovery trajectory the coherence leg decomposes (measured 2026-09-28: a
+ * true 1,2,3,4,5 read back as 1,2,4,3,5). Keys with no address fall back to
+ * the string order they always had. */
+const ADDR = /^(.*)#(\d+)-(\d+)$/;
+function encounterOrder(a, b) {
+  const x = ADDR.exec(a), y = ADDR.exec(b);
+  if (x && y) return x[1] === y[1] ? Number(x[2]) - Number(y[2]) || Number(x[3]) - Number(y[3]) : x[1].localeCompare(y[1]);
+  return a.localeCompare(b);
+}
+
 /** questionTerms(question) — the question's content terms: the beings and
  * acts it asks about. A for-whom is relevant only if its reading touches
  * these. Pure. */
@@ -134,11 +147,11 @@ export function foldForWhom(fold, entry) {
  * count, and the DMD coherence from the folded trajectory. Nothing here
  * re-scans the entries the fold has already absorbed. */
 export function gateForWhomFold(fold, { nullDraws = 40, nullSeed = 42, minDiscovered = 0, minRelevance = 0, minTrajectoryLength = 12 } = {}) {
-  const trajectory = Object.freeze([...fold.byEncounter.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([, n]) => n));
+  const trajectory = Object.freeze([...fold.byEncounter.entries()].sort((a, b) => encounterOrder(a[0], b[0])).map(([, n]) => n));
   const real = coherentMass(trajectory);
   const floor = trajectoryNull(trajectory, { draws: nullDraws, seed: nullSeed });
   const totalDiscovered = fold.totalDiscovered;
-  const relevance = fold.qTerms.length ? fold.relevantDiscovered / totalDiscovered : 0;
+  const relevance = fold.qTerms.length && totalDiscovered ? fold.relevantDiscovered / totalDiscovered : 0; // nothing discovered is 0, never NaN
   // THE COHERENCE LEG NEEDS A REAL TRAJECTORY (2026-09-13, measured): a
   // rank-1 DMD on <12 points collapses real and null both to ~1.0 — the
   // leg is not evaluable, not "noise". Below the declared minimum, the
@@ -146,7 +159,7 @@ export function gateForWhomFold(fold, { nullDraws = 40, nullSeed = 42, minDiscov
   // gate falls to the two legs that ARE evaluable (material + relevance).
   const evaluable = trajectory.length >= minTrajectoryLength;
   const coherent = evaluable ? real > floor : true; // withheld, not refused
-  const material = totalDiscovered >= minDiscovered;
+  const material = totalDiscovered >= Math.max(1, minDiscovered); // a reading that found nothing never found the text (structural floor of 1; the caller may raise it)
   const relevant = fold.qTerms.length ? relevance >= minRelevance : true;
   const admitted = coherent && material && relevant;
   return Object.freeze({
@@ -209,7 +222,7 @@ export function discoveryTrajectory(entries = []) {
     if (!byEnc.has(enc)) byEnc.set(enc, 0);
     if (e?.schema === "EOHyperedge@1" || e?.schema === "EOReferent@1" || e?.schema === "EOMention@1") byEnc.set(enc, byEnc.get(enc) + 1);
   }
-  return Object.freeze([...byEnc.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([, n]) => n));
+  return Object.freeze([...byEnc.entries()].sort((a, b) => encounterOrder(a[0], b[0])).map(([, n]) => n));
 }
 
 /** coherentMass(trajectory) — the Born-rule coherent mass of the

@@ -115,6 +115,9 @@ export function facingRows(holo, cols) {
   right.push("THE RESPONSE — sentence · source");
   right.push("  ");
   const prose = holo.prose ?? [];
+  // A3: a ledger void is an explicit record (holo.voids / holo.void) — its
+  // absence beside a voidClaim sentence is the finding, stated mechanically.
+  const ledgerVoid = Array.isArray(holo.voids) ? holo.voids.length > 0 : Boolean(holo.void ?? holo.inspiredBy?.void);
   if (!prose.length) {
     right.push("  (no prose in this artifact)");
   }
@@ -127,6 +130,9 @@ export function facingRows(holo, cols) {
       right.push(`${prefix}${l}`);
     });
     if (!grounded) right.push(`     (the mouth's own prose — self:model)`);
+    // A3: [M]-as-void vs [M]-as-prose — a self:model sentence claiming
+    // emptiness with no void on the ledger is tagged, never promoted.
+    if (!grounded && s.voidClaim && !ledgerVoid) right.push(`     (unclaimed emptiness — no void on ledger)`);
     else if (s.groundedOn) right.push(`     grounded on “${s.groundedOn}”`);
     right.push("  ");
   });

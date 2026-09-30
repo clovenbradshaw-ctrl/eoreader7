@@ -101,11 +101,15 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     // Backward-compatible on the witness adapter's own return shape: a bare
     // array (witness()'s existing contract — e.g. a caller-supplied
     // adapters.witness, as tests/fold-transient.test.js's does) carries no
-    // refusal list, so `refused` stays null and nothing below activates. The
+    // refusal list, so `refused` stays null (never a fabricated []) and
+    // `witnessContract` discloses "bare-array, refusals unknown" — a caller
+    // gating on refusals must read the contract, not `refused.length`. The
     // DEFAULT adapter now calls witnessVerbose() instead of witness() — same
     // admission logic, so `observations` is byte-identical either way — which
-    // is what makes a refusal list available to fold into exclusions.
+    // is what makes a refusal list available to fold into exclusions
+    // (`witnessContract` is then "verbose").
     const witnessResult = await (adapters.witness ?? defaultWitnessVerbose)(currentEncounter, challengedCandidates, { admit: adapters.admit });
+    const witnessContract = Array.isArray(witnessResult) ? "bare-array, refusals unknown" : "verbose";
     const observations = Array.isArray(witnessResult) ? witnessResult : (witnessResult?.observations ?? []);
     const refused = Array.isArray(witnessResult) ? null : (witnessResult?.refused ?? null);
 
@@ -176,7 +180,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     if (exclusionDelta) indexHypergraphEntries(graphIndex, deltaGraph(exclusionDelta, fold));
     const taskUpdate = proposeObligationTasks(tasks, fold); tasks = taskUpdate.log;
 
-    return Object.freeze({ encounter: currentEncounter, orientation, candidates, challenge, observations, refused: Object.freeze(refused ?? []), awakenedTasks, scheduledTasks, taskEvidence, proposedTasks: taskUpdate.proposed, tasks: Object.freeze(projectTasks(tasks)), relevantFold: neighborhood, interrogation, deltaFold: canonicalDelta, get fold() { return fold === tip ? tip : reconstruct(log.slice(0, at), seed); }, surprise: deriveSurprise(canonicalDelta), tension: deriveTension(fold), release: deriveRelease(canonicalDelta, beforeFold, fold), ...(adapters.latent ? { latentLean } : {}) });
+    return Object.freeze({ encounter: currentEncounter, orientation, candidates, challenge, observations, refused: refused == null ? null : Object.freeze(refused), witnessContract, awakenedTasks, scheduledTasks, taskEvidence, proposedTasks: taskUpdate.proposed, tasks: Object.freeze(projectTasks(tasks)), relevantFold: neighborhood, interrogation, deltaFold: canonicalDelta, get fold() { return fold === tip ? tip : reconstruct(log.slice(0, at), seed); }, surprise: deriveSurprise(canonicalDelta), tension: deriveTension(fold), release: deriveRelease(canonicalDelta, beforeFold, fold), ...(adapters.latent ? { latentLean } : {}) });
   }
 
   async function read(encounters = []) { const turns = []; for (const item of encounters) turns.push(await step(item)); return Object.freeze({ turns, fold, tasks: Object.freeze(projectTasks(tasks)), taskLog: tasks, log: [...log] }); }

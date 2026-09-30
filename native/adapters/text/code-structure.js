@@ -388,7 +388,13 @@ export function codeGist({ index, question = "", dmdCut, prior = null, languageP
   // baseline shows recurs across >= genericFloor independent real repos.
   // Ordered by call-graph degree — the structural signal, not frequency of
   // the identifier as a bare string.
-  const distinctiveNames = [...index.entities.keys()].filter((n) => !isGeneric(n));
+  // An explicitly asked-about name is exempt from the generic drop — the
+  // filter exists so the DMD budget isn't spent on boilerplate nobody asked
+  // about; a name the question itself names by exact identifier is, by
+  // definition, not that (measured bug: a task naming a real, buggy `run()`
+  // got zero declared rows back, because `run` is independently generic
+  // across real repos and was dropped before `asked` was ever consulted).
+  const distinctiveNames = [...index.entities.keys()].filter((n) => asked.has(n) || !isGeneric(n));
   const declaredRows = distinctiveNames
     .map((name) => ({ name, ids: new Set([name]), degree: degreeOf(index, name), file: index.fileOf(name) }))
     .sort((a, b) => b.degree - a.degree);
@@ -399,13 +405,13 @@ export function codeGist({ index, question = "", dmdCut, prior = null, languageP
   // "calls" rows: edges between distinctive names, same pre-filter, ordered
   // by witnessed count (real call-site occurrences, not an assumption).
   const edgeRows = index.edges
-    .filter((e) => !isGeneric(e.caller) && !isGeneric(e.callee))
+    .filter((e) => (asked.has(e.caller) || !isGeneric(e.caller)) && (asked.has(e.callee) || !isGeneric(e.callee)))
     .map((e) => ({ caller: e.caller, callee: e.callee, count: e.count, ids: new Set([e.caller, e.callee]) }))
     .sort((a, b) => b.count - a.count);
   const activeForCalls = asked.size ? asked : new Set(edgeRows.slice(0, 1).flatMap((r) => [...r.ids]));
   const callsCut = dmdCut(edgeRows, activeForCalls, { reachOf: (r) => [...r.ids] });
 
-  const genericDropped = [...index.entities.keys()].filter(isGeneric);
+  const genericDropped = [...index.entities.keys()].filter((n) => !asked.has(n) && isGeneric(n));
   const splitLangs = languagePriors ? Object.keys(languagePriors).filter((k) => languagePriors[k]) : [];
   return {
     declared: declaredCut,

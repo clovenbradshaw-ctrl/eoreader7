@@ -232,7 +232,9 @@ export function runSwarmTurn({ task, texts = [], history = [], name = "chat-mate
 /** preserveHardMeaningRule — after a swarm runs on hard material, write the
  *  standing rule for that content type. Converged (best cleared the bar):
  *  the surviving capacities are the read. Failed with no material anywhere:
- *  the typed gap itself is the rule. Never called when meaning held. */
+ *  the typed gap itself is the rule. Partial (ran, never converged, never a
+ *  type-level defeat): an "unresolved" ledger entry, never silence.
+ *  Never called when meaning held. */
 export function preserveHardMeaningRule({ meaning = null, out = null, bar = 0 } = {}) {
   if (!meaning?.hard || !meaning.type) return null;
   const falsifying = signalControl(meaning.type);
@@ -255,7 +257,23 @@ export function preserveHardMeaningRule({ meaning = null, out = null, bar = 0 } 
   } else if (defeatedEveryCapacity) {
     read = `swarm ran and every executable capacity measured zero on ${meaning.type} material — the plain capacities cannot bind it; restore the likely intended text first (${meaning.type}), then re-read, and report only meaning the restored reading and the literal both survive`;
   }
-  if (!read) return null; // a non-converging swarm on hard material is a case to study, not a rule yet
+  if (!read) {
+    // A non-converging swarm is still a measurement — partial, unresolved,
+    // never silent. The ledger carries it as standing:"unresolved" with the
+    // control that would concede it (a later converging swarm on this type),
+    // so the next turn pointed at the same type sees the open question
+    // instead of nothing.
+    const signalNames = Array.isArray(meaning.signals) ? meaning.signals.map((s) => s?.kind ?? s).filter(Boolean).join("+") : String(meaning.type);
+    return preserveContentRule({
+      type: meaning.type,
+      signal: meaning.type,
+      read: `swarm ran on ${meaning.type} material (${signalNames}) without convergence — partial, unresolved; report the open question, never a confident reading`,
+      falsifying: "a later converging swarm on this type concedes this",
+      basis: `hard meaning auto-routed this turn (${meaning.basis ?? meaning.type}); no capacity converged`,
+      giver: "ant-swarm",
+      standing: "unresolved",
+    });
+  }
   return preserveContentRule({
     type: meaning.type,
     signal: meaning.type,
@@ -288,6 +306,11 @@ export function renderSwarmAnswer(out, bar, { meaning = null, standing = null, r
   if (bred.length) lines.push(`Kept combinations: ${bred.map((b) => `${b.ids.join("+")} (${b.f})`).join("; ")}.`);
   else lines.push(`No combination beat its ground (bar ${bar}).`);
   lines.push(`Best so far: ${out.swarm.best.ids.join("+")} at ${out.swarm.best.f}.`);
+  // A7: residue vs kernel voids are NEVER merged here — this line carries
+  // only the swarm's own residue (clause "holes of the framings",
+  // swarmResidue above); the kernel's material voids keep their own clause
+  // ("questions this chain cannot answer", antimatter.js). One category
+  // apart by construction; a future merge must prefix each side.
   if (residue?.line) lines.push(`Anti-matter: ${residue.line}.`);
   return lines.join("\n");
 }

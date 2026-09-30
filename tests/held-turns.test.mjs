@@ -21,12 +21,15 @@ test("requesters are kept apart", () => {
   assert.notEqual(heldKey("sess-a", "r", { m: 1 }), heldKey("sess-b", "r", { m: 1 }));
 });
 
-test("a failed turn is not held: asking again runs it again", async () => {
+test("a failed turn is retained with evidence: asking again runs fresh with retried:true + priorError", async () => {
   __heldTest.reset();
   const key = heldKey("sess-a", "r", { m: 2 });
   const e = holdTurn(key, () => Promise.reject(new Error("boom")));
   await assert.rejects(awaitHeld(e, 500), /boom/);
-  assert.equal(findHeld(key), null);
+  const failed = findHeld(key);
+  assert.equal(failed?.status, "failed");
   const again = holdTurn(key, () => "ok");
+  assert.equal(again.retried, true);
+  assert.match(String(again.priorError ?? ""), /boom/);
   assert.deepEqual(await awaitHeld(again, 500), { done: true, result: "ok" });
 });

@@ -89,7 +89,7 @@ export function diffTightenEdits(before, after) {
 // are never confused with one another.
 export const applyTightenEdit = (basePiece, e) => basePiece.map((p, pi) => (pi !== e.partIndex ? p : { ...p, pieces: p.pieces.map((pc, ci) => (ci !== e.pieceIndex ? pc : { text: e.to, carries: [...pc.carries] })) }));
 
-export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b", id = null, draw = null, arrange = null, flesh = "prosify", web = null, pathosBudget = null, onStage = null } = {}) {
+export async function runPipeline({ task, groundFiles = [], groundText = null, model = "gemma2:2b", id = null, draw = null, arrange = null, flesh = "prosify", web = null, pathosBudget = null, onStage = null } = {}) {
   const docId = `${id ?? `pipe-${Date.now()}`}:1`;
   const ledger = createDocumentLedger({ docId, title: task.slice(0, 80) });
   const write = (role, title, text, basis, giver = "eoreader7:pipeline", supersedes = null) => {
@@ -161,14 +161,19 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
   // by being handed over (tier 0). What SURF brought back earns admission
   // paragraph by paragraph, by carrying the void's subject (the referent
   // organ over the operator's material) — tier 1, after it, never above it.
-  const operatorId = groundFiles.map((f) => path.basename(f)).join("+") || "none";
-  const operatorGround = groundFiles.map((f) => fs.readFileSync(f, "utf8")).join("\n\n");
+  // groundText (2026-09-26): a caller with an in-memory ground string (e.g.
+  // proxy-runner.mjs's own groundingText()) bypasses the file read entirely —
+  // additive only; every existing caller still passes groundFiles and this
+  // branch is never taken for them.
+  const operatorId = groundText != null ? "in-memory-ground" : (groundFiles.map((f) => path.basename(f)).join("+") || "none");
+  const operatorGround = groundText != null ? String(groundText) : groundFiles.map((f) => fs.readFileSync(f, "utf8")).join("\n\n");
   const R0 = buildReferents(operatorGround);
   const d0 = attachReferents(buildDraft({ task, ground: operatorGround, sourceId: operatorId }), R0);
   const hunted = huntGround({ operator: { id: operatorId, text: operatorGround }, surfed, topic, R: R0, subject: d0.subjectRefs ?? new Set() });
   write("hunt", `Hunt: ${hunted.admitted} fetched source(s) admitted, ${hunted.refused.length} refused`, huntLines(hunted).join("\n") || "(nothing to admit or refuse)", hunted.basis, "eoreader7:hunt");
   const ground = hunted.ground;
-  write("ground", `Ground: ${hunted.sources.map((s) => `${s.id} (tier ${s.tier})`).join(", ") || "none"}`, `${groundFiles.map((f) => `${path.basename(f)} — ${fs.statSync(f).size} bytes (tier 0)`).join("\n")}${hunted.sources.filter((s) => s.tier === 1).map((s) => `\n${s.id} — ${s.text.length} chars admitted of ${s.url} (tier 1)`).join("")}\n\ntotal: ${ground.length} characters`, hunted.admitted ? "the operator's material first, then what fetched pages earned by carrying the subject" : "the operator's material only; nothing fetched earned admission");
+  const operatorLine = groundText != null ? `in-memory ground — ${operatorGround.length} bytes (tier 0)` : groundFiles.map((f) => `${path.basename(f)} — ${fs.statSync(f).size} bytes (tier 0)`).join("\n");
+  write("ground", `Ground: ${hunted.sources.map((s) => `${s.id} (tier ${s.tier})`).join(", ") || "none"}`, `${operatorLine}${hunted.sources.filter((s) => s.tier === 1).map((s) => `\n${s.id} — ${s.text.length} chars admitted of ${s.url} (tier 1)`).join("")}\n\ntotal: ${ground.length} characters`, hunted.admitted ? "the operator's material first, then what fetched pages earned by carrying the subject" : "the operator's material only; nothing fetched earned admission");
 
   // EOT DRAFT — the piece as witnessed spans, before prose.
   let draft = buildDraft({ task, ground, sourceId: operatorId, sources: hunted.map });
@@ -602,7 +607,13 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
 
   const report = path.join(DOCS, `${docId.replace(/:1$/, "")}.phases.html`);
   fs.writeFileSync(report, renderPhaseReport(docId.replace(/:1$/, "")));
-  return { docId, report, result };
+  // piece/pieceText (2026-09-26): `result` is the raw pre-archon draft, NOT
+  // the finished piece (every existing caller already knew this and read the
+  // ledger's own role:"piece" line back instead). These two additive fields
+  // give a caller the finished, archon-revised text directly, computed with
+  // the EXACT same expression already used for that ledger line above, so
+  // pieceText can never diverge from what the ledger itself records.
+  return { docId, report, result, piece, pieceText: (piece ?? []).map((p) => joinUnits(p.pieces)).join("\n\n") };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

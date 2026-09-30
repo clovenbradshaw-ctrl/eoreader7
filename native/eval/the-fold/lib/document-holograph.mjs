@@ -4,7 +4,7 @@
 import { dmdWindow } from "../../../kernel/activation.js";
 import { resolveFoldSibling, requireFoldAvailable } from "./fold-sibling.mjs";
 
-// reading-log.js, activation-retrieval.js and resolutions.js are the sibling
+// reading-log.js, activation-wiring.js (the fold's binding of the activation-retrieval organ that now lives in native/organs) and resolutions.js are the sibling
 // the-fold checkout's own modules, which this repo's CI never checks out
 // (native-kernel.yml checks out eoreader7 alone). Static imports of them threw
 // MODULE_NOT_FOUND at load and crashed every importer, so they are imported
@@ -15,12 +15,12 @@ const FOLD_UP = "../../../../../the-fold/";
 const { available: FOLD_OK } = resolveFoldSibling(import.meta.url, FOLD_UP);
 const foldModule = (name) => (FOLD_OK ? import(new URL(`${FOLD_UP}${name}`, import.meta.url).href) : {});
 const { foldReading, readingIndexFromLog, mentionBookFromLog } = await foldModule("reading-log.js");
-const { activate } = await foldModule("activation-retrieval.js");
+const { activate } = await foldModule("activation-wiring.js");
 const { activeReferents, lensBlock, lensCut } = await foldModule("resolutions.js");
 
 /** requireDocumentHolographFold() — throws FoldUnavailableError when the sibling the-fold checkout is absent; returns its path otherwise. */
 export function requireDocumentHolographFold() {
-  return requireFoldAvailable(import.meta.url, FOLD_UP, "document-holograph.mjs needs reading-log.js, activation-retrieval.js and resolutions.js from it");
+  return requireFoldAvailable(import.meta.url, FOLD_UP, "document-holograph.mjs needs reading-log.js, activation-wiring.js and resolutions.js from it");
 }
 
 const addressOf = (w) => String(typeof w === "string" ? w : (w?.at ?? w?.ref ?? "")).split("~")[0];

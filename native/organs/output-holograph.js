@@ -33,6 +33,13 @@
 
 export const OUTPUT_HOLOGRAPH_SCHEMA = "EOHolographOutput@1";
 
+// A3 ([M]-as-void vs [M]-as-prose, law 6 companion): the mouth's own prose
+// sometimes CLAIMS emptiness ("nothing else", "no mention", "there is no",
+// "never mentioned") — a relayed void claim, never a ledger void. Flagged
+// mechanically here so the facing page can tag it; never blocked, never
+// promoted to a void on the ledger.
+export const VOID_CLAIM_RE = /nothing else|no .*mention|there is no|never mentioned/i;
+
 const fold = (t) => String(t ?? "").normalize("NFD").replace(/[\u0300-\u036f\u0591-\u05c7\u064b-\u0652]/g, "").toLowerCase();
 const toks = (t) => [...new Set(fold(t).split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 1))];
 const STOP = new Set(["the", "and", "that", "this", "with", "from", "they", "them", "their", "then", "was", "were", "had", "have", "has", "him", "his", "her", "for", "not", "but", "one", "into", "upon", "over", "down", "across", "about", "after", "before", "which", "when", "where", "what", "who", "whom", "there", "here", "again", "still", "himself", "herself", "itself", "he", "she", "it", "i", "you", "we", "they"]);
@@ -47,11 +54,18 @@ export function groundFacts(notes = [], { source = "pg2600.txt" } = {}) {
     .filter((n) => n && n.end1 && n.label)
     .map((n) => {
       const span = n.span ?? null;
-      const ref = span && span.start != null ? `${source}#${span.start}` : null;
+      // THE PER-NOTE SOURCE (2026-09-29, the podcast wiring): a note that
+      // names its own witness (a workspace file, a web source) binds under
+      // THAT name — "workspace:server.mjs#123" — never flattened onto the
+      // caller's one `source` argument. The caller's source is the fallback
+      // for notes the record did not witness individually. Provenance is
+      // per-arrangement, never per-batch.
+      const src = String(n.source ?? "").trim() || source;
+      const ref = span && span.start != null ? `${src}#${span.start}` : null;
       return {
         fact: [n.end1, n.label, n.end2].filter(Boolean).join(" "),
         end1: n.end1, label: n.label, end2: n.end2 ?? "",
-        ...(ref ? { ref } : { gap: { type: "no_byte_address", detail: `the arrangement "${[n.end1, n.label, n.end2].filter(Boolean).join(" ")}" has no byte span — never a guessed address` } }),
+        ...(ref ? { ref, source: src } : { gap: { type: "no_byte_address", detail: `the arrangement "${[n.end1, n.label, n.end2].filter(Boolean).join(" ")}" has no byte span — never a guessed address` } }),
       };
     });
 }
@@ -77,7 +91,12 @@ export function holographType({ prose = "", ground = [], splitSentences = null, 
   // ONCE, so a caller can hand either and the ref is never guessed.
   const rows = ground.map((g) => {
     if (g && g.fact && (g.ref || g.gap)) return g;
-    return { fact: [g?.end1, g?.label, g?.end2].filter(Boolean).join(" "), end1: g?.end1, label: g?.label, end2: g?.end2 ?? "", ...(g?.span?.start != null ? { ref: `${source}#${g.span.start}` } : { gap: { type: "no_byte_address", detail: `no span for "${[g?.end1, g?.label, g?.end2].filter(Boolean).join(" ")}"` } }) };
+    // THE PER-NOTE SOURCE, SAME LAW AS groundFacts ABOVE (2026-09-29): the
+    // raw conversion bound the caller's one `source` onto every note whose
+    // own witness the record carried — the same flattening groundFacts
+    // refuses. A note that names its own source binds under THAT name.
+    const gsrc = String(g?.source ?? "").trim() || source;
+    return { fact: [g?.end1, g?.label, g?.end2].filter(Boolean).join(" "), end1: g?.end1, label: g?.label, end2: g?.end2 ?? "", ...(g?.span?.start != null ? { ref: `${gsrc}#${g.span.start}`, source: gsrc } : { gap: { type: "no_byte_address", detail: `no span for "${[g?.end1, g?.label, g?.end2].filter(Boolean).join(" ")}"` } }) };
   });
   const sentences = (() => { try { return splitSentences(prose); } catch { return [prose]; } })()
     .map((s) => (typeof s === "string" ? s : s?.text ?? ""))
@@ -97,11 +116,15 @@ export function holographType({ prose = "", ground = [], splitSentences = null, 
       if (hits > bestHits) { bestHits = hits; bestTotal = gEnds.length; best = g; }
     }
     const material = best && bestHits >= 1;
+    // A3: self:model prose claiming emptiness is flagged voidClaim — the
+    // mouth relaying a void, not the ledger declaring one.
+    const voidClaim = !material && VOID_CLAIM_RE.test(text);
     return {
       text,
       ground: material ? "material" : "self:model",
       ...(material ? { ref: best.ref ?? null, groundedOn: best.fact } : { source: "the mouth" }),
       ...(material && !best.ref ? { gap: "grounded but unaddressed" } : {}),
+      ...(voidClaim ? { voidClaim: true } : {}),
       carry: bestTotal ? Number((bestHits / bestTotal).toFixed(2)) : 0,
     };
   });
@@ -113,7 +136,7 @@ export function holographType({ prose = "", ground = [], splitSentences = null, 
     schema: OUTPUT_HOLOGRAPH_SCHEMA,
     prose: typed,
     tiers: {
-      holograph: typed.map((t) => ({ text: t.text, ground: t.ground, ref: t.ref ?? null })),
+      holograph: typed.map((t) => ({ text: t.text, ground: t.ground, ref: t.ref ?? null, ...(t.voidClaim ? { voidClaim: true } : {}) })),
       shadow: typed.map((t) => ({ ground: t.ground, ref: t.ref ?? null })),
       echo: { at: "something like this was said here", sentences: material.length, model: model.length },
     },

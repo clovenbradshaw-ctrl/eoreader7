@@ -7,7 +7,7 @@
 // every proxy process that fronts Ollama. Heimdall watches each one, re-forges
 // the dead ones, and steers each request across the healthy ones.
 //
-// Huginn, Muninn and Kairos (the-fold/huginn.js, muninn.js, kairos.js) are
+// Huginn, Muninn and Kairos (eoreader7/native/organs/huginn.js, muninn.js, kairos.js) are
 // his three — the triad under the bridge. Huginn is the watcher of model
 // PRIORITIZATION — which model answers which job, ranked by measured
 // evidence and hopped on typed failure, room mouths included. Muninn is
@@ -101,8 +101,10 @@ export const channelPort = () => CHANNEL_PORT;
 //   4. ROTATE TIES — an idle fleet spreads instead of pinning the first host.
 // A host that refuses (ECONNREFUSED) is stood down until the next cadence
 // probes it back; a single timeout never convicts (the last state stands).
-// Configure with ER7_OLLAMA_HOSTS="name=http://host:port,name=url"; the
-// default is the one local daemon, so nothing changes for a one-box setup.
+// Configure with ER7_OLLAMA_HOSTS="name=http://host:port,name=url"; with no
+// override the one on-device host is the bridge (2026-09-28: it replaced the
+// native daemon as the default target — see below), so nothing changes for
+// a one-box setup that just runs `heimdall up`.
 const HOST_EWMA = 0.3;
 function parseHosts() {
   const raw = String(process.env.ER7_OLLAMA_HOSTS ?? "").trim();
@@ -114,14 +116,28 @@ function parseHosts() {
     if (!/^https?:\/\//.test(url)) continue;
     out.push({ name, url });
   }
-  if (!out.length) out.push({ name: "local", url: OLLAMA_URL });
-  // THE FLEET, BY DEFAULT (2026-09-21): the phone bridge (`heimdall up`,
-  // 3.0/heimdall) is a host whenever it is up — that is how "across Matrix"
-  // reaches this picker: a phone that accepted duty holds a model, the bridge
-  // lists it in /api/ps, and it ranks beside the local daemon on the same
-  // measured scale. ER7_FLEET_URL="" opts out. Marked `auto` so an absent
-  // bridge is a standby, never a host_down alarm.
-  if (process.env.ER7_FLEET_URL !== "" && !out.some((h) => h.name === "fleet")) {
+  if (!out.length) {
+    // THE DAEMON IS THE DEFAULT ON-DEVICE HOST (2026-09-29): one model
+    // (gemma2:2b), one daemon, no fleet unless named. The 2026-09-28
+    // bridge-default broke every fresh launch on a box with no bridge
+    // running (`heimdall up` was never started): the sole required host
+    // pointed at a dead 8790 and every turn died ECONNREFUSED until the
+    // operator named the daemon by hand. The native daemon (OLLAMA_URL) is
+    // what install.sh installs and what the channel reconciles to — it is
+    // the default target again. The fleet bridge is opt-IN here: ER7_FLEET_URL
+    // names it (added beside the daemon as an auto standby, never the
+    // required host); ER7_FLEET_URL="" names nothing.
+    out.push({ name: "local", url: OLLAMA_URL });
+    const fleetUrl = String(process.env.ER7_FLEET_URL ?? "").trim().replace(/\/+$/, "");
+    if (fleetUrl && fleetUrl !== "none") out.push({ name: "fleet", url: fleetUrl, auto: true });
+  } else if (process.env.ER7_FLEET_URL !== "" && !out.some((h) => h.name === "fleet")) {
+    // THE FLEET, ALONGSIDE AN EXPLICIT CONFIG (2026-09-21): once
+    // ER7_OLLAMA_HOSTS names hosts by hand, the bridge is still added beside
+    // them as an optional extra — that is how "across Matrix" reaches this
+    // picker: a phone that accepted duty holds a model, the bridge lists it
+    // in /api/ps, and it ranks beside the named hosts on the same measured
+    // scale. ER7_FLEET_URL="" opts out. Marked `auto` so an absent bridge is
+    // a standby, never a host_down alarm.
     out.push({ name: "fleet", url: String(process.env.ER7_FLEET_URL ?? "http://127.0.0.1:8790").replace(/\/+$/, ""), auto: true });
   }
   return out.map((h) => ({
@@ -346,7 +362,7 @@ let RETRY_AFTER_S = Number(process.env.ER7_RETRY_AFTER ?? 15); // runtime-adjust
 // alternation allows it: after a pass is redeemed, the next ZIPPER_DENSITY
 // admissions must be pass-free, so pass-holders and everyone else merge like
 // traffic at a merge — a pass train never starves the line.
-let PASS_STOCK = Number(process.env.ER7_PASS_STOCK ?? 3);          // codes minted per window (runtime-adjustable)
+let PASS_STOCK = Number(process.env.ER7_PASS_STOCK ?? 0);          // 0 = local-only default; set > 0 via env for fleet use
 const PASS_WINDOW_MS = Number(process.env.ER7_PASS_WINDOW ?? 15 * 60 * 1000);
 let ZIPPER_JUMP = Number(process.env.ER7_ZIPPER_JUMP ?? 2);        // a pass jumps at most N places (runtime-adjustable)
 let ZIPPER_DENSITY = Number(process.env.ER7_ZIPPER_DENSITY ?? 2);  // normal admissions after a pass (runtime-adjustable)
@@ -418,7 +434,10 @@ const unservable = new Map(); // model -> { at, reason }
 const UNSERVABLE_COOLDOWN_MS = Number(process.env.ER7_UNSERVABLE_COOLDOWN ?? 60 * 1000);
 export function markUnservable(model, reason) {
   if (!model) return;
-  unservable.set(model, { at: Date.now(), reason });
+  // Same key as markServable/isServable below: strip er7: here too, so a
+  // caller that ever passes the prefixed form doesn't leave a stuck entry
+  // neither of those can find (they both strip before touching this Map).
+  unservable.set(String(model).replace(/^er7:/, ""), { at: Date.now(), reason });
   appendLog({ act: "eva", finding: "unservable", model, reason, giver: "heimdall", standing: "disclosed" });
 }
 export function markServable(model) {
@@ -558,17 +577,13 @@ function claimIdOf(headers = {}) {
  *  failed — a delay THIS device exists to make up for) or already ours is
  *  taken over / confirmed. */
 function claimTurn(headers = {}) {
+  // Single-device: no second device to race, so the lease always succeeds.
+  // Fleet deployments override ER7_CLAIM_TTL > 0 and the multi-device logic
+  // would be re-enabled there — for now the claims Map is kept for the ledger.
   const id = claimIdOf(headers);
-  const existing = claims.get(id);
-  const now = Date.now();
   const device = effectiveDevice();
-  if (existing && now - existing.at < CLAIM_TTL_MS) {
-    if (existing.device !== device) return { ok: false, id, device: existing.device, stale: false };
-    return { ok: true, id, device, reclaimed: false }; // a retry of our own live turn
-  }
-  const reclaimed = Boolean(existing && existing.device !== device);
-  claims.set(id, { device, at: now });
-  return { ok: true, id, device, reclaimed };
+  claims.set(id, { device, at: Date.now() });
+  return { ok: true, id, device, reclaimed: false };
 }
 
 /** Release a claim when this device finishes or FAILS a turn, so the next
@@ -1599,7 +1614,7 @@ const VITALS_LOG_MS = Number(process.env.ER7_HEIMDALL_VITALS_LOG ?? 15000);
 // a typed null — unknown, never convicting, the same rule the surface probes
 // hold. A model seen at a DIFFERENT window than last tick lands a
 // `window_changed` finding, and a storm of them escalates exactly as a
-// restart storm does. Kondo (the-fold/kondo.js) reads `loadedWindowOf` to say
+// restart storm does. Kondo (eoreader7/native/organs/kondo.js) reads `loadedWindowOf` to say
 // whether a prompt fits the window it will really run in.
 let ollamaModels = null;
 const windowSeen = new Map(); // model -> { contextLength, switches: [ms] }
@@ -1979,27 +1994,12 @@ export function mouthFor(model, { scope = turnScope.getStore() ?? null, pinned =
   }
   const tiers = serveTiersFor(bare, { exclude });
   const full = tiers.find((t) => t.tier === "full");
-  if (full && full.waitMs <= SLA_MAX_WAIT_MS) return keep("resident_inside_promise", { host: full.host, waitMs: full.waitMs });
-  const alt = tiers.find((t) => t.tier !== "full" && t.waitMs <= SLA_MAX_WAIT_MS);
-  if (!alt) return keep(full ? "no_warm_mouth_sooner" : "cold_no_warm_mouth");
-  let askedEtaMs;
-  if (full) askedEtaMs = full.waitMs;
-  else {
-    const local = localDaemon();
-    const held = installedModels == null || installedLocally(bare.toLowerCase());
-    const pressured = memoryPressured(cachedVitals());
-    askedEtaMs = !held || pressured || !Number.isFinite(local?.loadMs) ? Infinity : local.loadMs + (expectedWaitMs(bare).ms ?? 0);
+  if (full && full.waitMs <= SLA_MAX_WAIT_MS) {
+    const d = keep("resident_inside_promise", { host: full.host, waitMs: full.waitMs });
+    if (scope && !peek) (scope.mouthByAsked ??= new Map()).set(bare, d);
+    return d;
   }
-  if (alt.waitMs >= askedEtaMs) return keep("asked_model_sooner");
-  const d = {
-    model: alt.model, tier: alt.tier, host: alt.host, waitMs: alt.waitMs, provisional: true, revisableBy: bare,
-    askedEtaMs: Number.isFinite(askedEtaMs) ? askedEtaMs : null,
-    reason: full ? "asked_model_past_promise" : "asked_model_cold",
-  };
-  if (scope) (scope.mouthByAsked ??= new Map()).set(bare, d);
-  countMouth(scope, bare, d);
-  if (!peek) appendLog({ act: "rec", finding: "mouth_substituted", asked: bare, servedBy: d.model, tier: d.tier, host: d.host, reason: d.reason, waitMs: d.waitMs, askedEtaMs: d.askedEtaMs, session: scope?.sessionId ?? null });
-  return { ...d, fresh: true };
+  return keep(full ? "no_warm_mouth_sooner" : "cold_no_warm_mouth");
 }
 /** A substitute that failed a draw is dropped from the turn, so the retry
  *  decides again instead of returning to the mouth that just failed. */
@@ -3771,7 +3771,12 @@ export function admitChat(body = "{}", headers = {}) {
     const bare = String(model).replace(/^er7:/, "");
     // Resident on ANOTHER inference host (a paired phone, a second box) is
     // resident too: the turn goes there and loads nothing on this box.
-    const residentElsewhere = hosts.some((h) => h.name !== "local" && hostUp(h) && hostResident(h, bare));
+    // Excluded by URL, not by name (2026-09-28): `loaded` above already
+    // covers whichever host sits at OLLAMA_URL — the native daemon — so a
+    // host pointed there is skipped here to avoid asking it twice; since the
+    // bridge is now the default on-device host, this is no longer always
+    // the host named "local".
+    const residentElsewhere = hosts.some((h) => h.url !== OLLAMA_URL && hostUp(h) && hostResident(h, bare));
     const resident = residentElsewhere || (residencyKnown && loaded.some((m) => (m.name ?? m.model) === bare));
     // BOX-LEVEL SWAP GUARD (2026-09-20; corrected to CHURN, 2026-09-21): swap
     // LEVEL alone is history — macOS never moves pages back, so a box can sit
@@ -3814,7 +3819,13 @@ export function admitChat(body = "{}", headers = {}) {
     // hold loop keeps the caller's place and retries once a slot frees. Same
     // scope as the checks above it: residencyKnown/resident/bare are theirs.
     if (residencyKnown && !resident && MODEL_DIVERSITY_CAP > 0) {
-      const local = hostByName("local");
+      // By URL, not by name (2026-09-28): MODEL_DIVERSITY_CAP mirrors the
+      // native daemon's own OLLAMA_MAX_LOADED_MODELS (modelServerConfig,
+      // above) — it applies to whichever host sits at OLLAMA_URL, which is
+      // no longer always the host named "local" now that the bridge is the
+      // default. Naturally inert when no configured host targets the native
+      // daemon at all.
+      const local = hosts.find((h) => h.url === OLLAMA_URL);
       if (local?.inflightBy) {
         const busy = [...local.inflightBy.entries()].filter(([m, n]) => m !== bare && n > 0).map(([m]) => m);
         if (busy.length >= MODEL_DIVERSITY_CAP) {
@@ -4375,6 +4386,12 @@ export function mintedRules() {
 const DERIVED_RULES_FILE = process.env.ER7_DERIVED_RULES_FILE || path.join(HERE, "heimdall-derived-rules.json"); // tests point this at a scratch file — the live ledger is never a fixture
 const DERIVED_FLOOR = Number(process.env.ER7_DERIVED_RULE_FLOOR ?? 3);
 const DERIVED_WINDOW_MS = Number(process.env.ER7_DERIVED_RULE_WINDOW ?? 30 * 60 * 1000);
+// I-half-life (2026-09-29): every derived rule carries its own clock. Past
+// its half-life, a rule is re-examined against its own evidence and conceded
+// unless it has re-earned — new recurrences past the floor. A rule that
+// outlives its evidence concedes the spec; an enzyme factory with no
+// proteasome fills with permanent law.
+const DERIVED_HALF_LIFE_MS = Number(process.env.ER7_DERIVED_RULE_HALF_LIFE_MS ?? 7 * 24 * 60 * 60 * 1000);
 
 // The rule templates: how a recorded finding becomes a standing rule. Each
 // carries its falsifying control — the counterfactual that concedes it.
@@ -4449,11 +4466,21 @@ function saveDerivedRules() {
 }
 
 /** Record a derived rule. Keyed by (class:probe) so a recurring pattern
- *  never re-derives every tick; the rule carries its evidence and control. */
+ *  never re-derives every tick; the rule carries its evidence, its control,
+ *  and its own clock (adoptedAt / lastEarnedAt / halfLifeMs — I-half-life).
+ *  A caller-supplied timestamp or half-life is honored when finite (tests
+ *  construct history); otherwise the rule is earned now and dies on the
+ *  default clock. */
 export function adoptDerivedRule(r) {
   if (!r) return null;
   const key = `${r.class}:${r.probe ?? ""}`;
-  derivedRules.set(key, { ...r, adoptedAt: Date.now() });
+  const now = Date.now();
+  derivedRules.set(key, {
+    ...r,
+    adoptedAt: Number.isFinite(r?.adoptedAt) ? r.adoptedAt : now,
+    lastEarnedAt: Number.isFinite(r?.lastEarnedAt) ? r.lastEarnedAt : now,
+    halfLifeMs: Number.isFinite(r?.halfLifeMs) ? r.halfLifeMs : DERIVED_HALF_LIFE_MS,
+  });
   saveDerivedRules();
   lintedNote({ kind: "infra", level: "warn", severity: "medium", note: `heimdall derived rule (${key}): ${r.rule}`, giver: r.giver, standing: r.standing, probe: key });
   return r;
@@ -4473,6 +4500,36 @@ export function concedeDerivedRule(key, { reason } = {}) {
   saveDerivedRules();
   lintedNote({ kind: "infra", level: "warn", severity: "medium", note: `heimdall derived rule CONCEDED (${key}): ${reason ?? "control fired"}`, giver: "heimdall", standing: "disclosed", probe: key });
   return derivedRules.get(key);
+}
+
+/** I-half-life: re-examine standing derived rules against their own
+ *  evidence (2026-09-29). `counts` is the sense loop's class:probe tally
+ *  for the window — the window is the memory; evidence folded away that
+ *  has not recurred is unmeasured, never assumed. A rule past its own
+ *  half-life is conceded unless the pattern has re-earned it (recurrences
+ *  past the floor in this window). Concession is disclosed and
+ *  re-derivable: the next recurrence past the floor adopts the rule again
+ *  with a fresh clock. A rule with no earn timestamp is earned at its
+ *  adoption. Returns the pass's verdicts, one per rule touched. */
+export function reexamineDerivedRules({ counts, now = Date.now() } = {}) {
+  const out = [];
+  for (const [key, r] of derivedRules) {
+    if (!r || r.standing === "conceded") continue;
+    const halfLifeMs = Number.isFinite(r.halfLifeMs) ? r.halfLifeMs : DERIVED_HALF_LIFE_MS;
+    const earnedAt = Number.isFinite(r.lastEarnedAt) ? r.lastEarnedAt : Number.isFinite(r.adoptedAt) ? r.adoptedAt : 0;
+    if (!(now - earnedAt > halfLifeMs)) continue; // the clock still runs
+    const c = counts?.get(key);
+    if (c && c.count >= DERIVED_FLOOR) {
+      derivedRules.set(key, { ...r, lastEarnedAt: now, reEarnedAt: now });
+      saveDerivedRules();
+      out.push({ key, outcome: "re-earned", count: c.count });
+    } else {
+      const reason = `proteasome: rule outlived its evidence — ${c?.count ?? 0} recurrences of ${r.class}:${r.probe ?? ""} in the window against floor ${DERIVED_FLOOR} since ${earnedAt ? new Date(earnedAt).toISOString() : "never-earned"} (half-life ${halfLifeMs}ms)`;
+      concedeDerivedRule(key, { reason });
+      out.push({ key, outcome: "conceded", reason });
+    }
+  }
+  return out;
 }
 
 // ── RULES AS LEVERS — a derived rule is TRIED, never merely written (2026-09-21) ──
@@ -4889,13 +4946,29 @@ export function makeRuleAuthorHolon({ logLines = memoryLinesForWindow, now = Dat
         if (Number.isFinite(last) && last > c.last) c.last = last;
         counts.set(key, c);
       }
+      // I-half-life: the proteasome pass — an expired rule concedes unless
+      // this same window re-earned it. Expiry is per rule (its own
+      // halfLifeMs), measured against its own earn, never a hand-set bar.
+      try {
+        for (const v of reexamineDerivedRules({ counts, now: now() })) {
+          log(`proteasome: ${v.key} ${v.outcome}${v.count != null ? ` (${v.count} recurrences)` : ""}`);
+        }
+      } catch (err) { log(`proteasome error: ${err.message}`); }
       // A class that recurred past the floor and has no LIVE derived rule yet.
       const candidates = [...counts.values()].filter((c) => c.count >= DERIVED_FLOOR);
       const ready = [];
       for (const c of candidates) {
         const key = `${c.class}:${c.probe ?? ""}`;
         const existing = derivedRules.get(key);
-        if (existing && existing.standing !== "conceded") continue; // already stands
+        if (existing && existing.standing !== "conceded") {
+          // Already stands, and recurring: refresh the earn so the clock
+          // stays alive — at most once per window, never a write per tick.
+          if (now() - (Number(existing.lastEarnedAt) || 0) > DERIVED_WINDOW_MS) {
+            derivedRules.set(key, { ...existing, lastEarnedAt: now() });
+            saveDerivedRules();
+          }
+          continue;
+        }
         ready.push(c);
       }
       return ready.length ? { class: "pattern_earned", candidates: ready } : null;
@@ -4903,6 +4976,10 @@ export function makeRuleAuthorHolon({ logLines = memoryLinesForWindow, now = Dat
     act: async (finding) => {
       const adopted = [];
       for (const c of finding.candidates) {
+        // A probe that is not a known model is never adopted (2026-09-29):
+        // the learner's floor was met by real observations, but the NAME the
+        // rule would stand for has to be a model this box can actually name.
+        if (!knownModelProbe(c.probe)) { log(`rule-author: ${c.class}:${c.probe} — probe is not a known model (no namespace, not on the roster); not adopted`); continue; }
         const r = deriveRule({ ...c, first: c.first, last: c.last });
         if (r) { adoptDerivedRule(r); adopted.push(r); }
       }
@@ -4918,6 +4995,21 @@ export function makeRuleAuthorHolon({ logLines = memoryLinesForWindow, now = Dat
       return { note: adopted.length ? `adopted ${adopted.length} derived rule(s): ${adopted.map((r) => `${r.class}:${r.probe}`).join(", ")}${started.length ? ` — on trial: ${started.join("; ")}` : ""}` : null, adopted: adopted.length, trials: started.length };
     },
   };
+}
+
+/** Every model a rule may be minted FOR is a model this system can name:
+ *  a local one on the roster, or one in a known namespace (er7:, anthropic/,
+ *  opencode/, hf.co/, the online providers). A probe that matches none of
+ *  these is a synthetic or adversarial key (2026-09-29: a battering burst
+ *  against "batter-nonexistent" minted a real memory_pressured rule and
+ *  started a live evict_lru trial on the operator's ledger). A rule for a
+ *  name no model answers to is noise, never law. */
+const KNOWN_MODEL_NAMESPACE = /^(er7|anthropic|opencode|hf\.co|groq|google|mistral)[:/]/;
+export function knownModelProbe(probe) {
+  if (!probe) return true; // a surface probe is not a model
+  if (KNOWN_MODEL_NAMESPACE.test(probe)) return true;
+  const roster = loadedModels();
+  return Array.isArray(roster) && roster.some((m) => (m?.name || m?.model) === probe);
 }
 
 // ── THE MESSAGE — what a response is told ────────────────────────────────

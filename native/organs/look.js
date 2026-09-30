@@ -258,15 +258,22 @@ const MAX_ESCALATIONS = 2;
 export async function settleRead(visionRead, factLines, model) {
   let current = visionRead;
   let turns = 1;
+  // The escalation verdicts live at FUNCTION scope (2026-09-29): declared
+  // inside the loop body they died with the iteration and the return below
+  // threw ReferenceError on EVERY read — the whole escalation path was
+  // down, caught live by a frontier falsification turn.
+  let escalation = null;
+  let escalationBlocked = null;
+  let escalationFailed = null;
   let judged = await judgeSenseAgreement(current, factLines, model);
   while (!judged.agrees && turns < MAX_ESCALATIONS) {
     const correction = judged.reason.replace(/^DISAGREES:?\s*/i, "").trim();
     // A gate block on the escalation call must not destroy the whole read
     // (falsification F1): the escalation is a missing sense, disclosed — the
     // mechanical facts and the first vision read already stand on their own.
-    let escalation = null;
-    let escalationBlocked = null;
-    let escalationFailed = null;
+    escalation = null;
+    escalationBlocked = null;
+    escalationFailed = null;
     try {
       const r = await completeVision([
         { role: "user", content: `Describe this plainly and factually: what does it show? A few sentences. A second look is being taken because: ${correction} Look again and correct that specifically if it's right.` },

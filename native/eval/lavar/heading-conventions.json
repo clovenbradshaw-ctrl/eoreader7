@@ -74,6 +74,15 @@
       "titleOnSameLine": false,
       "foundIn": "udhr-eng.txt",
       "foundVia": "mechanical (skeleton recurrence + monotonic numeral)"
+    },
+    {
+      "name": "LIBER <roman>",
+      "word": "LIBER",
+      "numeralType": "roman",
+      "requiresPeriod": false,
+      "titleOnSameLine": false,
+      "foundIn": "",
+      "foundVia": "mechanical (skeleton recurrence + monotonic numeral)"
     }
   ]
 }

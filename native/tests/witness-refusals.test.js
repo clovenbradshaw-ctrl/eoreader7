@@ -84,6 +84,7 @@ test("a refused candidate appears in the resulting fold's exclusions array with 
   const turn = await reader.step({ source: "fixture", modality: "text", sequencePosition: 0, anchor: { start: 0, end: 1 } });
   assert.equal(turn.observations.length, 1);
   assert.equal(turn.refused.length, 1);
+  assert.equal(turn.witnessContract, "verbose");
   assert.equal(turn.refused[0].reason, "no evidence");
 
   const exclusions = turn.fold.exclusions ?? [];
@@ -129,6 +130,7 @@ test("a caller-supplied adapters.witness returning a bare array (witness()'s exi
   });
   const turn = await reader.step({ source: "fixture", modality: "text", sequencePosition: 0 });
   assert.equal(turn.observations.length, 1, "the custom witness adapter's own array contract still works, unmodified");
-  assert.deepEqual(turn.refused, []);
+  assert.equal(turn.refused, null, "a bare array carries no refusal list — null, never a fabricated []");
+  assert.equal(turn.witnessContract, "bare-array, refusals unknown");
   assert.deepEqual(turn.fold.exclusions ?? [], []);
 });

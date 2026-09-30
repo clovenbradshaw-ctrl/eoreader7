@@ -45,7 +45,10 @@ export function coverageOf(st, file) {
   const F = holon(path.resolve(String(file)));
   const covering = (st.runs ?? []).filter((r) => (r.grounds ?? []).some((g) => contains(F, holon(g))));
   const latest = covering[covering.length - 1] ?? null;
-  return { covered: !!latest && latest.ok, run: latest };
+  // Strict: only a real pass covers. reason.mjs's third verdict "unread" (the
+  // engine read nothing) is truthy as a string but is NOT a pass — `=== true`
+  // keeps it from covering a file at the gate.
+  return { covered: !!latest && latest.ok === true, run: latest };
 }
 export const uncovered = (st, files) => [...new Set(files)].filter((f) => !exempt(f) && !coverageOf(st, f).covered);
 
@@ -64,7 +67,7 @@ export function engineRunOf(command, toolResponse) {
   const stdout = typeof toolResponse === "string" ? toolResponse : String(toolResponse?.stdout ?? "");
   let ok = null, grounds = null, declaredClaims;
   const t = stdout.trim();
-  if (t.startsWith("{")) { try { const j = JSON.parse(t); ok = !!j.ok; grounds = j.grounds ?? []; declaredClaims = j.declaredClaims; } catch {} }
+  if (t.startsWith("{")) { try { const j = JSON.parse(t); ok = j.ok === true; grounds = j.grounds ?? []; declaredClaims = j.declaredClaims; } catch {} }
   if (ok === null) {
     const banner = /eoreader7 reason ·[^\n]*→ [✓✗]?\s*(OK|\d+ ERROR\(S\))/.exec(stdout);
     if (!banner) return null;

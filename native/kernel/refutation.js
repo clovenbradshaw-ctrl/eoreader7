@@ -438,20 +438,26 @@ export function auditChemistry(edges = [], hyperlexicon = null, { cycleLimit = 3
  *
  * @param {Iterable} licensedByGiver keys a named giver has licensed
  * @param {Map|object} scans key -> a refuteRelation result
- * @returns {{survivors: string[], vetoed: Array, disclosure: string}}
+ * @returns {{survivors: string[], vetoed: Array, unscanned: Array, disclosure: string}}
+ *   `survivors` are ONLY scanned && !refuted keys — a key with no scan lands
+ *   in `unscanned` as {key, gap:"no_scan", detail}, never in survivors
+ *   (an unscanned key falling into survivors was the ledger-ignorance gap
+ *   this shape closes: absence of a scan is not a clean scan).
  */
 export function afterVeto(licensedByGiver = [], scans = new Map()) {
   const read = (key) => (scans instanceof Map ? scans.get(key) : scans?.[key]) ?? null;
-  const survivors = [], vetoed = [];
+  const survivors = [], vetoed = [], unscanned = [];
   for (const key of licensedByGiver) {
     const scan = read(key);
-    if (scan?.refuted) vetoed.push(freeze({ key, reasons: freeze([...(scan.reasons ?? [])]) }));
+    if (!scan) unscanned.push(freeze({ key, gap: "no_scan", detail: `no scan ran for "${key}" — unscanned is not clean, and is excluded from survivors` }));
+    else if (scan?.refuted) vetoed.push(freeze({ key, reasons: freeze([...(scan.reasons ?? [])]) }));
     else survivors.push(key);
   }
   return freeze({
     survivors: freeze(survivors),
     vetoed: freeze(vetoed),
-    disclosure: "survivors are what a NAMED GIVER licensed and this material did not refute — unrefuted is not earned, and nothing outside licensedByGiver can appear here",
+    unscanned: freeze(unscanned),
+    disclosure: "survivors are what a NAMED GIVER licensed and this material did not refute — unrefuted is not earned, unscanned keys are named in `unscanned` (gap:no_scan) and never survivors, and nothing outside licensedByGiver can appear here",
   });
 }
 

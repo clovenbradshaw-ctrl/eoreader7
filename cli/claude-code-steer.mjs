@@ -242,7 +242,7 @@ function runDerivedSpec(spec) {
     const r = spawnSync(process.execPath, [REASON, tmp, "--json"], { encoding: "utf8", timeout: 8000 });
     if (r.error) return null;
     const out = JSON.parse(r.stdout);
-    return { at: new Date().toISOString(), ok: !!out.ok, grounds: out.grounds ?? [], declaredClaims: out.declaredClaims ?? [] };
+    return { at: new Date().toISOString(), ok: out.ok === true, grounds: out.grounds ?? [], declaredClaims: out.declaredClaims ?? [] };
   } catch { return null; }
   finally { if (tmp) { try { fs.unlinkSync(tmp); } catch {} } }
 }

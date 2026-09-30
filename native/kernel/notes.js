@@ -157,8 +157,10 @@ export const kindOfWitness = (w) => {
  * standingOf(note) — what a note's witnesses amount to, DISCLOSED as counts
  * and a typed standing, never as a bit: `sources` (distinct refs),
  * `instruments` (distinct recipes; undeclared recipes counted apart),
- * and the standing:
- *   single-witness             — one source
+  * and the standing:
+  *   zero-witness                 — no source at all (sources: 0); never
+  *                                "single-witness", which claims one
+  *   single-witness             — one source
  *   corroborated               — two or more sources through ONE instrument
  *                                (they cannot disagree about that
  *                                instrument's own errors)
@@ -180,7 +182,7 @@ export function standingOf(note) {
   const sources = new Set(ws.map(sourceOfWitness));
   const recipes = new Set(ws.map(recipeOfWitness).filter((r) => r != null));
   const undeclared = ws.filter((w) => recipeOfWitness(w) == null).length;
-  const standing = sources.size < 2 ? "single-witness" : recipes.size >= 2 ? "corroborated-independently" : "corroborated";
+  const standing = sources.size === 0 ? "zero-witness" : sources.size < 2 ? "single-witness" : recipes.size >= 2 ? "corroborated-independently" : "corroborated";
   const kinds = {};
   for (const w of ws) { const k = kindOfWitness(w); kinds[k] = (kinds[k] ?? 0) + 1; }
   // WHAT THE CORROBORATION RESTS ON. Every source past the first joined
@@ -222,17 +224,23 @@ export function standingOf(note) {
  * thing every consumer of this ledger can ask without inventing its own
  * copy.
  *
- * An arrangement the caller has already marked "contradicted" (by
- * whatever means) is skipped here, mirroring this file's own P137 rule
- * one register up: a claim already known false is not "on the record"
- * for this purpose either.
- */
+  * An arrangement the caller has already marked "contradicted" (by
+  * whatever means) is NOT skipped: the ledger's own disputes are still
+  * consulted, and the return carries `callerSuppressed: true` so a reader
+  * can tell the caller's verdict suppressed the contest from one where no
+  * contest exists. This mirrors this file's own P137 rule one register up
+  * without letting a caller verdict hide a live ledger dispute.
+  */
 export function claimContestedByLedger(claim, notes) {
   const end1 = claim?.end1, label = claim?.label, end2 = claim?.end2;
-  if (!end1 || !label || !end2 || claim?.verdict === "contradicted") return { contested: false, note: null };
+  if (!end1 || !label || !end2) return { contested: false, note: null };
   const key = noteId(end1, label, end2);
   const note = (notes ?? []).find((n) => (n?.id ?? noteId(n?.end1, n?.label, n?.end2)) === key) ?? null;
   const disputedBy = note?.disputedBy ?? [];
+  if (claim?.verdict === "contradicted") {
+    if (disputedBy.length) return { contested: true, disputedBy, note, because: `disputed by ${[...new Set(disputedBy)].join(", ")}`, callerSuppressed: true };
+    return { contested: false, note, callerSuppressed: true };
+  }
   // `note` rides BOTH branches now (not only when disputed) — additive,
   // every existing caller reading only `.contested`/`.disputedBy`/`.because`
   // is unaffected — so a caller can read a MATCHED note's own standing
@@ -448,7 +456,9 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
    * arrangement is heard or turned away with a named reason, and BOTH lists
    * come back. `gate(arrangement)` is the caller's own question — a refusal
    * `{ reason, detail, givers }` or null — and its absence is a disclosed
-   * difference: a check that did not run never reports a pass.
+   * difference: a check that did not run never reports a pass. The return
+   * carries `gate: { ran: Boolean(gate) }` so a caller can tell a pass
+   * after a check from a pass where no check ran.
    */
   function admit(log, arrangements, { gate = null, witness = null } = {}) {
     let next = log;
@@ -497,7 +507,7 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
         }
       }
     }
-    return { log: next, heard, turnedAway, contests, rezeroed };
+    return { log: next, heard, turnedAway, contests, rezeroed, gate: { ran: Boolean(gate) } };
   }
 
   /**
@@ -725,6 +735,9 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
    * by whoever holds that authority — `derivation.js::concedePremise`, which
    * is what cascades to the products. bridge-witness.js's posture exactly,
    * and the reason a settlement can never quietly become a conviction.
+   * See `pendingConcessions(log)` for the outstanding queue: settlements
+   * with outcome conceded whose note is not yet conceded. No auto-concede
+   * ever runs here.
    */
   function settleDispute(log, disputeId, { trigger, outcome } = {}) {
     if (typeof trigger !== "string" || !trigger.trim())
@@ -770,6 +783,25 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
   function disputeHistory(log) {
     const settled = settlements(log);
     return disputeEntries(log).map((e) => ({ id: e.task_id, noteId: e.disputes, source: e.source, because: e.because, span: e.span ?? null, kind: e.disputeKind ?? DISPUTE_KINDS.UNTYPED, at: e.seq, settled: settled.get(e.task_id) ?? null }));
+  }
+
+  /**
+   * pendingConcessions(log) — the outstanding queue: settlements with
+   * outcome conceded whose note is not yet conceded. Each row carries the
+   * settlement id, the note id, the dispute it settles, the trigger, and
+   * its seq. No auto-concede: reading this list concedes nothing; the
+   * withdrawal stays a separate, recorded act (see `settleDispute`).
+   */
+  function pendingConcessions(log) {
+    const gone = concededIds(log);
+    const out = [];
+    for (const e of log?.entries ?? []) {
+      if (e?.kind === ENTRY_KINDS.EVIDENCE && e.operator === "CON" && e.settles && e.outcome === DISPUTE_OUTCOMES.CONCEDED) {
+        const note = e.noteId ?? null;
+        if (note && !gone.has(note)) out.push({ settlement: e.task_id, note, dispute: e.settles, trigger: e.trigger ?? null, at: e.seq });
+      }
+    }
+    return out;
   }
 
   /**
@@ -844,7 +876,7 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
     return projectTasks(log)
       .filter((t) => t.void === true && !gone.has(t.task_id))
       .filter((t) => { const f = filled.get(t.task_id); return !f || f.at < t.last_seq; })
-      .map((t) => ({ id: t.task_id, end1: t.end1, label: t.label, end2: t.end2 ?? null, scope: t.scope ?? null, reached: t.reached ?? null, because: t.because ?? null, declaredAt: t.last_seq }))
+      .map((t) => { const reached = t.reached ?? null; return { id: t.task_id, end1: t.end1, label: t.label, end2: t.end2 ?? null, scope: t.scope ?? null, reached, standing: reached === null ? "reach-unknown" : reached ? "reached" : "unreached", because: t.because ?? null, declaredAt: t.last_seq }; })
       .sort((a, b) => a.declaredAt - b.declaredAt);
   }
 
@@ -894,7 +926,10 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
     return out;
   }
 
-  /** A void THROUGH TIME: every declaration and every filling, in order, with its standing now. */
+  /** A void THROUGH TIME: every declaration and every filling, in order, with its standing now.
+   * An open void whose search never declared its total (`reached === null`)
+   * reads "reach-unknown", never "open" as a finding: a scope without a
+   * total is legitimate, but it is not a result. */
   function voidTimeline(log, voidId) {
     const events = [];
     for (const e of log?.entries ?? []) {
@@ -904,7 +939,8 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
     }
     events.sort((a, b) => a.at - b.at);
     const last = events.at(-1) ?? null;
-    return { void: voidId, events, standing: !last ? "undeclared" : last.act === "filled" ? "filled" : last.act === "conceded" ? "conceded" : "open" };
+    const standing = !last ? "undeclared" : last.act === "filled" ? "filled" : last.act === "conceded" ? "conceded" : (last.reached ?? null) === null ? "reach-unknown" : "open";
+    return { void: voidId, events, standing };
   }
 
   /**
@@ -1122,5 +1158,5 @@ export function makeNotes({ taskLog = nativeTaskLog, cellOf = nativeCellOf, iden
     return { levels, stream: s, boundarySeqs: (levels[0]?.boundaries ?? []).map((b) => s[b].seq) };
   }
 
-  return { createNotes, frameOf, frames, redeclareFrame, hear, admit, attest, concede, concededIds, concededNotes, dispute, settleDispute, disputesOf, disputedIds, disputeHistory, DISPUTE_OUTCOMES, DISPUTE_KINDS, NEEDS_THIRD_SOURCE, fold, foldWithStanding, standingOf, sourceOfWitness, recipeOfWitness, kindOfWitness, readingFromNotes, stream, figures, segment, dietBoundaries, concedeDiet, noteId, recipeId, REFUSALS, FRAME_TASK, foldCuts, negationTimeline, isCutId, CUT_PREFIX, declareVoid, foldVoids, voidTimeline, rezeroVoid, fillingsSince, isVoidId, VOID_PREFIX };
+  return { createNotes, frameOf, frames, redeclareFrame, hear, admit, attest, concede, concededIds, concededNotes, dispute, settleDispute, pendingConcessions, disputesOf, disputedIds, disputeHistory, DISPUTE_OUTCOMES, DISPUTE_KINDS, NEEDS_THIRD_SOURCE, fold, foldWithStanding, standingOf, sourceOfWitness, recipeOfWitness, kindOfWitness, readingFromNotes, stream, figures, segment, dietBoundaries, concedeDiet, noteId, recipeId, REFUSALS, FRAME_TASK, foldCuts, negationTimeline, isCutId, CUT_PREFIX, declareVoid, foldVoids, voidTimeline, rezeroVoid, fillingsSince, isVoidId, VOID_PREFIX };
 }

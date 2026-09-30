@@ -89,11 +89,15 @@ test("resolveAbsence: two equally-recent candidates fail the margin — an ambig
     minActivation: 0.1, minMargin: 0.2, contestedMargin: 0.5,
   });
   // adjudicate() still names the leading candidate for diagnostic
-  // transparency even when it refuses to commit — the same posture its own
-  // BELOW_FLOOR/NO_MARGIN branches take (a caller who wants a resolved
-  // ellipsis must gate on `verdict === "bound"`, not on `value` being null).
+  // transparency even when it refuses to commit — under `leaning`/
+  // `leaningId`, never under `value`/`id`: a refusal carries no licence to
+  // bind (a caller who wants a resolved ellipsis must gate on
+  // `verdict === "bound"`, not on `value` being null).
   assert.notEqual(out.verdict, "bound", "an ambiguous ellipsis must not verdict as bound");
-  assert.equal(out.value, "one", "the leading candidate is still surfaced for disclosure, not hidden");
+  assert.equal(out.value, null, "a refusing verdict carries no usable value");
+  assert.equal(out.id, null, "a refusing verdict carries no binding id");
+  assert.equal(out.leaning, "one", "the leading candidate is still surfaced for disclosure, not hidden");
+  assert.equal(out.leaningId, "a1");
 });
 
 // ── omnimodal proof: the identical kernel functions, a non-linguistic domain ──

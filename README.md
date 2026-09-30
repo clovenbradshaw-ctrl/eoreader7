@@ -398,6 +398,7 @@ table, and `archon-holocracy/archons.json`. See CODING-LESSONS.md #75.
 | `organs/socratic.js` | Kierkegaard | How the reader gives its account of a decline — indirect communication: meet the other where they are, hand over no conclusion they did not arrive at. The judgment (`askshape.js`, `ethos.js`) reasons in its own working vocabulary (SHAPE, FORECLOSE, STANDPOINT) so it stays medium-blind and checkable; that vocabulary never reaches the person or agent reading the answer. This organ composes the plain-language account from the judgment, in the register `interlocutor.js` recognized (a real question for a person, reasons-and-a-principal for an agent) — the same true reason and the same real alternative to both, never withheld from either. The exact judgment stays on the ledger; only the surface text is composed here. |
 | `organs/aliases.js` | Frege | There is no real name: the Morning Star and the Evening Star are one object and two names. The referent IS the equivalence CLASS of its aliases (the "full" name is the gloss's left side, not a truth), and its identity is a byte key over the whole class — never a spelling. The material's own declarations reach the surface layer (`surfaces.js::referentIdentity`), so any alias resolves to the same identity. |
 | `kernel/moral-shadow.js` | Bourdieu | The shadow trail — habitus: the append-only ledger of a person's norm-standing (norm_compliant / norm_conflict / descriptive, never merged), assessed as a RATE over their acts, corroborated across independent acts, never a verdict about a person. The cross-session accumulation the decomposition literature calls for. |
+| `organs/tschichold.js` | Tschichold | The archon of the setting — reads how the bytes were set before any word is read (wraps, the editor's lineation, speaker labels, sigla, page furniture, columns, a doubled fetch) and declares the setting through Alhazen's `frame.js`, so two readings set differently never compare silently. Learns by LOOKING once — the CV parent (`look.js`, `pdf-read.js`: rendered pages, Tesseract layout, OpenCV boxes) at ORIGINALS, never at prior extractions — then keeps what it saw as byte rules in `live_priors/derived-priors/typography-priors/`, each falsified on similar-but-not-identical material, so similar bytes are read next time without a look. Carries the script-universal Ground reader (`elementsOf`: Intl.Segmenter words, Unicode classes, the typesetter's wrap rule) and a taxonomy of omnimodal things to look at, with competency measured per family. DEF·Atmosphere (`setting`), beside `frame`. |
 | `organs/greenberg.js` | Greenberg | The archon of word-order and script universality — structurally scans this repo's OWN source (not ingested material) for a capitalisation gate, a silent English-default, a `subject`/`verb`/`object` field, or a Latin-only sentence-boundary split with no declared language/script scope (S86/S89/S92/S95/S96); a witness, never a verdict — reports the shape and its context, never a confidence score built on keyword proximity (tried against real material, dropped: see the organ's own header). Routed into `chorus-fast.sh` so it comes online whenever a diff touches an NL-facing organ or adapter. |
 
 **Artifact identity**
@@ -444,6 +445,17 @@ writes a standing rule for that content type to `content-rules.json`
 same ledger on every hard-meaning turn, applying the standing rule by name
 alongside the swarm's re-derivation (never instead of it — a rule annotates,
 it does not preempt). `GET /content-rules` serves the ledger to every surface.
+
+A second, distinct swarm mechanism in this codebase is real and statistically
+rigorous: `native/eval/lavar/swarm-gate.mjs` + `native/eval/lavar/elenchus-bar.mjs`
+admit a candidate only once it clears a noise floor measured from reruns of
+the identical genotype, never a hand-picked number. Two working scripts
+exercise it — `native/eval/lavar/wilson.mjs` here, `eo-teachings/archon-swarm.mjs`
+in the sibling repo — but unlike `eo-teachings/pythia.mjs`'s documented
+`--list`, `--archon <name> "question"`, `--repl` CLI, neither has a documented
+or interactive entry point: both are one-shot batch scripts over a hardcoded
+task, discoverable today only by already knowing to grep for "swarm" (fuller
+design history in `LAVAR.md`).
 
 ## Heimdall, out of the sandbox (2026-09-20)
 
@@ -507,6 +519,17 @@ own). Cross-lingual extension across 7 treebanks:
 actually being wired into `createSessionReader` pending sign-off, since
 that changes live behavior for every session's every turn. Commits
 `cc24193..2b399c6` on `main`.
+
+Hand-annotating a UD gold parse for a sentence that opens with a fronted
+predicate, PP, or participial clause (locative inversion, "Prince Andrew"
+-style participial openers, a copula with its predicate fronted) is a
+recurring gold-annotation task that landed on nine different sentences in
+one day before a mechanical check existed — see CODING-LESSONS.md #76.
+Before accepting any such gold parse (hand-written or subagent-produced),
+run it through `native/eval/lavar/ud-fronted-predicate-check.mjs`
+(`checkGoldParse`), wired into `npm test`. Do not re-derive the rule from
+scratch or write a new CODING-LESSONS entry for another instance of the
+same mistake — extend #76 instead.
 
 Full report, architecture diagram, and the complete pipeline inventory:
 [clovenbradshaw-ctrl/reading-training](https://github.com/clovenbradshaw-ctrl/reading-training)

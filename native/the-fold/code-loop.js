@@ -35,10 +35,12 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { execSync } from "node:child_process";
+import { execSync, execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { readOps, applyOps } from "./patch.js";
 import { detectCodeLanguage, generationBriefFor, mismatchNoteFor } from "../adapters/code/language.js";
-import { loadCodeKeywordPrior, keywordSetOf } from "../adapters/text/code-structure.js";
+import { loadCodeKeywordPrior, keywordSetOf, buildCodeIndex, codeGist, loadCodeNamePriorSplits } from "../adapters/text/code-structure.js";
+import { dmdCut } from "./resolutions.js";
 import { declaresKeyword, suggestWiderFind, suggestWholeFile, arityCoverage } from "../adapters/code/mechanical.js";
 import { pyCheckSyntax, jsCheckSyntax, tsCheckSyntax, hasTsc, suggestImportFix, pyDiagnose } from "../adapters/code/py-engine.js";
 import { emptyForecast, forecastKey, forecast, observe, forecastError } from "./forecast.js";
@@ -106,6 +108,90 @@ function renderFiles(root, relPaths) {
     blocks.push(`--- ${rel} ---\n${shown}${truncated || shown.length < content.length ? "\n[...truncated...]" : ""}`);
   }
   return blocks.join("\n\n");
+}
+
+const MAX_FOLD_SNIPPET_TOTAL_CHARS = 4000;
+
+/** The one real declaration codeGist's cut kept for `name` (its exact
+ * {start,end} byte range from parseDeclarations, via buildCodeIndex) —
+ * or null when the name isn't in this index. Prefers the entry whose
+ * file matches `fileHint` (gist's own row.file) since a name can be
+ * declared more than once across files. */
+function declarationBytes(files, index, name, fileHint) {
+  const decls = index.entities.get(name) ?? [];
+  const decl = decls.find((d) => d.file === fileHint) ?? decls[0];
+  if (!decl) return null;
+  const file = files.find((f) => f.fileName === decl.file);
+  if (!file) return null;
+  return { file: decl.file, text: file.text.slice(decl.start, decl.end) };
+}
+
+/** Fold, not dump: a codeGist-based structural summary of the workspace,
+ * folded around the task's own words (question=task) — the distinctive,
+ * call-graph-ranked declarations the task actually resolves to, never
+ * every file's full bytes. codeGist's own DMD cut already carries each
+ * surviving declaration's EXACT byte range (parseDeclarations never
+ * guesses spans), so this shows those real bytes directly — a model
+ * does not need a whole extra ACTION: read round to fetch what the cut
+ * already resolved to; it can copy FIND straight from what's below.
+ * The existing READ action (renderReadFiles) still covers everything
+ * else the cut didn't surface. */
+function renderFoldedContext(root, relPaths, task) {
+  const files = [];
+  for (const rel of relPaths) {
+    let text;
+    try {
+      text = fs.readFileSync(path.join(root, rel), "utf8");
+    } catch {
+      continue;
+    }
+    const keywords = keywordSetOf(loadCodeKeywordPrior(detectCodeLanguage(rel)));
+    files.push({ fileName: rel, text, keywords });
+  }
+  const index = buildCodeIndex(files);
+  if (!index.entities.size) {
+    return "Code structure (folded): no function/class declarations were mechanically recognized in this workspace — see the file listing above and ACTION: read whichever file the task points to.";
+  }
+  const gist = codeGist({ index, question: task, dmdCut, languagePriors: loadCodeNamePriorSplits(), genericFloor: 2 });
+  const declaredLines = gist.declared.rows.length
+    ? gist.declared.rows.map((r) => `  ${r.name} — ${index.describe(r.name).kind ?? "?"}, ${r.file}, call-degree ${r.degree}`).join("\n")
+    : "  (none survive this cut)";
+  const callLines = gist.calls.rows.length
+    ? gist.calls.rows.map((r) => `  ${r.caller} → ${r.callee} (${r.count}×)`).join("\n")
+    : "  (none survive this cut)";
+
+  let snippetBudget = MAX_FOLD_SNIPPET_TOTAL_CHARS;
+  const snippetBlocks = [];
+  for (const r of gist.declared.rows) {
+    if (snippetBudget <= 0) break;
+    const bytes = declarationBytes(files, index, r.name, r.file);
+    if (!bytes) continue;
+    const truncated = bytes.text.length > snippetBudget;
+    const shown = bytes.text.slice(0, snippetBudget);
+    snippetBudget -= shown.length;
+    snippetBlocks.push(`--- ${bytes.file} :: ${r.name} (real bytes — copy FIND from here) ---\n${shown}${truncated ? "\n[...truncated...]" : ""}`);
+  }
+  const snippetSection = snippetBlocks.length
+    ? snippetBlocks.join("\n\n")
+    : "  (the cut kept no rows to show real bytes for)";
+
+  return [
+    "Code structure (folded — distinctive declarations the task's own words resolve to, ranked by real call-graph degree; NOT a full file dump):",
+    "",
+    "Declared:",
+    declaredLines,
+    "",
+    "Calls:",
+    callLines,
+    "",
+    `Basis: ${gist.declared.basis}; ${gist.disclosure.basis}`,
+    "",
+    "Real bytes of the declarations above (exact, from the real file — copy FIND from here without a READ round; a truncated entry or a name not listed above still needs ACTION: read):",
+    "",
+    snippetSection,
+    "",
+    "Every other file in the workspace exists on disk but is not shown above — ACTION: read <path> for any file whose bytes you still need.",
+  ].join("\n");
 }
 
 // Exported for the worked-example pin (the format is half the anchoring
@@ -240,6 +326,72 @@ export function precheckSyntax(fileName, code) {
   return { syntax: "checked", gap: null };
 }
 
+// cli/reason.mjs lives two directories up from this file (native/the-fold/
+// -> the repo root -> cli/reason.mjs), resolved once, never re-derived.
+const REASON_MJS_PATH = fileURLToPath(new URL("../../cli/reason.mjs", import.meta.url));
+
+/** A MECHANICAL claim describing a patch's own byte-level change — never
+ * the coding model's own words, never JSON asked of it (S1/S2: the model
+ * proposes find/add bytes; this function, not the model, states the claim
+ * reason.mjs checks). force:"default" testimony only: this gate exists to
+ * make requireReasoning callable at all, not to declare functional/acyclic
+ * properties about arbitrary proposed code. */
+function reasoningClaimFor(absPath, find, add) {
+  const truncate = (s) => (String(s ?? "").length > 200 ? `${String(s).slice(0, 200)}…` : String(s ?? ""));
+  return {
+    claims: [{
+      id: "patch1",
+      ground: absPath,
+      rel: "replaces",
+      roles: { ARG0: truncate(find), ARG1: truncate(add) },
+      polarity: "+",
+      force: "default",
+      said: `Mechanical patch proposed by the coding loop: replaces the FIND bytes with the ADD bytes at ${absPath}.`,
+    }],
+    declare: {},
+    inferences: [], universals: [], equations: [], order: {},
+    text: "Mechanically-generated claim for requireReasoning — describes the patch's own byte-level change; not authored by the coding model.",
+  };
+}
+
+/** verifyPatchReasoning(absPath, find, add) -> { ok, output }. Runs the
+ * REAL cli/reason.mjs (never re-implemented, never mocked) against a
+ * mechanical claim, via stdin, exactly as a human operator would from the
+ * command line. FAILS CLOSED: any nonzero exit OR a crash of reason.mjs
+ * itself is "not verified" — an autonomous caller (requireReasoning:true)
+ * gets no benefit of the doubt a human wouldn't get either. */
+function verifyPatchReasoning(absPath, find, add) {
+  try {
+    execFileSync(process.execPath, [REASON_MJS_PATH, "--compact"], {
+      input: JSON.stringify(reasoningClaimFor(absPath, find, add)),
+      encoding: "utf8",
+      timeout: 20000,
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    return { ok: true, output: "" };
+  } catch (err) {
+    const output = `${err.stdout ?? ""}${err.stderr ?? ""}`.trim() || String(err.message ?? err);
+    return { ok: false, output: output.slice(0, 500) };
+  }
+}
+
+/** True when the immediately preceding round/draw entry already recorded
+ * this exact gap kind (and, when path is given, the same path) — the
+ * mechanical signal that a repeat is happening, never a guess at intent.
+ * Deliberately narrow: wired only at gap sites where repeating the SAME
+ * kind (with the same identifying path) is unambiguously non-informative
+ * regardless of model quality (already_read, invalid_path) — never at
+ * open-ended kinds like syntax_error, where the same kind can still cover
+ * genuinely different underlying attempts (measured 2026-09-29: 5
+ * consecutive syntax_error gaps on one workspace were 5 different real
+ * bugs across 5 different proposed bytes; short-circuiting on kind alone
+ * there would have wrongly killed a converging small model). */
+function repeatsLastGap(rounds, kind, path = undefined) {
+  const last = rounds[rounds.length - 1];
+  if (!last?.gap || last.gap.kind !== kind) return false;
+  return path === undefined || last.path === path;
+}
+
 /** The real content of every file read so far this run, rendered for the
  * prompt — real bytes, requested on demand, never re-summarized or
  * paraphrased between rounds. */
@@ -254,7 +406,7 @@ function renderReadFiles(reads) {
  * an ordinary failed attempt — only for a malformed call (no workspace, no
  * testCommand).
  */
-export async function runCodeLoop({ sessionId, userId = null, model, task, workspace, testCommand, maxRounds = DEFAULT_MAX_ROUNDS, testTimeoutMs = DEFAULT_TEST_TIMEOUT_MS, caller = null, signal = null, candidates = 1, turn = defaultTurn }) {
+export async function runCodeLoop({ sessionId, userId = null, model, task, workspace, testCommand, maxRounds = DEFAULT_MAX_ROUNDS, testTimeoutMs = DEFAULT_TEST_TIMEOUT_MS, caller = null, signal = null, candidates = 1, turn = defaultTurn, contextMode = "raw", requireReasoning = false }) {
   if (!workspace || !fs.existsSync(workspace)) throw new Error("workspace must be an existing directory");
   if (!testCommand || typeof testCommand !== "string") throw new Error("testCommand must be a declared, real command string");
 
@@ -319,10 +471,11 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
     const kelsen = draws === 1 && round === 1 ? null
       : Math.min(0.95, Math.max(0.1, 0.9 - (draw - 1) * (draws > 1 ? 0.7 / (draws - 1) : 0) - 0.05 * (round - 1)));
     const firstSight = round === 1 && draw === 1;
+    const baseContent = contextMode === "fold" ? renderFoldedContext(root, files, task) : renderFiles(root, files);
     const roundContent =
       firstSight
-        ? renderFiles(root, files)
-        : `${renderFiles(root, files)}${renderReadFiles(reads)}`;
+        ? baseContent
+        : `${baseContent}${renderReadFiles(reads)}`;
     const roundTask =
       firstSight
         ? `${task}\n\nFiles in the workspace (${root}):\n${listedFiles.join("\n")}${languageBlock}\n\n${PROPOSAL_FORMAT}`
@@ -346,14 +499,18 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
 
     const located = resolveRealFile(root, proposal.path);
     if (!located.ok) {
+      const stuck = repeatsLastGap(rounds, "invalid_path", proposal.path);
       rounds.push({ round, draw, kelsen, action: proposal.action, path: proposal.path, gap: located.gap });
+      if (stuck) return { done: false, rounds, finalTestOutput, stuck: { kind: "invalid_path", reason: `named the same non-existent path ("${proposal.path}") twice in a row — continuing would not help without new information` } };
       lastNote = `You named "${proposal.path}", which is not a real file in this workspace (${located.gap.reason}). Pick a real path from the listing below.`;
       continue;
     }
 
     if (proposal.action === "read") {
       if (reads.has(proposal.path)) {
+        const stuck = repeatsLastGap(rounds, "already_read", proposal.path);
         rounds.push({ round, draw, kelsen, action: "read", path: proposal.path, gap: { kind: "already_read", reason: "this file's content was already shown" } });
+        if (stuck) return { done: false, rounds, finalTestOutput, stuck: { kind: "already_read", reason: `re-requested the already-shown "${proposal.path}" twice in a row — continuing would not help without new information` } };
         lastNote = `You already have "${proposal.path}"'s content below — re-reading it won't tell you anything new. Propose a PATCH now, or read a DIFFERENT file.`;
         continue;
       }
@@ -426,6 +583,14 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
       continue;
     }
 
+    if (requireReasoning) {
+      const verify = verifyPatchReasoning(located.resolved, proposal.find, proposal.add);
+      if (!verify.ok) {
+        rounds.push({ round, draw, kelsen, action: "patch", path: proposal.path, find: proposal.find, add: proposal.add, applied: false, reverted: false, gap: { kind: "reasoning_refused", reason: `the eoreader7 reasoning gate did not pass this patch: ${verify.output}` } });
+        lastNote = `Your proposed patch on "${proposal.path}" did not pass the reasoning gate (requireReasoning is on for this run): ${verify.output}\n\nNothing was changed on disk. Reconsider the change.`;
+        continue;
+      }
+    }
     fs.writeFileSync(located.resolved, applied.code);
     const op = ops[0].op;
     // Syntax pre-check (the file's own engine on the patched bytes,

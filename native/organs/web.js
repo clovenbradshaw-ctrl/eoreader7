@@ -683,6 +683,13 @@ export const GATEWAYS = Object.freeze([
     read: "jina-markdown",
   }),
   Object.freeze({
+    id: "prometheoid",
+    kind: "relay",
+    sees: "holodeck-proxy.prometheoid.workers.dev fetches the address server-side with no record kept of the URL",
+    address: (url) => `https://holodeck-proxy.prometheoid.workers.dev/raw?url=${encodeURIComponent(url)}`,
+    read: "raw",
+  }),
+  Object.freeze({
     id: "allorigins",
     kind: "relay",
     sees: "api.allorigins.win fetches the address for you and returns the raw page",
