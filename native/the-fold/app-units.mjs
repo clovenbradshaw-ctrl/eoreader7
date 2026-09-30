@@ -109,20 +109,6 @@ export function declaredAliases(contract) {
 }
 
 /**
- * Parameters the function never reads. A small model that has the right idea often writes the metric case and forgets the parameter that
- * selects the other (`units`); the oracle then says "imperial: temp is 17, the recorded data says 63", which names a value but not the
- * mistake. This names the mistake. Advisory: it is added to a FAILING verdict only, so a function that passes with a parameter unread
- * (legitimately) is never failed for it. Approximate (a regex over source): a name appearing anywhere after the signature counts as read.
- */
-export function unusedParams(code, name, params) {
-  const at = String(code).search(new RegExp(`(?:function\\s+${name}\\s*\\(|(?:const|let|var)\\s+${name}\\s*=)`));
-  if (at < 0) return [];
-  const close = String(code).indexOf(")", at); // the end of the signature; everything after it is the body (braced or an arrow expression)
-  const body = close < 0 ? "" : String(code).slice(close + 1);
-  return params.filter((p) => !new RegExp(`(^|[^\\w$.])${p}(?![\\w$])`).test(body));
-}
-
-/**
  * `const` names assigned again later (`const at = ...; at = ...; at += ...; at++`). The engine's own message ("Assignment to constant variable")
  * does not say WHICH variable, and a small model hands back byte-identical code after it (measured 2026-09-30, both mouths, two runs). Naming
  * the variable is the whole repair. Approximate (a regex, not a scope analysis): advisory, added to a FAILING verdict only.
@@ -146,7 +132,7 @@ export function testUnit(code, contract) {
   try { fn = loadUnit(code, contract.name, { resolve: { declared } }); } catch (e) { return { ok: false, failures: [`does not compile or declare ${contract.name}: ${String(e.message).slice(0, 160)}`] }; }
   const r = testFunction(fn, contract);
   if (!r.ok) for (const v of constReassigned(code)) r.failures.unshift(`\`${v}\` is declared with const and assigned again — declare it with let`);
-  if (!r.ok && contract.kind !== "field") for (const p of unusedParams(code, contract.name, contract.params)) r.failures.unshift(`the function never reads its parameter \`${p}\` — the result must depend on it`);
+  for (const g of r.ignored ?? []) r.failures.unshift(`the function gives the same result for ${g.param} = ${g.values.map((v) => JSON.stringify(v)).join(" and ")}, but the recorded data differs — the result must depend on \`${g.param}\``);
   return { ...r, declared, resolutions: fn.resolutions?.() ?? [] };
 }
 
@@ -177,15 +163,44 @@ const pointed = (msg, args, params) => {
   return where.length ? `${head} — that value is at ${where.map((w) => "`" + w + "`").join(" or ")} in what the function receives` : head;
 };
 
+/**
+ * The parameters a function IGNORES, found by behaviour rather than by reading its source. Two runs that differ only in one primitive
+ * argument (`units`: "metric" / "imperial") and get the SAME result, while the oracle passes one and fails the other, cannot both be right:
+ * the result must depend on that parameter. Silent on a parameter that is legitimately unused (same result, same verdict) — so, unlike a
+ * scan for unread names, it cannot misfire on a field that does not depend on `units`.
+ */
+export function ignoredParams(seen, params) {
+  const out = [];
+  params.forEach((p, i) => {
+    const groups = new Map();
+    for (const r of seen) {
+      if (!r.args || !["string", "number", "boolean"].includes(typeof r.args[i])) continue;
+      const k = JSON.stringify(r.args.filter((_, j) => j !== i));
+      if (!groups.has(k)) groups.set(k, []);
+      groups.get(k).push(r);
+    }
+    for (const rs of groups.values()) {
+      const values = new Set(rs.map((r) => JSON.stringify(r.args[i])));
+      if (values.size < 2) continue;
+      const same = new Set(rs.map((r) => JSON.stringify(r.out))).size === 1, mixed = rs.some((r) => r.failed) && rs.some((r) => !r.failed);
+      if (same && mixed && !out.some((o) => o.param === p)) out.push({ param: p, values: [...values].map((v) => JSON.parse(v)) });
+    }
+  });
+  return out;
+}
+
 /** The oracle's runs against an already-loaded function — a drawn unit, or a COMPOSITION of drawn leaves. */
 export function testFunction(fn, contract) {
-  const failures = [];
+  const failures = [], seen = [];
   for (const run of contract.runs) {
     let out, args;
-    try { args = run.args(contract.sampleJson ?? contract.sampleText); out = fn(...args); } catch (e) { failures.push(`${run.label}: threw ${String(e.message).slice(0, 140)}`); continue; }
-    try { for (const f of run.check(out, contract.sampleJson ?? contract.sampleText)) failures.push(`${run.label}: ${pointed(f, args, contract.params)}`); } catch (e) { failures.push(`${run.label}: the oracle could not read the output (${String(e.message).slice(0, 100)})`); }
+    try { args = run.args(contract.sampleJson ?? contract.sampleText); out = fn(...args); } catch (e) { failures.push(`${run.label}: threw ${String(e.message).slice(0, 140)}`); seen.push({ args, out: undefined, failed: true }); continue; }
+    let f = [];
+    try { f = run.check(out, contract.sampleJson ?? contract.sampleText); for (const m of f) failures.push(`${run.label}: ${pointed(m, args, contract.params)}`); } catch (e) { failures.push(`${run.label}: the oracle could not read the output (${String(e.message).slice(0, 100)})`); f = ["unreadable"]; }
+    seen.push({ args, out, failed: f.length > 0 });
   }
-  return { ok: failures.length === 0, failures };
+  const ignored = failures.length ? ignoredParams(seen, contract.params) : [];
+  return { ok: failures.length === 0, failures, ignored };
 }
 
 /** The hash a verified unit is cached under: contract text + oracle source + sample. A changed contract, test or sample is a new unit. */

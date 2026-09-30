@@ -152,3 +152,13 @@ test("a field's prompt is NARROWED: not the object shape, only the notes that na
   const res = testUnit(`function conditionOf(current, astronomy, units) { return 0; }`, fc);
   assert.equal(res.ok, false); assert.ok(!res.failures.some((f) => /never reads its parameter/.test(f)));
 });
+
+test("on the REAL wttrNow field oracles: a temp that ignores units is told so; a condition that ignores units is not", () => {
+  const c = LEAF_CONTRACTS.find((x) => x.name === "wttrNow");
+  const temp = testUnit(`function tempOf(current, astronomy, units) { return parseFloat(current.temp_C); }`, fieldContract(c, "temp"));
+  assert.equal(temp.ok, false); assert.match(temp.failures[0], /same result for units = "metric" and "imperial"/);
+  const cond = testUnit(`function conditionOf(current, astronomy, units) { return "nothing"; }`, fieldContract(c, "condition"));
+  assert.equal(cond.ok, false); assert.ok(!cond.failures.some((f) => /must depend on/.test(f)), cond.failures.join("\n"));
+  const right = testUnit(`function tempOf(current, astronomy, units) { return units === "imperial" ? parseFloat(current.temp_F) : parseFloat(current.temp_C); }`, fieldContract(c, "temp"));
+  assert.equal(right.ok, true, right.failures.join("\n"));
+});

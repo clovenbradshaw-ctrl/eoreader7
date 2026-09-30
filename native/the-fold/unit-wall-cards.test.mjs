@@ -75,23 +75,27 @@ test("the prompt shows the cards and the contract hash moves with them; a contra
   assert.notEqual(contractHash(contract), contractHash({ ...contract, cards: false }));
 });
 
-test("a failing unit that never reads a parameter is told so; a passing one is never failed for it", async () => {
-  const { unusedParams, testUnit } = await import("./app-units.mjs");
-  assert.deepEqual(unusedParams(`function f(a, units) { return { t: a.c }; }`, "f", ["a", "units"]), ["units"]);
-  assert.deepEqual(unusedParams(`function f(a, units) { return units === "imperial" ? celsiusToFahrenheit(a.c) : a.c; }`, "f", ["a", "units"]), []);
-  assert.deepEqual(unusedParams(`const f = (a, units) => a.c * 2;`, "f", ["a", "units"]), ["units"]);
-  assert.deepEqual(unusedParams(`const f = (a, units) => units ? a.c : 0;`, "f", ["a", "units"]), [], "an arrow expression body counts");
-  assert.deepEqual(unusedParams(`function f(a, units) { return a.units; }`, "f", ["a", "units"]), ["units"], "a property named units is not the parameter");
+test("a parameter the function IGNORES is found by behaviour: same result for two values of it, the oracle passes one and fails the other", async () => {
+  const { ignoredParams, testUnit } = await import("./app-units.mjs");
+  const C = { c: 10 };
+  const seen = (rows) => rows.map(([units, out, failed]) => ({ args: [C, units], out, failed }));
+  assert.deepEqual(ignoredParams(seen([["metric", { t: 10 }, false], ["imperial", { t: 10 }, true]]), ["a", "units"]), [{ param: "units", values: ["metric", "imperial"] }]);
+  assert.deepEqual(ignoredParams(seen([["metric", { t: 10 }, false], ["imperial", { t: 50 }, false]]), ["a", "units"]), [], "it depends on units");
+  assert.deepEqual(ignoredParams(seen([["metric", { t: 10 }, false], ["imperial", { t: 10 }, false]]), ["a", "units"]), [], "legitimately unused: same result, same verdict — silent");
+  assert.deepEqual(ignoredParams(seen([["metric", { t: 10 }, true], ["imperial", { t: 10 }, true]]), ["a", "units"]), [], "wrong everywhere is not an ignored parameter");
+  assert.deepEqual(ignoredParams([{ args: [{ c: 1 }, "metric"], out: 1, failed: false }, { args: [{ c: 2 }, "imperial"], out: 1, failed: true }], ["a", "units"]), [], "runs that differ in more than the one argument are not compared");
   const contract = { name: "f", params: ["a", "units"], doc: "d", returns: "{}", sampleJson: { c: 10 }, runs: [
     { label: "metric", args: () => [{ c: 10 }, "metric"], check: (o) => (o.t === 10 ? [] : [`t is ${o.t}`]) },
     { label: "imperial", args: () => [{ c: 10 }, "imperial"], check: (o) => (o.t === 50 ? [] : [`t is ${o.t}, the recorded data says 50`]) },
   ] };
   const ignoring = testUnit(`function f(a, units) { return { t: a.c }; }`, contract);
-  assert.equal(ignoring.ok, false); assert.match(ignoring.failures[0], /never reads its parameter `units`/);
+  assert.equal(ignoring.ok, false); assert.match(ignoring.failures[0], /same result for units = "metric" and "imperial", but the recorded data differs/);
   const reading = testUnit(`function f(a, units) { return { t: units === "imperial" ? cToF(a.c) : a.c }; }`, contract);
   assert.equal(reading.ok, true); assert.deepEqual(reading.failures, []);
-  const legit = testUnit(`function f(a, units) { return { t: 10 }; }`, { ...contract, runs: [contract.runs[0]] });
-  assert.equal(legit.ok, true, "passes with a parameter unread: never failed for it");
+  // a field that legitimately ignores units is never told to read it: both verdicts agree
+  const cond = { ...contract, runs: [{ label: "m", args: () => [{ c: 10 }, "metric"], check: (o) => (o === "Sunny" ? [] : ["x"]) }, { label: "i", args: () => [{ c: 10 }, "imperial"], check: (o) => (o === "Sunny" ? [] : ["x"]) }] };
+  const bad = testUnit(`function f(a, units) { return "Rainy"; }`, cond);
+  assert.equal(bad.ok, false); assert.ok(!bad.failures.some((f) => /must depend on/.test(f)));
 });
 
 test("constReassigned names the const the engine's message does not; a fresh binding or a comparison is not a reassignment", async () => {
