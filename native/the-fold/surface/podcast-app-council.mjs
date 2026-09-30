@@ -1,97 +1,105 @@
 #!/usr/bin/env node
-// podcast-app-council.mjs — n-ary stigmergic agents, grounded, on the SAME
-// shared ledger. Direct user direction, verbatim: "Not just an append only
-// log, but n-ary agents working stigmergistically on different parts of
-// the code... You HAVE to have all the agents grounded deep in our ethos
-// and be more powerful because of their grounding in the UDHR and our
-// wisdom texts, not as a governor but because humility and honesty,
-// justice and empathy make things more intelligent."
+// podcast-app-council.mjs (v2) — the real production pipeline, rebuilt on
+// what podcast-nary-autonomy-falsify.mjs and
+// podcast-nary-structural-properties.mjs actually measured, not on the
+// original council's own untested design.
 //
-// FOUR CRITICS, ONE FEATURE EACH (orthogonal binding — THE-ENZYME-
-// PIPELINE.md's I-orthogonal: no two enzymes bind the same feature).
-// Each is grounded in a REAL citation, never a bare adjective — a real
-// UDHR article (organs/charter.js's own proven text) PLUS a real passage
-// from live_priors/14-holy-texts/, addressed to its own file:line, the
-// same self-verified-address discipline (P5.2) this whole tree holds
-// everywhere else. The grounding is NOT a governor bolted on after
-// generation — it is the LENS each critic reads the app through, on the
-// premise (the user's own, stated directly) that humility, honesty,
-// justice and empathy are what makes a reading MORE perceptive, not a
-// restriction on it:
+// THE CORRECTION THIS FILE EXISTS TO CARRY (user, verbatim):
+// "We definitely can't ground it so explicitly in the UDHR, it's more
+// than the UDHR is the secret sauce to its complex, stigmergic reasoning.
+// If we have a morality governor, people will turn it off. But we have a
+// thesis: intelligence is always grounded in ethos. Our system is MORE
+// intelligent for being more moral. And 'morality' is what you call it
+// FROM THE POV OF AN INDIVIDUALIST VALUE SYSTEM."
 //
-//   HUMILITY — UDHR Art.1 ("born free and equal in dignity") — reads for
-//     overclaimed certainty: a badge, a label, a claim the app has not
-//     actually earned.
-//   HONESTY  — Quran (tanzil-quran/quran_en_yusufali.txt:5, "they only
-//     deceive themselves... false to themselves") — reads for a declared
-//     capability the code does not actually keep (a wired-looking button
-//     that does nothing, a claim with nothing behind it).
-//   JUSTICE  — UDHR Art.7 ("equal protection of the law... without any
-//     discrimination") — reads for unequal or arbitrary treatment across
-//     episodes or users.
-//   EMPATHY  — Pali Suttas (pali-suttas/dn13.txt:441, "a heart full of
-//     compassion") — reads for what a real listener, under real
-//     conditions (slow network, a screen reader, a shaky hand), actually
-//     needs that the app does not give them.
+// v1 of this file cited UDHR/Quran/Pali-Canon text as the OPERATIVE reason
+// a writer had to act correctly, then funneled all four critiques into ONE
+// synthesis call that rewrote the whole file. That funnel is exactly where
+// both of v1's own live regressions landed (round 4: a broken ethos
+// ternary, a lost <audio> tag) — measured, not assumed, by
+// podcast-nary-autonomy-falsify.mjs, which then showed 3/3 vs 0/3 in favor
+// of removing the funnel, and podcast-nary-structural-properties.mjs,
+// which then showed the SAME 3/3 result with zero scripture in the
+// writer's own prompt — the four properties are structurally load-bearing
+// on their own; the citations were never the mechanism.
 //
-// STIGMERGY, LITERALLY (THE-STIGMERGIC-PIPELINE.md §2): the four critics
-// never call each other and never call the writer. Each reads the CURRENT
-// html (the shared environment) and writes its OWN cell to the SAME
-// ledger (podcast-app-ledger.js::landCritique) — proven by test that no
-// critique entry ever references a sibling's task_id. The synthesis step
-// is the only thing that reads multiple critics, and it reads them by
-// FOLDING THE LOG (critiquesFor), never by being handed them directly.
+// v2, what actually changed:
+//   1. Four READERS, each one structural-property lens (not a virtue,
+//      not a citation) — CALIBRATION / CONSISTENCY / INVARIANCE /
+//      OTHER-MODELING — reading the CURRENT html independently (real
+//      Promise.all, genuinely stigmergic: none calls another, each writes
+//      its own cell to the ledger via landCritique).
+//   2. Each reader must quote the EXACT offending snippet, verbatim, from
+//      the html it read — MECHANICALLY VERIFIED (html.includes(quote))
+//      before it is trusted at all (P5.2: no hallucinated quote is ever
+//      acted on; a reader whose quote does not verify is a typed gap on
+//      the record, never silently guessed past).
+//   3. Verified findings are grouped by byte-span OVERLAP (I-orthogonal:
+//      "no two enzymes bind the same feature" — checked, not assumed).
+//      Disjoint findings become independent WRITE tasks. Findings that DO
+//      overlap are merged into one shared task, disclosed as
+//      `sharedRegionCount` rather than silently forced apart.
+//   4. Each write task is dispatched to its OWN writer, in ISOLATION —
+//      it sees ONLY its own snippet plus the structural-property finding
+//      that named it, never the whole file, never another task's snippet.
+//      Real concurrency (Promise.all): no writer's prompt depends on
+//      another's output.
+//   5. Assembly is a DETERMINISTIC STRING SPLICE against the ORIGINAL
+//      html, applied in reverse byte-order so earlier replacements never
+//      invalidate later offsets. ZERO synthesis calls — there is no step
+//      in this file's control-flow that reads the whole file and
+//      regenerates it. This is the actual claim under test, made real in
+//      production rather than left in eval/.
+//   6. The wisdom-text citations are recorded on each critique's own
+//      ledger entry (landCritique's existing giver/citation fields,
+//      unchanged) as CONVERGENT VALIDATION — corroborating evidence a
+//      property is independently attested, never content handed to any
+//      model. No prompt in this file contains a scripture citation.
 //
-// HONEST CONSTRAINT, DISCLOSED: this Ollama install reports
-// OLLAMA_NUM_PARALLEL=1 at boot (checked live, see the server's own startup
-// log). The four critics are dispatched with a real Promise.all — the
-// ARCHITECTURE is n-ary and none of them waits on another's result before
-// starting — but the underlying inference engine serializes the actual
-// token generation. The concurrency this buys is real (no critic's PROMPT
-// depends on another's OUTPUT — a genuine architectural property, checked
-// by the fact that all four requests are built and fired before any
-// response arrives) even though today's single-model-instance wall-clock
-// is not parallel. A second Ollama instance or OLLAMA_NUM_PARALLEL>1 would
-// realize the wall-clock savings without changing one line of this file.
+// HONEST CONSTRAINT, disclosed as in v1: OLLAMA_NUM_PARALLEL=1 serializes
+// actual token generation even though every request here is genuinely
+// architecturally independent (built and fired before any response
+// arrives). The wall-clock savings this design already measured (4-8x in
+// the eval, because most write tasks are short isolated snippets rather
+// than a whole-file regeneration) are real regardless.
 import { fileURLToPath } from "node:url";
 import { readAppLedger, appendAppRound, landAppRound, landCritique, critiquesFor, projectApp } from "../../adapters/build/podcast-app-ledger.js";
 
 const OLLAMA_URL = process.env.ER7_OLLAMA_URL ?? "http://127.0.0.1:11434";
 const MODEL = process.env.ER7_PODCAST_MODEL ?? process.env.ER7_NB_MODEL ?? "gemma2:2b";
 
-// Real citations, self-addressed (P5.2): each `citation` is the ACTUAL
-// substring found at `source` when this council was built (2026-09-30),
-// checked live against the real files, never composed from memory.
-const COUNCIL = [
+// Four structural-property lenses. Renamed from v1's virtues to what each
+// one structurally IS (see this file's own header) — no citation, no
+// authority, in the text a reader model ever sees.
+const LENSES = [
   {
-    virtue: "humility",
-    giver: "Universal Declaration of Human Rights, Article 1",
-    source: "organs/charter.js:504-505 (UDHR_FALLBACK_EXCERPT)",
-    citation: "All human beings are born free and equal in dignity and rights. They are endowed with reason and conscience.",
-    lens: "Read for OVERCLAIMED CERTAINTY: a badge, a label, or a sentence that states something as settled when the app has not actually earned that certainty. Humility here means the app should never claim to know more than it does — every listener's own judgment deserves room, not a false verdict dressed as fact.",
+    property: "calibration",
+    read: "Read for a label or claim that asserts MORE OR DIFFERENT CERTAINTY than the underlying value actually distinguishes — a badge that silently collapses two real, distinct states into one, or states something as settled when nothing in the code has actually established it.",
   },
   {
-    virtue: "honesty",
-    giver: "Quran (Yusuf Ali translation), Surah 2",
-    source: "live_priors/14-holy-texts/tanzil-quran/quran_en_yusufali.txt:5",
-    citation: "they only deceive themselves, and realise it not! ... they are false to themselves",
-    lens: "Read for a DECLARED CAPABILITY THE CODE DOES NOT ACTUALLY KEEP: a button, an element, or a variable that LOOKS wired but does nothing when used — the app deceiving whoever reads its own markup as much as whoever clicks it. Honesty here means never letting the app's surface claim more than its own wiring delivers.",
+    property: "consistency",
+    read: "Read for a DECLARED CAPABILITY THAT DOES NOT MATCH ACTUAL WIRING — an element that looks like a working control (a play button, a link, an interactive-looking span) but whose actual behavior is something else entirely, or does nothing at all.",
   },
   {
-    virtue: "justice",
-    giver: "Universal Declaration of Human Rights, Article 7",
-    source: "organs/charter.js:512-513 (UDHR_FALLBACK_EXCERPT)",
-    citation: "All are equal before the law and are entitled without any discrimination to equal protection of the law.",
-    lens: "Read for UNEQUAL OR ARBITRARY TREATMENT: does every episode, regardless of its own content or ethos verdict, get the same fair presentation and the same functional controls? Justice here means the app must never silently favor or disadvantage one piece of content over another for no stated reason.",
+    property: "invariance",
+    read: "Read for a rule that does NOT apply the SAME way to every value of the same shape — one case silently falling through and inheriting another case's treatment, or one input type handled differently from a structurally identical one for no stated reason.",
   },
   {
-    virtue: "empathy",
-    giver: "Dīgha Nikāya 13 (Pali Canon, trans. Bhikkhu Sujato)",
-    source: "live_priors/14-holy-texts/pali-suttas/dn13.txt:441",
-    citation: "a mendicant meditates spreading a heart full of compassion",
-    lens: "Read as an actual LISTENER, under real conditions — a slow connection, a screen reader, a shaky hand, a quiet room at night. What does this app fail to give them that a person who genuinely cared about their experience would have noticed? Empathy here means reading the app from outside itself, as the person who will actually use it.",
+    property: "other-modeling",
+    read: "Read as an ACTUAL person who will use this — a slow connection, a screen reader, a shaky hand, a quiet room. What does the app fail to give them that a person who had actually pictured their real situation would have noticed?",
   },
 ];
+
+// Convergent-validation appendix — recorded on the LEDGER as corroborating
+// evidence, never handed to any model. Each is the same real, addressed
+// citation v1 used (P5.2, unchanged), now attached to the record rather
+// than the prompt.
+const VALIDATION = {
+  calibration: { giver: "Universal Declaration of Human Rights, Article 1", citation: "All human beings are born free and equal in dignity and rights. They are endowed with reason and conscience." },
+  consistency: { giver: "Quran (Yusuf Ali translation), Surah 2", citation: "they only deceive themselves, and realise it not! ... they are false to themselves" },
+  invariance: { giver: "Universal Declaration of Human Rights, Article 7", citation: "All are equal before the law and are entitled without any discrimination to equal protection of the law." },
+  "other-modeling": { giver: "Dīgha Nikāya 13 (Pali Canon, trans. Bhikkhu Sujato)", citation: "a mendicant meditates spreading a heart full of compassion" },
+};
 
 async function ask(messages, { temperature = 0.3 } = {}) {
   const started = Date.now();
@@ -104,36 +112,103 @@ async function ask(messages, { temperature = 0.3 } = {}) {
   return { text: body.message.content, audit: { request: messages, rawResponse: body.message.content, durationMs: Date.now() - started, model: MODEL } };
 }
 
-function critiquePrompt(member, html) {
+// SELECT, NEVER GENERATE (this codebase's own already-validated fix for
+// exactly this failure — P32/P83's witness protocol: a small model asked
+// to reproduce text verbatim will often paraphrase; asked to pick from a
+// numbered list, it reliably picks). Line ranges are mechanically
+// extracted from the REAL html afterward, so a hallucinated quote is not
+// merely caught (v2's first cut) — it is now STRUCTURALLY IMPOSSIBLE,
+// because the reader never generates the text it points at.
+function numberedLines(html) {
+  return html.split("\n").map((line, i) => `${i + 1}: ${line}`).join("\n");
+}
+
+/** lineByteOffsets(html) — offsets[i] = the byte index where line i (0-based)
+ * begins in the original string. split("\n") + join("\n") always exactly
+ * reproduces the source (Node's own guarantee for this separator), so this
+ * mapping is exact, not approximate. */
+function lineByteOffsets(lines) {
+  const offsets = [];
+  let pos = 0;
+  for (const line of lines) { offsets.push(pos); pos += line.length + 1; }
+  return offsets;
+}
+
+function readerPrompt(lens, html) {
   return [{
     role: "user",
-    content: `You are reading a podcast listening app's own index.html with one specific lens.
+    content: `You are reading a podcast listening app's index.html with one specific lens. Each line is numbered.
 
-Your ground, cited so it is never a bare opinion — ${member.giver} (${member.source}):
-"${member.citation}"
-
-Your lens: ${member.lens}
+Your lens: ${lens.read}
 
 The app's current index.html:
-\`\`\`html
-${html}
+\`\`\`
+${numberedLines(html)}
 \`\`\`
 
-In 1-3 sentences, name the ONE most important thing this lens reveals — a real, specific problem with THIS code, not a generic principle. If you genuinely find nothing this lens reveals, say so plainly in one sentence. Do not write code. Do not discuss any other lens.`,
+If this lens reveals a real, specific problem, answer in EXACTLY this shape:
+PROBLEM: <one sentence naming the problem>
+LINES: <the line number, or a range like 12-14, that needs to change>
+
+If this lens reveals nothing real, answer with exactly: NOTHING FOUND`,
   }];
 }
 
-function synthesisPrompt({ html, critiques, apiContract }) {
-  const notes = critiques.map((c) => `- [${c.virtue}, grounded in ${c.giver}]: ${c.note}`).join("\n");
+function parseReading(text, html) {
+  if (/NOTHING FOUND/i.test(text) && !/PROBLEM:/i.test(text)) return null;
+  const problemMatch = /PROBLEM:\s*(.+)/i.exec(text);
+  const linesMatch = /LINES:\s*(\d+)\s*(?:-\s*(\d+))?/i.exec(text);
+  if (!problemMatch || !linesMatch) return null;
+  const lines = html.split("\n");
+  const offsets = lineByteOffsets(lines);
+  let startLine = Number(linesMatch[1]) - 1;
+  let endLine = linesMatch[2] ? Number(linesMatch[2]) - 1 : startLine;
+  if (endLine < startLine) [startLine, endLine] = [endLine, startLine];
+  startLine = Math.max(0, Math.min(startLine, lines.length - 1));
+  endLine = Math.max(0, Math.min(endLine, lines.length - 1));
+  const quote = lines.slice(startLine, endLine + 1).join("\n");
+  const start = offsets[startLine];
+  return { problem: problemMatch[1].trim(), quote, start, end: start + quote.length };
+}
+
+function writerPrompt(property, problem, snippet) {
   return [{
     role: "user",
-    content: `Here is a podcast listening app's index.html:\n\`\`\`html\n${html}\n\`\`\`\n\nIt must keep satisfying this contract:\n${apiContract}\n\nFour independent readings of this app, each from a different, real, cited ground, found:\n${notes}\n\nRewrite the WHOLE file, genuinely addressing every finding above that names a real problem (a finding that says "nothing found" needs no change). Keep every API call and the <audio> playback working. Return the WHOLE file in one fenced code block, nothing else.`,
+    content: `Here is one small, isolated fragment of a podcast app's template:
+\`\`\`
+${snippet}
+\`\`\`
+
+The problem with it (property: ${property}): ${problem}
+
+Rewrite ONLY this fragment so the problem is fixed. You have no other context about the surrounding file — make this fragment correct and self-contained on its own; assume it sits inside a template literal that already has \`episode\`/\`show\` in scope where relevant.
+
+Return ONLY the rewritten fragment in one fenced code block, nothing else.`,
   }];
 }
 
 function extractCode(text) {
-  const m = /```(?:html)?\n([\s\S]*?)```/i.exec(text);
+  const m = /```(?:[a-z]*)?\n([\s\S]*?)```/i.exec(text);
   return (m ? m[1] : text).trim();
+}
+
+/** Group verified findings by byte-span overlap. Disjoint findings become
+ * independent groups (the common case — genuine I-orthogonal binding);
+ * overlapping findings merge into one group covering their union, and the
+ * merge is counted so it is disclosed, never silently assumed away. */
+function groupByOverlap(findings) {
+  const sorted = [...findings].sort((a, b) => a.start - b.start);
+  const groups = [];
+  for (const f of sorted) {
+    const last = groups[groups.length - 1];
+    if (last && f.start < last.end) {
+      last.end = Math.max(last.end, f.end);
+      last.findings.push(f);
+    } else {
+      groups.push({ start: f.start, end: f.end, findings: [f] });
+    }
+  }
+  return groups;
 }
 
 function checkCode(html) {
@@ -147,10 +222,67 @@ function checkCode(html) {
   return { issues: findings.length, findings };
 }
 
+// STRUCTURAL-INTEGRITY GUARD — found necessary live, not designed in
+// advance: round 7 of this exact pipeline had a writer given a small
+// fragment INSIDE the <style> block emit `</style></head><body></body>
+// </html>` as part of "fixing" its own tiny piece, and a second writer
+// given a fragment inside the fetch handler leave a dangling, unmatched
+// closing backtick behind — both silently landed, because checkCode's own
+// presence-only regexes (does <audio> appear ANYWHERE) cannot detect
+// document-structure corruption or duplication at all. Two checks, at two
+// different points, closing the actual gap that let it through:
+//
+//   1. FORBIDDEN_TOP_LEVEL_TAGS — a fragment isolated to one small region
+//      of the body/style/script should NEVER need to emit a document's own
+//      top-level structural tags. If it does, that is the writer
+//      overstepping the boundary of what it was actually shown, and the
+//      fragment is refused before it ever reaches the splice — the region
+//      is left UNCHANGED rather than corrupted.
+//   2. documentWellFormed(html) — checked on the FINAL assembled document,
+//      after every patch has been applied: each of html/head/body's open
+//      and close tags must appear EXACTLY ONCE. A round that fails this
+//      is refused ENTIRELY (nothing lands on the ledger for it but the
+//      readers' own critiques, for audit) rather than shipping a broken
+//      file — the prior round remains current.
+const FORBIDDEN_TOP_LEVEL_TAGS = [/<!doctype/i, /<html[\s>]/i, /<\/html>/i, /<head[\s>]/i, /<\/head>/i, /<body[\s>]/i, /<\/body>/i];
+
+function fragmentOverstepsScope(fragment) {
+  return FORBIDDEN_TOP_LEVEL_TAGS.filter((re) => re.test(fragment));
+}
+
+function documentWellFormed(html) {
+  const count = (re) => (html.match(re) || []).length;
+  const checks = { "<html>": count(/<html[\s>]/gi), "</html>": count(/<\/html>/gi), "<head>": count(/<head[\s>]/gi), "</head>": count(/<\/head>/gi), "<body>": count(/<body[\s>]/gi), "</body>": count(/<\/body>/gi) };
+  const problems = Object.entries(checks).filter(([, n]) => n !== 1).map(([tag, n]) => `${tag} appears ${n} time(s), expected exactly 1`);
+
+  // FOUND LIVE, round 9 (2026-09-30): even with every document-structure
+  // tag exactly balanced, a writer given only PART of a JS logical block
+  // (here: half of a try/catch inside an addEventListener callback) can
+  // leave the ORIGINAL block's own tail dangling right after its own
+  // replacement — two closing braces/backticks with no matching opens.
+  // documentWellFormed's tag-count check cannot see this; it is a defect
+  // in the SCRIPT, not the HTML shell. The one honest, mechanical check
+  // available without a real JS parser: the extracted <script> content
+  // must actually PARSE. `new Function(...)` never executes the code
+  // (Function's own body is only compiled, not called), so this is a
+  // syntax check, not a live-code-execution risk.
+  const scriptMatch = /<script>([\s\S]*?)<\/script>/i.exec(html);
+  if (scriptMatch) {
+    try {
+      // eslint-disable-next-line no-new-func
+      new Function(scriptMatch[1]);
+    } catch (e) {
+      problems.push(`the assembled <script> does not parse as valid JavaScript: ${e.message} — a writer's fragment almost certainly left a dangling, unmatched piece of syntax from the ORIGINAL code it only partially replaced`);
+    }
+  }
+
+  return { wellFormed: problems.length === 0, problems };
+}
+
 const API_CONTRACT = `GET /api/subscribe?url=<feed-url> returns { show: { title }, episodes: [ { title, pubDate, description, audioUrl, ethos, logosFindingCount } ] }. GET /api/episodes?show=<title> returns the same shape for an already-subscribed show. Write one self-contained index.html (inline <style>/<script>, no external libraries): a text input + Subscribe button calling /api/subscribe, each episode showing title/date/ethos badge and a real <audio controls src="\${episode.audioUrl}">, using fetch() and plain DOM APIs only.`;
 
 async function main() {
-  const outDir = fileURLToPath(new URL(".", import.meta.url));
+  fileURLToPath(new URL(".", import.meta.url));
   let log = readAppLedger();
   const fold = projectApp(log);
   const currentHtml = fold?.html;
@@ -161,40 +293,136 @@ async function main() {
   }
   const round = (fold?.round ?? 0) + 1;
 
-  console.log(`council round ${round}: dispatching ${COUNCIL.length} critics concurrently (real Promise.all — no critic's prompt depends on another's output)`);
+  console.log(`council round ${round}: dispatching ${LENSES.length} structural-property readers concurrently (no citation, no authority, in any prompt)`);
   const started = Date.now();
-  // REAL CONCURRENCY, ARCHITECTURALLY: every request is built and fired
-  // here, before any response has arrived. Promise.all, not a for-loop of
-  // awaits — checked live by the interleaved timestamps this prints.
-  const results = await Promise.all(COUNCIL.map(async (member) => {
+  const readings = await Promise.all(LENSES.map(async (lens) => {
     const t0 = Date.now();
-    console.log(`  [${member.virtue}] dispatched at +${((t0 - started) / 1000).toFixed(1)}s`);
-    const { text, audit } = await ask(critiquePrompt(member, currentHtml));
-    console.log(`  [${member.virtue}] answered at +${((Date.now() - started) / 1000).toFixed(1)}s (${text.length} chars)`);
-    return { member, note: text.trim(), audit };
+    const { text, audit } = await ask(readerPrompt(lens, currentHtml));
+    console.log(`  [${lens.property}] answered at +${((Date.now() - started) / 1000).toFixed(1)}s`);
+    const parsed = parseReading(text, currentHtml);
+    return { lens, text, audit, parsed };
   }));
 
-  for (const { member, note, audit } of results) {
-    log = landCritique(log, { round, virtue: member.virtue, giver: member.giver, citation: member.citation, note, audit });
+  // SELECT, NEVER GENERATE closed the hallucination hole structurally: a
+  // reader names a LINE RANGE, never text, so the "quote" is mechanically
+  // sliced straight from the real html — it cannot fail to verify the way
+  // v2's first cut sometimes did. The one thing still checked is that the
+  // slice is genuinely non-empty (an out-of-range or degenerate range is a
+  // typed gap, never silently acted on).
+  const verified = [];
+  const refused = [];
+  for (const r of readings) {
+    if (!r.parsed) { console.log(`  [${r.lens.property}] nothing found`); continue; }
+    if (!r.parsed.quote.trim()) {
+      console.log(`  [${r.lens.property}] REFUSED — selected line range was empty/degenerate`);
+      refused.push({ property: r.lens.property, problem: r.parsed.problem, quote: r.parsed.quote });
+      continue;
+    }
+    // Belt-and-suspenders (P5.2): confirm the mechanically sliced text
+    // really is a substring at the claimed offset — this can only fail if
+    // lineByteOffsets itself has a bug, never on account of the model.
+    if (currentHtml.slice(r.parsed.start, r.parsed.end) !== r.parsed.quote) {
+      console.log(`  [${r.lens.property}] REFUSED — internal offset mismatch (a bug in lineByteOffsets, not the model — disclosed rather than silently spliced)`);
+      refused.push({ property: r.lens.property, problem: r.parsed.problem, quote: r.parsed.quote });
+      continue;
+    }
+    console.log(`  [${r.lens.property}] verified — "${r.parsed.problem}"`);
+    verified.push({ property: r.lens.property, problem: r.parsed.problem, quote: r.parsed.quote, start: r.parsed.start, end: r.parsed.end, readerAudit: r.audit });
   }
-  appendAppRound(undefined, log, log.nextSeq - results.length * 2);
 
-  const critiques = critiquesFor(log, round);
-  console.log(`\nall ${critiques.length} critiques landed on the ledger (stigmergic — none of them called each other):`);
-  for (const c of critiques) console.log(`  [${c.virtue}] ${c.note}`);
+  for (const f of verified) {
+    log = landCritique(log, { round, virtue: f.property, giver: VALIDATION[f.property].giver, citation: VALIDATION[f.property].citation, note: f.problem, audit: f.readerAudit });
+  }
 
-  console.log(`\nsynthesis: one model call reading the current app + all ${critiques.length} critiques together...`);
-  const synStarted = Date.now();
-  const { text: rawSyn, audit: synAudit } = await ask(synthesisPrompt({ html: currentHtml, critiques, apiContract: API_CONTRACT }));
-  const html = extractCode(rawSyn);
+  if (verified.length === 0) {
+    console.log(`\nno reader found a real, verified problem — nothing to write. Ledger unchanged.`);
+    appendAppRound(undefined, log, log.nextSeq - (verified.length + refused.length));
+    return;
+  }
+
+  const groups = groupByOverlap(verified);
+  const sharedRegionCount = groups.filter((g) => g.findings.length > 1).length;
+  console.log(`\n${verified.length} verified finding(s) grouped into ${groups.length} disjoint write task(s)${sharedRegionCount ? ` (${sharedRegionCount} shared region(s), disclosed not hidden)` : ""}`);
+
+  // ORTHOGONALITY IS A PROPERTY OF THE MATERIAL, NOT SOMETHING THIS DESIGN
+  // CAN GUARANTEE ON ITS OWN — checked and disclosed every round, never
+  // assumed. If several lenses converge on one large, overlapping region,
+  // the "isolated write" for that group is not meaningfully different in
+  // kind from the whole-file synthesis funnel this design exists to avoid
+  // — that must be said plainly, on the record, not discovered later by
+  // diffing rounds by hand.
+  const BROAD_MERGE_FRACTION = 0.4;
+  const broadMerges = groups.filter((g) => g.findings.length > 1 && (g.end - g.start) / currentHtml.length > BROAD_MERGE_FRACTION);
+  if (broadMerges.length) {
+    for (const g of broadMerges) {
+      console.log(`  ORTHOGONALITY NOT ACHIEVED this round: [${g.findings.map((f) => f.property).join("+")}] converged on one region spanning ${Math.round(((g.end - g.start) / currentHtml.length) * 100)}% of the file — this is a single coordinated fix for that region, not a genuinely isolated per-property write. Disclosed, not hidden as if it were the isolated case.`);
+    }
+  }
+
+  // REAL n-ary autonomy: one writer per group, dispatched concurrently, no
+  // writer sees the whole file or any other group's snippet. Zero
+  // synthesis calls anywhere in this control-flow.
+  const writeStarted = Date.now();
+  const written = await Promise.all(groups.map(async (g) => {
+    const snippet = currentHtml.slice(g.start, g.end);
+    const combinedProblem = g.findings.map((f) => `[${f.property}] ${f.problem}`).join(" ");
+    const { text, audit } = await ask(writerPrompt(g.findings.map((f) => f.property).join("+"), combinedProblem, snippet));
+    const fragment = extractCode(text);
+    console.log(`  wrote fragment for [${g.findings.map((f) => f.property).join("+")}] region (${snippet.length} -> ${fragment.length} chars)`);
+    return { start: g.start, end: g.end, fragment, audit, properties: g.findings.map((f) => f.property) };
+  }));
+  console.log(`all ${written.length} isolated writer(s) done in ${((Date.now() - writeStarted) / 1000).toFixed(1)}s wall-clock, 0 synthesis calls`);
+
+  // STRUCTURAL GUARD, per fragment (found necessary live, round 7): a
+  // fragment isolated to one small region should never need to emit a
+  // top-level document tag. One that does is refused before it ever
+  // reaches the splice — that region is left UNCHANGED, disclosed as a
+  // refusal, never silently corrupted.
+  const patches = [];
+  const overstepped = [];
+  for (const p of written) {
+    const violations = fragmentOverstepsScope(p.fragment);
+    if (violations.length) {
+      console.log(`  REFUSED [${p.properties.join("+")}] fragment — it emitted a top-level document tag it had no business touching (${violations.map((re) => re.source).join(", ")}); region left unchanged`);
+      overstepped.push(p);
+      continue;
+    }
+    patches.push(p);
+  }
+
+  // Deterministic splice, reverse byte-order so earlier replacements never
+  // invalidate later offsets — the assembly step this whole design's
+  // falsification measured to beat a whole-file synthesis rewrite.
+  let html = currentHtml;
+  for (const p of [...patches].sort((a, b) => b.start - a.start)) {
+    html = html.slice(0, p.start) + p.fragment + html.slice(p.end);
+  }
+
+  // WHOLE-DOCUMENT GUARD, on the assembled result: even with every
+  // individual fragment clean, a writer can still leave behind a dangling,
+  // unmatched piece of syntax (round 7's second failure — an orphaned
+  // closing backtick+semicolon from a fragment that replaced only PART of
+  // a JS logical block). This cannot be caught per-fragment, only on the
+  // whole. A round that fails this is refused ENTIRELY — nothing but the
+  // readers' own critiques lands on the ledger; the prior round stays
+  // current, exactly like a database transaction that never committed.
+  const wellFormed = documentWellFormed(html);
+  if (!wellFormed.wellFormed) {
+    console.log(`\nROUND REFUSED — the assembled document is not well-formed: ${wellFormed.problems.join("; ")}`);
+    console.log(`the prior round remains current; this round's critiques are still landed on the ledger for audit, but no html is.`);
+    appendAppRound(undefined, log, log.nextSeq - (verified.length));
+    return;
+  }
+
   const check = checkCode(html);
-  console.log(`  synthesis done in ${((Date.now() - synStarted) / 1000).toFixed(1)}s; ${check.issues} mechanical issue(s): ${check.findings.join("; ") || "(none)"}`);
+  console.log(`\nfinal spliced app: ${check.issues} mechanical issue(s): ${check.findings.join("; ") || "(none)"}`);
 
+  const instruction = `${patches.length}-writer council (properties: ${[...new Set(patches.flatMap((p) => p.properties))].join(", ")}); ${refused.length ? `${refused.length} reading(s) refused; ` : ""}${overstepped.length ? `${overstepped.length} writer fragment(s) refused for overstepping scope; ` : ""}${broadMerges.length ? `orthogonality NOT achieved for ${broadMerges.length} region(s) (>${Math.round(BROAD_MERGE_FRACTION * 100)}% of file each) — coordinated fix, not isolated` : `${groups.filter((g) => g.findings.length === 1).length} genuinely isolated region(s)`}`;
   const fromSeq = log.nextSeq;
-  log = landAppRound(log, { round, mode: "council", instruction: `${critiques.length}-agent grounded council`, html, check, audit: synAudit });
+  log = landAppRound(log, { round, mode: "council", instruction, html, check, audit: { request: [{ role: "system", content: "n-ary isolated council, no synthesis call — see per-patch audits landed separately" }], rawResponse: `${patches.length} isolated patches spliced`, durationMs: Date.now() - started, model: MODEL } });
   appendAppRound(undefined, log, fromSeq);
 
-  console.log(`\nlanded round ${round} on the ledger (podcast-app-ledger.jsonl): mode=council, ${check.issues} mechanical issue(s)`);
+  console.log(`\nlanded round ${round} on the ledger (podcast-app-ledger.jsonl): mode=council(v2, n-ary isolated, no synthesis funnel), ${check.issues} mechanical issue(s)`);
 }
 
 main().catch((e) => { console.error(e); process.exitCode = 1; });
