@@ -256,3 +256,19 @@ export function persistEarnedGround({ dir, docs = [], task = null, at = new Date
   }
   return { written };
 }
+
+// ── THE ASK AS A STEER (2026-09-30, the archon poll: "provenance is not answer-hood") ──────────────────────────────────────
+// The window handed to the mouth was chosen by the plan cell's own terms, with the ask's words stripped as material variance: the
+// jobs shipped the disc-tooth description of the real Freewheel section and never the pedals or the pawl, because those sentences
+// carry the ask and not the cell. makeAskEvidence scores a text by the same recurrence-weighted evidence priors-ground uses to
+// choose a passage — Σ weight × ln(1 + occurrences) over the ask's content words — so the window can be ORDERED by how much of the
+// ask a ground sentence carries. It steers which span is handed; it adds no word to the text. Weights are the corpus's (from the
+// found-for result) when given, else uniform.
+export function makeAskEvidence(topic, weights = null) {
+  const words = subjectWordsOf(topic);
+  return (text) => {
+    if (!words.length) return 0;
+    const tf = new Map(); for (const w of draftWords(String(text ?? ""))) tf.set(w, (tf.get(w) ?? 0) + 1);
+    return words.reduce((n, w) => n + (tf.get(w) ? (weights?.[w] ?? 1) * Math.log(1 + tf.get(w)) : 0), 0);
+  };
+}

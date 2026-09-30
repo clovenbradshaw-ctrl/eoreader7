@@ -118,7 +118,7 @@ import { buildClarify, recordRound, foldAnswersFromTask, SCHEMA as CLARIFY_SCHEM
 // (reading and talking about human atrocities passes by construction).
 import { familyVerdict, familyAffordances, configureGfp } from "./native/organs/charter.js";
 import { admitHandedOver } from "./native/the-fold/ground-carries.js";
-import { findPriorsGround, persistEarnedGround } from "./native/the-fold/priors-ground.js";
+import { findPriorsGround, persistEarnedGround, makeAskEvidence } from "./native/the-fold/priors-ground.js";
 import { traceToGround, makeTracer } from "./native/the-fold/ground-trace.js";
 import { groundFacts, holographType } from "./native/organs/output-holograph.js";
 import { splitSentences as engineSplitSentences } from "./native/adapters/text/spans.js";
@@ -4931,6 +4931,12 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // subject); the shape-instrument cells steer internally but are not reader
   // sections. The seed question is still the first content question.
   const voidQuestions = preVoid.cells.filter((c) => c.relevant && c.essay).map((c) => c.question);
+  // Each void cell carries the TERRAIN it stands on (Void/Entity/Kind · Field/Link/Network · Atmosphere/Lens/Paradigm); the plan reaches
+  // the section loop as bare questions, so the terrain of each is kept here to fold the plan by terrain (below).
+  const normQ = (q) => String(q ?? "").toLowerCase().replace(/\s+/g, " ").trim();
+  const terrainOfQ = new Map();
+  const noteTerrains = (cells) => { for (const c of cells ?? []) if (c?.question && c.terrain) terrainOfQ.set(normQ(c.question), c.terrain); };
+  noteTerrains(preVoid.cells);
   if (onNote) onNote({ move: "void_questions", of: voidQuestions.length, cells: `${preVoid.cells.filter((c) => c.relevant && c.essay).length} content / ${preVoid.cells.filter((c) => c.relevant && !c.essay).length} shape of ${preVoid.relevant} relevant`, questions: voidQuestions.slice(0, 5) });
   // THE MODE DECISION — made HERE, before any expensive essay-oriented work,
   // and never upgraded by material discovered later. "auto" is a normal
@@ -5909,6 +5915,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       // declare) steer the composition internally but are not sections of a
       // standalone piece — an essay about the bongo does not have a section
       // titled "when would the essay concede its frame."
+      noteTerrains(enriched.cells);
       compositionPlan = { questions: enriched.cells.filter((c) => c.relevant && c.essay).map((c) => c.question), declaration: null };
     }
   }
@@ -6051,6 +6058,22 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // rather than churning ungrounded rewrites forever.
   const hasGrounding = (session.webSources?.size ?? 0) > 0 || (workspaceStats.files ?? 0) > 0 || surfacedSegments.length > 0;
   if (runMode === "projection" && !hasGrounding && !isCode) sections = sections.slice(0, 2);
+  // THE TERRAIN FOLD (2026-09-30, user direction: "we fold terrains so we can have a compressed bucket"). The plan is one part per void
+  // cell; two cells on the same terrain (NUL·Ground and INS·Ground are both Void; NUL·Figure and SIG·Figure both Entity) are the same
+  // ground seen by different operators, and each was drawing a window of its own from a finite commons (measured: 12 parts, 9-10 of
+  // them empty, every draw refused by the link gate). Cells sharing a terrain collapse into ONE bucket: its question is its members'
+  // questions in plan order, its window is one share of the ground. A question with no terrain stays its own bucket. Nothing is cut:
+  // every member question is still asked, in the bucket, and disclosed.
+  let terrainFold = null;
+  if (runMode === "projection" && !isCode && sections.length > 1) {
+    const order = [], by = new Map();
+    for (const q of sections) { const key = terrainOfQ.get(normQ(q)) ?? `~${normQ(q)}`; if (!by.has(key)) { by.set(key, []); order.push(key); } by.get(key).push(q); }
+    if (order.length < sections.length) {
+      terrainFold = { from: sections.length, to: order.length, buckets: order.map((k) => ({ terrain: k.startsWith("~") ? null : k, questions: by.get(k) })) };
+      sections = order.map((k) => by.get(k).join(" "));
+      if (onNote) onNote({ move: "terrain_fold", from: terrainFold.from, to: terrainFold.to, terrains: terrainFold.buckets.map((b) => `${b.terrain ?? "—"}×${b.questions.length}`) });
+    }
+  }
   // THE PLAN (D/E/R): after the impression DEF's EVA, the void stages —
   // phases × question-form × topic, arc climbing toward the DEF'd shape.
   // The plan is a PREDICTION; the read and write will be measured against it.
@@ -6276,7 +6299,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     return v;
   };
   const WINDOW_STOP = new Set("the and for with that this from under through after during was were are is had has have by to of in on at it its their there here which where when how what who into across over been being not but or as than then so such only also very just an a your our their its".split(" "));
-  const groundedWindowFor = (section, claims, material, usedSentences = null, handedClaims = null, position = 0) => {
+  // The ask as a steer for the window (projection only; uniform weights where no corpus search supplied any).
+  const askEvidence = (runMode === "projection" && !isCode && topic) ? makeAskEvidence(topic, priorsResult?.weights ?? null) : null;
+  const groundedWindowFor = (section, claims, material, usedSentences = null, handedClaims = null, position = 0, parts = 0) => {
     const text = String(material ?? "");
     if (text.length < 60) return "";
     const terms = new Set();
@@ -6286,7 +6311,11 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       if (!WINDOW_STOP.has(t) && !omniVariance.has(t)) terms.add(t);
     }
     if (!terms.size) return "";
-    const sentences = segmentSentencesOmni(text).filter((s) => s.length > 40 && s.length < 400);
+    // NO UPPER LIMIT where the window is a share (user direction, 2026-09-30: "no upper limit"): a ground sentence longer than 400
+    // characters used to be dropped here and could never be handed to the mouth, lit, or linked to. The fixed caps (this ceiling and
+    // SECTION_WINDOW_CHARS) remain only for callers with no plan to divide the ground across.
+    const shared = parts > 0;
+    const sentences = segmentSentencesOmni(text).filter((s) => s.length > 40 && (shared || s.length < 400));
     // THE STIGMERGIC TRAIL, CLAIM-CORE LEVEL (2026-09-21, Wilson run deeper):
     // `usedSentences` holds exact sentences, their opening templates, AND the
     // CLAIM-CORE of each used sentence — the being·relation pair the mouth
@@ -6357,7 +6386,10 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       }
       const lc = s.toLowerCase();
       const hits = [...terms].filter((t) => lc.includes(t)).length;
-      if (hits >= 2) scored.push({ s, hits });
+      // A sentence that carries the ASK is a candidate whatever the plan cell's terms say: the terms are the cell's, the ask is the
+      // piece's (measured: 7 of 12 parts had an empty window while the bicycle sentences of the ground went unhanded).
+      const ask = askEvidence ? askEvidence(s) : 0;
+      if (hits >= 2 || ask > 0) scored.push({ s, hits, ask });
     }
     // THE EXHAUSTED-GROUND FALLBACK (2026-09-21): when every relevant sentence
     // is already used, an empty window would silently drop grounding. The
@@ -6371,7 +6403,8 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // spent (Ostrom: 8 of 15 ground sentences were never drawn) — and it ignored the query. An empty window is the honest state:
     // nothing here is left to say, and the section is a named gap, not a re-quote.
     let source = scored;
-    source.sort((a, b) => b.hits - a.hits);
+    // Most of the ask first, then most of the cell: the window is ordered by what the piece was asked, and only then by the part.
+    source.sort((a, b) => ((b.ask ?? 0) - (a.ask ?? 0)) || (b.hits - a.hits));
     // THE ROTATING WINDOW (2026-09-21): sibling sections resolve to the same
     // theme, so without this every section ranks the SAME top sentence first
     // and opens by copying it ("The Cumberland River is a major waterway of
@@ -6397,9 +6430,15 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       const rotated = [...top.slice(seed % top.length), ...top.slice(0, seed % top.length), ...rest];
       source = rotated;
     }
+    // A WINDOW IS A SHARE OF THE GROUND, NOT A FIXED SIZE (2026-09-30, Ostrom's rule for a finite commons; measured: with the
+    // window ordered by the ask, the first part of a 12-part plan was handed the whole 2,186-character ground — the cap is 2,500 —
+    // and marked all of it spent, so the other eleven had nothing). With the plan's part count given, each part's window is an
+    // equal share of the material, at least one whole sentence, and no upper limit (the fixed cap stays only where there is no plan to share across). No number is tuned.
+    const cap = shared ? Math.max(1, Math.ceil(text.length / parts)) : SECTION_WINDOW_CHARS;
     let out = "", n = 0;
     for (const { s } of source) {
-      if (out.length + s.length > SECTION_WINDOW_CHARS) break;
+      if (n > 0 && out.length + s.length > cap) break;
+      if (!shared && n === 0 && s.length > SECTION_WINDOW_CHARS) break;
       out += (n++ ? " " : "") + s;
     }
     return out.trim();
@@ -6767,7 +6806,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         // them. The snapshot is the boundary of what is already spent.
         const handedKeysBefore = new Set(handedKeys);
         const secProps = propsForSection(section);
-        const secWindow = groundedWindowFor(section, secProps, groundingText(), usedSentences, handedKeysBefore, i);
+        const secWindow = groundedWindowFor(section, secProps, groundingText(), usedSentences, handedKeysBefore, i, askEvidence ? plannedSections.length : 0);
         // Record the sentences this window actually used — the next section
         // cannot re-read them.
         if (secWindow) {

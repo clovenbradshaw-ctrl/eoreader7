@@ -2290,3 +2290,24 @@ section count itself is still set by the plan, not by the ground (the remaining 
 is keyed to an EMPTY window, which can also mean the section's terms matched nothing in a ground that still has unspent sentences (the
 window's term gate, not exhaustion) — measured, not separated.
 
+## 87. The window is a share of the ground with no upper limit; the plan folds by terrain (2026-09-30)
+
+User direction: "no upper limit"; "we fold terrains so we can have a compressed bucket" (my first reading of "fold" as sentence dedup was
+wrong — the fold here is over the cube's TERRAINS: Void/Entity/Kind · Field/Link/Network · Atmosphere/Lens/Paradigm).
+
+**Window.** `groundedWindowFor` takes the plan's part count: a part's window is an equal share of the material (at least one whole
+sentence, never a sentence cut), with no fixed cap and no 400-character sentence ceiling where a share is in force (the old caps stay
+only for callers with no plan to divide). The window is ordered by the ASK first (`makeAskEvidence`, the same recurrence-weighted
+evidence that chooses a passage) and by the cell's terms second; a sentence that carries the ask is a candidate whatever the cell's
+terms say. Measured first: ordering by the ask with the old 2,500-character cap handed the first part the WHOLE 2,186-character ground and
+marked it spent — 9 of 12 parts had no window; the share is what made the ordering usable.
+
+**Terrain fold.** Void cells carry a terrain; the plan reached the section loop as bare questions, so the terrain of each is kept and
+cells that share a terrain collapse into ONE bucket (its question = its members' questions in plan order; nothing is cut, every member
+is still asked). Live, same ask and ground, web off: 12 parts became 6 terrain buckets; parts with nothing shipped fell from 9-10 of 12
+to 3 of 6; 123 s against 338-568 s at the start of the day. `terrain_fold` is disclosed as a note. The ledger's plan row now lists the
+buckets, so the Cells view shows them.
+
+**Not solved.** The shipped piece is still one linked sentence and still the disc-tooth description, not the pedals or the pawl; "It
+states that…" links by overlap although its "It" refers to nothing. Compression fixed the starvation, not answer-hood. The mouth's
+refused drafts still carry the model's own prefaces ("This seemingly simple change…").

@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { findPriorsGround, passagesOf, listEligible, fingerprintOf, sectionOf, persistEarnedGround } from "../native/the-fold/priors-ground.js";
+import { findPriorsGround, passagesOf, listEligible, fingerprintOf, sectionOf, persistEarnedGround, makeAskEvidence } from "../native/the-fold/priors-ground.js";
 
 const REAL = process.env.ER7_PRIORS_DIR || "/Users/mlacy/Documents/3.0/live_priors";
 const haveReal = fs.existsSync(path.join(REAL, "02-encyclopedic"));
@@ -341,4 +341,20 @@ test("REAL: the bicycle-freewheel ask, with the real Wikipedia page kept as earn
   assert.ok(!top.text.includes("rotorcraft"), "and not the rotorcraft paragraph");
   assert.equal(body.slice(top.start, top.end), top.text);
   assert.ok(!/^\[ edit \]/.test(top.text) && !/\[ edit \]$/.test(top.text.trim()), "no furniture at the edges");
+});
+
+test("the ask as a steer: on the real Freewheel section the sentences that carry the ask outrank every one that does not — the disc sentences the jobs shipped carry none", () => {
+  const body = fs.readFileSync(new URL("./fixtures/freewheel-wikipedia.txt", import.meta.url), "utf8").slice(1333, 3519);
+  const score = makeAskEvidence(ASK);
+  const sents = body.split(/(?<=[.!?"])\s+/).filter((x) => x.trim());
+  const ranked = sents.map((t) => ({ t, s: score(t) })).sort((a, b) => b.s - a.s);
+  assert.ok(/^(Bicycles use freewheels|Most bicycle freewheels|As the cyclist pedals forward)/.test(ranked[0].t), "the top sentence carries several words of the ask: " + ranked[0].t.slice(0, 60));
+  assert.ok(ranked.slice(0, 4).every((r) => r.s > 0));
+  const disc = ranked.filter((r) => /^(Rotating in one direction, the saw teeth|If the drive disc slows)/.test(r.t));
+  assert.equal(disc.length, 2);
+  assert.ok(disc.every((r) => r.s === 0), "the disc-mechanism sentences carry none of the ask");
+  assert.equal(makeAskEvidence("", null)("anything at all"), 0);
+  // weights steer: a rare word counts for more than a common one
+  const w = { bicycl: 1, freewheel: 9 };
+  assert.ok(makeAskEvidence("bicycle freewheel", w)("A freewheel.") > makeAskEvidence("bicycle freewheel", w)("A bicycle."));
 });
