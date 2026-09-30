@@ -208,6 +208,7 @@ export function proposeCanonical(log, { anchor, round, writer, suggestion, canon
     ...cellFields("SIG", "Ground"),
     description: `${writer}'s suggestion for anchor "${anchor}", round ${round}, exactly as said`,
     anchor, round, writer, suggestion, prompt, findings: canonical.findings ?? [],
+    claims: canonical.claims ?? [], // EOGfpClaims from the semantic reading (code-semantics.js): what the function was OBSERVED to read, and what the contract said it should
   });
   for (const t of canonical.transformations ?? []) {
     log = append(log, {

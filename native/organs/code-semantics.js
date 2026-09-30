@@ -16,6 +16,8 @@
 // Their disagreement is a typed finding, in the vocabulary reasoning-lint.js already uses for any record (contested, unlicensed, missing):
 //
 //   parameter_insensitive   the clause for K names a parameter, and K does not move when that parameter does       (the `units` slips)
+//                           — JUDGED BY reasoning-lint's GFP core, not by a rule here: the contract's words are a claim `reads(K, p)` (+), the
+//                           intervention is its denial `reads(K, p)` (−), at one ground; "a claim and its denial need no declaration".
 //   output_independent      K does not move under ANY input: the function returned an answer it did not compute     (the copied example)
 //   missing_referent        the clause for K names an input key and K never reads it
 //   unlicensed_referent     K reads an input key no word of K's clause, and not K's own name, licenses             (`free` from `patients_waiting`)
@@ -28,6 +30,7 @@
 // Pure: the function under reading arrives as `call`. No model, no IO.
 import { keyTokens, foldKey, keyTier } from "./key-referents.js";
 import { gfpClaim } from "../kernel/gfp-claim.js";
+import { lintGfp } from "./reasoning-lint.js";
 
 export const SEMANTICS_SCHEMA = "EOCodeSemantics@1";
 
@@ -123,7 +126,7 @@ export const ALL_KINDS = Object.freeze([...PRECISE_KINDS, "missing_referent", "u
 export function readSemantics({ call, argv, params, contract, alternatives = {}, anchor = "anchor", kinds = PRECISE_KINDS }) {
   const obs = observedDependencies({ call, argv, params, alternatives });
   if (!obs) return { schema: SEMANTICS_SCHEMA, deps: {}, findings: [], claims: [], read: false };
-  const findings = [], claims = [];
+  const findings = [], claims = [], pending = [];
   const paramSet = new Set(params.map((p) => p.toLowerCase()));
   for (const k of obs.keys) {
     const deps = obs.deps[k];
@@ -137,12 +140,17 @@ export function readSemantics({ call, argv, params, contract, alternatives = {},
     }
     if (!clauses.length) continue; // the contract says nothing about K: nothing to hold the reading against
     const toks = tokensOf(clauses);
-    // a parameter the clause names, and K does not follow
+    // a parameter the clause names: the contract's words are a claim (+), what the probe saw is another — the denial (−) when K did not follow it
     for (const p of params) {
       if (![...toks].some((t) => near(t, p.toLowerCase()))) continue;
       const i = params.indexOf(p);
       if (!alternatives[i]?.length) continue;
-      if (kinds.includes("parameter_insensitive") && !deps.some((d) => d.param === p)) findings.push({ kind: "parameter_insensitive", key: k, param: p, detail: `\`${k}\` gives the same value whatever \`${p}\` is, and its description names \`${p}\``, evidence: { clauses, values: alternatives[i] } });
+      const ground = `/${anchor}/${k}`;
+      claims.push(gfpClaim({ ground, rel: "reads", roles: { ARG0: k, ARG1: p }, polarity: "+", id: `given:${k}:${p}`, basis: `the description of ${k} names ${p}` }));
+      if (!deps.some((d) => d.param === p)) {
+        claims.push(gfpClaim({ ground, rel: "reads", roles: { ARG0: k, ARG1: p }, polarity: "-", id: `obs:${k}:${p}`, basis: `observed: changing ${p} changes nothing in ${k}` }));
+        pending.push({ key: k, param: p, clauses, values: alternatives[i] });
+      }
     }
     // input keys the clause names outright and K never reads
     const inputKeys = [...new Set(leavesOf(argv).map((l) => terminalOf(l.path, params)).filter((t) => !paramSet.has(t.toLowerCase())))];
@@ -160,6 +168,14 @@ export function readSemantics({ call, argv, params, contract, alternatives = {},
       const tt = keyTokens(d.terminal);
       const licensed = tt.some((t) => [...toks].some((x) => near(t, x))) || keyTier(k, d.terminal) !== null || foldKey(k) === foldKey(d.terminal) || viaOutputs.has(d.terminal);
       if (!licensed) findings.push({ kind: "unlicensed_referent", key: k, refers: d.terminal, detail: `\`${k}\` reads \`${d.terminal}\`, and nothing in the description of \`${k}\` involves it`, evidence: { clauses, read: d.name } });
+    }
+  }
+  // the reasoning: the GFP lint over the claims. A contradiction between a given claim and its observed denial IS the parameter finding.
+  if (kinds.includes("parameter_insensitive") && pending.length) {
+    const lint = lintGfp(claims.filter((c) => c.id?.startsWith("given:") || c.id?.startsWith("obs:")), { strictness: "standard" });
+    for (const f of lint.findings.filter((x) => x.kind === "polarity_contradiction")) {
+      const hit = pending.find((p) => f.claims?.includes(`given:${p.key}:${p.param}`));
+      if (hit) findings.push({ kind: "parameter_insensitive", key: hit.key, param: hit.param, detail: `\`${hit.key}\` gives the same value whatever \`${hit.param}\` is, and its description names \`${hit.param}\``, evidence: { clauses: hit.clauses, values: hit.values, lint: f.kind, claims: f.claims } });
     }
   }
   return { schema: SEMANTICS_SCHEMA, deps: Object.fromEntries(obs.keys.map((k) => [k, obs.deps[k].map((d) => d.name)])), findings, claims, read: true };

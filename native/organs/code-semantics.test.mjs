@@ -35,6 +35,17 @@ test("parameter_insensitive: the description names `units` and the output does n
   const r = read((c, units) => ({ temp: c.temp_C, condition: c.desc, label: c.place }));
   assert.deepEqual(r.findings.map((f) => [f.kind, f.key, f.param]), [["parameter_insensitive", "temp", "units"]]);
   assert.deepEqual(r.findings[0].evidence.values, ["metric", "imperial"]);
+  // judged by the repo's own reasoning, over claims: the contract's words (+) against the intervention's denial (−), at one ground
+  assert.equal(r.findings[0].evidence.lint, "polarity_contradiction");
+  assert.deepEqual(r.findings[0].evidence.claims.sort(), ["given:temp:units", "obs:temp:units"]);
+  const given = r.claims.find((c) => c.id === "given:temp:units"), obs = r.claims.find((c) => c.id === "obs:temp:units");
+  assert.deepEqual([given.polarity, obs.polarity, given.ground, obs.ground], ["+", "-", "/now/temp", "/now/temp"]);
+});
+
+test("sibling grounds never meet: a denial about `temp` is not a denial about `condition` — two outputs keep their own facts", () => {
+  const r = read((c, units) => ({ temp: c.temp_C, condition: c.desc, label: c.place }));
+  assert.ok(r.findings.every((f) => f.key === "temp"));
+  assert.ok(!r.claims.some((c) => c.ground === "/now/condition" && c.polarity === "-"), "condition never named units: no claim either way");
 });
 
 test("a parameter the description does NOT name is not one the output is expected to follow (condition ignores units, correctly)", () => {
