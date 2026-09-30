@@ -10,7 +10,7 @@
 //        drawn leaves and run against the whole-response oracles — an integration failure is reported
 //        as that, never as a model failure, and nothing ships
 //
-// CLI:  node app-generate.mjs --work <dir> [--mouths a,b,c] [--only leafName,leafName] [--repair edit|fresh] [--decompose whole|fields]
+// CLI:  node app-generate.mjs --work <dir> [--mouths a,b,c] [--only leafName,leafName] [--repair edit|fresh] [--decompose whole|fields] [--carry] [--anchors <dir>]  (repair: edit | fresh | fold)
 //   <dir>/unit-cache/  verified leaves by contract hash   <dir>/trails.json  the stigmergy's trails
 //   <dir>/build-ledger.jsonl  every order, draw, verdict (append-only)   <dir>/units.json  the result for the assembler
 import fs from "node:fs";
@@ -24,11 +24,11 @@ import { makeUnit, makeFieldedUnit, makeMouth, openUnitCache, loadTrails, saveTr
 /** The structural default order of mouths, cheapest first — small local models only (operator direction 2026-09-30: no larger coder). The learned order (stigmergy) reorders it. */
 export const DEFAULT_MOUTHS = ["qwen2.5-coder:1.5b", "gemma2:2b"];
 
-export async function generateUnits({ mouths = DEFAULT_MOUTHS, mouth = makeMouth(), trails = {}, cache = null, see = () => {}, only = null, now = Date.now(), rng = Math.random, repair = "edit", decompose = "whole" } = {}) {
+export async function generateUnits({ mouths = DEFAULT_MOUTHS, mouth = makeMouth(), trails = {}, cache = null, see = () => {}, only = null, now = Date.now(), rng = Math.random, repair = "edit", decompose = "whole", carry = false, anchorDir = null } = {}) {
   const leaves = {}; let gap = null;
   for (const c of LEAF_CONTRACTS) {
     if (only && !only.includes(c.name)) continue;
-    const r = await (decompose === "fields" ? makeFieldedUnit : makeUnit)(c, { mouths, mouth, trails, cache, see, now, rng, repair });
+    const r = await (decompose === "fields" ? makeFieldedUnit : makeUnit)(c, { mouths, mouth, trails, cache, see, now, rng, repair, carry, anchorDir });
     trails = r.trails;
     leaves[c.name] = { ok: r.ok, code: r.code, model: r.model, calls: r.calls, rounds: r.rounds, cached: r.cached, ms: r.ms, hash: null, failures: r.failures, declared: r.declared ?? {}, resolutions: r.resolutions ?? [] };
     if (!r.ok) gap ??= { type: "leaf_failed", leaf: c.name, failures: r.failures.slice(0, 3) };
@@ -60,7 +60,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const ledger = path.join(work, "build-ledger.jsonl");
   const see = (event, f) => { fs.appendFileSync(ledger, JSON.stringify({ at: new Date().toISOString(), event, ...f }) + "\n"); if (["unit", "unit-draw"].includes(event)) console.log(event, JSON.stringify({ ...f, code: undefined, failures: f.failures?.slice?.(0, 2) }).slice(0, 300)); };
   const t0 = Date.now();
-  const r = await generateUnits({ mouths, trails: loadTrails(trailsFile), cache, see, only, repair: arg("repair", "edit"), decompose: arg("decompose", "whole") });
+  const r = await generateUnits({ mouths, trails: loadTrails(trailsFile), cache, see, only, repair: arg("repair", "edit"), decompose: arg("decompose", "whole"), carry: process.argv.includes("--carry"), anchorDir: arg("anchors", null) });
   saveTrails(trailsFile, r.trails);
   fs.writeFileSync(path.join(work, "units.json"), JSON.stringify({ ok: r.ok, gap: r.gap, leaves: r.leaves, whole: r.whole, ms: Date.now() - t0 }, null, 1));
   console.log("\n" + "leaf".padEnd(14) + "mouth".padEnd(22) + "calls rounds   ms  how");

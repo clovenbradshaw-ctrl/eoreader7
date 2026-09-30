@@ -181,3 +181,70 @@ test("makeUnit: a suggestion with a const slip and a slipped key is READ; the ca
   const off = await makeUnit({ ...c, canonical: false, resolve: false }, { mouths: ["small"], mouth, cache: null, rng: () => 0.99, explore: 0 });
   assert.equal(off.ok, false);
 });
+
+// ---- the prompt built from the FOLD ----
+const nowContract = () => {
+  const ARGV = [{ temp_C: 18, temp_F: 65, desc: "Sunny", place: "London" }, "metric"];
+  const want = (c, u) => ({ temp: u === "imperial" ? c.temp_F : c.temp_C, condition: c.desc, label: c.place });
+  const run = (label, c, u) => ({ label, args: () => JSON.parse(JSON.stringify([c, u])), check: (o) => Object.entries(want(c, u)).flatMap(([k, v]) => (o?.[k] === v ? [] : [`${k} is ${JSON.stringify(o?.[k])}, the recorded data says ${JSON.stringify(v)}`])) });
+  return {
+    name: "now", kind: "leaf", params: ["current", "units"], doc: "Turn current conditions into the now reading.",
+    returns: "an object { temp, condition, label }\n  Units: when units is \"metric\", temperatures are degrees Celsius; when \"imperial\", degrees Fahrenheit",
+    notes: "temp comes from the _C or _F field by units; condition = the description; label is the place name.",
+    shown: "current = {...}\nunits = \"metric\"", sampleJson: ARGV[0], example: { args: "", input: () => JSON.parse(JSON.stringify(ARGV)), output: () => want(ARGV[0], "metric") },
+    runs: [run("metric", ARGV[0], "metric"), run("imperial", ARGV[0], "imperial"), run("other place", { temp_C: 3, temp_F: 37, desc: "Fog", place: "Oslo" }, "imperial")],
+  };
+};
+const scripted = (replies) => { const prompts = []; let i = 0; return { prompts, mouth: async (model, prompt) => { prompts.push(prompt); return { text: replies[Math.min(i++, replies.length - 1)], ms: 1, promptTokens: 1, outTokens: 1 }; } }; };
+const IGNORES = `function now(current, units) { return { temp: current.temp_C, condition: current.desc, label: current.place }; }`;
+const RIGHT = `function now(current, units) { return { temp: units === "imperial" ? current.temp_F : current.temp_C, condition: current.desc, label: current.place }; }`;
+
+test("repair: \"fold\" — the next prompt carries the CANONICAL current version and what the reading established about it, in plain words; \"edit\" does not", async () => {
+  const c = nowContract();
+  const a = scripted([IGNORES, RIGHT]);
+  const r = await makeUnit(c, { mouths: ["small"], mouth: a.mouth, cache: null, rng: () => 0.99, explore: 0, repair: "fold" });
+  assert.equal(r.ok, true, r.failures.join("\n")); assert.equal(a.prompts.length, 2);
+  assert.doesNotMatch(a.prompts[0], /Current version of the function/, "the first draw is a first draw");
+  assert.match(a.prompts[1], /Current version of the function:\nfunction now\(current, units\)/);
+  assert.match(a.prompts[1], /What is known about it:\n- `temp` has to follow `units`/);
+  assert.match(a.prompts[1], /temp comes from the _C or _F field by units/, "what is SAID of the output rides with the fact");
+  const b = scripted([IGNORES, RIGHT]);
+  await makeUnit(c, { mouths: ["small"], mouth: b.mouth, cache: null, rng: () => 0.99, explore: 0, repair: "edit" });
+  assert.doesNotMatch(b.prompts[1], /What is known about it/);
+});
+
+test("the fold is what the next prompt is built from: a const slip the reading closed is closed in the code the model is shown", async () => {
+  const c = nowContract();
+  const slip = `function now(current, units) { const t = 0; t = units === "imperial" ? current.temp_F : current.temp_C; return { temp: t, condition: current.desc, label: "x" + current.place }; }`;
+  const a = scripted([slip, RIGHT]);
+  await makeUnit(c, { mouths: ["small"], mouth: a.mouth, cache: null, rng: () => 0.99, explore: 0, repair: "fold" });
+  assert.match(a.prompts[1], /let t = 0/, "the canonical form, not the raw suggestion");
+  assert.doesNotMatch(a.prompts[1], /const t = 0/);
+});
+
+test("carry: a second mouth starts from the fold the first mouth left, not from nothing", async () => {
+  const c = nowContract();
+  const prompts = [];
+  const mouth = async (model, prompt) => { prompts.push([model, prompt]); return { text: model === "a" ? IGNORES : RIGHT, ms: 1, promptTokens: 1, outTokens: 1 }; };
+  const r = await makeUnit(c, { mouths: ["a", "b"], mouth, cache: null, rng: () => 0.99, explore: 0, repair: "fold", carry: true });
+  assert.equal(r.ok, true); const b = prompts.find(([m]) => m === "b")[1];
+  assert.match(b, /Current version of the function:\nfunction now/); assert.match(b, /`temp` has to follow `units`/);
+  const cold = []; await makeUnit(c, { mouths: ["a", "b"], mouth: async (m, p) => { cold.push([m, p]); return { text: m === "a" ? IGNORES : RIGHT, ms: 1, promptTokens: 1, outTokens: 1 }; }, cache: null, rng: () => 0.99, explore: 0, repair: "fold", carry: false });
+  assert.doesNotMatch(cold.find(([m]) => m === "b")[1], /Current version of the function/, "without carry the second mouth starts cold");
+});
+
+test("anchorDir: the record outlives the run — a later build of the same unit is seeded from what the fold settled, and the raw suggestion is on disk", async () => {
+  const c = nowContract(), dir = fs.mkdtempSync(path.join(os.tmpdir(), "anchors-"));
+  const first = scripted([IGNORES]);
+  const r1 = await makeUnit(c, { mouths: ["small"], mouth: first.mouth, cache: null, rng: () => 0.99, explore: 0, repair: "fold", anchorDir: dir });
+  assert.equal(r1.ok, false);
+  const rows = fs.readFileSync(path.join(dir, "now.jsonl"), "utf8").trim().split("\n").map((l) => JSON.parse(l));
+  assert.deepEqual(rows.slice(0, 2).map((e) => e.operator), ["SIG", "INS"]); assert.match(rows[0].suggestion, /current\.temp_C/, "the raw suggestion is on disk");
+  const firstRunEntries = rows.length;
+  const later = scripted([RIGHT]);
+  const r2 = await makeUnit(c, { mouths: ["small"], mouth: later.mouth, cache: null, rng: () => 0.99, explore: 0, repair: "fold", anchorDir: dir });
+  assert.equal(r2.ok, true);
+  assert.match(later.prompts[0], /Current version of the function:\nfunction now/, "the FIRST prompt of the later build starts from the settled fold");
+  const after = fs.readFileSync(path.join(dir, "now.jsonl"), "utf8").trim().split("\n").map((l) => JSON.parse(l)).map((e) => e.operator);
+  assert.deepEqual(after.slice(0, 2), ["SIG", "INS"]); assert.ok(after.length > firstRunEntries, "the later build APPENDED to the same record, it did not start a new one"); assert.ok(after.slice(firstRunEntries).includes("SYN"), "and its suggestion is a SYN over what was settled");
+});

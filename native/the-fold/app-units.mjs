@@ -34,8 +34,9 @@ import { loadUnit, UNIT_RUN_TIMEOUT_MS } from "./unit-wall.mjs";
 import { declaredFromExample, KEY_REFERENTS_SCHEMA } from "../organs/key-referents.js";
 import { CARDS_SCHEMA, cardsDoc } from "../organs/cards.js";
 import { constReassigned, canonicalize, adoptIf } from "../organs/code-canonical.js";
+import { readSemantics, factsFrom } from "../organs/code-semantics.js";
 import { createTaskLog } from "../kernel/task-log.js";
-import { proposeCanonical, settledContent } from "../adapters/build/code-anchor-log.js";
+import { proposeCanonical, settledContent, readAnchorLog, appendAnchorLog } from "../adapters/build/code-anchor-log.js";
 export { constReassigned };
 export { loadUnit, UNIT_RUN_TIMEOUT_MS };
 
@@ -67,7 +68,7 @@ export function skeletonOf(contract) {
   return `function ${contract.name}(${contract.params.join(", ")}) {\n  return {\n${Object.keys(out).map((k) => `    ${k}: ___,`).join("\n")}\n  };\n}`;
 }
 
-export function unitPrompt(contract, { failures = [], previous = null, skeleton = false, repair = "edit" } = {}) {
+export function unitPrompt(contract, { failures = [], previous = null, skeleton = false, repair = "edit", facts = [] } = {}) {
   // `shown` is what the mouth sees when the real sample is too long to show whole and the author knows which stretch carries the shape (an excerpt, cut with a marker — never rewritten)
   const sample = typeof contract.shown === "string" ? contract.shown.slice(0, SAMPLE_SHOWN_CHARS) : typeof contract.sampleText === "string" ? contract.sampleText.slice(0, SAMPLE_SHOWN_CHARS) : JSON.stringify(trimSample(contract.sampleJson), null, 1).slice(0, SAMPLE_SHOWN_CHARS);
   const lines = [
@@ -82,7 +83,14 @@ export function unitPrompt(contract, { failures = [], previous = null, skeleton 
     "Use no imports, no network, no globals. Export nothing: just declare the function.",
   ];
   // "fresh": the failures come back as REQUIREMENTS and the previous code does not (a small model shown its own code beside its failures hands the same code back — measured 2026-09-30)
-  if (failures.length && repair === "fresh") lines.push(`An earlier attempt was run against the real data and these checks failed. Write the function again from the start so that none of them fail:\n${failures.slice(0, 5).map((f) => `- ${f}`).join("\n")}`);
+  // "fold": the prompt is built from the FOLD — the canonical current version and what the reading established about it — not from the model's own words
+  // back at it. A slip the reading already closed (a const, a slipped key, a near-named call) is closed in what the model is shown, so it cannot be copied forward.
+  if (repair === "fold" && previous) {
+    lines.push(`Current version of the function:\n${String(previous).slice(0, 1800)}`);
+    if (facts.length) lines.push(`What is known about it:\n${facts.map((f) => `- ${f}`).join("\n")}`);
+    if (failures.length) lines.push(`Run against the real data, it gave:\n${failures.slice(0, 3).map((f) => `- ${f}`).join("\n")}`);
+    lines.push("Write the corrected function.");
+  } else if (failures.length && repair === "fresh") lines.push(`An earlier attempt was run against the real data and these checks failed. Write the function again from the start so that none of them fail:\n${failures.slice(0, 5).map((f) => `- ${f}`).join("\n")}`);
   else if (failures.length) lines.push(`Your previous version was run against the real data and failed:\n${failures.slice(0, 5).map((f) => `- ${f}`).join("\n")}\nPrevious version:\n${String(previous ?? "").slice(0, 1800)}\nWrite the corrected function.`);
   return lines.filter(Boolean).join("\n\n");
 }
@@ -122,7 +130,14 @@ export function testUnit(code, contract) {
   if (!r.ok && contract.hints !== false) for (const v of constReassigned(code)) r.failures.unshift(`\`${v}\` is declared with const and assigned again — declare it with let`);
   if (contract.hints !== false && r.constant) r.failures.unshift(`the function returns the identical result for different inputs (${r.constant.runs.map((l) => `"${l}"`).join(", ")}) — compute the result from the input; do not copy the example's answer`);
   if (contract.hints !== false) for (const g of r.ignored ?? []) r.failures.unshift(`the function gives the same result for ${g.param} = ${g.values.map((v) => JSON.stringify(v)).join(" and ")}, but the recorded data differs — the result must depend on \`${g.param}\``);
-  return { ...r, declared, resolutions: fn.resolutions?.() ?? [] };
+  return { ...r, declared, resolutions: fn.resolutions?.() ?? [], fn };
+}
+
+/** parameters that take more than one primitive value across a contract's runs — the SELECTORS (`units`): the semantic reading probes them with their other values */
+export function selectorAlternatives(contract) {
+  const vals = {};
+  for (const r of contract.runs) { let a; try { a = r.args(); } catch { continue; } a.forEach((x, i) => { if (["string", "number", "boolean"].includes(typeof x)) (vals[i] ??= []).push(x); }); }
+  return Object.fromEntries(Object.entries(vals).map(([i, v]) => [i, [...new Set(v)]]).filter(([, v]) => v.length > 1 && v.length <= 4));
 }
 
 /**
@@ -360,12 +375,20 @@ export function failedRuns(contract, failures) {
  */
 export function readSuggestion(suggestion, contract) {
   const raw = testUnit(suggestion, contract);
-  if (contract.canonical === false) return { res: raw, code: suggestion, canonical: { code: suggestion, transformations: [], findings: [] } };
+  const withMeaning = (res, code, canonical) => {
+    // the second reading: what the function DEPENDS on, held against what the contract says (code-semantics.js). Only when the answer is a flat object of fields.
+    let sem = null;
+    if (contract.semantics !== false && res.fn && fieldsOf(contract).length) {
+      try { sem = readSemantics({ call: (argv) => res.fn(...argv), argv: contract.runs[0].args(), params: contract.params, contract, alternatives: selectorAlternatives(contract), anchor: contract.name }); } catch { sem = null; }
+    }
+    return { res, code, canonical: { ...canonical, findings: [...(canonical.findings ?? []), ...(sem?.findings ?? [])], claims: sem?.claims ?? [] }, semantics: sem };
+  };
+  if (contract.canonical === false) return withMeaning(raw, suggestion, { code: suggestion, transformations: [], findings: [] });
   const reading = canonicalize(suggestion, { resolutions: raw.resolutions ?? [] });
-  if (!reading.changed) return { res: raw, code: suggestion, canonical: { ...reading, code: suggestion, transformations: [] } };
+  if (!reading.changed) return withMeaning(raw, suggestion, { ...reading, code: suggestion, transformations: [] });
   const can = testUnit(reading.code, { ...contract, resolve: false, cards: contract.cards === false ? false : "exact" });
-  if (adoptIf(-failedRuns(contract, raw.failures), -failedRuns(contract, can.failures))) return { res: { ...can, resolutions: raw.resolutions, declared: raw.declared }, code: reading.code, canonical: reading };
-  return { res: raw, code: suggestion, canonical: { ...reading, code: suggestion, transformations: [], refused: "the canonical form did worse than the suggestion" } };
+  if (adoptIf(-failedRuns(contract, raw.failures), -failedRuns(contract, can.failures))) return withMeaning({ ...can, resolutions: raw.resolutions, declared: raw.declared }, reading.code, reading);
+  return withMeaning(raw, suggestion, { ...reading, code: suggestion, transformations: [], refused: "the canonical form did worse than the suggestion" });
 }
 
 /**
@@ -374,7 +397,7 @@ export function readSuggestion(suggestion, contract) {
  *   trails   the stigmergy's trails (mutated by returning the new set in .trails)
  *   see      ledger writer: see(event, fields)
  */
-export async function makeUnit(contract, { mouths, mouth, trails = {}, cache = null, see = () => {}, now = Date.now(), rng = Math.random, explore = 0.1, skeleton = false, repair = "edit" } = {}) {
+export async function makeUnit(contract, { mouths, mouth, trails = {}, cache = null, see = () => {}, now = Date.now(), rng = Math.random, explore = 0.1, skeleton = false, repair = "edit", carry = false, anchorDir = null } = {}) {
   const hash = contractHash(contract);
   const t0 = Date.now();
   const hit = cache?.get(hash);
@@ -387,11 +410,17 @@ export async function makeUnit(contract, { mouths, mouth, trails = {}, cache = n
   const head = `unit:${contract.kind ?? "parse"}`;
   const order = routeOrderFor(trails, head, { routes: mouths, rng, explore });
   see("unit-order", { name: contract.name, head, order, trails: Object.fromEntries(Object.entries(trails[head] ?? []).length ? [[head, (trails[head] ?? []).length]] : []) });
-  let calls = 0, lastFailures = [], log = createTaskLog(); // the record: every draw lands on it as a suggestion and a canonical entry (adapters/build/code-anchor-log.js)
+  // the record: every draw lands on it as a suggestion and a canonical entry (adapters/build/code-anchor-log.js). With an anchorDir the record OUTLIVES the run:
+  // a later build of the same unit starts from what the fold settled, not from nothing ("future versions"), and the mistakes that were read are not made again.
+  const anchorFile = anchorDir ? path.join(anchorDir, `${contract.name}.jsonl`) : null;
+  let log = anchorFile ? readAnchorLog(anchorFile) : createTaskLog(), persisted = log.entries.length;
+  let calls = 0, lastFailures = [];
+  const seeded = anchorFile ? settledContent(log, contract.name).content : null;
+  let carried = { previous: seeded, failures: [], facts: [] };
   for (const model of order) {
-    let previous = null, failures = [];
+    let previous = carry || seeded ? carried.previous : null, failures = carry ? carried.failures : [], facts = carry ? carried.facts : [];
     for (let round = 0; round <= REPAIR_ROUNDS; round++) {
-      const prompt = unitPrompt(contract, { failures, previous, skeleton, repair });
+      const prompt = unitPrompt(contract, { failures, previous, skeleton, repair, facts });
       let r;
       try { r = await mouth(model, prompt); } catch (e) { see("unit-draw", { name: contract.name, model, round, refused: String(e.message).slice(0, 140) }); break; }
       calls++;
@@ -399,6 +428,8 @@ export async function makeUnit(contract, { mouths, mouth, trails = {}, cache = n
       if (!suggestion) { failures = ["the reply holds no function declaration"]; previous = r.text.slice(0, 600); see("unit-draw", { name: contract.name, model, round, ms: r.ms, tokens: r.outTokens, ok: false, failures }); continue; }
       const { res, code, canonical } = readSuggestion(suggestion, contract);
       log = proposeCanonical(log, { anchor: contract.name, round: calls, writer: model, suggestion, canonical, prompt: null });
+      if (anchorFile) { appendAnchorLog(anchorFile, log, persisted); persisted = log.entries.length; }
+      facts = factsFrom(canonical.findings ?? []);
       if (canonical.transformations.length) see("canonical", { name: contract.name, model, round, transformations: canonical.transformations.map((t) => `${t.kind}:${t.name ?? `${t.from}→${t.to}`}`), findings: canonical.findings });
       see("unit-draw", { name: contract.name, model, round, ms: r.ms, promptTokens: r.promptTokens, tokens: r.outTokens, ok: res.ok, failures: res.failures.slice(0, 4), resolved: (res.resolutions ?? []).filter((x) => !x.ambiguous), ambiguous: (res.resolutions ?? []).filter((x) => x.ambiguous), code: code.slice(0, 1500) });
       if (res.ok) {
@@ -409,7 +440,7 @@ export async function makeUnit(contract, { mouths, mouth, trails = {}, cache = n
       }
       // a mouth that hands back the SAME code after being shown the failures has nothing more to give this unit: the rest of its rounds are skipped
       const unchanged = previous !== null && code.replace(/\s+/g, "") === String(previous).replace(/\s+/g, "");
-      failures = res.failures; previous = code; lastFailures = res.failures;
+      failures = res.failures; previous = code; lastFailures = res.failures; carried = { previous, failures, facts };
       if (unchanged) { see("unit-draw", { name: contract.name, model, round, skipped: "the redraw is identical to the previous code; the mouth is spent for this unit" }); break; }
     }
   }
