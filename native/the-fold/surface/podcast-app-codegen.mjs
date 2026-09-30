@@ -21,6 +21,7 @@
 import fs from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { makeMeasuredLoop } from "../../kernel/measured-loop.js";
+import { readAppLedger, landAppRound, appendAppRound, projectApp } from "../../adapters/build/podcast-app-ledger.js";
 
 const OLLAMA_URL = process.env.ER7_OLLAMA_URL ?? "http://127.0.0.1:11434";
 const MODEL = process.env.ER7_PODCAST_MODEL ?? process.env.ER7_NB_MODEL ?? "gemma2:2b";
@@ -107,13 +108,29 @@ function checkCode(html) {
 // app's styling back to its pre-styled original — losing real, wanted
 // work rather than building on it. `--fresh` is the escape hatch for
 // the rare case a reviewer genuinely wants to start over from scratch.
+//
+// APPEND-ONLY, FOUND LIVE AND FIXED (2026-09-30): this used to read (and
+// the caller below used to WRITE) one mutable file on disk, overwritten in
+// place on every single round — mechanical-repair rounds AND --improve
+// steering rounds alike. Every prior round's artifact was destroyed with
+// no record: a real, direct violation of the append-only discipline this
+// whole codebase holds everywhere else (podcast.js's own landSegment:
+// "same task_id, PROPOSE then SUPERSEDE, never destroyed" — THE-ENZYME-
+// PIPELINE.md's I-append: "nothing deleted in place; release is a recorded
+// act, never an erasure"). "Current" now means the LEDGER's fold
+// (podcast-app-ledger.js, the same task-log kernel every other ledger in
+// this tree already uses) — every round lands as its own entry, forever,
+// and the mutable file is gone.
 async function loadCurrentHtml(outDir, { fresh } = {}) {
-  const fs2 = await import("node:fs/promises");
   if (!fresh) {
-    try { return await fs2.readFile(`${outDir}podcast-app-improved.html`, "utf8"); }
-    catch { /* no prior improved round yet — fall through to the original */ }
+    const fold = projectApp(readAppLedger());
+    if (fold?.html) return fold.html;
+    // The ledger is empty (a fresh checkout, before any round has ever
+    // landed on it) — read the PR's own already-committed first-round
+    // artifact ONCE as the seed. This is a READ, never a write: nothing
+    // downstream touches this file again.
   }
-  return fs2.readFile(`${outDir}podcast-app-generated.html`, "utf8");
+  try { return await fs.readFile(`${outDir}podcast-app-generated.html`, "utf8"); } catch { return null; }
 }
 
 async function main() {
@@ -151,8 +168,22 @@ async function main() {
   let round = 0;
   let stop = null;
 
+  // APPEND-ONLY, EVERY ROUND (2026-09-30): a mechanical-repair round that
+  // is STILL broken is real, valuable fiber — "everything the collapse
+  // could have been but wasn't" (THE-ENZYME-PIPELINE.md §6) — not
+  // something to discard the moment a later round supersedes it. Every
+  // internal round of THIS invocation's own DMD loop lands as its own
+  // entry on the ledger, not only the one the loop finally settles on;
+  // `settled` distinguishes the one the loop actually stopped at.
+  // `ledgerRound` keeps incrementing across separate script invocations
+  // (never resets to 1), so the ledger's own round numbering is a true,
+  // monotonic history of every codegen run ever made, not per-process.
+  let log = readAppLedger();
+  let ledgerRound = (projectApp(log)?.round ?? 0);
+
   while (true) {
     round += 1;
+    ledgerRound += 1;
     console.log(`# round ${round}: asking ${MODEL} at ${OLLAMA_URL} ...`);
     const started = Date.now();
     const raw = await callMouth(messages);
@@ -164,6 +195,14 @@ async function main() {
     evidence.rounds.push({ round, request: messages, rawResponse: raw, extractedHtml: html, check, durationMs: ms });
     measured.push(check.issues);
     stop = measured.verdict();
+
+    const from = log.nextSeq;
+    log = landAppRound(log, {
+      round: ledgerRound, mode: improveInstruction ? "improve" : "generate", instruction: improveInstruction, html, check, fresh,
+      audit: { request: messages, rawResponse: raw, durationMs: ms, model: MODEL },
+    });
+    appendAppRound(undefined, log, from);
+
     if (!stop.continue) break;
 
     messages = [
@@ -175,15 +214,13 @@ async function main() {
 
   evidence.stop = stop;
   const evidenceFile = improveInstruction ? "podcast-app-improve-evidence.json" : "podcast-app-codegen-evidence.json";
-  // The improved file lands at its OWN name — the original
-  // podcast-app-generated.html (and the model's OWN first attempt) stays
-  // on disk untouched, exactly like a ledger's SUPERSEDE keeps the prior
-  // entry rather than overwriting it. Both are real, inspectable artifacts.
-  const htmlFile = improveInstruction ? "podcast-app-improved.html" : "podcast-app-generated.html";
+  // This per-invocation evidence file stays (a convenient snapshot of THIS
+  // run's own rounds, for quick human inspection) — the ledger, not this
+  // file, is now the authoritative cross-invocation record; nothing reads
+  // this file back as input to a later run.
   await fs.writeFile(`${outDir}${evidenceFile}`, JSON.stringify(evidence, null, 2));
-  await fs.writeFile(`${outDir}${htmlFile}`, html);
   console.log(`\nstopped: ${stop.verdict} after ${stop.rounds} round(s)${Number.isFinite(stop.growth) ? ` (growth ${stop.growth.toFixed(4)})` : ""}`);
-  console.log(`wrote ${outDir}${htmlFile} and ${evidenceFile}`);
+  console.log(`landed on the ledger at round ${ledgerRound} (podcast-app-ledger.jsonl); snapshot written to ${evidenceFile}`);
 }
 
 main().catch((e) => { console.error(e); process.exitCode = 1; });

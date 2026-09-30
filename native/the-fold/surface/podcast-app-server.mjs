@@ -8,9 +8,11 @@
 //
 //   node podcast-app-server.mjs [--port 8931]
 //
-// Serves podcast-app-generated.html at "/" (the file podcast-app-codegen.mjs
-// writes — THE SYSTEM's own output, never rewritten here) and two JSON
-// routes, /api/subscribe and /api/episodes, both backed by the real organs:
+// Serves the UI-codegen ledger's LIVE FOLD at "/" (podcast-app-ledger.js —
+// every round podcast-app-codegen.mjs ever ran, append-only; "/" always
+// shows the current one, "/history" shows every round that ever existed,
+// "/history/:seq" replays any one of them) and two JSON routes,
+// /api/subscribe and /api/episodes, both backed by the real organs:
 // podcast-feed.js for the fetch+parse+ledger, organs/ethos.js +
 // organs/charter.js for the same real per-episode ethos check
 // podcast-run.mjs's own `subscribe` command already runs.
@@ -23,6 +25,7 @@ import { makeLibrary, parseFeed } from "../../adapters/build/podcast-feed.js";
 import { armCharter } from "../../organs/arm-charter.js";
 import { constitution } from "../../organs/ethos.js";
 import { charterGate } from "../../organs/charter.js";
+import { readAppLedger, projectApp, historyOf } from "../../adapters/build/podcast-app-ledger.js";
 
 const HERE = fileURLToPath(new URL(".", import.meta.url));
 const PORT = Number(process.argv.find((a) => a.startsWith("--port="))?.split("=")[1]) || 8931;
@@ -56,10 +59,28 @@ function episodesJson(showTitle) {
   });
 }
 
+// FOUND LIVE, FIXED HERE (2026-09-30): neither this header nor any
+// generated HTML declared a charset, so a browser rendering real prose
+// (curly quotes, em-dashes) fell back to a legacy encoding and produced
+// visible mojibake ("â€œ"). Every text/* response now declares utf-8
+// explicitly — a one-line, harness-level fix, never touching what the
+// model itself generates.
 const send = (res, code, body, type = "application/json") => {
-  res.writeHead(code, { "Content-Type": type, "Access-Control-Allow-Origin": "http://127.0.0.1" });
+  const withCharset = type.startsWith("text/") || type === "application/json" ? `${type}; charset=utf-8` : type;
+  res.writeHead(code, { "Content-Type": withCharset, "Access-Control-Allow-Origin": "http://127.0.0.1" });
   res.end(body);
 };
+
+/** currentAppHtml() — the ledger's live fold (podcast-app-codegen.mjs no
+ * longer overwrites a mutable file; every round lands on the append-only
+ * ledger instead). Falls back to the PR's own already-committed first-round
+ * artifact only when the ledger has never had a round land on it at all. */
+function currentAppHtml() {
+  const fold = projectApp(readAppLedger());
+  if (fold?.html) return fold.html;
+  const file = path.join(HERE, "podcast-app-generated.html");
+  return fs.existsSync(file) ? fs.readFileSync(file, "utf8") : null;
+}
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://127.0.0.1:${PORT}`);
@@ -80,18 +101,26 @@ const server = http.createServer(async (req, res) => {
       if (!show) return send(res, 400, JSON.stringify({ error: "missing show param" }));
       return send(res, 200, JSON.stringify({ episodes: episodesJson(show) }));
     }
-    if (url.pathname === "/" || url.pathname === "/index.html") {
-      const file = path.join(HERE, "podcast-app-generated.html");
-      if (!fs.existsSync(file)) return send(res, 404, "podcast-app-generated.html does not exist yet — run podcast-app-codegen.mjs first", "text/plain");
-      return send(res, 200, fs.readFileSync(file, "utf8"), "text/html");
+    if (url.pathname === "/" || url.pathname === "/index.html" || url.pathname === "/improved") {
+      // "/improved" kept as an alias for anything that already links to it
+      // — there is only ONE current app now (the ledger's fold), never two
+      // separately-mutable files.
+      const html = currentAppHtml();
+      if (!html) return send(res, 404, "no round has landed yet — run podcast-app-codegen.mjs first", "text/plain");
+      return send(res, 200, html, "text/html");
     }
-    // The UX-steered revision (podcast-app-codegen.mjs --improve), served
-    // alongside the original rather than in place of it — both are real,
-    // inspectable artifacts of what the model actually produced each time.
-    if (url.pathname === "/improved") {
-      const file = path.join(HERE, "podcast-app-improved.html");
-      if (!fs.existsSync(file)) return send(res, 404, "podcast-app-improved.html does not exist yet — run podcast-app-codegen.mjs --improve first", "text/plain");
-      return send(res, 200, fs.readFileSync(file, "utf8"), "text/html");
+    // The full append-only history: every round ever landed, none of them
+    // destroyed by a later one — the direct answer to "why overwrite
+    // instead of iterating to the log": now nothing does.
+    if (url.pathname === "/history") {
+      const rows = historyOf(readAppLedger());
+      return send(res, 200, JSON.stringify({ rounds: rows.map((r) => ({ seq: r.seq, kind: r.kind, round: r.round, mode: r.mode, instruction: r.instruction, fresh: r.fresh, check: r.check, htmlLength: r.html.length })) }, null, 2));
+    }
+    if (url.pathname.startsWith("/history/")) {
+      const seq = Number(url.pathname.slice("/history/".length));
+      const row = historyOf(readAppLedger()).find((r) => r.seq === seq);
+      if (!row) return send(res, 404, JSON.stringify({ error: `no round at seq ${seq}` }));
+      return send(res, 200, row.html, "text/html");
     }
     send(res, 404, JSON.stringify({ error: "not found" }));
   } catch (e) {
