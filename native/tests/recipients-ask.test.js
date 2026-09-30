@@ -68,7 +68,7 @@ test("why the gate is strict: the looser one — any unresolved name — would a
   // the repo holds no animacy prior: nothing here can tell Friday from Fern by anything but capitalisation, which L2 forbids as evidence
 });
 
-test("the gate is built to fail: a gate that always asks costs fourteen unneeded questions; one that never asks reaches none of the four", () => {
+test("the gate is built to fail: a gate that always asks costs fifteen unneeded questions; one that never asks reaches none of the four", () => {
   const needed = new Set(POSSESSIVE);
   const score = (gate) => { const f = TASKS.filter(gate).map((x) => x.id); return { asked: f.length, hit: f.filter((id) => needed.has(id)).length, unneeded: f.filter((id) => !needed.has(id)).length }; };
   assert.deepEqual(score((x) => !!A.gapOf(x, H_OFF.read(x.record))), { asked: 4, hit: 4, unneeded: 0 });
