@@ -1,0 +1,89 @@
+{
+ "weather": {
+  "image": {
+   "url": "https://f-droid.org/repo/cz.martykan.forecastie/en-US/phoneScreenshots/1.png",
+   "page": "https://f-droid.org/en/packages/cz.martykan.forecastie/",
+   "sha256": "e76e0ce6a8a77ce14577ca3d82886cb309486618d9514d5602580b15f88357b8",
+   "bytes": 113778,
+   "width": 720,
+   "height": 1280,
+   "dhash": "0111001001110001011110110111110101000010100000101000001000101011",
+   "alt": "app screenshot"
+  },
+  "license": {
+   "id": "GPL-3.0",
+   "standing": "copyleft",
+   "basis": "herMap, which is not libre. - License: GNU General Public License v3.0 or later - Issue Tracker - Translat",
+   "also": [],
+   "permissive": false
+  },
+  "triage": {
+   "seq": 92,
+   "at": "2026-09-30T21:09:50.618Z",
+   "event": "triage",
+   "url": "https://f-droid.org/repo/cz.martykan.forecastie/en-US/phoneScreenshots/1.png",
+   "sha256": "e76e0ce6a8a77ce14577ca3d82886cb309486618d9514d5602580b15f88357b8",
+   "rects": 10,
+   "words": 29,
+   "valueWords": 9,
+   "textShare": 0.0677,
+   "ui": 0.987,
+   "relevance": 0.444,
+   "score": 0.7156
+  },
+  "visited": {
+   "at": "2026-09-30T21:09:16.058Z",
+   "status": 200
+  },
+  "robots": {
+   "host": "f-droid.org"
+  },
+  "ledgerRows": 99,
+  "ledger": "research/weather-seen.jsonl"
+ },
+ "fuel": {
+  "image": {
+   "url": "https://f-droid.org/repo/org.woheller69.spritpreise/en-US/phoneScreenshots/1.png",
+   "page": "https://f-droid.org/en/packages/org.woheller69.spritpreise",
+   "sha256": "01f5dd85a73ffce857ee39b965982676753d4e8d207f559ab24e492babedda5c",
+   "bytes": 362101,
+   "width": 720,
+   "height": 1230,
+   "dhash": "1001100010000110101011001010110010110010100011101000010010101010",
+   "alt": "app screenshot"
+  },
+  "license": {
+   "id": "GPL-3.0",
+   "standing": "copyleft",
+   "basis": "ource - Author: woheller69 - License: GNU General Public License v3.0 only - Issue Tracker - Source Code",
+   "also": [
+    "CC-BY-4.0"
+   ],
+   "permissive": false
+  },
+  "triage": {
+   "seq": 14,
+   "at": "2026-09-30T21:19:57.572Z",
+   "event": "triage",
+   "url": "https://f-droid.org/repo/org.woheller69.spritpreise/en-US/phoneScreenshots/1.png",
+   "sha256": "01f5dd85a73ffce857ee39b965982676753d4e8d207f559ab24e492babedda5c",
+   "rects": 56,
+   "words": 31,
+   "valueWords": 12,
+   "textShare": 0.063,
+   "ui": 1,
+   "relevance": 0.5,
+   "score": 0.75
+  },
+  "visited": {
+   "at": "2026-09-30T21:19:42.522Z",
+   "status": 200
+  },
+  "robots": {
+   "host": "f-droid.org"
+  },
+  "ledgerRows": 19,
+  "ledger": "research/fuel-seen.jsonl"
+ },
+ "note": "Only the MEASUREMENT of each screenshot (words with positions, rectangles, palette) is kept here; the pixels are not. Both apps are copyleft (GPL-3.0): the generated app carries their arrangement, never their text, code or image."
+}
