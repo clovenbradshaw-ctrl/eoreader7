@@ -117,6 +117,7 @@ import { buildClarify, recordRound, foldAnswersFromTask, SCHEMA as CLARIFY_SCHEM
 // never silently ungoverns the system. Never fires on descriptive voice
 // (reading and talking about human atrocities passes by construction).
 import { familyVerdict, familyAffordances, configureGfp } from "./native/organs/charter.js";
+import { admitHandedOver } from "./native/the-fold/ground-carries.js";
 import { groundFacts, holographType } from "./native/organs/output-holograph.js";
 import { splitSentences as engineSplitSentences } from "./native/adapters/text/spans.js";
 import { askShape } from "./native/organs/askshape.js";
@@ -3604,6 +3605,52 @@ export function buildCompositionHyperlexicon(observed, giver) {
   })));
 }
 
+// THE GROUND FOR AN ASK (2026-09-30): the operator's documents that CARRY the ask's subject, not every document handed
+// over (native/the-fold/ground-carries.js holds the rule and its measured reason). Chat lines are never ground; a
+// fetched document (not in `given`) never outranks the operator's, and is excluded whenever any given document exists —
+// the 2026-09-21 rule this function inherits. One function for groundingText() and groundingSources(), so the ledger's
+// ground row and the ground the mouth reads cannot disagree.
+export function selectGroundDocs({ documents, given = null, topic = null } = {}) {
+  const hasGiven = given instanceof Map && given.size > 0;
+  const givenDocs = [], fetchedDocs = [];
+  for (const [sid, doc] of documents ?? []) {
+    if (String(sid).startsWith("chat:")) continue;
+    const text = String(doc?.text ?? "");
+    if (text.trim().length <= 40) continue;
+    (hasGiven && !given.has(String(sid)) ? fetchedDocs : givenDocs).push({ id: String(sid), text });
+  }
+  // THE LADDER. The operator's material first — if it carries the ask it is the ground and outranks anything fetched
+  // (the 2026-09-21 rule). If it does not, it is not a wall: what the hunt fetched for this ask is judged by the same
+  // rule, so an unrelated workspace cannot block the ground the hunt built. If neither carries, there is no ground —
+  // tier "none" — and the job must not write from nowhere.
+  const fromGiven = admitHandedOver({ docs: givenDocs, topic });
+  const keepGiven = new Set(fromGiven.admitted.map((d) => d.id));
+  if (givenDocs.length && keepGiven.size) {
+    return { docs: givenDocs.filter((d) => keepGiven.has(d.id)), admission: fromGiven, tier: "given", candidates: givenDocs.length, excludedFetched: fetchedDocs.map((d) => ({ id: d.id, chars: d.text.length })), hasGiven };
+  }
+  const fromFetched = fetchedDocs.length ? admitHandedOver({ docs: fetchedDocs, topic }) : null;
+  const keepFetched = new Set((fromFetched?.admitted ?? []).map((d) => d.id));
+  if (fromFetched && keepFetched.size && fromFetched.mode !== "no-subject") {
+    return { docs: fetchedDocs.filter((d) => keepFetched.has(d.id)), admission: { ...fromFetched, refused: [...fromGiven.refused, ...fromFetched.refused] }, tier: "fetched", candidates: givenDocs.length + fetchedDocs.length, excludedFetched: [], hasGiven };
+  }
+  const refused = [...fromGiven.refused, ...(fromFetched?.refused ?? [])];
+  return { docs: [], admission: { ...(fromFetched ?? fromGiven), admitted: [], refused, mode: givenDocs.length || fetchedDocs.length ? "not-carried" : fromGiven.mode, basis: givenDocs.length || fetchedDocs.length ? (fromFetched?.basis ?? fromGiven.basis) : "nothing was handed over and nothing was fetched" }, tier: "none", candidates: givenDocs.length + fetchedDocs.length, excludedFetched: [], hasGiven };
+}
+
+// NO VIEW FROM NOWHERE (2026-09-30): when no tier carries the ask, the job writes nothing from nothing. It says, in
+// plain words and from the measurement alone (no model), what it looked at and how to build a ground. The wording is
+// pinned by tests/ground-carries.test.mjs because it is the whole of what the reader sees.
+export function noGroundReport({ words = [], admission = null, webConsent = false, fetchedPages = 0 } = {}) {
+  const lines = ["No ground. Nothing handed over or fetched carries this ask, so nothing has been written."];
+  if (words.length) lines.push(`The ask's subject, as words: ${words.join(", ")}.`);
+  const refused = admission?.refused ?? [];
+  if (refused.length) lines.push(`${refused.length === 1 ? "The 1 source" : `The ${refused.length} sources`} handed over or fetched did not carry it. ${admission.basis ? admission.basis.charAt(0).toUpperCase() + admission.basis.slice(1) + "." : ""}`.trim());
+  else lines.push("Nothing was handed over.");
+  lines.push(webConsent ? (fetchedPages ? `The web search found ${fetchedPages} page(s); none of them carried it.` : "The web search found no page that could be read.") : "The web was not searched, so nothing was fetched.");
+  lines.push("To build a ground: hand over a source that is about this, or allow the web to be searched for one (that sends the ask's topic to a search engine).");
+  return lines.join("\n\n");
+}
+
 // The primary-source door's nominations: the terms of GIVEN compositions, bounded. Nomination is not admission.
 export function wikisourceTermsOf(composition, max) {
   return [...new Set(
@@ -6071,6 +6118,13 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // have returned two windows. Grounding against the whole corpus is the
   // honest test. Hoisted to function scope so the section loop, Murch, and
   // the final satisfaction check all measure against the same ground.
+  let _handed = null;
+  const handedGround = () => {
+    const documents = session.corpus?.documents;
+    const key = `${documents?.size ?? 0}|${topicPhrase(task)}`;
+    if (_handed?.key !== key) _handed = { key, ...selectGroundDocs({ documents, given: session.corpusIndex instanceof Map ? session.corpusIndex : null, topic: topicPhrase(task) }) };
+    return _handed;
+  };
   const groundingText = () => {
     const parts = [];
     if (session.webSources?.size) for (const text of session.webSources.values()) if (text) parts.push(String(text));
@@ -6102,13 +6156,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       // vocabulary. When the operator gave material, that IS the ground; a
       // fetch may still inform the reading, but it cannot become the field
       // the piece is measured against.
-      const given = session.corpusIndex instanceof Map ? session.corpusIndex : null;
-      const hasGiven = !!given?.size;
-      for (const [sid, doc] of session.corpus.documents) {
-        if (String(sid).startsWith("chat:")) continue;
-        if (hasGiven && !given.has(String(sid))) continue;
-        if (doc?.text && String(doc.text).trim().length > 40) parts.push(String(doc.text));
-      }
+      // THE OPERATOR'S MATERIAL IS THE GROUND FOR AN ASK IT CARRIES (2026-09-30): see selectGroundDocs. Measured: a bicycle
+      // answer written from the one file handed over, which was about Katherine Johnson.
+      for (const d of handedGround().docs) parts.push(d.text);
     }
     return parts.join("\n").slice(0, 200000);
   };
@@ -6121,21 +6171,14 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     const corpusInHand = runMode === "projection" && (session.corpus?.documents?.size ?? 0) > 0;
     if (!corpusInHand) for (const s of surfacedSegments ?? []) out.surf += String(s?.text ?? "").length;
     if (runMode === "projection" && session.corpus?.documents?.size) {
-      const given = session.corpusIndex instanceof Map ? session.corpusIndex : null;
-      const hasGiven = !!given?.size;
-      out.given = hasGiven ? given.size : 0;
-      for (const [sid, doc] of session.corpus.documents) {
-        if (String(sid).startsWith("chat:")) continue;
-        const t = String(doc?.text ?? "");
-        if (t.trim().length <= 40) continue;
-        if (hasGiven && !given.has(String(sid))) {
-          out.excludedDocs = (out.excludedDocs ?? 0) + 1;
-          out.excludedChars = (out.excludedChars ?? 0) + t.length;
-          if ((out.excludedIds ??= []).length < 4) out.excludedIds.push(String(sid).slice(0, 60));
-          continue;
-        }
-        out.corpusDocs++; out.corpusChars += t.length; if (out.docIds.length < 6) out.docIds.push(String(sid).slice(0, 60));
-      }
+      const g = handedGround();
+      out.given = g.hasGiven ? session.corpusIndex.size : 0;
+      out.excludedDocs = g.excludedFetched.length || undefined;
+      out.excludedChars = g.excludedFetched.length ? g.excludedFetched.reduce((n, x) => n + x.chars, 0) : undefined;
+      if (g.excludedFetched.length) out.excludedIds = g.excludedFetched.slice(0, 4).map((x) => x.id.slice(0, 60));
+      for (const d of g.docs) { out.corpusDocs++; out.corpusChars += d.text.length; if (out.docIds.length < 6) out.docIds.push(d.id.slice(0, 60)); }
+      // The ask's subject and what the handed-over material did with it, on the record.
+      out.carries = { mode: g.admission.mode, coverage: g.admission.coverage, basis: g.admission.basis, refused: g.admission.refused.slice(0, 4).map((r) => ({ id: r.id.slice(0, 60), why: r.why })) };
     }
     return out;
   };
@@ -6456,6 +6499,22 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       // MATERIAL pre-emptied the matter vocabulary before the piece said a
       // word). Matter words are deposited here, by admitted sentences alone.
       const matterRegistry = new Set();
+      // NO VIEW FROM NOWHERE (2026-09-30, user direction): a composition with no ground to stand on is not written. The
+      // ladder is handed-over material that carries the ask, then what the hunt fetched that carries it (selectGroundDocs);
+      // if neither, the job says so and stops — mechanically, no model draw — and offers to build a ground. Code is out of
+      // scope here: its ground is the workspace and the tests.
+      if (runMode === "projection" && !isCode && handedGround().tier === "none") {
+        const g = handedGround();
+        const report = noGroundReport({ words: g.admission.words ?? [], admission: g.admission, webConsent, fetchedPages: webResult?.pages ?? 0 });
+        if (onNote) onNote({ move: "no_ground", tier: g.tier, basis: g.admission.basis, webConsent: !!webConsent });
+        if (documentLedger) {
+          try {
+            appendLedgerLine(documentLedger, { role: "ground", title: "No ground", text: `sources: ${JSON.stringify({ web: 0, surf: 0, corpusDocs: 0, corpusChars: 0, docIds: [], carries: { mode: g.admission.mode, coverage: g.admission.coverage, basis: g.admission.basis, refused: (g.admission.refused ?? []).slice(0, 4).map((r) => ({ id: String(r.id).slice(0, 60), why: r.why })) } })}`, giver: "eoreader7:ground", basis: "no tier carries the ask — nothing will be written from nowhere" }, { dir: ESSAY_LEDGER_DIR });
+            appendLedgerLine(documentLedger, { role: "part", title: "No ground", text: report, giver: "eoreader7:ground", basis: "mechanical: measured from the ask and the material, no model" }, { dir: ESSAY_LEDGER_DIR });
+          } catch {}
+        }
+        return { ...earlyResult(report, { answerShape: "composition" }), satisfaction: { ok: false, filled: 0, of: sections.length, failures: [{ kind: "no_ground", detail: g.admission.basis }], totalStrain: 0, basis: "no ground carries this ask; nothing was written" } };
+      }
       // ── THE SPIRAL CONTRACT, LAYER 1: GROUND (2026-09-21, the user's law:
       // "hyper-defined layers, explicit revisable work product at each loop;
       // low sets possibility for high, high probability for low"). The ground

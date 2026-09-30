@@ -842,3 +842,13 @@ fast: 5 files · 27 affected test files · 8 tests fail, all pre-existing and un
 | Dijkstra | allowlist | tests/ethos-commons.test.mjs:45 | false-positive-on-review | a Set of test-data words, no identity claim |
 | Kondo / Lévi-Strauss | unwired export / stash | charter.js giveCharterFamily | noted | still exported and read by tests; nothing dead, nothing stash-worthy |
 clean: none claimed
+
+## 2026-09-30 — no view from nowhere: the ground ladder, the no-ground stop, documents handed in (main, eoreader7)
+fast: 7 files · 27 affected test files · 8 tests fail, all pre-existing and unrelated (provenance-feed x5, single-grain-audit, holodeck-e2e x2) — the same 8 as the previous entry · law: 2 pre-existing duplicate-header WARNs
+| lens | citation | file:line | verdict | one line |
+| Feynman | numeric constant | proxy-runner.mjs:3619 | false-positive-on-review | `<= 40` is the existing 40-character gate on a document's text, moved verbatim from groundingText |
+| Dijkstra | allowlist | proxy-runner.mjs:3646 | false-positive-on-review | a plural in a message; no identity claim |
+| Ostrom | scope of absence | ground-carries.js:42 | noted | "not found" is scoped to the handed-over material and the engine's word form, stated in the header |
+| Greenberg | language scope | ground-carries.js:34 | fixed | draftWords' stem and isFunctionWord are the engine's English prior; the header now says so and what happens without one (refuses, never admits) |
+| Simon/Chekhov | new module | job-workspace.mjs, ground-carries.js | noted | both imported by tests (6 + 12); proxy.mjs's `documents` route has no unit test — verified over real HTTP (typed refusals, a hostile name landing inside the job directory) |
+clean: none claimed

@@ -2106,3 +2106,47 @@ material, and an honest "no ground carries this" when nothing does, are unbuilt.
 job's ground (the document door takes only a filesystem path). The on-topic job wrote "Two sources agree" over one
 source, and its excerpt bullets carried page furniture ("Jump to content"). The harm hypothesis (an artifact's effect
 does not survive disclosure of its own basis) is a test still to write, not a finding.
+
+## 82. There is no view from nowhere: a job that finds no ground stops, and says what it would take to build one (2026-09-30)
+
+Lesson 81 ended with the pipeline taking whatever was handed over as ground and writing from nothing when nothing was
+handed over. Two live jobs over one handed-over file (web off) showed both failures: the bicycle-freewheel answer was four
+sentences about Katherine Johnson, and with no ground at all the small model wrote "reveals a fundamental truth about the
+nature of reality" with the ungrounded disclosure never reaching the reader. User direction: "no view from nowhere, we
+need to go build the ground to grow from."
+
+**The ladder** (`selectGroundDocs`, `native/the-fold/ground-carries.js`): the operator's material that carries the ask is
+the ground and outranks anything fetched; if it does not carry the ask it is not a wall, and what the hunt fetched is
+judged by the same rule; if neither carries, the tier is `none` and `runProxyTurn` stops before composing — no model
+draw — and writes one mechanical part, "No ground", that says what the ask's subject was as words, the count that refused
+the material, whether the web was searched, and how to build a ground (`noGroundReport`). The job ends `unsatisfied`.
+"Carries" is a definition with no tuned number: the material carries the ask when it carries more than half of the
+ask's content words (engine `isFunctionWord`), and a document is admitted when it carries more than half of the words
+the material carries, plus the fewest further documents that cover the rest.
+
+**A surface can now hand over its own sources.** `POST /v1/documents` takes `documents: [{ name, text }]` (or a
+`workspace` path, never both); `job-workspace.mjs` writes them to a per-job directory. A name is data, never a path
+(`../../../etc/passwd` became `passwd.txt` inside the job's directory, verified over HTTP); limits are typed refusals.
+
+**Falsifying controls, kept as tests** (`tests/ground-carries.test.mjs`, `tests/job-workspace.test.mjs`; holodeck's
+`holodeck-doors.test.mjs` on the real ledgers):
+- The bicycle ask over the Johnson file is refused (1 of 8 words, "still"); a single-word test would have admitted it.
+- "set" in an unrelated file does not admit that file for the continuum ask; a question spread over two documents gets both.
+- An unrelated workspace does not block what the hunt fetched (a first version excluded fetched pages whenever any
+  document was handed over).
+- The no-ground job wrote 0 characters; its real ledger is a fixture.
+
+**Measured, and it cut against my first rule.** Against `live_priors` (938 MB, about 2,100 documents), "a document carries
+the ask when it holds most of its words" ranks a file of Guardian cryptic clues and *Ulysses* as 8-of-8 matches for the
+bicycle ask: large documents contain every common word somewhere. The unit must be a passage where the words occur
+together, and a file with no paragraph breaks must use the line. With that, `live_priors` holds real located ground for the
+continuum ask (`02-encyclopedic/wikipedia/Logic.txt`, "Set theory originated in the study of the infinite by Georg
+Cantor…") and nothing for the bicycle or Johnson asks. `rg` is only a shell function on this host, so production code
+cannot shell out to it.
+
+**Open.** `live_priors` is not yet a tier in the ladder (needs a passage index built once and cached under `state/`, never
+inside that repo). Acquisition is the existing web hunt and is not yet exercised against this ladder: the viewer offers
+"Build a ground: search the web", and that click is the consent, so no live fetch has been run. Admitted ground is not
+yet persisted, so the ground does not yet grow. The no-ground job's `satisfaction.basis` still carries the pipeline's
+default LaVar wording; something downstream recomputes it and was not traced. Earlier open items stand: the Wikisource
+door is dormant in production, "Two sources agree" over one source, page furniture shipped as excerpts.
