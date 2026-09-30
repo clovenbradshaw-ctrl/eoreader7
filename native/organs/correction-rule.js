@@ -22,6 +22,7 @@ import { fileURLToPath } from "node:url";
 
 export const CORRECTION_SCHEMA = "Correction@1";
 export const CORRECTION_RULE_SCHEMA = "CorrectionRule@1";
+export const CORRECTION_CONCEDE_SCHEMA = "CorrectionConcede@1";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_RULES_FILE = path.join(HERE, "correction-rules.jsonl");
@@ -280,7 +281,7 @@ export function falsifiableRule(correction, { at = new Date().toISOString(), sou
   };
 }
 
-export function readCorrectionRules(rulesFile) {
+function readLedgerLines(rulesFile) {
   const file = correctionRulesFile(rulesFile);
   if (!fs.existsSync(file)) return [];
   return fs.readFileSync(file, "utf8").split("\n").filter(Boolean).map((line) => {
@@ -289,7 +290,74 @@ export function readCorrectionRules(rulesFile) {
     } catch {
       return null;
     }
-  }).filter((rule) => rule?.schema === CORRECTION_RULE_SCHEMA);
+  }).filter(Boolean);
+}
+
+// A rule ledger with no way to retract a rule accumulates law forever: a
+// rule minted from one correction, later contradicted by the person's own
+// behavior or a direct observation, would keep steering every matching task
+// with no way to say "that one no longer stands." concedeCorrectionRule
+// appends a RETRACT-shaped entry to the SAME append-only ledger — never a
+// second file, matching every other ledger in this codebase (notes.js's
+// concede, grid.js's concedeEvaluation) — and activeCorrectionRules folds
+// the whole ledger so a conceded rule stops steering anything. Nothing here
+// deletes a line: readCorrectionRules (unchanged) still returns the FULL,
+// unfolded history for anyone auditing what was ever minted; the fold is
+// only where a rule is actually CONSULTED to steer a live task.
+export function readCorrectionRules(rulesFile) {
+  return readLedgerLines(rulesFile).filter((entry) => entry?.schema === CORRECTION_RULE_SCHEMA);
+}
+
+/**
+ * concedeCorrectionRule(ruleId, …) — retract a standing rule. `because` must
+ * name the observation that falsified it (or the reason it no longer
+ * stands); a concede with no reason is refused, the same discipline every
+ * other concede in this codebase already holds (grid.js's concedeEvaluation
+ * requires a `trigger`).
+ */
+export function concedeCorrectionRule(ruleId, { because, at = new Date().toISOString(), source = "observation", rulesFile } = {}) {
+  if (!ruleId) return { conceded: false, reason: "no rule id given" };
+  if (!because) return { conceded: false, reason: "a concede must name why — an unreasoned concede is a deletion wearing a ledger's clothes" };
+  const file = correctionRulesFile(rulesFile);
+  const already = readLedgerLines(rulesFile).some((entry) => entry.schema === CORRECTION_CONCEDE_SCHEMA && entry.rule_id === ruleId);
+  if (already) return { conceded: false, reason: "already conceded" };
+  const entry = { schema: CORRECTION_CONCEDE_SCHEMA, rule_id: ruleId, because, at, source };
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.appendFileSync(file, `${JSON.stringify(entry)}\n`, "utf8");
+  return { conceded: true, ruleId, because };
+}
+
+/** The ledger's own fold: every minted rule, minus every one since conceded. */
+export function activeCorrectionRules(rulesFile) {
+  const lines = readLedgerLines(rulesFile);
+  const conceded = new Set(lines.filter((e) => e.schema === CORRECTION_CONCEDE_SCHEMA).map((e) => e.rule_id));
+  return lines.filter((e) => e.schema === CORRECTION_RULE_SCHEMA && !conceded.has(e.id));
+}
+
+/**
+ * observeAndConcede(observations, …) — the actual degradation pathway: given
+ * one or more real observations `{shape, mode, text, task}`, concede every
+ * currently-active rule that falsifiesFormRule finds contradicted by ANY of
+ * them. Returns what was conceded, naming which observation did it — never
+ * a silent retraction. This function is the mechanism; nothing in this
+ * codebase calls it from a live request path yet (falsifiesFormRule itself
+ * has no production call site today) — that wiring is separate, real,
+ * unbuilt work, disclosed here rather than implied done.
+ */
+export function observeAndConcede(observations, { rulesFile, at = new Date().toISOString(), source = "observation" } = {}) {
+  const obs = Array.isArray(observations) ? observations : [observations];
+  const active = activeCorrectionRules(rulesFile);
+  const conceded = [];
+  for (const rule of active) {
+    const hit = obs.find((o) => falsifiesFormRule(rule, o));
+    if (!hit) continue;
+    const result = concedeCorrectionRule(rule.id, {
+      because: `falsified by an observed answer${hit.task ? ` to "${hit.task}"` : ""}: shape="${hit.shape ?? "?"}" mode="${hit.mode ?? "?"}"`,
+      at, source, rulesFile,
+    });
+    if (result.conceded) conceded.push({ ruleId: rule.id, because: result.because });
+  }
+  return conceded;
 }
 
 function termPattern(term) {
@@ -311,7 +379,10 @@ export function naturalSizeRuleForTask(task, { rulesFile } = {}) {
   // steered by them. This keeps “you wrote an essay, not a sonnet” from
   // reshaping ordinary questions that merely mention a sonnet.
   if (!/\b(?:write|compose|draft|prepare|generate|produce|make|tell|build|create|implement|code)\b/i.test(String(task ?? ""))) return null;
-  const rules = readCorrectionRules(rulesFile).filter((rule) => rule?.kind === "output-form-mismatch");
+  // activeCorrectionRules, not readCorrectionRules: a rule a real
+  // observation has since falsified must stop steering live tasks the
+  // moment it's conceded, not merely be excluded from someone's later audit.
+  const rules = activeCorrectionRules(rulesFile).filter((rule) => rule?.kind === "output-form-mismatch");
   for (let i = rules.length - 1; i >= 0; i -= 1) {
     const rule = rules[i];
     if (correctionApplies(rule, task)) {

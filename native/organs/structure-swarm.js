@@ -14,7 +14,7 @@ export const TRANSFORMS = Object.freeze(["diff1", "diff8", "diff64", "fast4", "f
 export const STATS = Object.freeze(["std", "skew", "kurt", "acf1", "acf8", "acf64", "slope", "peak", "trend"]);
 export const MAX_DEPTH = 3;        // declared: transforms per pipeline
 export const Z_OK = 3;             // declared: a pipeline that clears this against its null lays a trail (the search-aware ceiling decides what is REPORTED)
-export const EXPLORE = 0.35;       // declared: chance an ant scouts a random allowed move instead of following the strongest trail (kernel's own 10% only ever reorders the FIRST hop)
+export const EXPLORE = 0.35;       // chosen by hand, not yet measured against a null: a common epsilon-greedy exploration rate — the chance an ant scouts a random allowed move instead of following the strongest trail (kernel's own 10% only ever reorders the FIRST hop)
 export const ROUNDS = 3, ANTS = 24; // declared: a colony is ROUNDS generations of ANTS ants
 const lcg = (seed) => { let s = seed >>> 0 || 1; return () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296); };
 const key = (spec) => spec.join(">");
