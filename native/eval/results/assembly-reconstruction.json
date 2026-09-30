@@ -47,6 +47,9 @@
     "writer-decay-borodino.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/adapters/text/accessibility.js", "native/kernel/return-curve.js"], "basis": "same driver" },
     "writer-decay-frankenstein.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/adapters/text/accessibility.js", "native/kernel/return-curve.js"], "basis": "same driver" },
     "writer-decay-pride.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/adapters/text/accessibility.js", "native/kernel/return-curve.js"], "basis": "same driver" },
-    "writer-decay-wparticle.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/adapters/text/accessibility.js", "native/kernel/return-curve.js"], "basis": "same driver" }
+    "writer-decay-wparticle.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/adapters/text/accessibility.js", "native/kernel/return-curve.js"], "basis": "same driver" },
+    "harm-seam-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/eval/harm-seam.mjs"], "basis": "eval/harm-seam.mjs — a deterministic probe of a splice-and-gate pipeline design over scripted writers and a vm-rendered page; it reads no material through any registered assembly, so what it measured is its own harness (the seam contract, the rendered oracle, the append-only landing), recorded as a typed gap rather than forced under the nearest cut" },
+    "harm-seam-RESULTS.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/eval/harm-seam.mjs"], "basis": "same driver (git-ignored under eval/results/*.json; present after a local run)" },
+    "harm-seam-live-RESULTS.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/eval/harm-seam.mjs"], "basis": "same driver, ER7_HARM_SEAM_LIVE=1 — the frequency arm against a real model (git-ignored; present only after a live run)" }
   }
 }
