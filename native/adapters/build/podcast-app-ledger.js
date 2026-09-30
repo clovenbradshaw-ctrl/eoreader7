@@ -120,3 +120,45 @@ export function historyOf(log) {
     fresh: e.fresh ?? false, html: e.html, check: e.check,
   }));
 }
+
+/**
+ * landCritique — an n-ary agent's own reading of the CURRENT app, grounded
+ * in a real citation (a giver, never a bare adjective), landed as its own
+ * EVIDENCE entry on the SAME shared ledger. Stigmergic by construction: a
+ * critic never calls the writer and never calls another critic — it only
+ * writes its own cell to the shared environment. The synthesis step (the
+ * one thing that DOES read multiple critics) finds them the same way any
+ * enzyme reads the environment: by folding the log, not by being handed
+ * them directly.
+ */
+export function landCritique(log, { round, virtue, giver, citation, note, audit = null }) {
+  if (!virtue || !giver || !citation) throw new TypeError("landCritique: a critique with no giver is an opinion wearing a citation's clothes");
+  if (typeof note !== "string" || !note.trim()) throw new TypeError("landCritique: a critique that says nothing is not a critique");
+  const op = "SIG";
+  const entry = {
+    kind: ENTRY_KINDS.EVIDENCE, task_id: `critique:${TASK_ID}:${round}:${virtue}:${log.nextSeq}`, operator: op, operator_basis: OPERATOR_BASIS.PRODUCED, grain: "Ground",
+    ...cellFields(op, "Ground"),
+    description: `${virtue} critique of round ${round}, grounded in ${giver}`,
+    round, virtue, giver, citation, note,
+  };
+  log = append(log, entry);
+  if (audit) {
+    const auditEntry = {
+      kind: ENTRY_KINDS.EVIDENCE, task_id: `audit:critique:${TASK_ID}:${round}:${virtue}:${log.nextSeq}`, operator: "SIG", operator_basis: OPERATOR_BASIS.PRODUCED, grain: "Ground",
+      ...cellFields("SIG", "Ground"),
+      description: `${virtue} critic's own prompt/response for round ${round} — recorded verbatim`,
+      round, virtue, request: audit.request, rawResponse: audit.rawResponse, durationMs: audit.durationMs ?? null, model: audit.model ?? null,
+    };
+    log = append(log, auditEntry);
+  }
+  return log;
+}
+
+/** critiquesFor(log, round) — the environment a synthesis step reads: every
+ * critique landed for a given round, in the order they arrived. Never a
+ * direct call to whatever produced them — the fold IS the read. */
+export function critiquesFor(log, round) {
+  return log.entries
+    .filter((e) => e.task_id?.startsWith(`critique:${TASK_ID}:${round}:`) && !e.task_id.startsWith(`audit:`))
+    .map((e) => ({ virtue: e.virtue, giver: e.giver, citation: e.citation, note: e.note }));
+}

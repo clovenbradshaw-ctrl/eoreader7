@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { readAppLedger, landAppRound, appendAppRound, projectApp, historyOf } from "./podcast-app-ledger.js";
+import { readAppLedger, landAppRound, appendAppRound, projectApp, historyOf, landCritique, critiquesFor } from "./podcast-app-ledger.js";
 
 function tmpFile() {
   return path.join(fs.mkdtempSync(path.join(os.tmpdir(), "er7-podcast-ledger-")), "ledger.jsonl");
@@ -96,6 +96,55 @@ test("a --fresh round is disclosed on the entry, never silently indistinguishabl
 test("landAppRound refuses html with nothing in it — a round with no content is not a round", () => {
   const log = readAppLedger(tmpFile());
   assert.throws(() => landAppRound(log, { round: 1, mode: "generate", html: "   ", check: {} }), TypeError);
+});
+
+test("n-ary critiques land stigmergically: each writes its own cell, none calls another, all are readable through the fold", () => {
+  const file = tmpFile();
+  let log = readAppLedger(file);
+  const from = log.nextSeq;
+  log = landAppRound(log, { round: 1, mode: "generate", html: "<html>v1</html>", check: { issues: 0, findings: [] } });
+  log = landCritique(log, { round: 1, virtue: "humility", giver: "UDHR Article 1", citation: "born free and equal in dignity", note: "the ethos badge overclaims a verdict as certain" });
+  log = landCritique(log, { round: 1, virtue: "honesty", giver: "Quran, tanzil-quran/quran_en_yusufali.txt:5", citation: "they only deceive themselves", note: "the now-playing bar is declared but never wired — a claim of capability the code does not keep" });
+  log = landCritique(log, { round: 1, virtue: "justice", giver: "UDHR Article 7", citation: "equal protection of the law", note: "no episode is treated differently by the layout regardless of ethos verdict — holds" });
+  log = landCritique(log, { round: 1, virtue: "empathy", giver: "Pali Suttas, dn13.txt:441", citation: "a heart full of compassion", note: "a slow subscribe shows nothing — a real listener sees a frozen page" });
+  appendAppRound(file, log, from);
+
+  const cs = critiquesFor(log, 1);
+  assert.equal(cs.length, 4, "all four critics landed, independently");
+  assert.deepEqual(cs.map((c) => c.virtue).sort(), ["empathy", "honesty", "humility", "justice"]);
+  for (const c of cs) {
+    assert.ok(c.giver, `${c.virtue} critique must name a real giver, never a bare opinion`);
+    assert.ok(c.citation, `${c.virtue} critique must carry its citation`);
+  }
+
+  // Stigmergy, checked directly: no critique entry references any OTHER
+  // critique's task_id or content — each is a read of the shared material
+  // alone, never a call to a sibling.
+  const critiqueEntries = log.entries.filter((e) => e.task_id?.startsWith("critique:podcast-app:1:"));
+  for (const e of critiqueEntries) {
+    const serialized = JSON.stringify(e);
+    for (const other of critiqueEntries) {
+      if (other === e) continue;
+      assert.equal(serialized.includes(other.task_id), false, "one critic's entry must never reference another's task_id");
+    }
+  }
+});
+
+test("a critique with no giver is refused — an opinion is not evidence until it names who backs it", () => {
+  const log = readAppLedger(tmpFile());
+  assert.throws(() => landCritique(log, { round: 1, virtue: "justice", note: "seems unfair" }), TypeError);
+});
+
+test("a critique's own prompt/response is auditable, same convention as the writer's", () => {
+  const file = tmpFile();
+  let log = readAppLedger(file);
+  const from = log.nextSeq;
+  const audit = { request: [{ role: "user", content: "read this app through the lens of humility" }], rawResponse: "the app overclaims.", durationMs: 3100, model: "gemma2:2b" };
+  log = landCritique(log, { round: 1, virtue: "humility", giver: "UDHR Article 1", citation: "born free and equal in dignity", note: "the app overclaims", audit });
+  appendAppRound(file, log, from);
+  const audits = log.entries.filter((e) => e.task_id?.startsWith("audit:critique:"));
+  assert.equal(audits.length, 1);
+  assert.equal(audits[0].rawResponse, "the app overclaims.");
 });
 
 test("the cube progression stays legal across many rounds — checkCubeProgression stays silent", async () => {
