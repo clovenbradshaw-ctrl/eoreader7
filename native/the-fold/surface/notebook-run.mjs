@@ -79,7 +79,9 @@ export function runPython(code, files = {}, { timeoutMs = 60000 } = {}) {
   const timedOut = r.error?.code === "ETIMEDOUT" || r.signal === "SIGTERM";
   const out = [r.stdout ?? "", r.stderr ? `\n[stderr]\n${r.stderr.slice(-1500)}` : "", timedOut ? "\n[stopped: time limit]" : "", iso ? "" : "\n[note: network isolation unavailable on this host; this run was NOT network-isolated]"].join("");
   fs.rmSync(dir, { recursive: true, force: true });
-  return { ok: r.status === 0 && !timedOut, output: out.trim(), figures, ms: Date.now() - t0 };
+  // the run directory is a fresh random temp path; a traceback names it, which made the SAME failing code record DIFFERENT output on
+  // every run (found by the Holodeck falsification run, F3). It is recorded as a fixed placeholder, so output depends only on what ran.
+  return { ok: r.status === 0 && !timedOut, output: out.trim().split(dir).join("<run dir>"), figures, ms: Date.now() - t0 };
 }
 
 /** runCell(state, cellId) -> { state, exec } | { error } */
