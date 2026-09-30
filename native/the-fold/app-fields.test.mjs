@@ -134,3 +134,21 @@ test("makeFieldedUnit: the whole leaf is cached under its own hash too — a lat
   const again = await makeFieldedUnit(c, { mouths: ["small"], mouth: dead, cache: only, rng: () => 0.99, explore: 0 });
   assert.equal(again.ok, true); assert.equal(again.cached, true); assert.equal(again.calls, 0);
 });
+
+test("a field's prompt is NARROWED: not the object shape, only the notes that name its key, a one-expression skeleton, no unread-parameter hint", async () => {
+  const { notesFor, testUnit } = await import("./app-units.mjs");
+  const c = LEAF_CONTRACTS.find((x) => x.name === "wttrNow");
+  const p = unitPrompt(fieldContract(c, "condition"));
+  assert.doesNotMatch(p, /an object \{ temp/, "the whole-object shape is what a small model copies");
+  assert.match(p, /just the value of `condition`, not an object/);
+  assert.match(p, /weatherDesc/, "the clause that names condition stays");
+  assert.doesNotMatch(p, /uv = uvIndex as a number/, "another field's clause is gone");
+  assert.match(p, /function conditionOf\(current, astronomy, units\) \{\n  return ___;\n\}/);
+  assert.match(p, /Units: when units is "metric"/, "the units paragraph of the shape text still applies");
+  assert.equal(notesFor("a is one; b is two. c is three", "b"), "b is two.");
+  assert.equal(notesFor("a is one; b is two", "zzz"), "a is one; b is two", "no clause names the key: all of it");
+  // the hint is for whole leaves: a field that legitimately ignores `units` is not told to read it
+  const fc = fieldContract(c, "condition");
+  const res = testUnit(`function conditionOf(current, astronomy, units) { return 0; }`, fc);
+  assert.equal(res.ok, false); assert.ok(!res.failures.some((f) => /never reads its parameter/.test(f)));
+});

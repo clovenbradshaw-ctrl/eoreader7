@@ -57,6 +57,8 @@ export function trimSample(value, { items = 2, str = 60, depth = 0 } = {}) {
 export function skeletonOf(contract) {
   let out;
   try { out = contract.example?.output(contract.sampleJson ?? contract.sampleText); } catch { return null; }
+  // a field is ONE value: the skeleton is a function whose body is the expression that gives it
+  if (contract.kind === "field") return `function ${contract.name}(${contract.params.join(", ")}) {\n  return ___;\n}`;
   if (!out || typeof out !== "object" || Array.isArray(out)) return null;
   return `function ${contract.name}(${contract.params.join(", ")}) {\n  return {\n${Object.keys(out).map((k) => `    ${k}: ___,`).join("\n")}\n  };\n}`;
 }
@@ -72,7 +74,7 @@ export function unitPrompt(contract, { failures = [], previous = null, skeleton 
     contract.cards === false ? null : `These functions already exist — call them, do not write them yourself, and do not declare them:\n${cardsDoc()}`,
     `Here is a real example of the ${contract.paramDoc ?? contract.params[0]} it receives (long lists are cut to their first items):\n${sample}`,
     workedExample(contract),
-    skeleton && skeletonOf(contract) ? `Start from this skeleton — keep the keys and their order, replace every ___ with an expression (add any lines before the return that you need):\n${skeletonOf(contract)}` : null,
+    (skeleton || contract.kind === "field") && skeletonOf(contract) ? `Start from this skeleton — keep the keys and their order, replace every ___ with an expression (add any lines before the return that you need):\n${skeletonOf(contract)}` : null,
     "Use no imports, no network, no globals. Export nothing: just declare the function.",
   ];
   // "fresh": the failures come back as REQUIREMENTS and the previous code does not (a small model shown its own code beside its failures hands the same code back — measured 2026-09-30)
@@ -144,7 +146,7 @@ export function testUnit(code, contract) {
   try { fn = loadUnit(code, contract.name, { resolve: { declared } }); } catch (e) { return { ok: false, failures: [`does not compile or declare ${contract.name}: ${String(e.message).slice(0, 160)}`] }; }
   const r = testFunction(fn, contract);
   if (!r.ok) for (const v of constReassigned(code)) r.failures.unshift(`\`${v}\` is declared with const and assigned again — declare it with let`);
-  if (!r.ok) for (const p of unusedParams(code, contract.name, contract.params)) r.failures.unshift(`the function never reads its parameter \`${p}\` — the result must depend on it`);
+  if (!r.ok && contract.kind !== "field") for (const p of unusedParams(code, contract.name, contract.params)) r.failures.unshift(`the function never reads its parameter \`${p}\` — the result must depend on it`);
   return { ...r, declared, resolutions: fn.resolutions?.() ?? [] };
 }
 
@@ -235,6 +237,15 @@ export function fieldsOf(contract) {
   } catch { return []; }
 }
 
+/** The clauses of a leaf's notes that mention this key (split on `;` and sentence ends); all of the notes when none does. The others are other fields' business, and a small model shown them writes them. */
+export function notesFor(notes, key) {
+  const text = String(notes ?? "").trim();
+  if (!text) return "";
+  const want = key.toLowerCase();
+  const kept = text.split(/(?<=[.;])\s+/).filter((c) => c.toLowerCase().includes(want));
+  return kept.length ? kept.join(" ") : text;
+}
+
 /** The contract for ONE key of a leaf: the same parameters, samples and notes; a worked example that shows only this key's value; the parent's runs, their failures filtered to this key. */
 export function fieldContract(contract, key) {
   const sample0 = contract.sampleJson ?? contract.sampleText;
@@ -251,7 +262,9 @@ export function fieldContract(contract, key) {
     ...contract,
     name: `${key}Of`, kind: "field", parent: contract.name, key,
     doc: `${contract.doc} You write ONE part of it: \`${key}Of\` returns just the value of the \`${key}\` field of that object — not the object.`,
-    returns: `just the value of \`${key}\` — another function writes the other fields\n${contract.returns}`,
+    // the leading "an object { a, b, c }" is what a small model copies: a field's answer is one value, and the rest of the text (units, rounding) still applies
+    returns: `just the value of \`${key}\`, not an object — another function writes the other fields${String(contract.returns).replace(/^an object \{[^}]*\}(, or null)?/, "").replace(/^\s*/, "\n")}`,
+    notes: notesFor(contract.notes, key),
     example: contract.example && { ...contract.example, output: (...a) => contract.example.output(...a)[key] },
     // a run whose oracle expects null is the absent-guard's; the field's function is never asked there
     runs: contract.runs.filter((r) => !nullExpected(r, sample0)).map((r) => ({ label: r.label, args: r.args, check: (o, sample) => { let f; try { f = r.check({ [key]: o }, sample); } catch (e) { return [`${key} could not be checked: ${String(e.message).slice(0, 80)}`]; } return f.filter(only); } })),
