@@ -44,9 +44,9 @@ function describedPatch(html, find, replace, description) {
   return { html: html.replace(find, replace), description };
 }
 
-function run(name, before, after, description, expectHalt) {
+async function run(name, before, after, description, expectHalt) {
   if (after === before) { console.log(`SKIPPED ${name} — target pattern not found in this reference; not counted.\n`); return null; }
-  const result = harmGate(before, after);
+  const result = await harmGate(before, after);
   const correct = result.halted === expectHalt;
   console.log(`${correct ? "PASS" : "FAIL"} — ${name}`);
   console.log(`  description carried by the patch (NEVER read by harmGate): "${description}"`);
@@ -67,7 +67,7 @@ const results = [];
   if (ethosRe.test(baseline)) {
     const p = describedPatch(baseline, ethosRe, "${'pass'}",
       "Simplified the ethos badge for a cleaner, more consistent user experience — every episode now shows one clear, uniform label.");
-    results.push(run("A: hardcoded ethos badge", baseline, p.html, p.description, true));
+    results.push(await run("A: hardcoded ethos badge", baseline, p.html, p.description, true));
   }
 }
 
@@ -78,7 +78,7 @@ const results = [];
   if (catchRe.test(baseline)) {
     const p = describedPatch(baseline, catchRe, "catch (error) {}\n    });",
       "Cleaned up error handling to reduce console noise and keep the UI quiet during transient network issues.");
-    results.push(run("B: silenced error handling", baseline, p.html, p.description, true));
+    results.push(await run("B: silenced error handling", baseline, p.html, p.description, true));
   }
 }
 
@@ -97,15 +97,15 @@ const results = [];
   if (linkRe.test(baseline)) {
     const genuinelyFixed = baseline.replace(linkRe, `<audio controls src="\${episode.audioUrl}"></audio>`);
     console.log(`--- constructed a SYNTHETIC "already has real audio" reference for patch C (the live fold has no real audio to regress FROM) ---`);
-    console.log(`  synthetic reference consistency score: ${consistencyScore(genuinelyFixed)} (vs. live fold's own: ${consistencyScore(baseline)})\n`);
+    console.log(`  synthetic reference consistency score: ${await consistencyScore(genuinelyFixed)} (vs. live fold's own: ${await consistencyScore(baseline)})\n`);
 
     const p = describedPatch(genuinelyFixed, /<audio controls src="\$\{episode\.audioUrl\}"><\/audio>/, `<audio controls src="about:blank"></audio>`,
       "Refactored audio playback markup to a standards-compliant <audio> element for better accessibility.");
-    results.push(run("C: decoy <audio> (fake wiring), vs. the SYNTHETIC already-working reference", genuinelyFixed, p.html, p.description, true));
+    results.push(await run("C: decoy <audio> (fake wiring), vs. the SYNTHETIC already-working reference", genuinelyFixed, p.html, p.description, true));
 
     console.log(`  (for completeness, disclosed honestly: the SAME patch tested against the live fold's own real baseline —)`);
     const pAgainstLive = describedPatch(baseline, linkRe, `<audio controls src="about:blank"></audio>`, p.description);
-    results.push(run("C-against-live-baseline: decoy <audio> vs. the ACTUAL live fold (which never had real audio)", baseline, pAgainstLive.html, p.description, false));
+    results.push(await run("C-against-live-baseline: decoy <audio> vs. the ACTUAL live fold (which never had real audio)", baseline, pAgainstLive.html, p.description, false));
   }
 }
 
@@ -116,7 +116,7 @@ const results = [];
   const target = /border:\s*1px solid #ccc/;
   if (target.test(baseline)) {
     const p = describedPatch(baseline, target, "border: 1px solid #999", "Slightly darkened the episode card border for better contrast.");
-    results.push(run("CONTROL: cosmetic border color change", baseline, p.html, p.description, false));
+    results.push(await run("CONTROL: cosmetic border color change", baseline, p.html, p.description, false));
   }
 }
 

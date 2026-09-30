@@ -293,7 +293,7 @@ export function resolveAnchor(log, anchor, atSeq = Infinity, seen = new Set()) {
  * or a universal failure is disclosed, never silently broken by picking
  * one arbitrarily.
  */
-export function adjudicate(log, { anchor, template, wellFormed, harmGate, round }) {
+export async function adjudicate(log, { anchor, template, wellFormed, harmGate, round }) {
   const { contested } = settledContent(log, anchor, log.nextSeq - 1);
   if (!contested) return { log, verdict: "not_contested" };
 
@@ -310,12 +310,12 @@ export function adjudicate(log, { anchor, template, wellFormed, harmGate, round 
   let scored;
   let via = "whole-document";
   if (contract) {
-    const contractScored = contested.map((c) => {
+    const contractScored = await Promise.all(contested.map(async (c) => {
       const resolved = c.pointsTo != null ? resolveAnchor(log, c.pointsTo, cursor) : { content: c.content, cycle: null };
       if (resolved.cycle) return { ...c, clears: false, contractDetail: `points into a cycle: ${resolved.cycle.join(" -> ")}` };
-      const result = contract(resolved.content);
+      const result = await contract(resolved.content);
       return { ...c, contractTested: result.tested !== false, clears: result.tested !== false && result.ok, contractDetail: result.detail ?? null };
-    });
+    }));
     const allTested = contractScored.every((s) => s.contractTested !== false);
     const clearingByContract = contractScored.filter((s) => s.clears);
     if (allTested && clearingByContract.length === 1) {
@@ -332,14 +332,14 @@ export function adjudicate(log, { anchor, template, wellFormed, harmGate, round 
   // no single anchor's own contract could ever see.
   if (!scored) {
     const currentWhole = renderTemplate(template, anchorMapFrom(log, template, cursor));
-    scored = contested.map((c) => {
+    scored = await Promise.all(contested.map(async (c) => {
       const resolved = c.pointsTo != null ? resolveAnchor(log, c.pointsTo, cursor) : { content: c.content, cycle: null };
       if (resolved.cycle) return { ...c, clears: false, wellFormedProblems: [`points into a cycle: ${resolved.cycle.join(" -> ")}`], harmRegressions: [] };
       const candidateWhole = renderTemplate(template, { ...anchorMapFrom(log, template, cursor), [anchor]: resolved.content });
       const wf = wellFormed(candidateWhole);
-      const hg = wf.wellFormed ? harmGate(currentWhole, candidateWhole) : { halted: true, regressions: [{ property: "well-formedness", before: "n/a", after: "n/a" }] };
+      const hg = wf.wellFormed ? await harmGate(currentWhole, candidateWhole) : { halted: true, regressions: [{ property: "well-formedness", before: "n/a", after: "n/a" }] };
       return { ...c, clears: wf.wellFormed && !hg.halted, wellFormedProblems: wf.problems, harmRegressions: hg.regressions ?? [] };
-    });
+    }));
   }
 
   const clearing = scored.filter((s) => s.clears);
@@ -417,7 +417,7 @@ function renderTemplate(template, anchorMap) {
  * cannot compose cleanly from settled anchors alone names what broke,
  * rather than guessing or crashing.
  */
-export function foldCode(log, template, { atSeq = Infinity, wellFormed = null, harmGate = null, priorHtml = null } = {}) {
+export async function foldCode(log, template, { atSeq = Infinity, wellFormed = null, harmGate = null, priorHtml = null } = {}) {
   const anchorMap = anchorMapFrom(log, template, atSeq);
   const cycles = [];
   const unsettled = Object.keys(template.anchors).filter((a) => {
@@ -436,7 +436,7 @@ export function foldCode(log, template, { atSeq = Infinity, wellFormed = null, h
     if (!wf.wellFormed) lintProblems.push(...wf.problems);
   }
   if (harmGate && priorHtml) {
-    const hg = harmGate(priorHtml, html);
+    const hg = await harmGate(priorHtml, html);
     if (hg.halted) lintProblems.push(...hg.regressions.map((r) => `${r.property} regressed ${r.before} -> ${r.after} in the composed whole`));
   }
   return { html, unsettled, lintProblems, clean: unsettled.length === 0 && lintProblems.length === 0 };

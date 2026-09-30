@@ -426,7 +426,7 @@ async function main() {
   // got objectively worse, whatever a writer's fragment claims it did. A
   // round that regresses ANY property is refused entirely, the same way
   // a structurally malformed one already is.
-  const harm = harmGate(currentHtml, html);
+  const harm = await harmGate(currentHtml, html);
   if (harm.halted) {
     console.log(`\nROUND REFUSED — harm gate: this round would REGRESS the artifact's own reasoning, mechanically measured, regardless of how any writer described its own change:`);
     for (const r of harm.regressions) console.log(`  ${r.property}: ${r.before} -> ${r.after}`);
