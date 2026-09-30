@@ -48,20 +48,20 @@ function haversineKm(lat1, lon1, lat2, lon2) {
 function roundTo(x, places) { const k = 10 ** (places || 0); return Math.round(Number(x) * k) / k; }
 function toNumber(x) { const n = typeof x === "number" || (typeof x === "string" && x.trim() !== "") ? Number(x) : NaN; return Number.isFinite(n) ? n : null; }
 
-/** name -> { fn, doc }: the library, in the order the prompt shows it */
+/** name -> { fn, doc, tags }: the library, in the order the prompt shows it. `tags` are the few words that name what a card is FOR, declared by whoever makes the card: they (not the doc prose) are what a task's own words are matched against */
 export const CARDS = Object.freeze({
-  celsiusToFahrenheit: { fn: celsiusToFahrenheit, doc: "degrees Celsius -> degrees Fahrenheit (a number, not rounded)" },
-  fahrenheitToCelsius: { fn: fahrenheitToCelsius, doc: "degrees Fahrenheit -> degrees Celsius (a number, not rounded)" },
-  msToKmh: { fn: msToKmh, doc: "metres per second -> kilometres per hour" },
-  msToMph: { fn: msToMph, doc: "metres per second -> miles per hour" },
-  kmhToMph: { fn: kmhToMph, doc: "kilometres per hour -> miles per hour" },
-  mphToKmh: { fn: mphToKmh, doc: "miles per hour -> kilometres per hour" },
-  compass16: { fn: compass16, doc: "a bearing in degrees -> its 16-point compass name (\"N\", \"NNE\", ... \"NNW\")" },
-  padTime: { fn: padTime, doc: "a clock time written without padding (0, \"300\", \"1200\") -> \"HH:MM\"; null if it is not a time" },
-  joinPresent: { fn: joinPresent, doc: "joinPresent([a, b, c], \", \") joins the parts that are present (not null, undefined or empty); the separator defaults to \", \"" },
-  haversineKm: { fn: haversineKm, doc: "haversineKm(lat1, lon1, lat2, lon2): great-circle distance in kilometres (not rounded)" },
-  roundTo: { fn: roundTo, doc: "roundTo(x, places): x rounded to that many decimal places (0 for a whole number)" },
-  toNumber: { fn: toNumber, doc: "a number or numeric string -> the number; null for anything else (blank, text, missing)" },
+  celsiusToFahrenheit: { fn: celsiusToFahrenheit, doc: "degrees Celsius -> degrees Fahrenheit (a number, not rounded)", tags: "celsius fahrenheit temperature degrees" },
+  fahrenheitToCelsius: { fn: fahrenheitToCelsius, doc: "degrees Fahrenheit -> degrees Celsius (a number, not rounded)", tags: "fahrenheit celsius temperature degrees" },
+  msToKmh: { fn: msToKmh, doc: "metres per second -> kilometres per hour", tags: "metres second kilometres hour speed wind kmh" },
+  msToMph: { fn: msToMph, doc: "metres per second -> miles per hour", tags: "metres second miles hour speed wind mph" },
+  kmhToMph: { fn: kmhToMph, doc: "kilometres per hour -> miles per hour", tags: "kilometres hour miles speed kmh mph" },
+  mphToKmh: { fn: mphToKmh, doc: "miles per hour -> kilometres per hour", tags: "miles hour kilometres speed mph kmh" },
+  compass16: { fn: compass16, doc: "a bearing in degrees -> its 16-point compass name (\"N\", \"NNE\", ... \"NNW\")", tags: "compass bearing direction degrees cardinal" },
+  padTime: { fn: padTime, doc: "a clock time written without padding (0, \"300\", \"1200\") -> \"HH:MM\"; null if it is not a time", tags: "pad padding padded unpadded clock hhmm" },
+  joinPresent: { fn: joinPresent, doc: "joinPresent([a, b, c], \", \") joins the parts that are present (not null, undefined or empty); the separator defaults to \", \"", tags: "join joined separator present missing label" },
+  haversineKm: { fn: haversineKm, doc: "haversineKm(lat1, lon1, lat2, lon2): great-circle distance in kilometres (not rounded)", tags: "haversine great-circle distance latitude longitude kilometres" },
+  roundTo: { fn: roundTo, doc: "roundTo(x, places): x rounded to that many decimal places (0 for a whole number)", tags: "round rounded rounding decimal decimals places" },
+  toNumber: { fn: toNumber, doc: "a number or numeric string -> the number; null for anything else (blank, text, missing)", tags: "numeric nan blank coerce" },
 });
 
 export const CARD_NAMES = Object.freeze(Object.keys(CARDS));
@@ -134,4 +134,26 @@ export function resolveCard(asked, names = CARD_NAMES) {
   if (hit.length === 1) return { resolved: true, real: hit[0], tier: 5, basis: "the words of the operation's name, in order" };
   if (hit.length > 1) return { resolved: false, ambiguous: true, candidates: hit, tier: 5 };
   return r;
+}
+
+// ---- which operations are IN PLAY for a task (what the task MEANS) ----
+// Measured 2026-09-30 (diverse-falsify, four arms): showing all twelve cards doubled the `bedReport` prompt (277 -> 574 tokens) and flipped gemma2:2b from a
+// correct draw to a wrong one; the cards ARE what makes `flightLeg` pass. Which operations a task involves is a referent question about the TASK, not a fixed
+// block: a card is offered when the task's own words name what it is FOR. Matching against the doc PROSE was tried first and offered `compass16` for a commit
+// log because the doc says "name"; so a card declares `tags`, the few words that name its purpose, and a tag shared by several cards counts for less
+// (1 / the number of cards that carry it) — the same reason a rare term outranks a common one in retrieval.
+/** a card is offered when the summed weight of its tags that the task names reaches this (one tag only that card has, or two shared by two). Set by hand 2026-09-30; measured by falsification on 16 contracts: flightLeg keeps haversineKm and roundTo, topAuthors and dueSoon offer none. */
+export const CARD_RELEVANCE_FLOOR = 1;
+
+const stem = (w) => w.replace(/(ing|ed|es|s)$/, "");
+const wordsOf = (s) => new Set((String(s).toLowerCase().replace(/hh:mm/g, "hhmm").match(/[a-z][a-z-]+/g) ?? []).map((w) => stem(w.replace(/-/g, "-"))));
+
+/** the cards a task's own words name: -> [{ name, score, words }] best first; [] when the task names no operation */
+export function cardsFor(contract, names = CARD_NAMES) {
+  const task = wordsOf([contract.doc, contract.returns, contract.notes].filter(Boolean).join(" "));
+  const tagged = names.map((n) => ({ n, t: [...new Set((CARDS[n].tags ?? "").split(/\s+/).filter(Boolean).map(stem))] }));
+  const df = new Map();
+  for (const d of tagged) for (const w of d.t) df.set(w, (df.get(w) ?? 0) + 1);
+  return tagged.map((d) => { const shared = d.t.filter((w) => task.has(w)); return { name: d.n, score: shared.reduce((a, w) => a + 1 / df.get(w), 0), words: shared }; })
+    .filter((c) => c.score >= CARD_RELEVANCE_FLOOR).sort((a, b) => b.score - a.score);
 }

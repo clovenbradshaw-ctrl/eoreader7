@@ -86,3 +86,38 @@ test("freeCalls: the names a unit calls that nothing declares — the ones the r
   assert.deepEqual(freeCalls(`function g(a) { return a.method(1).other(2); }`), [], "a property call is not a free call");
   assert.deepEqual(freeCalls(`function h(a) { if (a) { return unknownThing(a); } while (a) { a--; } }`), ["unknownThing"], "keywords are not calls");
 });
+
+// ---- which operations a task's own words name ----
+import { cardsFor, CARD_RELEVANCE_FLOOR } from "./cards.js";
+const task = (doc, returns = "", notes = "") => ({ doc, returns, notes });
+
+test("cardsFor: the operation a task's own words name is offered; one it does not name is not", () => {
+  const leg = task("Turn two airports into one flight leg: its route label and its length in kilometres and miles.", "an object { route, km, miles }\n  km = the great-circle distance in kilometres rounded to one decimal, miles = that same distance in statute miles rounded to one decimal", "Earth radius 6371 km. Round only at the end, from the unrounded distance.");
+  const names = cardsFor(leg).map((c) => c.name);
+  assert.ok(names.includes("haversineKm") && names.includes("roundTo"), names.join());
+  assert.ok(!names.includes("kmhToMph") && !names.includes("compass16") && !names.includes("padTime"), "no speed conversion, no compass, no padding for a distance");
+  const bus = task("Turn one bus stop's timetable into the stop, its route, and its departure times as HH:MM.", "times = every departure time as \"HH:MM\"", "The source writes each time WITHOUT padding: 0 means 00:00, 330 means 03:30.");
+  assert.deepEqual(cardsFor(bus).map((c) => c.name), ["padTime"]);
+});
+
+test("cardsFor: a task that names no operation is offered NONE (the prompt carries nothing it does not need) — a generic word like `name` offers nothing, because the match is against what a card is FOR", () => {
+  assert.deepEqual(cardsFor(task("Turn a commit log into its most active authors.", "an array of at most three objects { name, commits }", "An author is identified by author.name.")), []);
+  assert.deepEqual(cardsFor(task("Pick the to-do items that are due soon.", "an array of titles", "Dates are ISO YYYY-MM-DD. Count calendar days (months and leap years included).")), []);
+});
+
+test("cardsFor: a word many cards share says little about any one — `kilometres` alone does not offer a speed conversion for a distance task", () => {
+  const names = cardsFor(task("the distance in kilometres and miles")).map((c) => c.name);
+  assert.ok(!names.includes("kmhToMph") && !names.includes("msToKmh"), names.join());
+  assert.equal(CARD_RELEVANCE_FLOOR, 1);
+});
+
+test("cardsFor is ranked and explained: each offered card says which words of the task named it", () => {
+  const r = cardsFor(task("round the result to 2 decimals", "a number rounded to one decimal"));
+  assert.equal(r[0].name, "roundTo"); assert.ok(r[0].words.length >= 2 && r[0].score >= CARD_RELEVANCE_FLOOR);
+});
+
+test("every card declares its tags, and a card's own purpose words offer it", () => {
+  for (const n of CARD_NAMES) assert.ok(CARDS[n].tags && CARDS[n].tags.split(/\s+/).length >= 3, `${n} declares what it is for`);
+  assert.deepEqual(cardsFor(task("convert the bearing in degrees to a compass direction")).map((c) => c.name), ["compass16"]);
+  assert.deepEqual(cardsFor(task("pad the unpadded clock time as hh:mm")).map((c) => c.name), ["padTime"]);
+});

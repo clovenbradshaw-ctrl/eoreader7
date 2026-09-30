@@ -32,7 +32,7 @@ import crypto from "node:crypto";
 import { deposit, routeOrderFor } from "../kernel/stigmergy.js";
 import { loadUnit, UNIT_RUN_TIMEOUT_MS } from "./unit-wall.mjs";
 import { declaredFromExample, KEY_REFERENTS_SCHEMA } from "../organs/key-referents.js";
-import { CARDS_SCHEMA, cardsDoc } from "../organs/cards.js";
+import { CARDS_SCHEMA, cardsDoc, cardsFor } from "../organs/cards.js";
 import { constReassigned, canonicalize, adoptIf } from "../organs/code-canonical.js";
 import { readSemantics, factsFrom } from "../organs/code-semantics.js";
 import { createTaskLog } from "../kernel/task-log.js";
@@ -68,6 +68,9 @@ export function skeletonOf(contract) {
   return `function ${contract.name}(${contract.params.join(", ")}) {\n  return {\n${Object.keys(out).map((k) => `    ${k}: ___,`).join("\n")}\n  };\n}`;
 }
 
+/** the cards a task's prompt offers: those its own words name (organs/cards.js cardsFor). The wall still has ALL of them, so a near name still resolves. */
+export function cardsShown(contract) { return contract.cards === false ? [] : cardsFor(contract).map((c) => c.name); }
+
 export function unitPrompt(contract, { failures = [], previous = null, skeleton = false, repair = "edit", facts = [] } = {}) {
   // `shown` is what the mouth sees when the real sample is too long to show whole and the author knows which stretch carries the shape (an excerpt, cut with a marker — never rewritten)
   const sample = typeof contract.shown === "string" ? contract.shown.slice(0, SAMPLE_SHOWN_CHARS) : typeof contract.sampleText === "string" ? contract.sampleText.slice(0, SAMPLE_SHOWN_CHARS) : JSON.stringify(trimSample(contract.sampleJson), null, 1).slice(0, SAMPLE_SHOWN_CHARS);
@@ -76,7 +79,7 @@ export function unitPrompt(contract, { failures = [], previous = null, skeleton 
     contract.doc,
     `It must return this shape:\n${contract.returns}`,
     contract.notes ? `Notes:\n${contract.notes}` : null,
-    contract.cards === false ? null : `These functions already exist — call them, do not write them yourself, and do not declare them:\n${cardsDoc()}`,
+    cardsShown(contract).length ? `These functions already exist — call them, do not write them yourself, and do not declare them:\n${cardsDoc(cardsShown(contract))}` : null,
     `Here is a real example of the ${contract.paramDoc ?? contract.params[0]} it receives (long lists are cut to their first items):\n${sample}`,
     workedExample(contract),
     (skeleton || contract.skeleton === true) && skeletonOf(contract) ? `Start from this skeleton — keep the keys and their order, replace every ___ with an expression (add any lines before the return that you need):\n${skeletonOf(contract)}` : null,
@@ -231,7 +234,7 @@ export function testFunction(fn, contract) {
 
 /** The hash a verified unit is cached under: contract text + oracle source + sample. A changed contract, test or sample is a new unit. */
 export function contractHash(contract) {
-  return sha(JSON.stringify([contract.name, contract.params, contract.doc, contract.returns, contract.notes ?? "", contract.runs.map((r) => r.label + String(r.check)).join("|"), sha(contract.sampleText ?? JSON.stringify(contract.sampleJson ?? null)), contract.shown ?? "", workedExample(contract) ?? "", contract.salt ?? "", KEY_REFERENTS_SCHEMA, JSON.stringify(declaredAliases(contract)), contract.cards === false ? "" : sha(CARDS_SCHEMA + cardsDoc()), contract.resolve === false, contract.hints === false]));
+  return sha(JSON.stringify([contract.name, contract.params, contract.doc, contract.returns, contract.notes ?? "", contract.runs.map((r) => r.label + String(r.check)).join("|"), sha(contract.sampleText ?? JSON.stringify(contract.sampleJson ?? null)), contract.shown ?? "", workedExample(contract) ?? "", contract.salt ?? "", KEY_REFERENTS_SCHEMA, JSON.stringify(declaredAliases(contract)), contract.cards === false ? "" : sha(CARDS_SCHEMA + cardsDoc(cardsShown(contract))), contract.resolve === false, contract.hints === false]));
 }
 
 export function openUnitCache(dir) {

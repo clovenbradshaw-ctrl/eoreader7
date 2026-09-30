@@ -67,12 +67,13 @@ test("CONTROL built to fail: a resolver that bound ANY free name to its nearest 
   assert.ok(!resolveCard("cToF", ["parseInvoice", "totalPrice"]).resolved);
 });
 
-test("the prompt shows the cards and the contract hash moves with them; a contract can opt out", () => {
-  const contract = { name: "f", params: ["x"], doc: "d", returns: "{}", runs: [], sampleJson: { a: 1 } };
+test("the prompt shows the cards the task names and the contract hash moves with them; a contract can opt out", () => {
+  const contract = { name: "f", params: ["x"], doc: "Round the reading to one decimal.", returns: "{}", runs: [], sampleJson: { a: 1 } };
   assert.match(unitPrompt(contract), /These functions already exist/);
-  assert.match(unitPrompt(contract), /- celsiusToFahrenheit:/);
+  assert.match(unitPrompt(contract), /- roundTo:/); assert.doesNotMatch(unitPrompt(contract), /- celsiusToFahrenheit:/, "only what the task names");
   assert.doesNotMatch(unitPrompt({ ...contract, cards: false }), /already exist/);
   assert.notEqual(contractHash(contract), contractHash({ ...contract, cards: false }));
+  assert.doesNotMatch(unitPrompt({ ...contract, doc: "Do a thing.", returns: "{}" }), /already exist/, "a task that names no operation is offered none");
 });
 
 test("a parameter the function IGNORES is found by behaviour: same result for two values of it, the oracle passes one and fails the other", async () => {
