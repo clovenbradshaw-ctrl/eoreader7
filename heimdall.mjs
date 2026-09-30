@@ -7,7 +7,7 @@
 // every proxy process that fronts Ollama. Heimdall watches each one, re-forges
 // the dead ones, and steers each request across the healthy ones.
 //
-// Huginn, Muninn and Kairos (the-fold/huginn.js, muninn.js, kairos.js) are
+// Huginn, Muninn and Kairos (eoreader7/native/organs/huginn.js, muninn.js, kairos.js) are
 // his three — the triad under the bridge. Huginn is the watcher of model
 // PRIORITIZATION — which model answers which job, ranked by measured
 // evidence and hopped on typed failure, room mouths included. Muninn is
@@ -1614,7 +1614,7 @@ const VITALS_LOG_MS = Number(process.env.ER7_HEIMDALL_VITALS_LOG ?? 15000);
 // a typed null — unknown, never convicting, the same rule the surface probes
 // hold. A model seen at a DIFFERENT window than last tick lands a
 // `window_changed` finding, and a storm of them escalates exactly as a
-// restart storm does. Kondo (the-fold/kondo.js) reads `loadedWindowOf` to say
+// restart storm does. Kondo (eoreader7/native/organs/kondo.js) reads `loadedWindowOf` to say
 // whether a prompt fits the window it will really run in.
 let ollamaModels = null;
 const windowSeen = new Map(); // model -> { contextLength, switches: [ms] }
@@ -4622,8 +4622,17 @@ export async function evictLeastRecent({ keep = null } = {}) {
  *  no lever, a trial already running, nothing left to move (the lever at its
  *  wall), or a concession too recent to retry. Baseline = the window that
  *  earned the rule. `apply` is injected by tests. */
+// The coding-policy learner's open trial (native/organs/coding-policy-trial.js)
+// runs a battery on this same box: a familyCap step mid-battery would change
+// which draws time out, and the battery's own load would earn rules about
+// load the learner made. Neither kind of trial starts while the other runs;
+// the coding side is read from its file, never by importing its module.
+const CODING_TRIAL_ACTIVE_FILE = process.env.ER7_CODING_TRIAL_ACTIVE || path.join(HERE, "state", "coding-policy-trial-active.json");
+export function codingTrialOpen() {
+  try { return !!JSON.parse(fs.readFileSync(CODING_TRIAL_ACTIVE_FILE, "utf8"))?.trialId; } catch { return false; }
+}
 export function startTrialFor(rule, { lines = memoryLinesForWindow(4000), now = Date.now(), apply = null } = {}) {
-  if (!rule || _trials.active) return null;
+  if (!rule || _trials.active || codingTrialOpen()) return null;
   const lever = RULE_LEVERS[rule.class];
   if (!lever) return null;
   const key = `${rule.class}:${rule.probe ?? ""}`;

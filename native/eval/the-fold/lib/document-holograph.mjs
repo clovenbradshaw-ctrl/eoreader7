@@ -1,10 +1,27 @@
 // document-holograph.mjs — the document holograph's pure computation.
 // The caller supplies the constitutional reading log and the ledger projection;
 // this module never scans a document to discover identity.
-import { foldReading, readingIndexFromLog, mentionBookFromLog } from "../../../../../the-fold/reading-log.js";
-import { activate, } from "../../../../../the-fold/activation-retrieval.js";
-import { activeReferents, lensBlock, lensCut } from "../../../../../the-fold/resolutions.js";
 import { dmdWindow } from "../../../kernel/activation.js";
+import { resolveFoldSibling, requireFoldAvailable } from "./fold-sibling.mjs";
+
+// reading-log.js, activation-wiring.js (the fold's binding of the activation-retrieval organ that now lives in native/organs) and resolutions.js are the sibling
+// the-fold checkout's own modules, which this repo's CI never checks out
+// (native-kernel.yml checks out eoreader7 alone). Static imports of them threw
+// MODULE_NOT_FOUND at load and crashed every importer, so they are imported
+// only when the sibling is present, and computeDocumentHolograph refuses,
+// typed (FoldUnavailableError), when it is not — lib/fold-sibling.mjs's one
+// posture, shared with product-assay.mjs, frontier-25.mjs and long-stream.mjs.
+const FOLD_UP = "../../../../../the-fold/";
+const { available: FOLD_OK } = resolveFoldSibling(import.meta.url, FOLD_UP);
+const foldModule = (name) => (FOLD_OK ? import(new URL(`${FOLD_UP}${name}`, import.meta.url).href) : {});
+const { foldReading, readingIndexFromLog, mentionBookFromLog } = await foldModule("reading-log.js");
+const { activate } = await foldModule("activation-wiring.js");
+const { activeReferents, lensBlock, lensCut } = await foldModule("resolutions.js");
+
+/** requireDocumentHolographFold() — throws FoldUnavailableError when the sibling the-fold checkout is absent; returns its path otherwise. */
+export function requireDocumentHolographFold() {
+  return requireFoldAvailable(import.meta.url, FOLD_UP, "document-holograph.mjs needs reading-log.js, activation-wiring.js and resolutions.js from it");
+}
 
 const addressOf = (w) => String(typeof w === "string" ? w : (w?.at ?? w?.ref ?? "")).split("~")[0];
 const layout = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
@@ -38,6 +55,7 @@ function verifyPassage(passage, sources) {
 }
 
 export function computeDocumentHolograph({ question, readingEntries, notes, sources, organs = {} }) {
+  requireDocumentHolographFold();
   if (!question) throw new TypeError("document holograph requires a declared question");
   if (!Array.isArray(readingEntries) || !readingEntries.length) throw new TypeError("document holograph requires a constitutional reading log");
   if (!Array.isArray(notes)) throw new TypeError("document holograph requires the projected ledger notes");

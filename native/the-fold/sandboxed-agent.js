@@ -201,7 +201,7 @@ export async function runOpenCodingLoop({ sessionId, userId = null, model, task,
       ? `${task}\n\nVirtual files so far:\n${renderFiles(files)}${languageBlockFor(files)}\n\n${ACTION_FORMAT}`
       : `${task}\n\n${lastNote}\n\n${ACTION_FORMAT}`;
 
-    const result = await runProxyTurn({ sessionId, userId, model, task: roundTask, chatHistory: [], mode: "chat", caller, signal }, null, (n) => note({ ...n, agentTurn: turn }));
+    const result = await runProxyTurn({ sessionId, userId, model, task: roundTask, chatHistory: [], mode: "chat", drawOnly: true, caller, signal }, null, (n) => note({ ...n, agentTurn: turn }));
     const parsed = parseAction(result.text);
 
     if (!parsed.ok) {

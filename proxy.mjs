@@ -55,7 +55,6 @@ function pickDefaultModel() {
 import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
 import { runCodeLoop } from "./native/the-fold/code-loop.js";
-import { runHealingCodeLoop } from "./native/the-fold/healing-loop.js";
 import { getCodeDrawMonitor, shipCodeDrawResult } from "./native/kernel/code-draw-monitor.js";
 import { runSwarmTurn } from "./swarm-server.mjs";
 import { contentRulesStore, contentRulesCount, CONTENT_RULES_FILE } from "./content-rules.mjs";
@@ -69,7 +68,7 @@ import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-
 // and surface-watching run inside this process — one process, no separate
 // steer port, no second checkout to drift. When imported, heimdall.mjs
 // exports its machinery and does not listen or loop on its own.
-import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, concedeDerivedRule, derivedRuleStore, releaseClaim, isServable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, contentLog, restartSurface, sampleVitalsNow, backgroundTasks, killTask, warmPressureTest, warmPressureReason, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism, getSurfaces, refreshOllamaModels, surfaceByPort, noteSurfaceActivity, turnScope, servedDisclosure } from "./heimdall.mjs";
+import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, contentLog, restartSurface, sampleVitalsNow, backgroundTasks, killTask, warmPressureTest, warmPressureReason, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism, getSurfaces, refreshOllamaModels, surfaceByPort, noteSurfaceActivity, turnScope, servedDisclosure } from "./heimdall.mjs";
 import { heldKey, findHeld, holdTurn, heldById, heldReceipt, awaitHeld } from "./held-turns.mjs";
 import { resolveServerKey, channelObserve, channelRefused, pickHost, hostBegin, hostEnd, reconcileModelServers, ledgerEva, ledgerRec, setChannelBound, liveReapIfDue, holdWindow, hopOf, messagesOf, streamAccounting, hostOwnedByPid, slaWaitMs, waiterTtlMs, serveTiersFor, mouthFor, warmSmallMouth, hostByName, onlineMouths, onlineEnabled } from "./heimdall.mjs";
 import { toOpenAIBody, fromOpenAIResponse, sseChunkToOllama, splitSse } from "./native/kernel/online-mouths.js";
@@ -290,6 +289,14 @@ function requireCrc32(str) {
   return out;
 }
 
+// The command that proves a code change works — handing it (with a
+// workspace) is how a chat turn reaches the code loop (proxy-runner.mjs,
+// THE CODE EDGE). Header x-er7-test-command, or the body's testCommand.
+function testCommandFrom(req, parsed = null) {
+  const t = String(req.headers["x-er7-test-command"] ?? parsed?.testCommand ?? "").trim();
+  return t.length > 2048 ? "" : t;
+}
+
 function workspaceFromHeaders(req) {
   const ws = String(req.headers["x-er7-workspace"] ?? "").trim();
   if (!ws || ws.length > 2048) return "";
@@ -456,6 +463,7 @@ async function handleRequest(req, res) {
         "x-er7-session": "stick a conversation to one accumulating reader fold (optional; a stable session is derived from the connection otherwise)",
         "x-er7-user": "durable identity across sessions (optional)",
         "x-er7-workspace": "absolute path to admit real files into the session (optional)",
+        "x-er7-test-command": "the command that proves a code change works; with a workspace, a chat turn runs the code loop (optional)",
         "x-er7-mode": "auto | chat | long | origami (optional; auto decides from the task)",
       },
     }));
@@ -607,27 +615,6 @@ async function handleRequest(req, res) {
     const r = await evictModel(name).catch((err) => ({ ok: false, error: err.message }));
     res.writeHead(r.ok ? 200 : 400, { "content-type": "application/json" });
     res.end(JSON.stringify(r));
-    return;
-  }
-
-  // POST /heimdall/rules/:key/concede — I-retire: concede one derived rule
-  // NOW, with a stated reason. The proteasome's hand-operated lever; mirrors
-  // /heimdall/models/evict above. The rule stays on the record (append-only);
-  // its standing becomes "conceded", and the next recurrence re-derives it
-  // with a fresh clock. The key is "class:probe" (a probe holds a colon).
-  if (req.method === "POST" && req.url.startsWith("/heimdall/rules/") && req.url.endsWith("/concede")) {
-    const inner = req.url.slice("/heimdall/rules/".length, -"/concede".length);
-    let key = "";
-    try { key = decodeURIComponent(inner); } catch { key = inner; }
-    if (!key) { res.writeHead(400, { "content-type": "application/json" }); res.end(JSON.stringify({ ok: false, error: "rule key required" })); return; }
-    let raw = "";
-    for await (const chunk of req) raw += chunk;
-    let parsed = {};
-    try { parsed = JSON.parse(raw || "{}"); } catch { /* malformed */ }
-    const r = concedeDerivedRule(key, { reason: String(parsed.reason || "retired by operator") });
-    if (!r) { res.writeHead(404, { "content-type": "application/json" }); res.end(JSON.stringify({ ok: false, error: `no such derived rule: ${key}` })); return; }
-    res.writeHead(200, { "content-type": "application/json" });
-    res.end(JSON.stringify({ ok: true, key, standing: r.standing, concededAt: r.concededAt, reason: r.concededReason }));
     return;
   }
 
@@ -1274,12 +1261,8 @@ const job = await startDocumentJob({
           if (w.done) { res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId, "x-er7-held": alreadyHeld.id }); res.end(JSON.stringify(w.result)); }
           else { res.writeHead(202, { "content-type": "application/json", "x-er7-session": sessionId, "retry-after": "15" }); res.end(JSON.stringify(heldReceipt(alreadyHeld))); }
         } catch (err) {
-          // F16-close: a held FAILURE is disclosed with its hold identity,
-          // never a bare 500 — the caller retries the same request (held as
-          // failed, superseded with retried:true + priorError) or polls the
-          // hold id. TTL expiry restores fresh-run behavior.
           res.writeHead(500, { "content-type": "application/json" });
-          res.end(JSON.stringify({ error: err.message, held: alreadyHeld.id, heldStatus: alreadyHeld.status ?? "failed", retried: Boolean(alreadyHeld.retried), priorError: alreadyHeld.priorError ?? alreadyHeld.error ?? null }));
+          res.end(JSON.stringify({ error: err.message }));
         }
         return;
       }
@@ -1318,7 +1301,7 @@ const job = await startDocumentJob({
           // returned below as `served`, never silent.
           const scope = { sessionId, tier: turnTierAsk(req) };
           const result = await turnScope.run(scope, () => runProxyTurn({
-            sessionId, userId, workspace, attachments, model, task, mode,
+            sessionId, userId, workspace, attachments, model, task, mode, testCommand: testCommandFrom(req, parsed),
             chatHistory: Array.isArray(parsed?.chatHistory) ? parsed.chatHistory : [],
             resumeAnswered: Array.isArray(parsed?.resumeAnswered) ? parsed.resumeAnswered : [],
             openBefore: Array.isArray(parsed?.openBefore) ? parsed.openBefore : null,
@@ -1367,11 +1350,6 @@ const job = await startDocumentJob({
             void: gated.void,
             satisfaction: gated.satisfaction,
             disclosed: gated.disclosed ?? null,
-            // A2/A6-close: machine evidence beside the prose — decline arm
-            // ({archon, shape} or null) and frame gap (frameOf output or
-            // null = typed absence). Never inside the answer text.
-            decline: result.decline ?? null,
-            frameGap: gated.frameGap ?? null,
             // THE ASK-BACK ENVELOPE (build-clarify): the person sees the plain
             // questions in `answer`; the record carries the structured shape —
             // which cells are open, the round, the schema — so the fold, the
@@ -1437,10 +1415,6 @@ const job = await startDocumentJob({
       }
       const model = String(parsed?.model ?? "").trim() || pickDefaultModel();
       const maxRounds = Number.isFinite(Number(parsed?.maxRounds)) ? Math.max(1, Math.min(10, Number(parsed.maxRounds))) : 3;
-      const contextMode = String(parsed?.contextMode ?? "").trim() === "fold" ? "fold" : "raw";
-      const requireReasoning = parsed?.requireReasoning === true;
-      const selfHeal = parsed?.selfHeal === true;
-      const maxHealingDepth = Number.isFinite(Number(parsed?.maxHealingDepth)) ? Number(parsed.maxHealingDepth) : undefined;
 
       const admit = admitChatRequest({ model }, req.headers);
       if (!admit.allowed) {
@@ -1463,10 +1437,10 @@ const job = await startDocumentJob({
         if (!loopAbort.signal.aborted) loopAbort.abort();
       }, CODE_LOOP_DEADLINE_MS);
       try {
-        const loopArgs = { sessionId, userId, model, task, workspace, testCommand, maxRounds, contextMode, requireReasoning, caller: callerFromRequest(req, "code", parsed), signal: loopAbort.signal };
-        const result = selfHeal
-          ? await runHealingCodeLoop(loopArgs, { ...(maxHealingDepth === undefined ? {} : { maxHealingDepth }) })
-          : await runCodeLoop(loopArgs);
+        // one mouth, disclosed: the loop's draws run in a turn scope, so the
+        // mouth Heimdall serves them from is sticky and named on the result
+        const scope = { sessionId, tier: turnTierAsk(req) };
+        const result = await turnScope.run(scope, () => runCodeLoop({ sessionId, userId, model, task, workspace, testCommand, maxRounds, caller: callerFromRequest(req, "code", parsed), signal: loopAbort.signal }));
         clearTimeout(loopDeadline);
         res.removeListener("close", onDisconnect);
         // metacognition standing check (native/kernel/code-draw-standing.js,
@@ -1484,7 +1458,7 @@ const job = await startDocumentJob({
         // code-draw-standing.js's own rule folded to false/unknown rather
         // than invented.
         const monitorCheck = getCodeDrawMonitor().check({ roundsExhausted: !result.done, bokUnknown: true });
-        const shipped = shipCodeDrawResult(result, monitorCheck);
+        const shipped = { ...shipCodeDrawResult(result, monitorCheck), served: servedDisclosure(scope, model) };
         res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
         res.end(JSON.stringify(shipped));
       } catch (err) {
@@ -1665,7 +1639,7 @@ const job = await startDocumentJob({
           else { res.writeHead(202, { "content-type": "application/json", "x-er7-session": sessionId, "retry-after": "15" }); res.end(JSON.stringify(heldReceipt(alreadyHeld))); }
         } catch (err) {
           res.writeHead(500, { "content-type": "application/json" });
-          res.end(JSON.stringify({ error: { message: err.message }, held: alreadyHeld.id, heldStatus: alreadyHeld.status ?? "failed", retried: Boolean(alreadyHeld.retried), priorError: alreadyHeld.priorError ?? alreadyHeld.error ?? null }));
+          res.end(JSON.stringify({ error: { message: err.message } }));
         }
         return;
       }
@@ -1827,7 +1801,7 @@ const job = await startDocumentJob({
           noteSurfaceActivity(surface, "begin");
           emitLive({ act: "prompt", surface, model: reqData?.model ?? model, sessionId, text: promptTextOf(reqData?.task, reqData?.messages ?? parsed?.messages) });
           const scope = { sessionId, tier: turnTierAsk(req) };
-          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, emitBoth, onNote, onThinking));
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, testCommand: testCommandFrom(req), signal: turnAbort.signal, ...reqData }, emitBoth, onNote, onThinking));
           endTurn(_ctid);
           _inflight--;
           noteSurfaceActivity(surface, "end");
@@ -1931,7 +1905,7 @@ const job = await startDocumentJob({
         // not dropped — a slow turn says nothing about whether the model works.
         const entry = holdTurn(holdKey, async () => {
           const scope = { sessionId, tier: turnTierAsk(req) };
-          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, ...reqData }));
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, testCommand: testCommandFrom(req), ...reqData }));
           const answeredBy = result?.model ?? parsed.model; // plain-speech switch disclosed: the envelope names who answered
           const race = precisionWinner({ observation: await observationP, draft: result.text });
           const resp = openAIResponse({ id, model: answeredBy, text: race.text, created, usage: result.usage, reading: result });
@@ -1993,17 +1967,6 @@ const job = await startDocumentJob({
       }
       reqData.mode = modeFromHeaders(req, reqData.mode);
       reqData.caller = callerFromRequest(req, "ollama", parsed);
-      // BYOK: a caller-supplied key for a provider of their own choosing
-      // (byok-upstream.mjs). Two headers, never logged, used for exactly
-      // this one call — x-er7-byok-provider names the provider ("anthropic",
-      // "openai", "google", any name byokSupportedProviders() lists),
-      // x-er7-byok-key is the key itself. Absent headers leave this
-      // undefined, preserving today's exact behavior.
-      const byokProvider = req.headers["x-er7-byok-provider"];
-      const byokKey = req.headers["x-er7-byok-key"];
-      if (byokProvider && byokKey) {
-        reqData.byok = { provider: String(byokProvider), apiKey: String(byokKey), model: reqData.model };
-      }
 
       // SWARM AUTO-ROUTE, RUN BEFORE HEIMDALL ADMISSION — mirror of the
       // /v1/chat/completions path: the swarm needs no model and no admission
@@ -2115,7 +2078,7 @@ const job = await startDocumentJob({
           const emit = mechanicalWins ? () => {} : writeChunk;
           if (mechanicalWins) writeChunk(observation.text);
           const scope = { sessionId, tier: turnTierAsk(req) };
-          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, testCommand: testCommandFrom(req), signal: turnAbort.signal, ...reqData }, (token) => {
             emit(token);
           }));
           clearTurn();
@@ -2165,7 +2128,7 @@ const job = await startDocumentJob({
         }, TURN_DEADLINE_MS);
         try {
           const scope = { sessionId, tier: turnTierAsk(req) };
-          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }));
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, testCommand: testCommandFrom(req), signal: turnAbort.signal, ...reqData }));
           if (result?.model) parsed.model = result.model; // plain-speech switch disclosed: the envelope names who answered
           clearTimeout(turnDeadline);
           res.removeListener("close", onDisconnect);
@@ -2354,7 +2317,7 @@ const job = await startDocumentJob({
           res.write(anthropicContentBlockStart(0));
           if (mechanicalWins) emitDelta(observation.text);
           const scope = { sessionId, tier: turnTierAsk(req) };
-          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, testCommand: testCommandFrom(req), signal: turnAbort.signal, ...reqData }, (token) => {
             emit(token);
           }));
           clearTurn();
@@ -2388,7 +2351,7 @@ const job = await startDocumentJob({
         }, TURN_DEADLINE_MS);
         try {
           const scope = { sessionId, tier: turnTierAsk(req) };
-          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }));
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, testCommand: testCommandFrom(req), signal: turnAbort.signal, ...reqData }));
           if (result?.model) parsed.model = result.model; // plain-speech switch disclosed: the envelope names who answered
           clearTimeout(turnDeadline);
           res.removeListener("close", onDisconnect);
@@ -2521,7 +2484,7 @@ function releaseDriverLock() {
 // Every call is measured per server. Read-only management routes pass to the
 // local daemon. Nothing else is served — the same default-deny as the proxy.
 const CHANNEL_ANSWER_ROUTES = new Set(["/api/chat", "/api/generate", "/api/embed", "/api/embeddings", "/v1/chat/completions", "/v1/completions", "/v1/embeddings"]);
-const CHANNEL_READ_ROUTES = new Set(["/", "/api/tags", "/api/ps", "/api/version", "/api/show", "/v1/models"]);
+const CHANNEL_READ_ROUTES = new Set(["/api/tags", "/api/ps", "/api/version", "/api/show", "/v1/models"]);
 const CHANNEL_ID = `heimdall:${CHANNEL_PORT}`;
 const channelServers = [];
 function channelJson(res, status, obj, extra = {}) {
@@ -2679,7 +2642,7 @@ async function handleChannel(req, res) {
   }
   if (req.method === "OPTIONS") {
     if (pageOrigin) {
-      res.setHeader("access-control-allow-methods", "GET, HEAD, POST, OPTIONS");
+      res.setHeader("access-control-allow-methods", "GET, POST, OPTIONS");
       res.setHeader("access-control-allow-headers", String(req.headers["access-control-request-headers"] || "content-type"));
     }
     res.writeHead(204);
@@ -2696,16 +2659,12 @@ async function handleChannel(req, res) {
     return channelJson(res, 200, revisionReceipt(e));
   }
   const isAnswer = req.method === "POST" && CHANNEL_ANSWER_ROUTES.has(pathname);
-  // HEAD rides the read routes (2026-09-29): the ollama client's liveness
-  // probe is HEAD / — the channel used to default-deny it and the standard
-  // `ollama run` died before its first /api/chat. An answer route is never
-  // HEAD-able; the probe that touches it is refused, not answered.
-  const isRead = CHANNEL_READ_ROUTES.has(pathname) && (req.method === "GET" || req.method === "POST" || req.method === "HEAD");
+  const isRead = CHANNEL_READ_ROUTES.has(pathname) && (req.method === "GET" || req.method === "POST");
   if (!isAnswer && !isRead) return channelJson(res, 404, { error: `no such route on the channel: ${req.method} ${pathname}`, type: "unserved_path", path: pathname, method: req.method });
   const raw = await channelReadBody(req).catch(() => Buffer.alloc(0));
   if (isRead) {
     try {
-      const up = await fetch(`${MODEL_SERVER_URL}${req.url}`, { method: req.method, headers: { "content-type": req.headers["content-type"] || "application/json" }, body: req.method === "GET" || req.method === "HEAD" ? undefined : raw, signal: AbortSignal.timeout(10000) });
+      const up = await fetch(`${MODEL_SERVER_URL}${req.url}`, { method: req.method, headers: { "content-type": req.headers["content-type"] || "application/json" }, body: req.method === "GET" ? undefined : raw, signal: AbortSignal.timeout(10000) });
       res.writeHead(up.status, { "content-type": up.headers.get("content-type") || "application/json", "x-heimdall-channel": CHANNEL_ID });
       if (!up.body) return res.end();
       for await (const chunk of up.body) res.write(chunk);
@@ -2880,40 +2839,7 @@ async function handleChannel(req, res) {
     // fetch's body yields Uint8Arrays, whose toString() is "104,101,…" — decode
     // through a Buffer or the tail is digits and the accounting reads zero
     // (measured 22:56: the body carried prompt_eval_count 36, the ledger 0).
-    if (up.body && !served) {
-      for await (const chunk of up.body) { res.write(chunk); tail = (tail + Buffer.from(chunk).toString("utf8")).slice(-4096); }
-    } else if (up.body && served) {
-      // A SUBSTITUTE TURN IS STAMPED IN THE BODY, NOT ONLY THE HEADERS
-      // (2026-09-29): the ladder's stand-in used to be a quiet wrong-model
-      // answer — the wire body said `"model":"gemma2:2b"` while the caller
-      // had asked for something else, and the disclosure lived in headers
-      // the average ollama client never reads. Buffered (a provisional
-      // answer is a placeholder by definition; first-token latency is not
-      // the promise it makes) and the stream's LAST object carries the
-      // truth. Non-JSON bodies (SSE, plain) pass through untouched.
-      const buf = [];
-      for await (const chunk of up.body) buf.push(Buffer.from(chunk));
-      let text = Buffer.concat(buf).toString("utf8");
-      const lines = text.split("\n");
-      for (let i = lines.length - 1; i >= 0; i--) {
-        const line = lines[i].trim();
-        if (!line) continue;
-        try {
-          const obj = JSON.parse(line);
-          if (obj && typeof obj === "object") {
-            obj.provisional = true;
-            obj.served_by = served.model;
-            obj.revisable_by = model;
-            if (out["x-heimdall-revision-id"]) obj.revision_id = out["x-heimdall-revision-id"];
-            lines[i] = JSON.stringify(obj);
-            text = lines.join("\n");
-          }
-        } catch { /* not a JSON line — pass the body through untouched */ }
-        break;
-      }
-      res.write(text);
-      tail = text.slice(-4096);
-    }
+    if (up.body) for await (const chunk of up.body) { res.write(chunk); tail = (tail + Buffer.from(chunk).toString("utf8")).slice(-4096); }
     res.end();
     ok = up.ok;
   } catch (e) {

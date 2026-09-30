@@ -60,6 +60,13 @@ const LICENSE = arg("license", "CC BY-NC-SA 2.5 — non-commercial, share-alike;
 // New inflectional languages pick their mode; the default rebuilds the
 // shipped Latin artifact byte-identical.
 const STRIP = arg("strip", "nfd");
+// VERBFORM TABLE (2026-09-27, opt-in): every VERB/AUX token's ending tallied
+// against its VerbForm (Fin/Inf/Part/Conv), Person or not. Built for Russian,
+// whose PAST tense — the tense a novel is told in — agrees in gender and
+// number and carries NO Person feature, so the Person-keyed table above never
+// sees it (measured: UD_Russian-GSD train, 1,651 person-marked finite verbs).
+// Off by default so every shipped artifact rebuilds byte-identical.
+const VERBFORM_TABLE = arg("verbform-table", "0") === "1";
 
 const NOMINAL_UPOS = new Set(["NOUN", "PROPN", "ADJ", "PRON", "NUM"]);
 const CASE_ENDING_LEN = Number(arg("case-ending-len", 2));
@@ -74,6 +81,7 @@ const strip = (s) => STRIP === "none" ? String(s ?? "") : String(s ?? "").normal
 const lines = readFileSync(IN, "utf8").split("\n");
 const caseTable = new Map();
 const verbTable = new Map();
+const verbFormTable = new Map();
 const voiceTable = new Map();
 const moodTable = new Map();
 const tenseTable = new Map();
@@ -96,6 +104,11 @@ for (const line of lines) {
     if (!caseTable.has(ending)) caseTable.set(ending, new Map());
     const m = caseTable.get(ending);
     m.set(key, (m.get(key) ?? 0) + 1);
+  }
+  if (VERBFORM_TABLE && (upos === "VERB" || upos === "AUX") && featMap.VerbForm) {
+    const e = strip(lower).slice(-VERB_ENDING_LEN);
+    if (!verbFormTable.has(e)) verbFormTable.set(e, new Map());
+    verbFormTable.get(e).set(featMap.VerbForm, (verbFormTable.get(e).get(featMap.VerbForm) ?? 0) + 1);
   }
   if ((upos === "VERB" || upos === "AUX") && featMap.Person && featMap.Number && (featMap.VerbForm === "Fin" || (!featMap.VerbForm && featMap.Mood))) {
     // FINITE = VerbForm=Fin, OR bare Mood+Person with no VerbForm at all
@@ -166,6 +179,7 @@ writeFileSync(OUT, JSON.stringify({
   verbVoiceByEnding: toRankedObject(voiceTable, "Voice"),
   verbMoodByEnding: toRankedObject(moodTable, "Mood"),
   verbTenseByEnding: toRankedObject(tenseTable, "Tense"),
+  ...(VERBFORM_TABLE ? { verbFormByEnding: toRankedObject(verbFormTable, "VerbForm") } : {}),
 }, null, 2));
 
 console.log(`sentences: ${sentences}; nominal tokens: ${nominalTokens} (${caseTable.size} distinct endings); verb tokens: ${verbTokens} (${verbTable.size} distinct endings)`);

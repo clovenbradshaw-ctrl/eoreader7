@@ -140,10 +140,18 @@ test("an unflagged proposal refuses the surface — the model may propose, it ma
   assert.ok(gate.checks.some((c) => !c.ok && c.name === "no unflagged proposals"), "the proposal check names the refusal");
 });
 
-test("the real Nashville instance gates green against its retained ground", () => {
+test("the real Nashville instance gates green against its retained ground", (t) => {
   const HERE = dirname(fileURLToPath(import.meta.url));
   const GROUND = join(HERE, "../../plans/nashville/ground");
-  if (!existsSync(join(GROUND, "nmotion-final.txt"))) return; // ground not retained here
+  // The instance is "retained here" only when its derived layer is: the
+  // .txt ground is tracked, but the ledger, the metrics and the data
+  // snapshot sidecar are gitignored build outputs (plans/build-nashville-
+  // ledger.mjs needs the downloaded PDFs' pagemaps; the metrics need the
+  // municipal-db sibling). A bare checkout — CI's — has none of them, so the
+  // absence is a reported fixture_absent skip, never a silent pass.
+  const NASH = join(HERE, "../../plans/nashville");
+  const absent = ["ground/nmotion-final.txt", "ledger/plans-nashville.jsonl", "metrics/metrics-nashville.json", "data/nashville-geo.json.sidecar.json"].filter((p) => !existsSync(join(NASH, p)));
+  if (absent.length) return t.skip(`fixture_absent: the retained Nashville instance is not in this checkout (missing plans/nashville/${absent.join(", plans/nashville/")})`);
   const manifest = JSON.parse(readFileSync(join(HERE, "../../plans/nashville/manifest.json"), "utf8"));
   const ledger = readFileSync(join(HERE, "../../plans/nashville/ledger/plans-nashville.jsonl"), "utf8")
     .trim().split("\n").filter(Boolean).map(JSON.parse);
@@ -158,4 +166,23 @@ test("the real Nashville instance gates green against its retained ground", () =
   const dataSidecar = JSON.parse(readFileSync(join(HERE, "../../plans/nashville/data/nashville-geo.json.sidecar.json"), "utf8"));
   const gate = gateSurface({ ground, links: ledger, metrics, resolveSnippet, plansRoot: join(HERE, "../../plans"), snapshotSidecar: { path: join(HERE, "../../plans/nashville/data/nashville-geo.json"), sha256: dataSidecar.sha256 } });
   assert.ok(gate.ok, `Nashville gate: ${gate.checks.map((c) => c.detail).join("; ")}`);
+});
+test("renamed handles change the words drawn and nothing recorded; no overrides is byte-identical", () => {
+  const dir = mkdtempSync(join(tmpdir(), "fold-surface-h-"));
+  const ground = syntheticGround(dir);
+  const cast = castTexts({ texts: ground.docs.map((d) => ({ name: d.title, text: readFileSync(d.txtPath, "utf8") })) });
+  const links = ground.docs.flatMap((d) => extractLinks({ text: readFileSync(d.txtPath, "utf8"), doc: `inst/${d.id}.txt`, mode: d.extraction }));
+  const { metrics, snapshotSidecar } = syntheticMetrics(dir);
+  const projections = deriveProjections({ links, cast, def, metrics });
+  const gate = gateSurface({ ground, links, metrics, resolveSnippet, plansRoot: dir, snapshotSidecar });
+  const base = renderSurface({ def, ground, links, metrics, projections, gate });
+  assert.equal(renderSurface({ def, ground, links, metrics, projections, gate, handleOverrides: {} }), base, "empty overrides: byte-identical");
+  assert.equal(renderSurface({ def, ground, links, metrics, projections, gate, handleOverrides: { terrain: { void: "Void" } } }), base, "an override equal to the default: byte-identical");
+  const renamed = renderSurface({ def, ground, links, metrics, projections, gate, handleOverrides: { terrain: { void: "Corpus", network: "Web of claims" }, slot: { measures: "Numbers" } } });
+  assert.ok(renamed.includes("T1 · Corpus") && !renamed.includes("T1 · Void"), "the terrain label is the person's");
+  assert.ok(renamed.includes("T6 · Web of claims"), "a second terrain renamed");
+  assert.ok(renamed.includes("<span>Numbers<span"), "a rail slot renamed");
+  const refs = (h) => [...h.matchAll(/data-byte="([^"]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(refs(renamed), refs(base), "every byte address is unchanged by renaming");
+  assert.ok(renamed.includes("● pass"), "the gate's verdict is unchanged by renaming");
 });

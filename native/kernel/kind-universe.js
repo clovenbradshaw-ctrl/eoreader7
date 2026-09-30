@@ -62,6 +62,10 @@ const decodeDescriptorOf = (item) => decodeDescriptor(item.d);
 export function splitProposals(store, concept, { bound = null } = {}) {
   const entry = store.concepts?.[concept];
   if (!entry) return { concept, components: [] };
+  // veto-report: entry.items are lessons a teacher (the CV parent, a named
+  // giver) already taught; this only REMOVES the ones a re-read falsified
+  // (falsifyOccurrence) — the giver's set minus the refuted, afterVeto's
+  // shape. No item enters the set for being unrefuted.
   const items = entry.items.filter((it) => !it.refuted);
   if (items.length < 2) return { concept, components: [] };
   const descriptors = items.map(decodeDescriptorOf);
@@ -109,6 +113,8 @@ export function splitProposals(store, concept, { bound = null } = {}) {
 export function withinKindBound(store, concept) {
   const entry = store.concepts?.[concept];
   if (!entry?.items?.length) return 0;
+  // veto-report: as in splitProposals — the taught lessons minus the
+  // falsified ones; removal only, nothing admitted for being unrefuted.
   const live = entry.items.filter((it) => !it.refuted);
   if (live.length < 2) return 0;
   const items = live.map((it) => ({ descriptor: decodeDescriptorOf(it) }));
@@ -164,6 +170,8 @@ export function universeSnapshot(store) {
       occurrences: entry.occurrences?.length ?? 0,
       falsified: entry.occurrences?.filter((o) => o.falsified).length ?? 0,
       distinctSources: corroboration(store, name),
+      // veto-report: a descriptive count for the snapshot (lessons still
+      // standing); it admits nothing.
       lessons: entry.items?.filter((it) => !it.refuted).length ?? 0,
       bound: withinKindBound(store, name),
       void: voidOfKind(store, name),

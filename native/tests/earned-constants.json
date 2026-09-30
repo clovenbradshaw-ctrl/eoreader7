@@ -1,15 +1,31 @@
 {
-  "note": "FOLD-CONSTITUTION II.11 baseline for eoreader7, disclosed 2026-09-07. These exported numeric constants name neither a measurement nor a giver. The ratchet in earned-constants.test.js fails on any NEW one; entries here may be removed as they are accounted for, and may not be added to without saying why.",
+  "note": "FOLD-CONSTITUTION II.11 baseline for eoreader7, disclosed 2026-09-07. These exported numeric constants name neither a measurement nor a giver. The ratchet in earned-constants.test.js fails on any NEW one; entries here may be removed as they are accounted for, and may not be added to without saying why. Added 2026-09-29: 17 entries, all in files that arrived from main with the notebook/holodeck work of 2026-09-28 (kernel/stigmergy.js, kernel/escalation.js, kernel/shadow-echo.js, adapters/text/occupancy-testimony.js, organs/hard-read.js, organs/mnemonic.js, organs/structure-swarm.js, organs/ingest.js, organs/build-clarify.js, organs/verbatim-snip.js). Disclosed here on the repo owner's instruction instead of left failing the ratchet; they are debt, not accounted for, and the givers or measurements are still owed by whoever set the numbers.",
   "unaccounted": [
     "organs/asserted.js:WITNESS_FLOOR",
     "organs/cite.js:MIN_RUN",
     "organs/cite.js:NULL_SAMPLES",
     "organs/hypergraph.js:MIN_SURFACES_PER_VERB",
-    "organs/hypergraph.js:GRAMMAR_MIN_SHARE",
     "organs/hypergraph.js:NEAREST_EDGES_MAX",
     "organs/quotes.js:MIN_QUOTE_WORDS",
     "organs/web.js:WEB_FETCH_TIMEOUT_MS",
     "organs/web.js:WEB_SEARCH_MAX_RESULTS",
-    "organs/web.js:WEB_ARCHIVE_TIMEOUT_MS"
+    "organs/web.js:WEB_ARCHIVE_TIMEOUT_MS",
+    "kernel/escalation.js:VETO_WEIGHT",
+    "kernel/shadow-echo.js:SERIES_WINDOW_BINS",
+    "kernel/stigmergy.js:TRAIL_HALF_LIFE_DAYS",
+    "kernel/stigmergy.js:TRAIL_WINDOW",
+    "kernel/stigmergy.js:EXPLORE_EPSILON",
+    "adapters/text/occupancy-testimony.js:OCCUPANT_GAP_MAX",
+    "organs/build-clarify.js:MAX_ROUNDS",
+    "organs/hard-read.js:RULE_FLOOR",
+    "organs/hard-read.js:MAX_ANTS",
+    "organs/hard-read.js:MAX_REGIONS",
+    "organs/ingest.js:TABLE_TEXT_ROWS",
+    "organs/mnemonic.js:GRID",
+    "organs/mnemonic.js:TEXT_WINDOWS",
+    "organs/structure-swarm.js:MAX_DEPTH",
+    "organs/structure-swarm.js:Z_OK",
+    "organs/structure-swarm.js:ROUNDS",
+    "organs/verbatim-snip.js:MAX_SNIP_CHARS"
   ]
 }

@@ -13,7 +13,7 @@
 //      that references ground outside the digest.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -24,13 +24,32 @@ const NASH = join(HERE, "../../plans/nashville");
 const GROUND = join(NASH, "ground");
 const sha = (p) => createHash("sha256").update(readFileSync(p)).digest("hex");
 
-const manifest = JSON.parse(readFileSync(join(NASH, "manifest.json"), "utf8"));
-const ledger = readFileSync(join(NASH, "ledger", "plans-nashville.jsonl"), "utf8")
-  .trim().split("\n").filter(Boolean).map(JSON.parse);
-const metrics = JSON.parse(readFileSync(join(NASH, "metrics", "metrics-nashville.json"), "utf8"));
-const digestFile = JSON.parse(readFileSync(join(NASH, "ground-digest.json"), "utf8"));
+// Tracked: the manifest, the digest, and each document's .txt layer and
+// provenance sidecar. GITIGNORED build outputs (.gitignore "Nashville plans
+// surface — derived artifacts"): the plan PDFs, their pagemaps, the ledger
+// (plans/build-nashville-ledger.mjs, from the pagemaps) and the metrics
+// (plans/build-nashville-metrics.mjs, from the municipal-db sibling). A bare
+// checkout — CI's — holds none of those, so a gate that reads one skips with
+// a typed fixture_absent reason instead of the whole file crashing at load;
+// the gates and extractor tests that need only tracked bytes still run.
+// Present, nothing is skipped.
+const LEDGER_PATH = join(NASH, "ledger", "plans-nashville.jsonl");
+const METRICS_PATH = join(NASH, "metrics", "metrics-nashville.json");
+const derivedAbsent = (path) => `fixture_absent: ${path} is a gitignored derived artifact and is not in this checkout`;
+const LEDGER_ABSENT = existsSync(LEDGER_PATH) ? undefined : derivedAbsent(LEDGER_PATH);
+const METRICS_ABSENT = existsSync(METRICS_PATH) ? undefined : derivedAbsent(METRICS_PATH);
 
-test("G1: provenance sidecars pin the on-disk bytes", () => {
+const manifest = JSON.parse(readFileSync(join(NASH, "manifest.json"), "utf8"));
+const ledger = LEDGER_ABSENT ? null : readFileSync(LEDGER_PATH, "utf8")
+  .trim().split("\n").filter(Boolean).map(JSON.parse);
+const metrics = METRICS_ABSENT ? null : JSON.parse(readFileSync(METRICS_PATH, "utf8"));
+const digestFile = JSON.parse(readFileSync(join(NASH, "ground-digest.json"), "utf8"));
+const PDFS_ABSENT = (() => {
+  const missing = manifest.docs.map((d) => join(GROUND, `${d.id}.pdf`)).filter((p) => !existsSync(p));
+  return missing.length ? `fixture_absent: the ground PDFs are gitignored (plans/**/ground/*.pdf) and not in this checkout: ${missing.join(", ")}` : undefined;
+})();
+
+test("G1: provenance sidecars pin the on-disk bytes", { skip: PDFS_ABSENT }, () => {
   for (const d of manifest.docs) {
     const s = JSON.parse(readFileSync(join(GROUND, `${d.id}.txt.provenance.json`), "utf8"));
     assert.equal(s.pdf_sha256, sha(join(GROUND, `${d.id}.pdf`)), `${d.id} pdf_sha256`);
@@ -39,7 +58,7 @@ test("G1: provenance sidecars pin the on-disk bytes", () => {
   }
 });
 
-test("G2: every ledger ref resolves verbatim and its page matches the pagemap", () => {
+test("G2: every ledger ref resolves verbatim and its page matches the pagemap", { skip: LEDGER_ABSENT }, () => {
   assert.ok(ledger.length > 0, "ledger is not empty");
   for (const r of ledger) {
     const ref = `${r.doc}#${r.at[0]}-${r.at[1]}`;
@@ -54,12 +73,12 @@ test("G2: every ledger ref resolves verbatim and its page matches the pagemap", 
   }
 });
 
-test("G3: no source-lane row is an unflagged proposal", () => {
+test("G3: no source-lane row is an unflagged proposal", { skip: LEDGER_ABSENT }, () => {
   const bad = ledger.filter((r) => r.kind === "proposal" || r.giver);
   assert.deepEqual(bad, [], "no proposal/giver rows may reach the surfaced ledger");
 });
 
-test("G4: every metric row rendered carries dataset + source + asOf", () => {
+test("G4: every metric row rendered carries dataset + source + asOf", { skip: METRICS_ABSENT }, () => {
   assert.ok(metrics.length > 0, "metrics not empty");
   for (const m of metrics) {
     assert.equal(m.schema, "MetricRow@1");
@@ -68,7 +87,7 @@ test("G4: every metric row rendered carries dataset + source + asOf", () => {
   }
 });
 
-test("G5: the alternating ground digest re-derives; the ledger stays inside it", () => {
+test("G5: the alternating ground digest re-derives; the ledger stays inside it", (t) => {
   const parts = [];
   for (const d of manifest.docs) {
     const txt = readFileSync(join(GROUND, `${d.id}.txt`));
@@ -76,6 +95,7 @@ test("G5: the alternating ground digest re-derives; the ledger stays inside it",
   }
   const digest = createHash("sha256").update(parts.join("")).digest("hex");
   assert.equal(digest, digestFile.digest, "ground digest unchanged");
+  if (LEDGER_ABSENT) return t.skip(LEDGER_ABSENT); // the digest half ran on tracked bytes; the ledger half needs the ledger
   const digestDocs = new Set(digestFile.docs);
   for (const r of ledger) {
     const id = r.doc.split("/").pop().replace(".txt", "");

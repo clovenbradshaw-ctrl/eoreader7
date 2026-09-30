@@ -1,13 +1,22 @@
 import fs from "node:fs";
 import path from "node:path";
+import { ingest } from "./native/organs/ingest.js";
+import { analysisDoor, isAnalysis } from "./native/the-fold/surface/notebook-door.mjs";
 import { fileURLToPath } from "node:url";
 
 import { createCausalTextPerceiver, textEncounters, surfaceIndex, surfacesIn } from "./native/adapters/text/recursive.js";
-import { loadModel as loadEnglishParserModel } from "./native/adapters/text/english-parser.js";
+import { loadModel as loadEnglishParserModel, sentences as englishSentences, tokenize as englishTokenize, analyse as englishAnalyse } from "./native/adapters/text/english-parser.js";
+import { makeTalkBuild } from "./native/organs/talk-build.js";
+import { PAGE_MEDIUM } from "./native/adapters/build/page-medium.js";
+import { renderBelief, renderBeliefMapped } from "./native/adapters/build/belief-page.js";
+import { makeWikiSummary } from "./native/adapters/sources/wiki-summary.js";
+import { makeNpmParts } from "./native/adapters/sources/npm-parts.js";
+import { sourcePart, provenanceComment } from "./native/organs/part-source.js";
+import { RENDERED_ELEMENTS } from "./native/adapters/build/belief-page.js";
 import { createEnglishParserPerceiver } from "./native/adapters/text/english-parser-perceiver.mjs";
 import { isCodeHunk, codeEncounters } from "./native/adapters/code/encounters.js";
 import { diaNorm, namesCorefer } from "./native/adapters/text/surfaces.js";
-import { deriveRegister, detectLanguage, questionFor, writeVoiceFor, voiceIsDeclaredFor } from "./native/kernel/register.js";
+import { deriveRegister, detectLanguage, questionFor, writeVoiceFor, voiceIsDeclaredFor, madePlatform } from "./native/kernel/register.js";
 import { createSeededRng, seedFrom } from "./native/kernel/rng.js";
 import { queryMeaningPotential, loadSidecar, SIDECAR_PATH } from "./native/kernel/prior-query.js";
 import { createWheelLedger } from "./native/kernel/wheel.js";
@@ -47,19 +56,10 @@ import { answerRecord } from "./native/the-fold/answer-record.js";
 import { groundGate, draftGate, foldGate, tightenGate, arriveGate, chainStrain, measuredInflation, lastSentence as lastSentenceOmni } from "./native/the-fold/spiral-contract.js";
 import { deposit as depositAdmitted, admit as admitCandidate, measureVariance, measureBondNull, claimCore as claimCoreOmni, segmentSentences as segmentSentencesOmni, wordTokens as wordTokensOmni, nameGate as referentNameGate, bond as bondOf } from "./native/the-fold/admission.js";
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, relevantSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy, detectTrajectoryBoredom, holonicSatisfaction, holonTreeFromText, holonicTreeSatisfaction, holonAssertionTree, holonicAssertionSatisfaction, holonLeaves } from "./native/the-fold/document-ledger.js";
-import { createRewriteGate } from "./native/kernel/rewrite-gate.js";
 import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
 import { inventedNameRuns as verifyInventedNameRuns, isMetaSentence as verifyIsMetaSentence } from "./native/the-fold/referent-verify.js";
 import { houdiniExclusivity } from "./native/the-fold/archon-rules.js";
-import { wideToAtoms, foldWideToShape, beatsFromGround, applyWordBudget } from "./native/the-fold/essay-fold.js";
-// Workstream A (2026-09-26, "integrate them formally and permanently"): three
-// capabilities ported from pipeline-run.mjs's nine-stage pipeline into this
-// live fold call site — learned words-per-page budgeting, head-noun referent
-// resolution, and (below, at searchAndAdmitWeb) the web-admission wall.
-import { askedExtent } from "./native/the-fold/void-spec.js";
-import { induceParameter, wordsPerPageClaim } from "./native/the-fold/parameter-induction.js";
-import { liveWeb } from "./native/the-fold/surf.js";
-import { buildReferents } from "./native/the-fold/referents.js";
+import { wideToAtoms, foldWideToShape, beatsFromGround } from "./native/the-fold/essay-fold.js";
 import { isConcrescent } from "./native/the-fold/concrescence.js";
 import { createSpiral, rotate, spiralPath, INFLATION_WORDS, findWordHits } from "./native/the-fold/revision-spiral.js";
 // The dispute lookup notesFromEdges reads (below): `noteId` is the same
@@ -89,13 +89,16 @@ import { findClaimCycle } from "./native/organs/reasoning-lint.js";
 // Web organ: the pure half of search and page ingestion (extractReadable,
 // parseSearchResults, extractUrls, normalizeUrl). The network egress lives
 // inline below — the proxy is the one sanctioned crossing (P13).
-import { extractReadable, blankSpans, parseSearchResults, extractUrls, normalizeUrl, WEB_SEARCH_MAX_RESULTS, looksLikeShell } from "./native/organs/web.js";
+import { extractReadable, parseSearchResults, extractUrls, normalizeUrl, WEB_SEARCH_MAX_RESULTS, looksLikeShell } from "./native/organs/web.js";
 // The look organ (native/organs/look.js): the native "looking" capacity,
 // ported from the fold's browser-side /visual machinery. CV (OpenCV boxes +
 // per-region OCR) and OCR, a vision-model read, judge + escalation on
 // disagreement, and a text→image render for text whose formatting the
 // plain-text reader is reading wrong.
 import { isImageFileName, lookAtImage, lookAtText, shouldLook, weirdFormattingScore } from "./native/organs/look.js";
+import { hardReadSource, judgeStill, linesFor, loadLearned, saveLearned, learnedDir } from "./native/organs/hard-read.js";
+import { recordUse, linkSkills, skillRef, INSTRUMENTED } from "./native/organs/skill-usage.js";
+import { disabledSet } from "./native/organs/skill-toggles.js";
 import { MODEL_SERVER_URL } from "./native/kernel/model-server.js";
 import { mechanicalRevision, variedDraw } from "./native/organs/variation.js";
 import { styleGrade as strunkWhiteGrade } from "./native/organs/strunk-white.js";
@@ -120,7 +123,7 @@ import { askShape } from "./native/organs/askshape.js";
 import { createLemmatizer, morphologyFromPrior } from "./native/adapters/text/morphology.js";
 import { constitution, ethosClear, requireClearance } from "./native/organs/ethos.js";
 import { readInterlocutor, mergeInterlocutor } from "./native/organs/interlocutor.js";
-import { speakDecline, speakDeclineVerbose } from "./native/organs/socratic.js";
+import { speakDecline } from "./native/organs/socratic.js";
 import { recordShadow, assessShadow, dispositionFrom } from "./native/kernel/moral-shadow.js";
 import { judgeAskShape } from "./native/kernel/mayeroff.js";
 import { sovereigntyHint, privacyFindings, isDataHoldingTask, sovereignSchemaPrompt, extractSovereignSchema, sovereignDataShell } from "./native/organs/privacy.js";
@@ -162,7 +165,6 @@ import { upstreamModelFor, refreshOpencodeModels, opencodeReachable, OPENCODE_UR
 // (ungated: no local VRAM, no keep-alive). Re-exported so proxy.mjs (roster)
 // reads the same discovery cache the turns use.
 import { upstreamAnthropicModelFor, refreshAnthropicModels, anthropicReachable, anthropicConfigured, ANTHROPIC_URL, streamAnthropicText, knownAnthropicModels } from "./anthropic-upstream.mjs";
-import { streamByokText } from "./byok-upstream.mjs";
 // The snip hand (native/organs/verbatim-snip.js): a verbatim ask is SNIPPED
 // from a public-domain primary source (Wikisource), never generated from
 // weights. A settled snip is an observation and the observation wins; an
@@ -291,6 +293,35 @@ const WIKISOURCE_ON = (process.env.ER7_WIKISOURCE ?? "1") === "1";
 const WIKI_MAX_CONCEPTS = Number(process.env.ER7_WIKI_MAX_CONCEPTS ?? 3);
 const WIKI_TIMEOUT_MS = Number(process.env.ER7_WIKI_TIMEOUT_MS ?? 3500);
 const WEB_SEARCH_ON = (process.env.ER7_WEB_SEARCH ?? "0") === "1";
+// THE TALK PAGE (organs/talk-build.js, Terkel): a page build is a conversation
+// — the unconscious reads the request into the parts it wants, asks the mouth
+// one small question at a time, keeps every answer in the notes ledger and
+// draws the page from the fold. On by default; ER7_TALK_PAGE=0 restores the
+// old one-draw page body (kept as the arm the talk page is measured against).
+const TALK_PAGE_ON = (process.env.ER7_TALK_PAGE ?? "1") !== "0";
+// The code edge (a chat turn reaching the code loop) and its round budget —
+// the budget set by hand 2026-09-27 to /v1/code's own default (3).
+const CHAT_CODE_EDGE_ON = (process.env.ER7_CHAT_CODE ?? "1") !== "0";
+const CHAT_CODE_ROUNDS = Number(process.env.ER7_CHAT_CODE_ROUNDS ?? 3);
+// One talk ask's reply budget: a name, a row list, a sentence — set by hand
+// 2026-09-27 to the value the ladder runs used (run-talk.mjs num_predict 160).
+const TALK_ASK_TOKENS = Number(process.env.ER7_TALK_ASK_TOKENS ?? 160);
+// What a named platform is, read before the mouth is asked (organs/kind-read.js):
+// a cached encyclopedia lead, one small fetch per term, never fetched twice.
+// ER7_TALK_SOURCES=0 turns it off (the mouth is then asked, as before).
+const talkLookup = (process.env.ER7_TALK_SOURCES ?? "1") === "0" ? null : makeWikiSummary({ dir: path.join(HERE, "state", "sources", "wikipedia") });
+// The talk page's stylesheet, SNIPPED (organs/part-source.js): found on the fly
+// among published packages, kept only under a permissive license, cut to the
+// rules the page uses, carried with its provenance and license notice. Found
+// once per process; ER7_TALK_PARTS=0 keeps the engine's own fallback.
+let _talkStyle = null;
+const talkStyle = () => {
+  if ((process.env.ER7_TALK_PARTS ?? "1") === "0") return Promise.resolve(null);
+  _talkStyle ??= sourcePart({ need: "stylesheet", elements: RENDERED_ELEMENTS, npm: makeNpmParts({ dir: path.join(HERE, "state", "sources", "npm") }) })
+    .then((part) => (part?.css ? { css: part.css, comment: provenanceComment(part.provenance), provenance: part.provenance } : null))
+    .catch(() => null);
+  return _talkStyle;
+};
 const WEB_MAX_PAGES = Number(process.env.ER7_WEB_MAX_PAGES ?? 3);
 
 // THE NON-MOVING EDIT CUT (2026-09-21): a rewrite whose content tokens are
@@ -1049,14 +1080,7 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
       // The real web organ's extraction: strips scripts/styles/nav/header/
       // footer and decodes entities — not the inline stripper that left
       // "Dolphin&#039;s" in the text face (search before building).
-      // THE WEB-ADMISSION WALL (2026-09-26): blankSpans is length-preserving
-      // (nav/note-region characters become spaces, every other byte offset is
-      // untouched), so the citation byte-addressing below stays valid while
-      // navigation/hatnote furniture (e.g. a Wikipedia hatnote) no longer
-      // leaks into the ground this path admits — the same fix surf.js's
-      // liveWeb().fetch() already carries for pipeline-run.mjs's path.
-      const { text: rawText, navSpans } = extractReadable(html);
-      const text = blankSpans(rawText, navSpans);
+      const { text } = extractReadable(html);
       if (!text || text.length < 50) continue;
       // A JS-shell / error page is not content (measured live: "A required
       // part of this site couldn't load… disable any ad blockers" came back as
@@ -1805,7 +1829,13 @@ export function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfaced
     return { shape: "command", maxTokens: 128, modality: "brief" };
   if (/^(count|list|enumerate)\s+(to\s+)?\d+/.test(t))
     return { shape: "trivial", maxTokens: 64, modality: "direct" };
-  if (surfVoid && !surfacedSegments.length)
+  // An empty search is a fact about the world, not about a request to MAKE a
+  // thing: a page, a forum, a tracker needs nothing from the web, so the void
+  // disclosure is for questions only (falsified 2026-09-27: every page
+  // request with an empty search shipped no artifact —
+  // conformance/making-not-void.test.mjs).
+  const makesThing = madePlatform(t) != null && deriveRegister(t, { genres: sidecarGenres() }).field.field === "instrument";
+  if (surfVoid && !surfacedSegments.length && !makesThing)
     return { shape: "void", maxTokens: 256, modality: "disclosed-fact" };
   // VERDICT ASKS (falsified 2026-09-19, Control B): a review/verdict-shaped
   // ask — "does this patch pass the test", "review this code", "is this
@@ -1825,38 +1855,6 @@ export function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfaced
   ];
   if (VERDICT_RES.some((re) => re.test(t))) {
     return { shape: "verdict", maxTokens: VERDICT_MAX_TOKENS, modality: "brief" };
-  }
-  // DESCRIPTION ASKS OUTRANK THE ARTIFACT (2026-09-29, falsified by the
-  // podcast proof): a task that LEADS with a description verb names the ask
-  // — a READING of material, never a deliverable. Artifact words in the
-  // object name the material, not the output: "Read the podcast app … and
-  // describe … one concrete weakness you can see in the code" was shaped
-  // composition because the trailing noun "code" matched the produce-verb
-  // list AND the register resolved it to instrument — two collisions, one
-  // fix: the leading verb is the true sign, and the register is never
-  // consulted for a description ask. "Write an essay describing X" leads
-  // with "write" and stays composition; "read the spec then build the app"
-  // is a reading-shaped answer by its own first verb — a build leads with
-  // the build verb. The basis rides the shape: provenance of the decision.
-  const DESCRIPTION_RES = /^(?:read|describe|explain|summarize|outline|walk me through|tell me about|show me)\b/i;
-  // A prepositional lead-in ("In the podcast app workspace, describe: …")
-  // is the same ask one clause later — the description verb still names a
-  // reading. The produce-verb guard keeps the artifact asks out: "Write an
-  // essay that describes X" leads with the produce verb and stays
-  // composition; the description verb never outranks a verb that came
-  // FIRST.
-  // The prep-led list carries the SAME verbs as the direct list (2026-09-29:
-  // "in the code, walk me through X" is the same ask one clause later — the
-  // asymmetry that omitted the three phrasal verbs is fixed, not documented).
-  const PREP_LEAD_DESCRIPTION = /^(?:in|for|on|about|regarding|within)\b[\s\S]{0,100}\b(?:read|describe|explain|summarize|outline|walk me through|tell me about|show me)\b/i;
-  const PRODUCE_FIRST = /^\s*(?:please\s+)?(?:write|compose|draft|prepare|generate|produce|make|tell|build|create|implement)\b/i;
-  if (DESCRIPTION_RES.test(t) || (PREP_LEAD_DESCRIPTION.test(t) && !PRODUCE_FIRST.test(t))) {
-    return {
-      shape: hasWorkspace || hasWeb ? "research" : "open",
-      maxTokens: hasWorkspace || hasWeb ? CALL_MAX_TOKENS : 1024,
-      modality: hasWorkspace || hasWeb ? "grounded" : "concise",
-      basis: "description ask outranks the artifact: a leading (or prepositionally-led) read/describe/explain verb names a reading of the material, never a deliverable — the register is not consulted for it",
-    };
   }
   // THE REGISTER (Halliday) — no hardcoded "essay mode". ANY named genre the
   // person asks us to produce enters the staged-artifact pipeline: a story,
@@ -1881,7 +1879,9 @@ export function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfaced
   // A code ask ("write a Python CLI tool…") is a composition even without an
   // "about/on" object — the instrument register names the artifact directly.
   const isCodeAsk = reg.field.field === "instrument";
-  if ((produce && namesGenre && (aimsAt || isCodeAsk)) || multiPart)
+  // "I need a page where …", "a forum for people who …": asking for a thing
+  // to be made, with no making verb — the register already read it as one
+  if ((produce && namesGenre && (aimsAt || isCodeAsk)) || multiPart || (isCodeAsk && madePlatform(t)))
     return { shape: "composition", maxTokens: CALL_MAX_TOKENS, modality: "grounded", register: reg };
   // LONG — a response that goes further than chat provides: the task asks
   // for elaboration or depth, still one answer (no artifact, no ledger).
@@ -2505,6 +2505,59 @@ continue;
   return entries;
 }
 
+
+// HARD READ — learned on the fly (native/organs/hard-read.js). The ordinary reader saw a measurement and
+// could not read it (a stacked TeX error, a split stat/sys error); the colony reads it two ways — the
+// characters and a typeset picture looked at with OpenCV + Tesseract — accepts only when they AGREE, and
+// learns a rule that reads the next such shape mechanically. The colony's memory (trails + rules) is
+// persisted (ER7_LEARNED_DIR, default ~/.er7/learned), so it outlives the session. The readings are
+// admitted as a source of their own, each line carrying the byte address of the text it was read from.
+
+// A skill's use, disclosed twice: on the per-turn list the generation record links to, and on the session's
+// ingestion log (how each source was read) — plus the append-only usage record the skills surface reads.
+const skillParentOf = (id) => (String(id).startsWith("learned:hard-read/") ? "route:hard-read" : null);
+function noteSkillUse(session, ev) {
+  (session.skillEvents ??= []).push(ev);
+  if (ev.source) (session.ingestionLog ??= []).push({ ...skillRef(ev.skill), source: ev.source, accepted: ev.accepted ?? 0, refused: ev.refused ?? 0, judged: ev.judged ?? 0, turn: session.turnCount });
+  recordUse(learnedDir(), { skill: ev.skill, fired: ev.fired ?? 1, accepted: ev.accepted ?? 0, refused: ev.refused ?? 0, judged: ev.judged ?? 0, source: ev.source ?? null });
+}
+let HARD_LEARNED = null;
+const HARD_READ_MAX_CHARS = 2_000_000; // declared ceiling per file; a larger text is not swarmed
+async function hardReadEntry(session, e, text, onNote) {
+  if (e.giant || text.length > HARD_READ_MAX_CHARS) return 0;
+  const key = `${e.size}:${e.mtimeMs}`;
+  if (session.hardIndex?.get(e.rel) === key) return 0;
+  try {
+    // THE SWITCH: a person may turn this path (or one learned rule under it) off; the pipeline reads that here.
+    const off = disabledSet(learnedDir(), { parentOf: skillParentOf });
+    if (off.has("route:hard-read")) { if (onNote) onNote({ move: "skill_off", skill: "route:hard-read", ...skillRef("route:hard-read"), rel: e.rel }); return 0; }
+    HARD_LEARNED ??= loadLearned();
+    const active = { ...HARD_LEARNED, rules: { ...HARD_LEARNED.rules, rules: HARD_LEARNED.rules.rules.filter((r) => !off.has(`learned:hard-read/${r.name}`)) } };
+    const hr = hardReadSource({ name: e.rel, text, learned: active });
+    (session.hardIndex ??= new Map()).set(e.rel, key);
+    // THE SMALL MODEL, AS NEEDED: only where the senses disagreed, and only to POINT at a candidate.
+    let judged = 0;
+    if (session.hardModel && hr.still.some((u) => (u.readings ?? []).filter((c) => c.reading).length > 1)) {
+      const ask = async (prompt) => { let out = ""; for await (const c of streamOllamaChat(session.hardModel, [{ role: "user", content: prompt }], { maxTokens: 6 })) if (typeof c === "string") out += c; return out; };
+      const j = await judgeStill({ text, still: hr.still, ask });
+      hr.readings.push(...j.readings); hr.lines.push(...j.lines); hr.still = j.still; judged = j.readings.length;
+    }
+    if (!hr.readings.length && !hr.still.length) return 0;
+    HARD_LEARNED = { ...hr.learned, rules: { ...hr.learned.rules, rules: [...hr.learned.rules.rules, ...HARD_LEARNED.rules.rules.filter((r) => off.has(`learned:hard-read/${r.name}`))] } };
+    if (hr.rulesAdded || hr.readings.some((r) => !r.byRule && !r.judged)) saveLearned(learnedDir(), HARD_LEARNED);
+    if (hr.lines.length) admitChunked(session.corpus, { text: piiAdmit(session, hr.lines.join("\n"), `${e.rel}::hardread`, onNote), sourceId: `${e.rel}::hardread` });
+    // every skill that acted on this source is reported, linked: the route, and each learned rule that read for it
+    const usedRules = [...new Set(hr.readings.filter((r) => r.byRule).map((r) => `learned:hard-read/${r.byRule}`))];
+    noteSkillUse(session, { skill: "route:hard-read", source: e.rel, accepted: hr.readings.length, refused: hr.still.length, judged });
+    for (const id of usedRules) noteSkillUse(session, { skill: id, source: e.rel, accepted: hr.readings.filter((r) => `learned:hard-read/${r.byRule}` === id).length });
+    if (onNote) onNote({ move: "hard_read", rel: e.rel, read: hr.readings.length, by_rule: hr.readings.filter((r) => r.byRule).length, judged, unread: hr.still.length, rules_added: hr.rulesAdded, image_sense: hr.senses.image, signals: hr.signals, skills: [skillRef("route:hard-read"), ...usedRules.map(skillRef)] });
+    return hr.readings.length;
+  } catch (err) {
+    if (onNote) onNote({ move: "hard_read_error", rel: e.rel, error: err.message });
+    return 0;
+  }
+}
+
 // Admit (or re-admit changed) workspace files into the session's REAL corpus.
 // File content is stepped through the fold reader once per admission so the
 // holograph/hyperlexicon are built from disk text, not from a model's retell.
@@ -2543,6 +2596,7 @@ async function admitWorkspaceEntries(session, entries, onNote) {
       }
       await yieldToEventLoop();
     }
+    await hardReadEntry(session, e, text, onNote);
     // LOOK AT IT — the native "looking" capacity, ported from the fold's
     // /visual machinery. Text whose formatting the plain-text reader is
     // reading WRONG (a table, a column, box-drawing, sub-sentence lines)
@@ -2571,7 +2625,8 @@ async function admitWorkspaceEntries(session, entries, onNote) {
             }
             if (!session.lookIndex) session.lookIndex = new Map();
             session.lookIndex.set(e.rel, `${e.size}:${e.mtimeMs}`);
-            onNote({ move: "look", rel: e.rel, reason: gate.reason, signals: gate.signals ?? [], boxes: lookedText.boxCount ?? 0, vision: Boolean(lookedText.visionRead) });
+            noteSkillUse(session, { skill: "route:look", source: e.rel, accepted: 1 });
+            onNote({ move: "look", rel: e.rel, reason: gate.reason, signals: gate.signals ?? [], boxes: lookedText.boxCount ?? 0, vision: Boolean(lookedText.visionRead), skills: [skillRef("route:look")] });
           }
         } catch (err) {
           if (onNote) onNote({ move: "look_error", rel: e.rel, error: err.message });
@@ -2804,9 +2859,7 @@ return { segments: [], void: true, reason: "no corpus yet" };
     }
     const gap = "content_not_found";
     const reason = "no chunk shares a term with the question, and nothing resembled it above the field's own null";
-    // A5-close: this void carries its measured subtype — a search that found
-    // nothing (kind:search, power:unmeasured), never a ledger scan claim.
-    if (onNote) onNote({ move: "void", gap, reason, kind: "search", power: "unmeasured" });
+    if (onNote) onNote({ move: "void", gap, reason });
     return { segments: [], void: true, gap, reason };
   }
 
@@ -3074,38 +3127,7 @@ const RESOLUTIONS_LEVEL = (() => { const raw = process.env.ER7_RESOLUTIONS; if (
 // creativity may hold tension, never a silent pick. ER7_KELSEN_MODALITY.
 const KELSEN_MODALITY = (() => { const v = Number(process.env.ER7_KELSEN_MODALITY ?? ""); return [0, 0.5, 1].includes(v) ? v : 1; })();
 
-// I-single-grain (2026-09-29): no model call receives material from more
-// than one grain. The audit reads grain declarations — the caller's
-// declared `grain` plus any [grain:X] tags in the prompt bytes — and
-// reports the distinct grains. MEASURE mode (default) notes, never throws:
-// the sequential pipeline is the total-collapse form and would fail a
-// throwing gate on every turn; ER7_GRAIN_AUDIT=enforce throws the typed gap
-// once the pipeline is actually single-grain (Phase 2). The audit never
-// guesses content grains from prose — a heuristic is not a measurement.
-const GRAIN_AUDIT_MODE = (process.env.ER7_GRAIN_AUDIT ?? "measure").toLowerCase() === "enforce" ? "enforce" : "measure";
-const GRAIN_NAMES = ["sentence", "paragraph", "section", "whole"];
-const GRAIN_TAG_RE = /\[grain:(sentence|paragraph|section|whole)\]/gi;
-export function auditSingleGrain(messages = [], { declared = null } = {}) {
-  const grains = [];
-  const take = (g) => { const n = String(g ?? "").toLowerCase(); if (GRAIN_NAMES.includes(n) && !grains.includes(n)) grains.push(n); };
-  take(declared);
-  for (const m of messages ?? []) {
-    const text = typeof m === "string" ? m : m?.content ?? "";
-    if (typeof text !== "string") continue;
-    GRAIN_TAG_RE.lastIndex = 0;
-    let hit;
-    while ((hit = GRAIN_TAG_RE.exec(text)) !== null) take(hit[1]);
-  }
-  return { grains, multi: grains.length > 1 };
-}
-export function grainGate({ grains = [], mode = GRAIN_AUDIT_MODE } = {}) {
-  if (grains.length > 1 && mode === "enforce") {
-    return { ok: false, error: Object.assign(new Error(`multi-grain payload: one model call received material from ${grains.join(" + ")} — I-single-grain allows one grain per call`), { code: "ERR_MULTI_GRAIN", grains: [...grains] }) };
-  }
-  return { ok: true };
-}
-
-export async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal, stop, byok = null, grain = null } = {}) {
+export async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal, stop } = {}) {
   // ANTIStrauss — the safety-and-ethics gate (native/the-fold/antistrauss.mjs).
   // THIS is the choke point every real model call in the proxy passes
   // through (draw() → runProxyTurn → here). The gate settles a physics
@@ -3118,13 +3140,6 @@ export async function* streamOllamaChat(model, messages, { maxTokens, json, onNo
   if (!gate.allow) {
     throw Object.assign(new Error(gate.reason), { code: "ERR_ANTISTRAUSS_BLOCKED", antistrauss: gate.verdict });
   }
-  // I-single-grain audit — the collapse-distribution backstop, beside the
-  // AntiStrauss gate. Declared grains are noted (the measurement record);
-  // a multi-grain payload throws only in enforce mode, never by default.
-  const grainAudit = auditSingleGrain(messages, { declared: grain });
-  if (grainAudit.grains.length && onNote) { try { onNote({ move: "grain_audit", grains: grainAudit.grains, multi: grainAudit.multi, mode: GRAIN_AUDIT_MODE }); } catch { /* notes never break a turn */ } }
-  const gg = grainGate({ grains: grainAudit.grains });
-  if (!gg.ok) throw gg.error;
   // ── ANTIStrauss OUTPUT GUARD (streaming) ───────────────────────────────
   // Model output is re-scanned BEFORE it reaches the caller: reviewBlock()
   // re-runs the same law classes over what the model actually emitted.
@@ -3184,74 +3199,6 @@ export async function* streamOllamaChat(model, messages, { maxTokens, json, onNo
   const finishReview = (done) => {
     antistrauss.review({ model, messages, output: emitted.join(""), route: "chat", verdict: gate.verdict, ok: done, outputBlocked: !!outBlocked });
   };
-  // ── BYOK LANE (caller-supplied key, any provider) ───────────────────────
-  // Checked FIRST: an explicit caller-supplied key is deliberate intent, not
-  // a fallback heuristic like the model-id-sniffing lanes below — it wins
-  // even over a Claude-shaped id that could otherwise ride the direct
-  // ANTHROPIC_API_KEY lane. Same gate above (antistrauss covers every mouth
-  // regardless of key ownership), same yield contract, same heimdall
-  // account, tagged apart by provider so a BYOK call is never confused with
-  // this server's own configured keys.
-  if (byok?.provider && byok?.apiKey) {
-    if (onNote) onNote({ move: "byok_lane", provider: byok.provider });
-    for (let attempt = 0; attempt < CALL_RETRIES; attempt++) {
-      try {
-        for await (const chunk of streamByokText({ provider: byok.provider, apiKey: byok.apiKey, model: byok.model || model }, messages, { maxTokens: maxTokens ?? CALL_MAX_TOKENS, kelsen: kelsen ?? null, signal, onNote })) {
-          if (typeof chunk === "string") {
-            emitted.push(chunk);
-            const g = guardAccept(chunk);
-            if (g.emit) yield g.emit;
-            if (g.blocked) {
-              yield refusalFor(outBlocked);
-              yield { done: true, outputBlocked: true, prompt_eval_count: 0, eval_count: emitted.join("").length };
-              finishReview(true);
-              return;
-            }
-          } else if (chunk?.done) {
-            import("./heimdall.mjs").then((h) => h.observeCall({
-              model,
-              promptTokens: chunk.prompt_eval_count ?? 0,
-              promptMs: 0,
-              genTokens: chunk.eval_count ?? 0,
-              genMs: 0,
-              loadMs: 0,
-              // UNGATED: a caller's own key never touches this server's local
-              // box (no VRAM, no keep-alive, no reload) — Heimdall counts it
-              // apart, tagged by provider so it's never mistaken for a call
-              // this server itself is paying for.
-              ungated: true,
-              upstream: `byok:${byok.provider}`,
-              reasoningTokens: 0,
-              cacheReadTokens: chunk.cacheRead ?? 0,
-              cacheWriteTokens: chunk.cacheCreation ?? 0,
-              cost: chunk.cost ?? null,
-            })).catch(() => {});
-            {
-              const fin = guardFinish();
-              if (fin.blocked) yield fin.refusal;
-              else if (fin.emit) yield fin.emit;
-              yield fin.blocked ? { ...chunk, outputBlocked: true } : chunk;
-            }
-            finishReview(true);
-            return;
-          }
-        }
-        {
-          const fin = guardFinish();
-          if (fin.blocked) {
-            yield fin.refusal;
-            yield { done: true, outputBlocked: true, prompt_eval_count: 0, eval_count: emitted.join("").length };
-          } else if (fin.emit) yield fin.emit;
-        }
-        finishReview(true);
-        return;
-      } catch (err) {
-        if (attempt === CALL_RETRIES - 1) { finishReview(false); throw err; }
-        await retryUnderLoad(attempt, model).catch((e) => { finishReview(false); throw e; });
-      }
-    }
-    return;
-  }
   // ── ANTHROPIC LANE (direct, ANTHROPIC_API_KEY) ─────────────────────────
   // Checked BEFORE the opencode lane: when both could serve the same Claude
   // id, the direct key wins — a token-usage comparison must measure the
@@ -3407,13 +3354,7 @@ export async function* streamOllamaChat(model, messages, { maxTokens, json, onNo
     // mouthFor). A logit bias pins the asked model: it was computed for that
     // model's tokenizer and would push the wrong tokens on any other.
     const mouth = H.mouthFor(model, { pinned: !!(logitsBias && Object.keys(logitsBias).length) });
-    // The wire needs the BARE tag: Ollama rejects an "er7:"-prefixed model
-    // name outright (measured live: model:"er7:gemma2:2b" — the exact id
-    // GET /v1/models itself advertises — reached here unstripped when
-    // non-provisional and Ollama answered 400 "invalid model name"). Every
-    // other er7: consumer in heimdall.mjs already strips this same prefix;
-    // this is the one hot-path spot that did not.
-    const drawModel = String(mouth.provisional ? mouth.model : model).replace(/^er7:/, "");
+    const drawModel = mouth.provisional ? mouth.model : model;
     _hot.add(hotModelName(drawModel)); // the mouth that SERVES is the one the residency holon keeps warm
     const mouthHost = mouth.provisional ? H.hostByName(mouth.host) : null;
     const picked = mouthHost ? { host: mouthHost, reason: `mouth:${mouth.tier}` } : H.pickHost({ model: drawModel, session: H.currentTurnSession() });
@@ -3469,10 +3410,7 @@ const res = await fetch(`${host.url}/api/chat`, {
           },
         }),
       });
-      if (!res.ok) {
-        const errText = await res.text().catch(() => "");
-        throw new Error(`ollama ${res.status}${errText ? `: ${errText.slice(0, 300)}` : ""}`);
-      }
+      if (!res.ok) throw new Error(`ollama ${res.status}`);
 const reader = res.body.getReader();
       // First-byte race: headers already arrived; body may stall for minutes
       // on a load. First read only — steady streaming is never timed here.
@@ -3628,26 +3566,8 @@ const reader = res.body.getReader();
       }
       // the host that failed this attempt: a refusal stands it down (the
       // next attempt picks another); a timeout is not a conviction
-      const localCauseCode = String(err?.cause?.code ?? err?.code ?? "");
-      const localHostRefused = /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND/.test(localCauseCode) || /^ollama 5\d\d(:|$)/.test(String(err?.message ?? ""));
-      closeHost({ ok: false, refused: localHostRefused });
-      if (attempt === CALL_RETRIES - 1) {
-        finishReview(false);
-        // Self-diagnosing, not just self-retrying: the cause above is already
-        // computed for closeHost's own bookkeeping — surface it on the error
-        // that actually reaches the caller instead of undici's bare "fetch
-        // failed" (measured live: that opaque message is what /v1/code
-        // returned on a real local-lane connection failure, with no hint of
-        // which host or why). The original error rides along as .cause;
-        // anything NOT diagnosed as a connection failure throws unchanged.
-        if (localHostRefused) {
-          throw Object.assign(
-            new Error(`local model server unreachable at ${host?.name ?? OLLAMA} (${localCauseCode || err.message}) after ${CALL_RETRIES} attempts — it may be down, restarting, or overloaded; retrying the same request again will not help until it answers`),
-            { code: "ERR_LOCAL_HOST_UNREACHABLE", cause: err },
-          );
-        }
-        throw err;
-      }
+      closeHost({ ok: false, refused: /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND/.test(String(err?.cause?.code ?? err?.code ?? "")) || /^ollama 5\d\d$/.test(String(err?.message ?? "")) });
+      if (attempt === CALL_RETRIES - 1) { finishReview(false); throw err; }
       // A substitute that failed is dropped from the turn, so the retry
       // decides again. When the NEXT attempt would go to a warm mouth, the
       // retry loads nothing — the pressured-throw below exists only to keep
@@ -3895,18 +3815,7 @@ export function notesFromEdges(graphEntries = [], { disputeLog = null } = {}) {
     if (!subject) continue;
     const object = end(parts.length > 1 ? parts[parts.length - 1] : null) ?? "?";
     const disputedBy = disputes?.get(notesLedgerNoteId(subject, e.relation, object))?.map((d) => d.source) ?? [];
-    // THE BYTE ADDRESS RIDES HERE (2026-09-29, the provenance wiring): a full
-    // EOHyperedge@1 carries its absolute byte offset in scope.byteOffset and
-    // its source name in meta.source. The witness is a content hash — edge
-    // identity, never provenance — and scope.offset is sentence-relative,
-    // never a byte address. The legacy `span`/hash paths are fallbacks for
-    // the reduced shape only; when no true address exists the note carries
-    // no span and the holograph renders the typed gap, never a guessed
-    // address.
-    const edgeByte = e?.scope?.byteOffset;
-    const edgeSpan = Number.isFinite(edgeByte) ? { start: edgeByte } : (e.span ?? null);
-    const edgeSource = (typeof e?.meta?.source === "string" && e.meta.source.trim()) ? e.meta.source.trim() : null;
-    notes.push({ subject, verb: e.relation, object, end1: subject, end2: object, label: e.relation, witnesses: e.witness ? [e.witness] : [], sources: 1, ...(disputedBy.length ? { disputedBy } : {}), ...(edgeSpan ? { span: edgeSpan } : {}), ...(edgeSource ? { source: edgeSource } : e.witness ? { source: e.witness } : {}) });
+    notes.push({ subject, verb: e.relation, object, end1: subject, end2: object, label: e.relation, witnesses: e.witness ? [e.witness] : [], sources: 1, ...(disputedBy.length ? { disputedBy } : {}) });
   }
   return notes;
 }
@@ -4285,14 +4194,7 @@ export function openProblemOf(task) {
   return null;
 }
 
-// documentJobId (2026-09-26): the ONLY signal distinguishing the explicit
-// async POST /v1/documents job from an ordinary chat/API turn that merely
-// auto-classifies as composition-shaped — both can reach mode:"projection",
-// so mode alone cannot discriminate them. Set by exactly one caller,
-// startDocumentJob, below. Never forward a caller-supplied options object
-// generically into this function without stripping documentJobId first, or
-// an ordinary chat turn could accidentally take the job-only branch.
-export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null, documentJobId = null, byok = null }, onToken, onNote = null, onThinking = null) {
+export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null, testCommand = "", drawOnly = false }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   // ── ETHOS FIRST (the ground) ──────────────────────────────────────────────
   // The constitution (Charter/Grotius + the spec gate/Brandeis) produces a
@@ -4306,6 +4208,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   const shadowBefore = assessShadow(personId);
   const clearance = ethosClear(task, { disposition: dispositionFrom(shadowBefore) });
   const session = getSession(sessionId, clearance, task);
+  session.skillEvents = []; // this turn's skill uses; the ingestion log persists for the session
   // WHO is at the door (organs/interlocutor.js, Buber): recognized mechanically
   // from the request's shape, accumulated across the session (one interlocutor
   // per conversation), held so the reader can meet an agent or a person in the
@@ -4462,7 +4365,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       }
     } catch { /* the fold must never break an early answer */ }
   };
-  const earlyResult = (text, { answerShape, mechanical = null, quote = null, truncated = false, houdini = null, decline = null } = {}) => {
+  const earlyResult = (text, { answerShape, mechanical = null, quote = null, truncated = false, houdini = null } = {}) => {
     session.turnCount++;
     foldEarlyTurn(text);
     return {
@@ -4478,12 +4381,6 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       houdini,
       shadow: [],
       interlocutor: { kind: interlocutor.kind, confidence: interlocutor.confidence, basis: interlocutor.basis },
-      // A2-close: pre-model doors are not declines, so decline is always a
-      // typed null here — present so callers never read absence as unknown.
-      decline: decline ?? null,
-      // A6-close: no notes-ledger frame is declared on this path — typed
-      // null, never an invented frame.
-      frameGap: null,
       relationEdges: 0,
       referentBindings: 0,
       hyperlexiconCandidates: 0,
@@ -4511,6 +4408,19 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       quote,
     };
   };
+  // ── THE ANALYSIS DOOR (the-fold/surface/notebook-door.mjs) ──────────────────
+  // "/analyze <question>" or "/explore" with a table attached: learned methods, or an ant colony when none exists and no model is
+  // set. A mechanical door — no model drafts the reply; it is what the checks found, with the methods named so each can be switched
+  // off at the Skills surface. The notebook is kept per session; its ledgers are the ones the Skills surface reads.
+  if (isAnalysis(task)) {
+    if (onNote) onNote({ move: "analysis_door", note: "table analysis: learned methods, else an ant colony; every find goes through the gate" });
+    const out = await analysisDoor({ task, attachments, notebook: session.notebook ?? null, by: `human:${String(personId).replace(/\W+/g, "-").slice(0, 40) || "api"}`, ctx: { mouth: undefined } });
+    if (out) {
+      session.notebook = out.notebook;
+      if (onNote) for (const m of out.methods) onNote({ move: "skill_used", skill: `learned:analysis/${m.id}`, name: m.name });
+      return earlyResult(out.text, {});
+    }
+  }
 
   // ── THE SNIP HAND — verbatim asks answered pre-model ───────────────────
   // The reading already knows HOW to answer a quotation ask: snip the work's
@@ -4658,7 +4568,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       let fullText = "";
       let fastTruncated = false;
       await withSlot(model, async () => {
-        for await (const chunk of streamOllamaChat(model, msgs, { maxTokens: CALL_MAX_TOKENS, onNote, signal, byok })) {
+        for await (const chunk of streamOllamaChat(model, msgs, { maxTokens: CALL_MAX_TOKENS, onNote, signal })) {
           if (typeof chunk === "string") {
             fullText += chunk;
             if (onToken) onToken(chunk);
@@ -4733,6 +4643,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     if (onNote) onNote({ move: "scanning", root: workspace });
     const entries = workspaceEntries(workspace, onNote);
     if (onNote) onNote({ move: "files_found", count: entries.length, chars: entries.reduce((a, e) => a + e.size, 0) });
+    session.hardModel = model;
     const admit = await admitWorkspaceEntries(session, entries, onNote);
     workspaceStats.files += entries.length;
     workspaceStats.chars += admit.chars;
@@ -4764,7 +4675,13 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     const index = session.corpusIndex ?? new Map();
     for (const a of attachments) {
       const name = String(a?.name ?? `attachment-${attachmentStats.files + 1}`).slice(0, 120);
-      const text = String(a?.text ?? "");
+      let text = String(a?.text ?? "");
+      if (!text && a?.base64) { // any file: docx/xlsx/pptx/pdf/image/csv/ipynb -> text face + typed gaps (organs/ingest.js)
+        const ing = ingest({ name, bytes: Buffer.from(String(a.base64), "base64") });
+        text = ing.text;
+        if (onNote) onNote({ move: "attachment_ingested", name, kind: ing.kind, chars: ing.text.length, gaps: ing.gaps.map((g) => g.kind) });
+        if (!text.trim() && onNote) onNote({ move: "attachment_unread", name, gaps: ing.gaps });
+      }
       if (!text.trim()) continue;
       attachmentStats.files += 1;
       attachmentStats.chars += text.length;
@@ -4950,13 +4867,27 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // person or agent actually reads is composed by organs/socratic.js
   // (Kierkegaard) in the register interlocutor.js recognized them under —
   // the working vocabulary (SHAPE, FORECLOSE, STANDPOINT) never reaches them.
-  // A2: the decline's shape arm rides the turn JSON (declineMeta below),
-  // never the prose — speakDeclineVerbose carries {text, archon, shape};
-  // speakDecline's string is still the ONLY text the caller reads.
-  let declineMeta = null;
-  const specRefusalVerbose = !clearance.cleared ? speakDeclineVerbose({ reason: clearance.reason, shape: clearance.shape }, interlocutor) : null;
-  const specRefusalText = specRefusalVerbose?.text ?? null;
-  if (specRefusalVerbose) declineMeta = { archon: specRefusalVerbose.archon, shape: specRefusalVerbose.shape };
+  const specRefusalText = !clearance.cleared ? speakDecline({ reason: clearance.reason, shape: clearance.shape }, interlocutor) : null;
+
+  // ── THE CODE EDGE: a chat turn reaching the code API ─────────────────
+  // What is truly code-specific (patch physics against a real test command,
+  // the forecast, the sandbox) lives behind the code API
+  // (native/the-fold/code-loop.js). A conversation reaches it the moment it
+  // hands a workspace AND the command that proves a change works: the same
+  // loop /v1/code runs, after this turn's own clearance, its result answered
+  // here. The loop's own per-round turns carry no test command, so this
+  // never recurses. ER7_CHAT_CODE=0 turns the edge off.
+  if (CHAT_CODE_EDGE_ON && clearance?.cleared === true && workspace && String(testCommand ?? "").trim() && !String(task ?? "").trim().endsWith("?")) {
+    const { runCodeLoop } = await import("./native/the-fold/code-loop.js");
+    if (onNote) onNote({ move: "code_edge", testCommand: String(testCommand).trim(), workspace });
+    const loop = await runCodeLoop({ sessionId, userId, model, task, workspace, testCommand: String(testCommand).trim(), maxRounds: CHAT_CODE_ROUNDS, caller, signal });
+    const tried = loop.rounds.filter((r) => r.action && r.path).map((r) => `${r.action} ${r.path}`);
+    const tail = String(loop.finalTestOutput ?? "").trim().split("\n").slice(-12).join("\n");
+    const text = loop.done
+      ? `Done — \`${String(testCommand).trim()}\` passes after ${loop.rounds.length} round${loop.rounds.length === 1 ? "" : "s"}.${tried.length ? `\n\nWhat changed: ${[...new Set(tried)].join("; ")}.` : ""}${tail ? `\n\n\`\`\`\n${tail}\n\`\`\`` : ""}`
+      : `Not done — \`${String(testCommand).trim()}\` still fails after ${loop.rounds.length} round${loop.rounds.length === 1 ? "" : "s"}.${tried.length ? `\n\nWhat was tried: ${[...new Set(tried)].join("; ")}.` : ""}${tail ? `\n\n\`\`\`\n${tail}\n\`\`\`` : ""}`;
+    return earlyResult(text, { answerShape: "code-edit", mechanical: { rung: "code-loop", via: "chat", done: loop.done, rounds: loop.rounds.length, testCommand: String(testCommand).trim(), finalTestOutput: tail } });
+  }
   if (specRefusalText && onNote) onNote({ move: "spec_refused", reason: clearance.reason });
 
   // ── THE ASK-BACK DOOR (build-clarify.js — the recursive void) ──────────
@@ -4990,7 +4921,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // build target only when it is NOT a page-count and NOT beside a prose noun.
     if (runMode !== "projection") return null;
     const verb = /^(?:make|build|create|generate|write|let'?s make)\b/i.test(t);
-    const softwareTarget = /(?:site|app|dashboard|tool|game|web ?page|landing ?page|homepage)\b/i.test(t);
+    const softwareTarget = /(?:site|app|dashboard|tool|game|web ?page|landing ?page|homepage)\b/i.test(t) || madePlatform(t) != null;
     const pageCount = /\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|\d+)[- ]\s*page\b/i.test(t);
     const barePage = /\bpage\b/i.test(t) && !pageCount;
     const proseNoun = /\b(?:paper|essay|report|article|document|thesis|dissertation|story|novel|book|poem|brief|memo|letter|post)\b/i.test(t);
@@ -5473,7 +5404,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // 4. Build grounding digest
   const digestInfo = makeDigest(sessionId, session, fold, ledger, hyperlexicon);
   let readingDigest = digestInfo.digest;
-  if (WIKIPEDIA_ON) {
+  // a specialist loop's per-round draw (drawOnly: the code loop's patch
+  // turns) is not a composition: no encyclopedia enrichment every round
+  if (WIKIPEDIA_ON && !drawOnly) {
     const wikiNotes = await enrichFromWikipedia(digestInfo.composition);
     if (wikiNotes.length > 0) {
       readingDigest += `\n\nA reference on the terms at play:\n${wikiNotes.map((w) => `- ${w.term}: ${w.snippet}`).join("\n")}`;
@@ -5603,17 +5536,6 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // answer on every surface: the answer carries why the claim won or lost.
     resultKelsen?.resolutions?.length
       ? `\n\nSome claims in the material conflict. They were resolved by the fixed norm hierarchy (${precedenceOrderPhrase()}):\n${resultKelsen.resolutions.slice(0, 5).map((r) => `- “${r.a}” vs “${r.b}” → ${r.winner ? (r.winner === "a" ? r.a : r.b) : "tied"} (${r.why ?? r.reason})`).join("\n")}${resultKelsen.resolutions.length > 5 ? `\n… ${resultKelsen.resolutions.length - 5} more.` : ""}\nSpeak with that standing: name the conflict and the resolution, do not silently pick.`
-      : null,
-    // THE RECORD'S CLAIMS, BYTE-ADDRESSED (2026-09-29, the podcast wiring):
-    // the Ranke lesson applied to every surface — when the surf produced
-    // relations from the workspace/corpus, their propositions ride the
-    // prompt WITH their addresses, so the answer can carry them and the
-    // holograph can type the carrying sentences MATERIAL with their refs.
-    // What the record says is handed over, named by its witness; the
-    // answer's standing is then measured, never hoped. Bounded (12 claims),
-    // and the projection path already carries its own briefs.
-    rawEntries?.length && runMode !== "projection"
-      ? `\n\nThe material's own claims (what the record says — carry them in your answer, name the address when you use one):\n${notesFromEdges(rawEntries).slice(0, 12).map((p) => `- [${p.source ?? "material"}${p.span?.start != null ? `#${p.span.start}` : ""}] ${p.end1 ?? ""} ${p.label} ${p.end2 ?? ""}`).join("\n")}`
       : null,
   ].filter(Boolean).join("\n");
 
@@ -5976,7 +5898,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
             register: prelimShape.register, impression: staged, prior: sidecar, upstream: OLLAMA, model,
             draw: async (msgs, maxTokens) => {
               let out = "";
-              for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, signal, byok })) {
+              for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, signal })) {
                 if (typeof chunk === "string") out += chunk;
               }
               return out;
@@ -6392,14 +6314,10 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // IS the answer. Mayeroff's positive half: help the other grow toward the
     // real version of the underlying need, honestly known, at their own pace.
     fullText = speakDecline({ reason: mayeroffJudgment.reason, shape: clearance.shape }, interlocutor);
-    if (!declineMeta) { try { const v = speakDeclineVerbose({ reason: mayeroffJudgment.reason, shape: clearance.shape }, interlocutor); declineMeta = { archon: v.archon, shape: v.shape }; } catch {} }
     if (onNote) onNote({ move: "mayeroff_unrealizable", reason: mayeroffJudgment.reason });
   } else {
   await withSlot(model, async () => {
-    // The draw declares the grain its prompt carries (I-single-grain) — a
-    // declaration channel, never prompt bytes: the model's input is
-    // byte-identical with or without it; only the choke-point audit reads it.
-    const draw = async (msgs, maxTokens, { capture = false, kelsen = null, stop = null, grain = null } = {}) => {
+    const draw = async (msgs, maxTokens, { capture = false, kelsen = null, stop = null } = {}) => {
       let buf = "";
       let stopped = false;
       let tokenTruncated = false;
@@ -6413,7 +6331,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       let leftoverChars = null;
       let leftoverTail = null;
       let tailParsedAs = null;
-      for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, kelsen, signal, stop, byok, grain })) {
+      for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, kelsen, signal, stop })) {
         if (typeof chunk === "string") {
           if (fullText.length >= MAX_OUTPUT_CHARS) { truncated = true; stopped = true; break; }
           if (!capture) {
@@ -6577,7 +6495,51 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         }
         return out;
       };
-      for (let i = 0; i < plannedSections.length && !truncated; i++) {
+      // ── THE TALK PAGE: the unconscious builds, the mouth only talks ──────
+      // A page build (not a record-holding app, whose substrate is the
+      // sovereign shell's) never asks the mouth for markup. The request is
+      // read into the parts it wants; each ask is one small question ending
+      // on a sentence to finish, carrying only its own thing's path; each
+      // answer is typed by the question it answers and heard into the notes
+      // ledger; the page is drawn from the fold. The section loop, the café
+      // body prompt and the whole-file redraw are not run for it.
+      let talkPage = null;
+      const parserModel = TALK_PAGE_ON && isCode && codeLanguage === "html" && !isSovereignData ? getEnglishParserModel() : null;
+      if (parserModel) {
+        const parse = (text) => englishAnalyse(parserModel, englishTokenize(text).map((t) => t.form));
+        const talkAsk = async (prompt, { attempt = 0 } = {}) => {
+          const r = await draw([{ role: "user", content: prompt }], TALK_ASK_TOKENS, { capture: true, kelsen: attempt ? 0.9 : null });
+          if (r.stopped) truncated = true;
+          return r.buf;
+        };
+        const forWhom = session?.buildDeclared?.anchor ?? null;
+        const what = typeof buildTask === "string" && buildTask ? buildTask : task;
+        const style = await talkStyle();
+        if (onNote) onNote({ move: "talk_style", snipped: !!style, from: style ? `${style.provenance.package}@${style.provenance.version}${style.provenance.path}` : null, license: style?.provenance.license ?? null });
+        const tb = makeTalkBuild({
+          ask: talkAsk, parse, sentences: englishSentences, render: (belief, o) => renderBeliefMapped(belief, { ...o, style }), lookup: talkLookup, mouth: model, medium: PAGE_MEDIUM,
+          log: (e) => {
+            if (!onNote) return;
+            if (e.kind === "turn") onNote({ move: "talk_turn", gap: e.gap, reply: String(e.reply ?? "").slice(0, 240), claims: e.claims, ops: (e.ops ?? []).map((o) => o.operator) });
+            else if (e.kind === "provenance") onNote({ move: "talk_provenance", ok: e.ok, covered: e.covered, uncovered: e.uncovered, unresolved: e.unresolved });
+            else if (e.kind === "source" || e.kind === "reasoned") onNote({ move: `talk_${e.kind}`, ...(e.term ? { term: e.term, found: e.found, facts: e.facts } : { gap: e.gap, from: e.from, claims: e.claims }) });
+            else if (e.kind === "spec") onNote({ move: "talk_spec", counted: e.spec.counted.map((c) => `${c.n} ${c.phrase}${c.per ? ` per ${c.per}` : ""}`), named: e.spec.named.map((n) => n.phrase) });
+            else onNote({ move: `talk_${e.kind}`, ...(e.gap ? { gap: e.gap } : {}), ...(e.asks != null ? { asks: e.asks, things: e.things } : {}) });
+          },
+        });
+        // the person's declared answers beyond who it is for (how many, what
+        // parts) are read with the request — their own words, never a guess
+        // (only cells the person filled: the void's own defaults — admits,
+        // relation, composition — are the engine's apparatus, never request)
+        const declared = session?.buildDeclared ?? {};
+        const defaults = buildVoidFields(what);
+        const more = Object.entries(declared).filter(([cell, v]) => !(cell in defaults) && cell !== "anchor" && typeof v === "string" && v.trim()).map(([, v]) => v);
+        talkPage = await tb.build({ what, forWhom, more });
+        if (onNote) onNote({ move: "talk_sealed", sealed: !!talkPage.sealed, provenance: { ok: talkPage.provenance?.ok ?? false, covered: talkPage.provenance?.covered ?? 0, uncovered: talkPage.provenance?.uncovered?.length ?? 0 } });
+        if (onThinking) onThinking(`\n[talk page: ${talkPage.asks} asks, ${talkPage.belief.length} things on the record]\n`);
+        documentLines.push(talkPage.artifact);
+      }
+      for (let i = 0; !talkPage && i < plannedSections.length && !truncated; i++) {
         const section = plannedSections[i];
         if (onNote) onNote({ move: "composing_section", index: i + 1, of: plannedSections.length, section });
         // EVA admits the part: real text against a ground. A projection with
@@ -7288,26 +7250,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       // Bounded: each section rewritten at most MAX_REWRITE_ROUNDS across the
       // pass; a section that still fails becomes a declared gap, never churned.
       const rankeAttempts = new Map(); // sectionIndex -> rewrite count, persists across rounds
-      // THE MEASURED STOP (2026-09-29, THE-STIGMERGIC-PIPELINE §5 Phase A):
-      // the per-section budget is the FLOOR, never the mechanism — a
-      // section is rewritten at most MAX_REWRITE_ROUNDS times, whatever
-      // the round count. The gate reads the round trajectory's dominant
-      // mode (causal streaming DMD — nothing from the future) and fires
-      // when the material has settled — decayed (converged with residual;
-      // the residual stands and is disclosed by the satisfaction check) or
-      // oscillating (the material cycles — the rewrite is a loop, not a
-      // convergence). The gate decides BETWEEN rounds, over the rounds
-      // completed; the round's own work is never interrupted by it.
-      // THE HORIZON, MADE LIVE: the gate needs pairs ≥ 2 (three pushed
-      // rounds; first possible fire at the top of round 3), so the ROUND
-      // loop runs to its own horizon — RANKE_ROUND_HORIZON (default
-      // MAX_REWRITE_ROUNDS + 2 = 4) — while the per-section budget stays 2.
-      // Rounds past the budget spend no draws (the gap path skips the
-      // model); they exist to give the trajectory the gate can read.
-      const RANKE_ROUND_HORIZON = Math.max(Number(process.env.ER7_RANKE_ROUND_HORIZON ?? 0) || MAX_REWRITE_ROUNDS + 2, MAX_REWRITE_ROUNDS + 2);
-      const rankeGate = createRewriteGate({ dims: 2, rank: 2 });
-      const rankeGapDeclared = new Set(); // a declared gap is declared once, not once per round
-      for (let round = 0; round < RANKE_ROUND_HORIZON && !truncated; round++) {
+      for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated; round++) {
         const rankeFindings = [];
         // RANKE FOLDS THE ESSAY AT THE MATERIAL'S OWN POINTS. The material was
         // folded through the reader into a referent index; Ranke folds each
@@ -7379,20 +7322,6 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           break;
         }
         if (onNote) onNote({ move: "ranke", round: round + 1, ungrounded: rankeFindings.map((f) => f.sectionIndex) });
-        // THE GATE DECIDES HERE, BETWEEN ROUNDS — over the rounds completed,
-        // never over the round being worked. A fired stop ends the loop: the
-        // residual findings stand as written, and their ungrounded standing
-        // is disclosed by the satisfaction check — no budget is spent in the
-        // stopped round, and nothing is declared a gap that the material
-        // never actually settled.
-        if (round > 0) {
-          const g = rankeGate.decide();
-          if (g.fire) {
-            if (onNote) onNote({ move: "ranke_dmd_stop", round: round + 1, reason: g.reason, magnitude: g.magnitude ?? null, period: g.period ?? null, basis: "the rewrite trajectory's dominant mode — the measured stop replaces the cap as the mechanism; the cap remains the floor" });
-            break;
-          }
-        }
-        let nonMovesThisRound = 0;
         // CONVERGENCE GUARD: a section that stays ungrounded after the rewrite
         // budget becomes a DECLARED GAP — typed and disclosed, never silently
         // dropped, and never churned forever. Ranke is bounded per section,
@@ -7404,7 +7333,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           if (!sectionText) continue;
           const tried = (rankeAttempts.get(i) ?? 0);
           if (tried >= MAX_REWRITE_ROUNDS) {
-            if (!rankeGapDeclared.has(i)) { rankeGapDeclared.add(i); if (onNote) onNote({ move: "ranke_gap", sectionIndex: i, theme: plannedSections[i] ?? "", detail: f.detail }); }
+            if (onNote) onNote({ move: "ranke_gap", sectionIndex: i, theme: plannedSections[i] ?? "", detail: f.detail });
             continue; // declared gap — Ranke has done its budget
           }
           rankeAttempts.set(i, tried + 1);
@@ -7419,7 +7348,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           const rewrite = await draw(
             [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: rankeMsg }],
             SECTION_MAX_TOKENS,
-            { kelsen: Math.max(compositionKelsen, 0.9), grain: "section" }, // Ranke is literal, never impressionistic
+            { kelsen: Math.max(compositionKelsen, 0.9) }, // Ranke is literal, never impressionistic
           );
           if (rewrite.stopped) { truncated = true; break; }
           let fixText = rewrite.buf.trim();
@@ -7438,7 +7367,6 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           const identical = sectionBefore === fixText;
           const collapseRatio = identical ? 1 : 1 - (similarity(sectionBefore, fixText));
           if (identical || collapseRatio >= NON_MOVING_EDIT_RATIO) {
-            nonMovesThisRound += 1;
             if (onNote) onNote({ move: "ranke_nonmove", sectionIndex: i, identical, similarity: (1 - collapseRatio), detail: "the rewrite did not move the section — a non-moving edit is not a fix; budget consumed, loop terminates" });
             continue;
           }
@@ -7463,10 +7391,6 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           documentLines[i] = fixText;
           if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `ranke: ungrounded @ ${i + 1}`, text: fixText, giver: model, supersedes: null, basis: `RANKE: ${f.detail}` }, { dir: ESSAY_LEDGER_DIR });
         }
-        // THE ROUND'S STATE, PUSHED ONLY WHEN THE ROUND COMPLETED A FULL
-        // PASS: findings this round, non-moves this round — the trajectory
-        // the gate reads. A round that broke on truncation is not a round.
-        if (!truncated) rankeGate.push([rankeFindings.length, nonMovesThisRound]);
       }
 
       // ── MURCH EDITS: EVA the whole, then REC the shape ────────────────────────
@@ -7491,19 +7415,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         if (onNote) onNote({ move: "murch", round: 0, findings: [], basis: "no ground — editorial pass skipped, standing disclosed by satisfaction" });
       }
       const editorIndex = sessionReferentIndex(session, onNote);
-      // MURCH'S STOP, MEASURED (Phase B, 2026-09-29): the same DMD gate as
-      // Ranke's, over the edit trajectory — [fixable findings this round,
-      // edits that landed]. Decay fires only on a settling trajectory with
-      // residual; oscillation fires with its measured period (a
-      // fix→reintroduce churn is an edit loop, not a convergence). Clean
-      // convergence (!fixable.length, the recheck ok) breaks before the gate,
-      // like Ranke's zero-findings break. The loop runs to its own horizon
-      // while the budget stays the floor; rounds past the budget run the
-      // mechanical checks only and spend no draws — they exist to give the
-      // trajectory the gate can read.
-      const MURCH_ROUND_HORIZON = Math.max(Number(process.env.ER7_MURCH_ROUND_HORIZON ?? 0) || MAX_REWRITE_ROUNDS + 2, MAX_REWRITE_ROUNDS + 2);
-      const murchGate = createRewriteGate({ dims: 2, rank: 2 });
-      for (let round = 0; round < MURCH_ROUND_HORIZON && !truncated && hasGrounding; round++) {
+      for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated && hasGrounding; round++) {
         // Aggregate EVERY finding across the whole essay — Murch's brief.
         // Murch is a STYLISTIC editor: his findings are the shape of the prose —
         // repetition, meta-commentary, thin sections, and the whole-essay
@@ -7609,30 +7521,15 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         const fixable = findings.filter((f) => f.kind !== "ungrounded");
         if (!fixable.length) break;
         if (onNote) onNote({ move: "murch", round: round + 1, findings: fixable.map((f) => `${f.kind}${f.sectionIndex != null ? `@${f.sectionIndex}` : ""}`) });
-        // THE GATE DECIDES HERE, BETWEEN ROUNDS — over the rounds completed,
-        // never over the round being worked. A fired stop ends the loop: the
-        // residual findings stand as written, and the shape recheck below has
-        // already had the last mechanical word — no budget is spent in the
-        // stopped round.
-        if (round > 0) {
-          const g = murchGate.decide();
-          if (g.fire) {
-            if (onNote) onNote({ move: "murch_dmd_stop", round: round + 1, reason: g.reason, magnitude: g.magnitude ?? null, period: g.period ?? null, basis: "the edit trajectory's dominant mode — the measured stop replaces the cap as the mechanism; the cap remains the floor" });
-            break;
-          }
-        }
         const editorStanding = essayResolutions({ sections: plannedSections, documentLines, index: editorIndex, rawEntries, onNote });
         const brief = fixable.map((f, idx) => `${idx + 1}. [${f.kind}${f.sectionIndex != null ? `, section ${f.sectionIndex + 1}` : " the piece as a whole"}] ${f.detail}`).join("\n");
-        if (onThinking && round < MAX_REWRITE_ROUNDS) onThinking(`\n### Murch, pass ${round + 1}\n${brief}\n\n`);
+        if (onThinking) onThinking(`\n### Murch, pass ${round + 1}\n${brief}\n\n`);
         // Murch fixes ONE finding per draw — the reliable grain for a 2B
         // mouth (the voice design: one proposition per call). Each draw is
         // small, targeted, and replaces the specific section it names; the
         // whole-essay context is the resolutions fold, never the raw bytes.
         let applied = 0;
-        // PAST THE BUDGET, THE ROUND IS OBSERVATION ONLY (the horizon): the
-        // mechanical checks ran above; no draw is spent; applied stays 0 and
-        // the round exists to give the trajectory the gate can read.
-        for (let fi = 0; fi < fixable.length && !truncated && round < MAX_REWRITE_ROUNDS; fi++) {
+        for (let fi = 0; fi < fixable.length && !truncated; fi++) {
           const f = fixable[fi];
           const targetSection = f.sectionIndex != null ? documentLines[f.sectionIndex] : null;
           if (f.kind === "body") {
@@ -7641,7 +7538,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
             const body = await draw(
               [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: bodyMsg }],
               SECTION_MAX_TOKENS,
-              { kelsen: Math.max(compositionKelsen, 0.9), grain: "section" },
+              { kelsen: Math.max(compositionKelsen, 0.9) },
             );
             if (body.stopped) { truncated = true; break; }
             // A MURCH BODY IS A DRAFT, AND FACES THE SAME ADMISSION (2026-09-21).
@@ -7711,13 +7608,12 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
                   maxTokens: SECTION_MAX_TOKENS,
                   blockedOpenings: blocked,
                   synonyms: synonymPool,
-                  grain: "section",
                   onReject: (r) => { if (onNote) onNote({ move: "rejected_draw", ...r }); },
                 })
             : await draw(
                 [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: fixMsg }],
                 SECTION_MAX_TOKENS,
-                { kelsen: Math.max(compositionKelsen, 0.9), grain: "section" }, // Murch is literal, never impressionistic
+                { kelsen: Math.max(compositionKelsen, 0.9) }, // Murch is literal, never impressionistic
               );
             if (fix.stopped) { truncated = true; break; }
             fixText = fix.buf.trim();
@@ -7757,13 +7653,8 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           }, { dir: ESSAY_LEDGER_DIR });
           applied++;
         }
-        if (onNote) onNote({ move: "murch_applied", round: round + 1, applied, budget: round < MAX_REWRITE_ROUNDS ? "draws" : "observation-only" });
-        if (round < MAX_REWRITE_ROUNDS && !applied) break; // nothing landed — stop, don't loop forever
-        // THE ROUND'S STATE, PUSHED ONLY WHEN THE ROUND COMPLETED A FULL
-        // PASS: fixable findings this round, edits that landed — the
-        // trajectory the gate reads. A round that broke on truncation is
-        // not a round.
-        if (!truncated) murchGate.push([fixable.length, applied]);
+        if (onNote) onNote({ move: "murch_applied", round: round + 1, applied });
+        if (!applied) break; // nothing landed — stop, don't loop forever
         const rechecked = checkEssayShape(documentLines.join("\n\n"), { parts: plannedSections.length, themes: plannedSections, subject: topic });
         if (onNote) onNote({ move: "shape_recheck", ok: rechecked.ok, failures: rechecked.failures.map((f) => f.detail) });
         shapeCheck.ok = rechecked.ok;
@@ -7806,7 +7697,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
                 { role: "user", content: `The piece on ${topic} has a section on "${section}". The research since it was written turned up more. Rewrite that section, deepened by the new material.` },
               ],
               SECTION_MAX_TOKENS,
-              { kelsen: Math.max(compositionKelsen, 0.9), grain: "section" },
+              { kelsen: Math.max(compositionKelsen, 0.9) },
             );
             if (!revise.stopped && revise.buf.trim()) {
               const revisedText = revise.buf.trim();
@@ -7941,65 +7832,8 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       // never zero.
       if (documentLedger && documentLines.length >= 2) {
         try {
-          if (documentJobId) {
-            // ── THE ASYNC JOB PATH (2026-09-26): pipeline-run.mjs's own
-            // nine-stage pipeline (fold + per-candidate tighten + archon
-            // re-reads + Gebser arrival, all handled internally) REPLACES
-            // essay-fold.js's fold+spiral+concrescence block below entirely
-            // for this one branch — only reachable from startDocumentJob,
-            // never from an ordinary chat/API turn (documentJobId is always
-            // null there). See the approved integration plan for the
-            // disclosed v1 scope limits (web:null; the wide draft above this
-            // branch still runs and is discarded — a known inefficiency, not
-            // a correctness issue, since it's off the latency-sensitive
-            // live-chat path).
-            const { runPipeline } = await import("./native/the-fold/pipeline-run.mjs");
-            const jobDraw = async (messages, maxTokens) => {
-              const r = await draw(messages, maxTokens, { capture: true, kelsen: compositionKelsen });
-              return r.buf;
-            };
-            const pipelineResult = await runPipeline({
-              task,
-              groundText: groundingText(),
-              model,
-              id: `${documentJobId}-pipeline`,
-              draw: jobDraw,
-              web: null,
-              onStage: (s) => {
-                if (onNote) onNote({ move: "pipeline_stage", role: s.role, title: s.title });
-                if (onThinking) onThinking(`\n### pipeline: ${s.role} — ${s.title}\n`);
-              },
-            });
-            const pieceText = String(pipelineResult.pieceText ?? "").trim();
-            if (!pieceText) throw new Error("pipeline-run.mjs produced no piece text");
-            const widePartIds = documentLedger.lines
-              .filter((l) => l.role === "part" && !documentLedger.superseded.has(l.id))
-              .map((l) => l.id);
-            appendLedgerLine(documentLedger, {
-              role: "part", title: task.slice(0, 60), text: pieceText, giver: "eoreader7:pipeline",
-              supersedes: widePartIds.length ? widePartIds : null,
-              basis: `pipeline-run.mjs's nine-stage pipeline (${pipelineResult.docId}, report ${pipelineResult.report}) — supersedes the wide draft`,
-            }, { dir: ESSAY_LEDGER_DIR });
-            documentLines = [pieceText];
-            if (onNote) onNote({ move: "pipeline_done", docId: pipelineResult.docId, chars: pieceText.length });
-          } else {
-          // ── THE LIVE CHAT PATH, UNCHANGED (essay-fold.js + the spiral
-          // contract + the concrescence detector) — deliberately left at its
-          // original indentation below (not re-indented for this `else`) so
-          // this diff touches only the branch boundaries, not every line of
-          // pre-existing, already-tested logic.
           const wideParts = [...documentLines];
-          const groundNow = groundingText();
-          // HEAD-NOUN REFERENT RESOLUTION (2026-09-26): buildReferents(ground)
-          // is pure/synchronous and built once here (it does a real
-          // sentence-splitting/surface-extraction pass), then threaded into
-          // both wideToAtoms and beatsFromGround so a generic "the river"
-          // scores toward the beat naming "Cumberland River" the same way an
-          // explicit name-run already does — additive only; a parse failure
-          // degrades to R = null, i.e. today's exact unmodified behavior.
-          let R = null;
-          try { R = groundNow ? buildReferents(groundNow) : null; } catch { R = null; }
-          const atoms = wideToAtoms(wideParts, { ground: groundNow, referents: R });
+          const atoms = wideToAtoms(wideParts, { ground: groundingText() });
           // THE SHAPE IS THE MATERIAL'S, NOT A TABLE'S (2026-09-21). The fold
           // used to assemble into DEFAULT_ESSAY_BEATS, whose charge words were
           // `waterway`, `steamboats`, `cotton`, `flood`, `levy`. That shape
@@ -8008,9 +7842,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           // finished piece. The beats are now derived: the ground's own seams
           // set what parts are POSSIBLE, the ask's count sets how many are
           // PROBABLE when the ground declares no seam of its own.
-          const derivedBeats = beatsFromGround(groundNow, { want: plannedSections.length || 5, referents: R });
+          const derivedBeats = beatsFromGround(groundingText(), { want: plannedSections.length || 5 });
           if (onNote) onNote({ move: "beats_derived", beats: derivedBeats.beats.length, from: derivedBeats.from, titles: derivedBeats.beats.map((b) => b.title).slice(0, 8) });
-          const folded = foldWideToShape(atoms, { ground: groundNow, beats: derivedBeats.beats.length ? derivedBeats.beats : null });
+          const folded = foldWideToShape(atoms, { ground: groundingText(), beats: derivedBeats.beats.length ? derivedBeats.beats : null });
           // ── THE SPIRAL CONTRACT, LAYER 4: FOLD. LOW: a beat filled. HIGH:
           // no gap. A gap is not "(empty)" in a finished piece — it is the
           // fold's own statement of the NEXT SECTION TO DRAW, opening on the
@@ -8048,31 +7882,6 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
             }
             contractRecord.fold = { pass: foldHigh.pass, missing: foldHigh.missing ?? null, attempts, filledByRedraw };
             if (onNote) onNote({ move: "contract_fold", pass: foldHigh.pass, filledByRedraw, basis: foldHigh.basis });
-          }
-          // WORDS-PER-PAGE BUDGET (2026-09-26): gated exactly as
-          // pipeline-run.mjs gates it — only when the ask states a page
-          // count — and induceParameter itself refuses to guess when nothing
-          // corroborates (no fallback ratio is invented here). Applied AFTER
-          // gap-filling, so the trim sees the beats' final text. The rare
-          // corroboration-refresh network call reuses the SAME P13 consent
-          // flag searchAndAdmitWeb already gates on, never a new surface.
-          const askedPages = askedExtent(task);
-          if (askedPages?.unit === "page") {
-            const pageWeb = (WEB_SEARCH_ON || webConsent) ? liveWeb() : null;
-            const wpp = await induceParameter("words-per-page", {
-              query: "how many words are on a typical page",
-              extractClaim: wordsPerPageClaim,
-              search: pageWeb?.search ?? null,
-              fetch: pageWeb?.fetch ?? null,
-            });
-            if (onNote) onNote({ move: "words_per_page", induced: wpp.induced, value: wpp.value ?? null, basis: wpp.basis });
-            if (wpp.induced && wpp.value) {
-              const budget = applyWordBudget(folded.beats, askedPages.n * wpp.value);
-              if (budget.dropped.length) {
-                folded.beats = budget.beats;
-                if (onNote) onNote({ move: "page_budget_applied", targetWords: askedPages.n * wpp.value, kept: budget.beats.length, dropped: budget.dropped.length, basis: budget.basis });
-              }
-            }
           }
           const foldedBeats = folded.beats.filter((b) => !b.gap).map((b) => b.text).filter(Boolean);
           if (onNote) onNote({ move: "fold_done", beats: folded.beats.length, filled: foldedBeats.length, residual: folded.residual.length, refused: folded.refused.length, basis: folded.basis });
@@ -8222,17 +8031,6 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
             text: `${conc.basis}\n\nsignals: ${Object.entries(conc.signals).map(([k, v]) => `${k}=${v}`).join(", ")}`,
             giver: "eoreader7:concrescence", basis: conc.basis,
           }, { dir: ESSAY_LEDGER_DIR });
-          }
-          // THE fullText FIX (2026-09-26, shared by both branches above):
-          // the folded/tightened/piloted text was written to documentLines
-          // but fullText was never reassigned, so a live chat reply returned
-          // the PRE-fold wide draft while only the on-disk ledger/HTML/JSON
-          // projection (GET /v1/documents/:id.*) showed the real content.
-          // Placed inside the same try as both branches: if either throws
-          // before reaching here, the catch below leaves fullText exactly as
-          // it is today (the pre-fold/pre-pipeline wide draft) — the
-          // fail-soft contract for this live per-turn path is unchanged.
-          if (documentLines.length) fullText = documentLines.join("\n\n");
         } catch (foldErr) {
           // A SWALLOWED ERROR IS AN UNATTRIBUTED REFUSAL (2026-09-21, found
           // live: the fold threw, the note went nowhere a reader could see,
@@ -8297,6 +8095,8 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           } catch { /* annotation must never break the artifact */ }
         }
         const fallbackTitle = cleanTitle ?? "Data";
+        // the talk page is already a whole document drawn from the fold
+        if (talkPage) return talkPage.artifact.replace("<body>", `<body>\n${header.trim()}`);
         if (codeLanguage === "html") return htmlShell(fallbackTitle, body).replace("<body>", `<body>\n${header.trim()}`);
         return header + body;
       };
@@ -8339,43 +8139,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         codeValidation = await runValidator(fullText);
         if (onNote) onNote({ move: "code_validate", ok: codeValidation.ok, findings: (codeValidation.findings ?? []).map((f) => `${f.kind}: ${f.detail}`), smoke: codeValidation.smoke });
         let round = 0;
-        // CODE'S STOP, MEASURED (Phase B, 2026-09-29): the same DMD gate as
-        // Ranke's and Murch's, over the validation trajectory — [findings
-        // after this round's validation, non-moving rewrites this round]. A
-        // rewrite that returns the file byte-identical is a NO-OP, not a
-        // fix — counted, never landed twice, budget consumed like any other
-        // failed attempt (the Ranke non-move cut, applied to the whole
-        // file). Decay fires only on a settling trajectory with residual;
-        // a clean validation exits before the gate ever decides. The loop
-        // runs to its own horizon while the budget stays the floor; rounds
-        // past the budget re-run the validator on the unchanged text and
-        // spend no draws — observation only, so the trajectory is measured,
-        // never assumed.
-        const CODE_VALIDATE_HORIZON = Math.max(Number(process.env.ER7_CODE_VALIDATE_HORIZON ?? 0) || MAX_REWRITE_ROUNDS + 2, MAX_REWRITE_ROUNDS + 2);
-        const codeGate = createRewriteGate({ dims: 2, rank: 2 });
-        while (!codeValidation.ok && round < CODE_VALIDATE_HORIZON && !truncated) {
-          // THE GATE DECIDES HERE, BETWEEN ROUNDS — over the rounds
-          // completed, never over the round being worked. A fired stop ends
-          // the loop with the residual disclosed: the artifact line below
-          // carries validated/validation-failed either way.
-          if (round > 0) {
-            const g = codeGate.decide();
-            if (g.fire) {
-              if (onNote) onNote({ move: "code_dmd_stop", round: round + 1, reason: g.reason, magnitude: g.magnitude ?? null, period: g.period ?? null, basis: "the validation trajectory's dominant mode — the measured stop replaces the cap as the mechanism; the cap remains the floor" });
-              break;
-            }
-          }
-          let codeNonMovesThisRound = 0;
-          if (round >= MAX_REWRITE_ROUNDS) {
-            // PAST THE BUDGET, THE ROUND IS OBSERVATION ONLY (the horizon):
-            // no draw is spent; the validator re-runs on the unchanged text
-            // so the trajectory is measured, never assumed.
-            codeValidation = await runValidator(fullText);
-            if (onNote) onNote({ move: "code_validate", round: round + 1, ok: codeValidation.ok, findings: (codeValidation.findings ?? []).map((f) => `${f.kind}: ${f.detail}`), gap: true, basis: "past the draw budget — observation only; the trajectory, not a redraw" });
-            if (!truncated) codeGate.push([(codeValidation.findings ?? []).length, 0]);
-            round++;
-            continue;
-          }
+        // a talk page is never redrawn whole by the mouth: its gaps were asked
+        // one at a time, and what the validator says stays on the record
+        while (!talkPage && !codeValidation.ok && round < MAX_REWRITE_ROUNDS && !truncated) {
           const findings = (codeValidation.findings ?? []).slice(0, 6).map((f) => `- [${f.kind}] ${f.detail}`).join("\n");
           if (onThinking) onThinking(`\n### Code check failed (round ${round + 1})\n${findings}\n\n`);
           const fixMsg = codeLanguage === "html"
@@ -8384,30 +8150,17 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           const fix = await draw(
             [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: fixMsg }],
             SECTION_MAX_TOKENS,
-            { kelsen: Math.max(compositionKelsen, 0.9), grain: "whole" },
+            { kelsen: Math.max(compositionKelsen, 0.9) },
           );
           if (fix.stopped) { truncated = true; break; }
           const fixText = stripCodeFences(fix.buf, codeLanguage);
           if (!fixText) break;
-          if (fixText === fullText) {
-            // THE NON-MOVING REWRITE: the mouth returned the file unchanged —
-            // a NO-OP, not a fix. Counted for the trajectory, never landed
-            // twice; the budget is consumed like any other failed attempt.
-            codeNonMovesThisRound += 1;
-            if (onNote) onNote({ move: "code_nonmove", round: round + 1, detail: "the rewrite returned the file byte-identical — a non-moving edit is not a fix; budget consumed, loop terminates" });
-          } else {
-            documentLines.length = 0;
-            documentLines.push(fixText);
-            fullText = assembleCode();
-            if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `logos: validation round ${round + 1}`, text: fullText, giver: model, supersedes: null, basis: `REC: the validator failed — ${findings.slice(0, 200)}` }, { dir: ESSAY_LEDGER_DIR });
-          }
+          documentLines.length = 0;
+          documentLines.push(fixText);
+          fullText = assembleCode();
+          if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `logos: validation round ${round + 1}`, text: fullText, giver: model, supersedes: null, basis: `REC: the validator failed — ${findings.slice(0, 200)}` }, { dir: ESSAY_LEDGER_DIR });
           codeValidation = await runValidator(fullText);
           if (onNote) onNote({ move: "code_validate", round: round + 1, ok: codeValidation.ok, findings: (codeValidation.findings ?? []).map((f) => `${f.kind}: ${f.detail}`) });
-          // THE ROUND'S STATE, PUSHED ONLY WHEN THE ROUND COMPLETED A FULL
-          // PASS: findings after this round's validation, non-moves this
-          // round — the trajectory the gate reads. A round that broke on
-          // truncation or an empty fix is not a round.
-          if (!truncated) codeGate.push([(codeValidation.findings ?? []).length, codeNonMovesThisRound]);
           round++;
         }
       }
@@ -8671,6 +8424,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         constitution: { prompt: "native/organs/ethos.js::constitution", sha256: charter?.sha256 ?? null },
         voids: [],
         witness: [],
+        skills: linkSkills(session.skillEvents ?? []),
       });
       return { surface, record, claims, notes, forms: claimForms };
     } catch (err) {
@@ -8914,7 +8668,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   let holographOut = null;
   let holographWithheld = [];
   try {
-    if (text?.trim() && !isCode) {
+    // a patch from a specialist loop is code, not prose: never typed (or
+    // withheld) as prose sentences
+    if (text?.trim() && !isCode && !drawOnly) {
       const holographGroundNotes = readingSurface?.notes ?? notesFromEdges(rawEntries ?? []);
       const holographGround = groundFacts(holographGroundNotes, { source: segmentSourceOf(surfacedSegments?.[0]) ?? "material" });
       holographOut = holographType({ prose: text, ground: holographGround, splitSentences: engineSplitSentences, sameAct: holographSameAct });
@@ -8955,7 +8711,6 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       }
       if (holographWithheld.length) {
         text = speakDecline({ shape: askShape(holographWithheld.map((w) => w.sentence).join(" "), { charter }) }, interlocutor);
-        if (!declineMeta) { try { const v = speakDeclineVerbose({ shape: askShape(holographWithheld.map((w) => w.sentence).join(" "), { charter }) }, interlocutor); declineMeta = { archon: v.archon, shape: v.shape }; } catch {} }
         if (onNote) onNote({ move: "holograph_withheld", count: holographWithheld.length, sentences: holographWithheld.map((w) => w.sentence) });
         // THE UNREALIZABLE LEDGER: sentences withheld solely by the mayeroff
         // term enter the shadow trail distinctly — counted, never weighted,
@@ -9081,14 +8836,14 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // its basis and confidence. A disclosed belief, never a verdict: it selects
     // how the reader meets the other, not whether it is honest with them.
     interlocutor: { kind: interlocutor.kind, confidence: interlocutor.confidence, basis: interlocutor.basis, witnesses: interlocutor.witnesses },
-    // A2: the decline's shape arm — {archon, shape} from
-    // speakDeclineVerbose — rides the JSON beside the prose, never in it.
-    // Null when the turn did not decline: a typed absence, never a guess.
-    decline: declineMeta ?? null,
     relationEdges: stats.relationEdges,
     referentBindings: stats.referentBindings,
     hyperlexiconCandidates: Object.keys(hyperlexicon.composition ?? {}).length,
     turn: session.turnCount,
+    // THE SKILLS BEHIND THIS TURN, LINKED to the skills surface: what fired while answering (`used`), how each source
+    // was read (`ingestion`), and the set of skills that can report at all (`instrumented`) — a skill outside that set
+    // may have run without saying so.
+    skills: { used: linkSkills(session.skillEvents ?? []), ingestion: session.ingestionLog ?? [], instrumented: INSTRUMENTED.map(skillRef) },
     workspace: workspaceStats,
     attachments: attachmentStats,
     // THE PER-SENTENCE READING SURFACE (ONE-ENGINE-PLAN): every sentence of
@@ -9440,7 +9195,7 @@ export async function startDocumentJob({ task, model, workspace = "", sessionId 
         for (let attempt = 0; attempt < 3; attempt++) {
           try {
             return await runProxyTurn(
-              { sessionId: sid, model, task, workspace, holonLevel: job.holonLevel, resumeAnswered: answeredTitles, resumePlan: planQuestions, mode: "projection", webConsent, seed, documentJobId: jobId },
+              { sessionId: sid, model, task, workspace, holonLevel: job.holonLevel, resumeAnswered: answeredTitles, resumePlan: planQuestions, mode: "projection", webConsent, seed },
               (chunk) => { job.chars += chunk.length; job.updatedAt = Date.now(); },
               (note) => { if (note?.move === "composing_section") job.sections++; },
               (thinking) => job.updatedAt = Date.now(),

@@ -1,0 +1,82 @@
+{
+  "schema": "BuildBattery@1",
+  "about": "Fresh page requests, written and committed before the decomposed page path existed, so the path cannot have been shaped to them. Same check shapes as requests.json.",
+  "cafe": ["drinks", "opening hours", "espresso", "cappuccino", "smoothie", "latte"],
+  "requests": [
+    {
+      "id": "choir-rehearsals",
+      "prompt": "make a site where our choir can see upcoming rehearsals and sign up to bring snacks",
+      "kind": "page",
+      "answers": { "anchor": "the choir, about thirty singers", "cardinality": "four rehearsals" },
+      "checks": [
+        { "id": "rehearsals", "what": "it lists rehearsals", "present": { "any": ["rehearsal", "rehearsals", "practice"] } },
+        { "id": "several", "what": "at least three separate rehearsals", "repeats": { "any": ["rehearsal", "practice", "pm", "am"], "min": 3 } },
+        { "id": "snacks", "what": "people can sign up for snacks", "present": { "any": ["snack", "snacks", "bring"] } },
+        { "id": "signup", "what": "signing up takes input", "controls": { "min": 1 } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "denver-dog-trails",
+      "prompt": "a directory of dog-friendly hiking trails near Denver",
+      "kind": "page",
+      "answers": { "anchor": "hikers with dogs", "cardinality": "eight trails" },
+      "checks": [
+        { "id": "trails", "what": "it lists trails", "present": { "any": ["trail", "trails", "hike", "hikes"] } },
+        { "id": "denver", "what": "near Denver", "present": { "any": ["denver", "colorado"] } },
+        { "id": "dogs", "what": "dog-friendly", "present": { "any": ["dog", "dogs", "leash", "pets"] } },
+        { "id": "several", "what": "at least four separate trails", "repeats": { "any": ["trail", "miles", "mile", "elevation", "difficulty", "leash"], "min": 4 } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "board-games",
+      "prompt": "build a page to track which board games my friends own",
+      "kind": "page",
+      "answers": { "anchor": "me and six friends", "cardinality": "about twenty games" },
+      "checks": [
+        { "id": "games", "what": "it lists board games", "present": { "any": ["game", "games", "board game", "board games"] } },
+        { "id": "owners", "what": "it says who owns each", "present": { "any": ["owner", "owners", "owned", "owns", "owned by"] } },
+        { "id": "several", "what": "at least five separate games with an owner", "repeats": { "any": ["owner", "owned", "owns", "owned by"], "min": 5 } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "austin-junior-jobs",
+      "prompt": "make a job board for junior web developers in Austin",
+      "kind": "page",
+      "answers": { "anchor": "people looking for their first developer job", "cardinality": "six job listings" },
+      "checks": [
+        { "id": "jobs", "what": "it lists jobs", "present": { "any": ["job", "jobs", "role", "roles", "position", "positions", "opening", "openings"] } },
+        { "id": "austin", "what": "in Austin", "present": { "any": ["austin"] } },
+        { "id": "junior", "what": "junior level", "present": { "any": ["junior", "entry level", "entry-level", "entry"] } },
+        { "id": "several", "what": "at least four separate listings", "repeats": { "any": ["salary", "apply", "remote", "company", "developer", "engineer"], "min": 4 } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "meteor-showers",
+      "prompt": "create a site listing this year's meteor showers and the best night to watch each",
+      "kind": "page",
+      "answers": { "anchor": "backyard stargazers", "cardinality": "six meteor showers" },
+      "checks": [
+        { "id": "meteors", "what": "it is about meteor showers", "present": { "any": ["meteor", "meteors", "meteor shower", "meteor showers"] } },
+        { "id": "named", "what": "at least two real showers named", "distinct": { "any": ["perseids", "geminids", "leonids", "quadrantids", "orionids", "lyrids", "eta aquariids", "draconids", "taurids", "ursids"], "min": 2 } },
+        { "id": "several", "what": "at least four separate showers", "repeats": { "any": ["peak", "peaks", "night", "meteors", "shower"], "min": 4 } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "ping-pong-league",
+      "prompt": "make a scoreboard page for our office ping pong league",
+      "kind": "page",
+      "answers": { "anchor": "the players in the office", "cardinality": "eight players" },
+      "checks": [
+        { "id": "pingpong", "what": "it is ping pong", "present": { "any": ["ping pong", "table tennis", "ping-pong"] } },
+        { "id": "scores", "what": "it shows standings", "present": { "any": ["wins", "losses", "points", "score", "scores", "rank", "ranking", "standings"] } },
+        { "id": "players", "what": "at least five separate players with results", "repeats": { "any": ["wins", "win", "losses", "points", "score", "rank"], "min": 5 } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    }
+  ]
+}

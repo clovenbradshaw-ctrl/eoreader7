@@ -481,7 +481,10 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
         ? `${task}\n\nFiles in the workspace (${root}):\n${listedFiles.join("\n")}${languageBlock}\n\n${PROPOSAL_FORMAT}`
         : `${task}\n\n${lastNote}\n\n${PROPOSAL_FORMAT}`;
 
-    const turned = await turn({ sessionId, userId, model, task: roundTask, chatHistory: [{ role: "user", content: roundContent }], workspace: root, mode: "chat", caller, signal, ...(kelsen === null ? null : { kelsen }) });
+    // a draw-only turn: the core's clearance and gate, not its prose
+    // machinery (no encyclopedia enrichment per round, no holograph typing
+    // of patch text as prose)
+    const turned = await turn({ sessionId, userId, model, task: roundTask, chatHistory: [{ role: "user", content: roundContent }], workspace: root, mode: "chat", drawOnly: true, caller, signal, ...(kelsen === null ? null : { kelsen }) });
     const proposal = parseProposal(turned.text);
     if (!proposal.ok) {
       // A cut stream is not a model stop: kind stays unparsed_proposal and

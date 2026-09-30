@@ -14,7 +14,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { salientDocsForTask } from "../../proxy-runner.mjs";
 import { relevantSources, snipsFromSources, cleanSpan } from "../the-fold/document-ledger.js";
-import { stripCitationAppendix } from "../../cli/tui.mjs";
+import { stripCitationAppendix } from "../../cli/format.mjs";
 
 // The REAL measured bytes (from the poem's own appendix).
 const GUN_TEXT = [
