@@ -129,10 +129,11 @@ export function constReassigned(code) {
 export function testUnit(code, contract) {
   let fn;
   const declared = declaredAliases(contract);
-  try { fn = loadUnit(code, contract.name, { resolve: { declared } }); } catch (e) { return { ok: false, failures: [`does not compile or declare ${contract.name}: ${String(e.message).slice(0, 160)}`] }; }
+  // each mechanism is a per-contract switch so it can be ablated on identical tasks: resolve === false (no key resolution), cards === false (no cards), hints === false (no repair hints)
+  try { fn = loadUnit(code, contract.name, { resolve: contract.resolve === false ? null : { declared }, cards: contract.cards !== false }); } catch (e) { return { ok: false, failures: [`does not compile or declare ${contract.name}: ${String(e.message).slice(0, 160)}`] }; }
   const r = testFunction(fn, contract);
-  if (!r.ok) for (const v of constReassigned(code)) r.failures.unshift(`\`${v}\` is declared with const and assigned again — declare it with let`);
-  for (const g of r.ignored ?? []) r.failures.unshift(`the function gives the same result for ${g.param} = ${g.values.map((v) => JSON.stringify(v)).join(" and ")}, but the recorded data differs — the result must depend on \`${g.param}\``);
+  if (!r.ok && contract.hints !== false) for (const v of constReassigned(code)) r.failures.unshift(`\`${v}\` is declared with const and assigned again — declare it with let`);
+  if (contract.hints !== false) for (const g of r.ignored ?? []) r.failures.unshift(`the function gives the same result for ${g.param} = ${g.values.map((v) => JSON.stringify(v)).join(" and ")}, but the recorded data differs — the result must depend on \`${g.param}\``);
   return { ...r, declared, resolutions: fn.resolutions?.() ?? [] };
 }
 
@@ -205,7 +206,7 @@ export function testFunction(fn, contract) {
 
 /** The hash a verified unit is cached under: contract text + oracle source + sample. A changed contract, test or sample is a new unit. */
 export function contractHash(contract) {
-  return sha(JSON.stringify([contract.name, contract.params, contract.doc, contract.returns, contract.notes ?? "", contract.runs.map((r) => r.label + String(r.check)).join("|"), sha(contract.sampleText ?? JSON.stringify(contract.sampleJson ?? null)), contract.shown ?? "", workedExample(contract) ?? "", contract.salt ?? "", KEY_REFERENTS_SCHEMA, JSON.stringify(declaredAliases(contract)), contract.cards === false ? "" : sha(CARDS_SCHEMA + cardsDoc())]));
+  return sha(JSON.stringify([contract.name, contract.params, contract.doc, contract.returns, contract.notes ?? "", contract.runs.map((r) => r.label + String(r.check)).join("|"), sha(contract.sampleText ?? JSON.stringify(contract.sampleJson ?? null)), contract.shown ?? "", workedExample(contract) ?? "", contract.salt ?? "", KEY_REFERENTS_SCHEMA, JSON.stringify(declaredAliases(contract)), contract.cards === false ? "" : sha(CARDS_SCHEMA + cardsDoc()), contract.resolve === false, contract.hints === false]));
 }
 
 export function openUnitCache(dir) {
