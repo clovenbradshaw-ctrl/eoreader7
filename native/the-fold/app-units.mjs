@@ -61,7 +61,7 @@ export function skeletonOf(contract) {
   return `function ${contract.name}(${contract.params.join(", ")}) {\n  return {\n${Object.keys(out).map((k) => `    ${k}: ___,`).join("\n")}\n  };\n}`;
 }
 
-export function unitPrompt(contract, { failures = [], previous = null, skeleton = false } = {}) {
+export function unitPrompt(contract, { failures = [], previous = null, skeleton = false, repair = "edit" } = {}) {
   // `shown` is what the mouth sees when the real sample is too long to show whole and the author knows which stretch carries the shape (an excerpt, cut with a marker — never rewritten)
   const sample = typeof contract.shown === "string" ? contract.shown.slice(0, SAMPLE_SHOWN_CHARS) : typeof contract.sampleText === "string" ? contract.sampleText.slice(0, SAMPLE_SHOWN_CHARS) : JSON.stringify(trimSample(contract.sampleJson), null, 1).slice(0, SAMPLE_SHOWN_CHARS);
   const lines = [
@@ -75,7 +75,9 @@ export function unitPrompt(contract, { failures = [], previous = null, skeleton 
     skeleton && skeletonOf(contract) ? `Start from this skeleton — keep the keys and their order, replace every ___ with an expression (add any lines before the return that you need):\n${skeletonOf(contract)}` : null,
     "Use no imports, no network, no globals. Export nothing: just declare the function.",
   ];
-  if (failures.length) lines.push(`Your previous version was run against the real data and failed:\n${failures.slice(0, 5).map((f) => `- ${f}`).join("\n")}\nPrevious version:\n${String(previous ?? "").slice(0, 1800)}\nWrite the corrected function.`);
+  // "fresh": the failures come back as REQUIREMENTS and the previous code does not (a small model shown its own code beside its failures hands the same code back — measured 2026-09-30)
+  if (failures.length && repair === "fresh") lines.push(`An earlier attempt was run against the real data and these checks failed. Write the function again from the start so that none of them fail:\n${failures.slice(0, 5).map((f) => `- ${f}`).join("\n")}`);
+  else if (failures.length) lines.push(`Your previous version was run against the real data and failed:\n${failures.slice(0, 5).map((f) => `- ${f}`).join("\n")}\nPrevious version:\n${String(previous ?? "").slice(0, 1800)}\nWrite the corrected function.`);
   return lines.filter(Boolean).join("\n\n");
 }
 
@@ -213,7 +215,7 @@ export function makeMouth({ base = process.env.ER7_CHANNEL_URL ?? "http://127.0.
  *   trails   the stigmergy's trails (mutated by returning the new set in .trails)
  *   see      ledger writer: see(event, fields)
  */
-export async function makeUnit(contract, { mouths, mouth, trails = {}, cache = null, see = () => {}, now = Date.now(), rng = Math.random, explore = 0.1, skeleton = false } = {}) {
+export async function makeUnit(contract, { mouths, mouth, trails = {}, cache = null, see = () => {}, now = Date.now(), rng = Math.random, explore = 0.1, skeleton = false, repair = "edit" } = {}) {
   const hash = contractHash(contract);
   const t0 = Date.now();
   const hit = cache?.get(hash);
@@ -230,7 +232,7 @@ export async function makeUnit(contract, { mouths, mouth, trails = {}, cache = n
   for (const model of order) {
     let previous = null, failures = [];
     for (let round = 0; round <= REPAIR_ROUNDS; round++) {
-      const prompt = unitPrompt(contract, { failures, previous, skeleton });
+      const prompt = unitPrompt(contract, { failures, previous, skeleton, repair });
       let r;
       try { r = await mouth(model, prompt); } catch (e) { see("unit-draw", { name: contract.name, model, round, refused: String(e.message).slice(0, 140) }); break; }
       calls++;

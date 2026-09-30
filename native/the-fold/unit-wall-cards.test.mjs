@@ -107,3 +107,14 @@ test("constReassigned names the const the engine's message does not; a fresh bin
   const res = testUnit(`function f(x) { const at = x.d; at = at + "T"; return { at }; }`, contract);
   assert.match(res.failures[0], /`at` is declared with const/);
 });
+
+test("repair styles: `edit` shows the previous code beside the failures; `fresh` shows the failures as requirements and NOT the code", async () => {
+  const { unitPrompt } = await import("./app-units.mjs");
+  const contract = { name: "f", params: ["x"], doc: "d", returns: "{}", runs: [], sampleJson: { a: 1 } };
+  const args = { failures: ["address is null, the recorded data says \"Grosvenor Road\""], previous: "function f(x) { return MARKER_PREVIOUS_CODE; }" };
+  const edit = unitPrompt(contract, args);
+  assert.match(edit, /MARKER_PREVIOUS_CODE/); assert.match(edit, /Grosvenor Road/);
+  const fresh = unitPrompt(contract, { ...args, repair: "fresh" });
+  assert.doesNotMatch(fresh, /MARKER_PREVIOUS_CODE/); assert.match(fresh, /Grosvenor Road/); assert.match(fresh, /from the start/);
+  assert.equal(unitPrompt(contract, { repair: "fresh" }), unitPrompt(contract), "with no failures the two styles are the same first draw");
+});
