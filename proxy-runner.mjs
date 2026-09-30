@@ -56,6 +56,7 @@ import { answerRecord } from "./native/the-fold/answer-record.js";
 import { groundGate, draftGate, foldGate, tightenGate, arriveGate, chainStrain, measuredInflation, lastSentence as lastSentenceOmni } from "./native/the-fold/spiral-contract.js";
 import { deposit as depositAdmitted, admit as admitCandidate, measureVariance, measureBondNull, claimCore as claimCoreOmni, segmentSentences as segmentSentencesOmni, wordTokens as wordTokensOmni, nameGate as referentNameGate, bond as bondOf } from "./native/the-fold/admission.js";
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, relevantSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy, detectTrajectoryBoredom, holonicSatisfaction, holonTreeFromText, holonicTreeSatisfaction, holonAssertionTree, holonicAssertionSatisfaction, holonLeaves } from "./native/the-fold/document-ledger.js";
+import { createRewriteGate } from "./native/kernel/rewrite-gate.js";
 import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
 import { inventedNameRuns as verifyInventedNameRuns, isMetaSentence as verifyIsMetaSentence } from "./native/the-fold/referent-verify.js";
 import { houdiniExclusivity } from "./native/the-fold/archon-rules.js";
@@ -1856,6 +1857,38 @@ export function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfaced
   if (VERDICT_RES.some((re) => re.test(t))) {
     return { shape: "verdict", maxTokens: VERDICT_MAX_TOKENS, modality: "brief" };
   }
+  // DESCRIPTION ASKS OUTRANK THE ARTIFACT (2026-09-29, falsified by the
+  // podcast proof): a task that LEADS with a description verb names the ask
+  // — a READING of material, never a deliverable. Artifact words in the
+  // object name the material, not the output: "Read the podcast app … and
+  // describe … one concrete weakness you can see in the code" was shaped
+  // composition because the trailing noun "code" matched the produce-verb
+  // list AND the register resolved it to instrument — two collisions, one
+  // fix: the leading verb is the true sign, and the register is never
+  // consulted for a description ask. "Write an essay describing X" leads
+  // with "write" and stays composition; "read the spec then build the app"
+  // is a reading-shaped answer by its own first verb — a build leads with
+  // the build verb. The basis rides the shape: provenance of the decision.
+  const DESCRIPTION_RES = /^(?:read|describe|explain|summarize|outline|walk me through|tell me about|show me)\b/i;
+  // A prepositional lead-in ("In the podcast app workspace, describe: …")
+  // is the same ask one clause later — the description verb still names a
+  // reading. The produce-verb guard keeps the artifact asks out: "Write an
+  // essay that describes X" leads with the produce verb and stays
+  // composition; the description verb never outranks a verb that came
+  // FIRST.
+  // The prep-led list carries the SAME verbs as the direct list (2026-09-29:
+  // "in the code, walk me through X" is the same ask one clause later — the
+  // asymmetry that omitted the three phrasal verbs is fixed, not documented).
+  const PREP_LEAD_DESCRIPTION = /^(?:in|for|on|about|regarding|within)\b[\s\S]{0,100}\b(?:read|describe|explain|summarize|outline|walk me through|tell me about|show me)\b/i;
+  const PRODUCE_FIRST = /^\s*(?:please\s+)?(?:write|compose|draft|prepare|generate|produce|make|tell|build|create|implement)\b/i;
+  if (DESCRIPTION_RES.test(t) || (PREP_LEAD_DESCRIPTION.test(t) && !PRODUCE_FIRST.test(t))) {
+    return {
+      shape: hasWorkspace || hasWeb ? "research" : "open",
+      maxTokens: hasWorkspace || hasWeb ? CALL_MAX_TOKENS : 1024,
+      modality: hasWorkspace || hasWeb ? "grounded" : "concise",
+      basis: "description ask outranks the artifact: a leading (or prepositionally-led) read/describe/explain verb names a reading of the material, never a deliverable — the register is not consulted for it",
+    };
+  }
   // THE REGISTER (Halliday) — no hardcoded "essay mode". ANY named genre the
   // person asks us to produce enters the staged-artifact pipeline: a story,
   // a poem, a nocturne, a film, an essay — the register resolves the FIELD
@@ -3127,7 +3160,38 @@ const RESOLUTIONS_LEVEL = (() => { const raw = process.env.ER7_RESOLUTIONS; if (
 // creativity may hold tension, never a silent pick. ER7_KELSEN_MODALITY.
 const KELSEN_MODALITY = (() => { const v = Number(process.env.ER7_KELSEN_MODALITY ?? ""); return [0, 0.5, 1].includes(v) ? v : 1; })();
 
-export async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal, stop } = {}) {
+// I-single-grain (2026-09-29): no model call receives material from more
+// than one grain. The audit reads grain declarations — the caller's
+// declared `grain` plus any [grain:X] tags in the prompt bytes — and
+// reports the distinct grains. MEASURE mode (default) notes, never throws:
+// the sequential pipeline is the total-collapse form and would fail a
+// throwing gate on every turn; ER7_GRAIN_AUDIT=enforce throws the typed gap
+// once the pipeline is actually single-grain (Phase 2). The audit never
+// guesses content grains from prose — a heuristic is not a measurement.
+const GRAIN_AUDIT_MODE = (process.env.ER7_GRAIN_AUDIT ?? "measure").toLowerCase() === "enforce" ? "enforce" : "measure";
+const GRAIN_NAMES = ["sentence", "paragraph", "section", "whole"];
+const GRAIN_TAG_RE = /\[grain:(sentence|paragraph|section|whole)\]/gi;
+export function auditSingleGrain(messages = [], { declared = null } = {}) {
+  const grains = [];
+  const take = (g) => { const n = String(g ?? "").toLowerCase(); if (GRAIN_NAMES.includes(n) && !grains.includes(n)) grains.push(n); };
+  take(declared);
+  for (const m of messages ?? []) {
+    const text = typeof m === "string" ? m : m?.content ?? "";
+    if (typeof text !== "string") continue;
+    GRAIN_TAG_RE.lastIndex = 0;
+    let hit;
+    while ((hit = GRAIN_TAG_RE.exec(text)) !== null) take(hit[1]);
+  }
+  return { grains, multi: grains.length > 1 };
+}
+export function grainGate({ grains = [], mode = GRAIN_AUDIT_MODE } = {}) {
+  if (grains.length > 1 && mode === "enforce") {
+    return { ok: false, error: Object.assign(new Error(`multi-grain payload: one model call received material from ${grains.join(" + ")} — I-single-grain allows one grain per call`), { code: "ERR_MULTI_GRAIN", grains: [...grains] }) };
+  }
+  return { ok: true };
+}
+
+export async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal, stop, grain = null } = {}) {
   // ANTIStrauss — the safety-and-ethics gate (native/the-fold/antistrauss.mjs).
   // THIS is the choke point every real model call in the proxy passes
   // through (draw() → runProxyTurn → here). The gate settles a physics
@@ -3140,6 +3204,13 @@ export async function* streamOllamaChat(model, messages, { maxTokens, json, onNo
   if (!gate.allow) {
     throw Object.assign(new Error(gate.reason), { code: "ERR_ANTISTRAUSS_BLOCKED", antistrauss: gate.verdict });
   }
+  // I-single-grain audit — the collapse-distribution backstop, beside the
+  // AntiStrauss gate. Declared grains are noted (the measurement record);
+  // a multi-grain payload throws only in enforce mode, never by default.
+  const grainAudit = auditSingleGrain(messages, { declared: grain });
+  if (grainAudit.grains.length && onNote) { try { onNote({ move: "grain_audit", grains: grainAudit.grains, multi: grainAudit.multi, mode: GRAIN_AUDIT_MODE }); } catch { /* notes never break a turn */ } }
+  const gg = grainGate({ grains: grainAudit.grains });
+  if (!gg.ok) throw gg.error;
   // ── ANTIStrauss OUTPUT GUARD (streaming) ───────────────────────────────
   // Model output is re-scanned BEFORE it reaches the caller: reviewBlock()
   // re-runs the same law classes over what the model actually emitted.
@@ -3815,7 +3886,18 @@ export function notesFromEdges(graphEntries = [], { disputeLog = null } = {}) {
     if (!subject) continue;
     const object = end(parts.length > 1 ? parts[parts.length - 1] : null) ?? "?";
     const disputedBy = disputes?.get(notesLedgerNoteId(subject, e.relation, object))?.map((d) => d.source) ?? [];
-    notes.push({ subject, verb: e.relation, object, end1: subject, end2: object, label: e.relation, witnesses: e.witness ? [e.witness] : [], sources: 1, ...(disputedBy.length ? { disputedBy } : {}) });
+    // THE BYTE ADDRESS RIDES HERE (2026-09-29, the provenance wiring): a full
+    // EOHyperedge@1 carries its absolute byte offset in scope.byteOffset and
+    // its source name in meta.source. The witness is a content hash — edge
+    // identity, never provenance — and scope.offset is sentence-relative,
+    // never a byte address. The legacy `span`/hash paths are fallbacks for
+    // the reduced shape only; when no true address exists the note carries
+    // no span and the holograph renders the typed gap, never a guessed
+    // address.
+    const edgeByte = e?.scope?.byteOffset;
+    const edgeSpan = Number.isFinite(edgeByte) ? { start: edgeByte } : (e.span ?? null);
+    const edgeSource = (typeof e?.meta?.source === "string" && e.meta.source.trim()) ? e.meta.source.trim() : null;
+    notes.push({ subject, verb: e.relation, object, end1: subject, end2: object, label: e.relation, witnesses: e.witness ? [e.witness] : [], sources: 1, ...(disputedBy.length ? { disputedBy } : {}), ...(edgeSpan ? { span: edgeSpan } : {}), ...(edgeSource ? { source: edgeSource } : e.witness ? { source: e.witness } : {}) });
   }
   return notes;
 }
@@ -5537,6 +5619,17 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     resultKelsen?.resolutions?.length
       ? `\n\nSome claims in the material conflict. They were resolved by the fixed norm hierarchy (${precedenceOrderPhrase()}):\n${resultKelsen.resolutions.slice(0, 5).map((r) => `- “${r.a}” vs “${r.b}” → ${r.winner ? (r.winner === "a" ? r.a : r.b) : "tied"} (${r.why ?? r.reason})`).join("\n")}${resultKelsen.resolutions.length > 5 ? `\n… ${resultKelsen.resolutions.length - 5} more.` : ""}\nSpeak with that standing: name the conflict and the resolution, do not silently pick.`
       : null,
+    // THE RECORD'S CLAIMS, BYTE-ADDRESSED (2026-09-29, the podcast wiring):
+    // the Ranke lesson applied to every surface — when the surf produced
+    // relations from the workspace/corpus, their propositions ride the
+    // prompt WITH their addresses, so the answer can carry them and the
+    // holograph can type the carrying sentences MATERIAL with their refs.
+    // What the record says is handed over, named by its witness; the
+    // answer's standing is then measured, never hoped. Bounded (12 claims),
+    // and the projection path already carries its own briefs.
+    rawEntries?.length && runMode !== "projection"
+      ? `\n\nThe material's own claims (what the record says — carry them in your answer, name the address when you use one):\n${notesFromEdges(rawEntries).slice(0, 12).map((p) => `- [${p.source ?? "material"}${p.span?.start != null ? `#${p.span.start}` : ""}] ${p.end1 ?? ""} ${p.label} ${p.end2 ?? ""}`).join("\n")}`
+      : null,
   ].filter(Boolean).join("\n");
 
   // Chat history precedence: walk from the most recent message backwards and
@@ -6317,7 +6410,10 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     if (onNote) onNote({ move: "mayeroff_unrealizable", reason: mayeroffJudgment.reason });
   } else {
   await withSlot(model, async () => {
-    const draw = async (msgs, maxTokens, { capture = false, kelsen = null, stop = null } = {}) => {
+    // The draw declares the grain its prompt carries (I-single-grain) — a
+    // declaration channel, never prompt bytes: the model's input is
+    // byte-identical with or without it; only the choke-point audit reads it.
+    const draw = async (msgs, maxTokens, { capture = false, kelsen = null, stop = null, grain = null } = {}) => {
       let buf = "";
       let stopped = false;
       let tokenTruncated = false;
@@ -6331,7 +6427,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       let leftoverChars = null;
       let leftoverTail = null;
       let tailParsedAs = null;
-      for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, kelsen, signal, stop })) {
+      for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, kelsen, signal, stop, grain })) {
         if (typeof chunk === "string") {
           if (fullText.length >= MAX_OUTPUT_CHARS) { truncated = true; stopped = true; break; }
           if (!capture) {
@@ -7250,7 +7346,26 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       // Bounded: each section rewritten at most MAX_REWRITE_ROUNDS across the
       // pass; a section that still fails becomes a declared gap, never churned.
       const rankeAttempts = new Map(); // sectionIndex -> rewrite count, persists across rounds
-      for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated; round++) {
+      // THE MEASURED STOP (2026-09-29, THE-STIGMERGIC-PIPELINE §5 Phase A):
+      // the per-section budget is the FLOOR, never the mechanism — a
+      // section is rewritten at most MAX_REWRITE_ROUNDS times, whatever
+      // the round count. The gate reads the round trajectory's dominant
+      // mode (causal streaming DMD — nothing from the future) and fires
+      // when the material has settled — decayed (converged with residual;
+      // the residual stands and is disclosed by the satisfaction check) or
+      // oscillating (the material cycles — the rewrite is a loop, not a
+      // convergence). The gate decides BETWEEN rounds, over the rounds
+      // completed; the round's own work is never interrupted by it.
+      // THE HORIZON, MADE LIVE: the gate needs pairs ≥ 2 (three pushed
+      // rounds; first possible fire at the top of round 3), so the ROUND
+      // loop runs to its own horizon — RANKE_ROUND_HORIZON (default
+      // MAX_REWRITE_ROUNDS + 2 = 4) — while the per-section budget stays 2.
+      // Rounds past the budget spend no draws (the gap path skips the
+      // model); they exist to give the trajectory the gate can read.
+      const RANKE_ROUND_HORIZON = Math.max(Number(process.env.ER7_RANKE_ROUND_HORIZON ?? 0) || MAX_REWRITE_ROUNDS + 2, MAX_REWRITE_ROUNDS + 2);
+      const rankeGate = createRewriteGate({ dims: 2, rank: 2 });
+      const rankeGapDeclared = new Set(); // a declared gap is declared once, not once per round
+      for (let round = 0; round < RANKE_ROUND_HORIZON && !truncated; round++) {
         const rankeFindings = [];
         // RANKE FOLDS THE ESSAY AT THE MATERIAL'S OWN POINTS. The material was
         // folded through the reader into a referent index; Ranke folds each
@@ -7322,6 +7437,20 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           break;
         }
         if (onNote) onNote({ move: "ranke", round: round + 1, ungrounded: rankeFindings.map((f) => f.sectionIndex) });
+        // THE GATE DECIDES HERE, BETWEEN ROUNDS — over the rounds completed,
+        // never over the round being worked. A fired stop ends the loop: the
+        // residual findings stand as written, and their ungrounded standing
+        // is disclosed by the satisfaction check — no budget is spent in the
+        // stopped round, and nothing is declared a gap that the material
+        // never actually settled.
+        if (round > 0) {
+          const g = rankeGate.decide();
+          if (g.fire) {
+            if (onNote) onNote({ move: "ranke_dmd_stop", round: round + 1, reason: g.reason, magnitude: g.magnitude ?? null, period: g.period ?? null, basis: "the rewrite trajectory's dominant mode — the measured stop replaces the cap as the mechanism; the cap remains the floor" });
+            break;
+          }
+        }
+        let nonMovesThisRound = 0;
         // CONVERGENCE GUARD: a section that stays ungrounded after the rewrite
         // budget becomes a DECLARED GAP — typed and disclosed, never silently
         // dropped, and never churned forever. Ranke is bounded per section,
@@ -7333,7 +7462,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           if (!sectionText) continue;
           const tried = (rankeAttempts.get(i) ?? 0);
           if (tried >= MAX_REWRITE_ROUNDS) {
-            if (onNote) onNote({ move: "ranke_gap", sectionIndex: i, theme: plannedSections[i] ?? "", detail: f.detail });
+            if (!rankeGapDeclared.has(i)) { rankeGapDeclared.add(i); if (onNote) onNote({ move: "ranke_gap", sectionIndex: i, theme: plannedSections[i] ?? "", detail: f.detail }); }
             continue; // declared gap — Ranke has done its budget
           }
           rankeAttempts.set(i, tried + 1);
@@ -7348,7 +7477,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           const rewrite = await draw(
             [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: rankeMsg }],
             SECTION_MAX_TOKENS,
-            { kelsen: Math.max(compositionKelsen, 0.9) }, // Ranke is literal, never impressionistic
+            { kelsen: Math.max(compositionKelsen, 0.9), grain: "section" }, // Ranke is literal, never impressionistic
           );
           if (rewrite.stopped) { truncated = true; break; }
           let fixText = rewrite.buf.trim();
@@ -7367,6 +7496,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           const identical = sectionBefore === fixText;
           const collapseRatio = identical ? 1 : 1 - (similarity(sectionBefore, fixText));
           if (identical || collapseRatio >= NON_MOVING_EDIT_RATIO) {
+            nonMovesThisRound += 1;
             if (onNote) onNote({ move: "ranke_nonmove", sectionIndex: i, identical, similarity: (1 - collapseRatio), detail: "the rewrite did not move the section — a non-moving edit is not a fix; budget consumed, loop terminates" });
             continue;
           }
@@ -7391,6 +7521,10 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           documentLines[i] = fixText;
           if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `ranke: ungrounded @ ${i + 1}`, text: fixText, giver: model, supersedes: null, basis: `RANKE: ${f.detail}` }, { dir: ESSAY_LEDGER_DIR });
         }
+        // THE ROUND'S STATE, PUSHED ONLY WHEN THE ROUND COMPLETED A FULL
+        // PASS: findings this round, non-moves this round — the trajectory
+        // the gate reads. A round that broke on truncation is not a round.
+        if (!truncated) rankeGate.push([rankeFindings.length, nonMovesThisRound]);
       }
 
       // ── MURCH EDITS: EVA the whole, then REC the shape ────────────────────────
@@ -7415,7 +7549,19 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         if (onNote) onNote({ move: "murch", round: 0, findings: [], basis: "no ground — editorial pass skipped, standing disclosed by satisfaction" });
       }
       const editorIndex = sessionReferentIndex(session, onNote);
-      for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated && hasGrounding; round++) {
+      // MURCH'S STOP, MEASURED (Phase B, 2026-09-29): the same DMD gate as
+      // Ranke's, over the edit trajectory — [fixable findings this round,
+      // edits that landed]. Decay fires only on a settling trajectory with
+      // residual; oscillation fires with its measured period (a
+      // fix→reintroduce churn is an edit loop, not a convergence). Clean
+      // convergence (!fixable.length, the recheck ok) breaks before the gate,
+      // like Ranke's zero-findings break. The loop runs to its own horizon
+      // while the budget stays the floor; rounds past the budget run the
+      // mechanical checks only and spend no draws — they exist to give the
+      // trajectory the gate can read.
+      const MURCH_ROUND_HORIZON = Math.max(Number(process.env.ER7_MURCH_ROUND_HORIZON ?? 0) || MAX_REWRITE_ROUNDS + 2, MAX_REWRITE_ROUNDS + 2);
+      const murchGate = createRewriteGate({ dims: 2, rank: 2 });
+      for (let round = 0; round < MURCH_ROUND_HORIZON && !truncated && hasGrounding; round++) {
         // Aggregate EVERY finding across the whole essay — Murch's brief.
         // Murch is a STYLISTIC editor: his findings are the shape of the prose —
         // repetition, meta-commentary, thin sections, and the whole-essay
@@ -7521,15 +7667,30 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         const fixable = findings.filter((f) => f.kind !== "ungrounded");
         if (!fixable.length) break;
         if (onNote) onNote({ move: "murch", round: round + 1, findings: fixable.map((f) => `${f.kind}${f.sectionIndex != null ? `@${f.sectionIndex}` : ""}`) });
+        // THE GATE DECIDES HERE, BETWEEN ROUNDS — over the rounds completed,
+        // never over the round being worked. A fired stop ends the loop: the
+        // residual findings stand as written, and the shape recheck below has
+        // already had the last mechanical word — no budget is spent in the
+        // stopped round.
+        if (round > 0) {
+          const g = murchGate.decide();
+          if (g.fire) {
+            if (onNote) onNote({ move: "murch_dmd_stop", round: round + 1, reason: g.reason, magnitude: g.magnitude ?? null, period: g.period ?? null, basis: "the edit trajectory's dominant mode — the measured stop replaces the cap as the mechanism; the cap remains the floor" });
+            break;
+          }
+        }
         const editorStanding = essayResolutions({ sections: plannedSections, documentLines, index: editorIndex, rawEntries, onNote });
         const brief = fixable.map((f, idx) => `${idx + 1}. [${f.kind}${f.sectionIndex != null ? `, section ${f.sectionIndex + 1}` : " the piece as a whole"}] ${f.detail}`).join("\n");
-        if (onThinking) onThinking(`\n### Murch, pass ${round + 1}\n${brief}\n\n`);
+        if (onThinking && round < MAX_REWRITE_ROUNDS) onThinking(`\n### Murch, pass ${round + 1}\n${brief}\n\n`);
         // Murch fixes ONE finding per draw — the reliable grain for a 2B
         // mouth (the voice design: one proposition per call). Each draw is
         // small, targeted, and replaces the specific section it names; the
         // whole-essay context is the resolutions fold, never the raw bytes.
         let applied = 0;
-        for (let fi = 0; fi < fixable.length && !truncated; fi++) {
+        // PAST THE BUDGET, THE ROUND IS OBSERVATION ONLY (the horizon): the
+        // mechanical checks ran above; no draw is spent; applied stays 0 and
+        // the round exists to give the trajectory the gate can read.
+        for (let fi = 0; fi < fixable.length && !truncated && round < MAX_REWRITE_ROUNDS; fi++) {
           const f = fixable[fi];
           const targetSection = f.sectionIndex != null ? documentLines[f.sectionIndex] : null;
           if (f.kind === "body") {
@@ -7538,7 +7699,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
             const body = await draw(
               [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: bodyMsg }],
               SECTION_MAX_TOKENS,
-              { kelsen: Math.max(compositionKelsen, 0.9) },
+              { kelsen: Math.max(compositionKelsen, 0.9), grain: "section" },
             );
             if (body.stopped) { truncated = true; break; }
             // A MURCH BODY IS A DRAFT, AND FACES THE SAME ADMISSION (2026-09-21).
@@ -7608,12 +7769,13 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
                   maxTokens: SECTION_MAX_TOKENS,
                   blockedOpenings: blocked,
                   synonyms: synonymPool,
+                  grain: "section",
                   onReject: (r) => { if (onNote) onNote({ move: "rejected_draw", ...r }); },
                 })
             : await draw(
                 [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: fixMsg }],
                 SECTION_MAX_TOKENS,
-                { kelsen: Math.max(compositionKelsen, 0.9) }, // Murch is literal, never impressionistic
+                { kelsen: Math.max(compositionKelsen, 0.9), grain: "section" }, // Murch is literal, never impressionistic
               );
             if (fix.stopped) { truncated = true; break; }
             fixText = fix.buf.trim();
@@ -7653,8 +7815,13 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           }, { dir: ESSAY_LEDGER_DIR });
           applied++;
         }
-        if (onNote) onNote({ move: "murch_applied", round: round + 1, applied });
-        if (!applied) break; // nothing landed — stop, don't loop forever
+        if (onNote) onNote({ move: "murch_applied", round: round + 1, applied, budget: round < MAX_REWRITE_ROUNDS ? "draws" : "observation-only" });
+        if (round < MAX_REWRITE_ROUNDS && !applied) break; // nothing landed — stop, don't loop forever
+        // THE ROUND'S STATE, PUSHED ONLY WHEN THE ROUND COMPLETED A FULL
+        // PASS: fixable findings this round, edits that landed — the
+        // trajectory the gate reads. A round that broke on truncation is
+        // not a round.
+        if (!truncated) murchGate.push([fixable.length, applied]);
         const rechecked = checkEssayShape(documentLines.join("\n\n"), { parts: plannedSections.length, themes: plannedSections, subject: topic });
         if (onNote) onNote({ move: "shape_recheck", ok: rechecked.ok, failures: rechecked.failures.map((f) => f.detail) });
         shapeCheck.ok = rechecked.ok;
@@ -7697,7 +7864,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
                 { role: "user", content: `The piece on ${topic} has a section on "${section}". The research since it was written turned up more. Rewrite that section, deepened by the new material.` },
               ],
               SECTION_MAX_TOKENS,
-              { kelsen: Math.max(compositionKelsen, 0.9) },
+              { kelsen: Math.max(compositionKelsen, 0.9), grain: "section" },
             );
             if (!revise.stopped && revise.buf.trim()) {
               const revisedText = revise.buf.trim();
@@ -8139,9 +8306,45 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         codeValidation = await runValidator(fullText);
         if (onNote) onNote({ move: "code_validate", ok: codeValidation.ok, findings: (codeValidation.findings ?? []).map((f) => `${f.kind}: ${f.detail}`), smoke: codeValidation.smoke });
         let round = 0;
+        // CODE'S STOP, MEASURED (Phase B, 2026-09-29): the same DMD gate as
+        // Ranke's and Murch's, over the validation trajectory — [findings
+        // after this round's validation, non-moving rewrites this round]. A
+        // rewrite that returns the file byte-identical is a NO-OP, not a
+        // fix — counted, never landed twice, budget consumed like any other
+        // failed attempt (the Ranke non-move cut, applied to the whole
+        // file). Decay fires only on a settling trajectory with residual;
+        // a clean validation exits before the gate ever decides. The loop
+        // runs to its own horizon while the budget stays the floor; rounds
+        // past the budget re-run the validator on the unchanged text and
+        // spend no draws — observation only, so the trajectory is measured,
+        // never assumed.
+        const CODE_VALIDATE_HORIZON = Math.max(Number(process.env.ER7_CODE_VALIDATE_HORIZON ?? 0) || MAX_REWRITE_ROUNDS + 2, MAX_REWRITE_ROUNDS + 2);
+        const codeGate = createRewriteGate({ dims: 2, rank: 2 });
         // a talk page is never redrawn whole by the mouth: its gaps were asked
         // one at a time, and what the validator says stays on the record
-        while (!talkPage && !codeValidation.ok && round < MAX_REWRITE_ROUNDS && !truncated) {
+        while (!talkPage && !codeValidation.ok && round < CODE_VALIDATE_HORIZON && !truncated) {
+          // THE GATE DECIDES HERE, BETWEEN ROUNDS — over the rounds
+          // completed, never over the round being worked. A fired stop ends
+          // the loop with the residual disclosed: the artifact line below
+          // carries validated/validation-failed either way.
+          if (round > 0) {
+            const g = codeGate.decide();
+            if (g.fire) {
+              if (onNote) onNote({ move: "code_dmd_stop", round: round + 1, reason: g.reason, magnitude: g.magnitude ?? null, period: g.period ?? null, basis: "the validation trajectory's dominant mode — the measured stop replaces the cap as the mechanism; the cap remains the floor" });
+              break;
+            }
+          }
+          let codeNonMovesThisRound = 0;
+          if (round >= MAX_REWRITE_ROUNDS) {
+            // PAST THE BUDGET, THE ROUND IS OBSERVATION ONLY (the horizon):
+            // no draw is spent; the validator re-runs on the unchanged text
+            // so the trajectory is measured, never assumed.
+            codeValidation = await runValidator(fullText);
+            if (onNote) onNote({ move: "code_validate", round: round + 1, ok: codeValidation.ok, findings: (codeValidation.findings ?? []).map((f) => `${f.kind}: ${f.detail}`), gap: true, basis: "past the draw budget — observation only; the trajectory, not a redraw" });
+            if (!truncated) codeGate.push([(codeValidation.findings ?? []).length, 0]);
+            round++;
+            continue;
+          }
           const findings = (codeValidation.findings ?? []).slice(0, 6).map((f) => `- [${f.kind}] ${f.detail}`).join("\n");
           if (onThinking) onThinking(`\n### Code check failed (round ${round + 1})\n${findings}\n\n`);
           const fixMsg = codeLanguage === "html"
@@ -8150,17 +8353,30 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           const fix = await draw(
             [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: fixMsg }],
             SECTION_MAX_TOKENS,
-            { kelsen: Math.max(compositionKelsen, 0.9) },
+            { kelsen: Math.max(compositionKelsen, 0.9), grain: "whole" },
           );
           if (fix.stopped) { truncated = true; break; }
           const fixText = stripCodeFences(fix.buf, codeLanguage);
           if (!fixText) break;
-          documentLines.length = 0;
-          documentLines.push(fixText);
-          fullText = assembleCode();
-          if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `logos: validation round ${round + 1}`, text: fullText, giver: model, supersedes: null, basis: `REC: the validator failed — ${findings.slice(0, 200)}` }, { dir: ESSAY_LEDGER_DIR });
+          if (fixText === fullText) {
+            // THE NON-MOVING REWRITE: the mouth returned the file unchanged —
+            // a NO-OP, not a fix. Counted for the trajectory, never landed
+            // twice; the budget is consumed like any other failed attempt.
+            codeNonMovesThisRound += 1;
+            if (onNote) onNote({ move: "code_nonmove", round: round + 1, detail: "the rewrite returned the file byte-identical — a non-moving edit is not a fix; budget consumed, loop terminates" });
+          } else {
+            documentLines.length = 0;
+            documentLines.push(fixText);
+            fullText = assembleCode();
+            if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `logos: validation round ${round + 1}`, text: fullText, giver: model, supersedes: null, basis: `REC: the validator failed — ${findings.slice(0, 200)}` }, { dir: ESSAY_LEDGER_DIR });
+          }
           codeValidation = await runValidator(fullText);
           if (onNote) onNote({ move: "code_validate", round: round + 1, ok: codeValidation.ok, findings: (codeValidation.findings ?? []).map((f) => `${f.kind}: ${f.detail}`) });
+          // THE ROUND'S STATE, PUSHED ONLY WHEN THE ROUND COMPLETED A FULL
+          // PASS: findings after this round's validation, non-moves this
+          // round — the trajectory the gate reads. A round that broke on
+          // truncation or an empty fix is not a round.
+          if (!truncated) codeGate.push([(codeValidation.findings ?? []).length, codeNonMovesThisRound]);
           round++;
         }
       }

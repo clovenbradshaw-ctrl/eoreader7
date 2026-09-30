@@ -168,7 +168,10 @@ async function blobToBase64(imagePath) {
   return buf.toString("base64");
 }
 
-async function completeVision(messages, { model = VISION_LADDER[0].model, maxTokens = 250, temperature = 0, timeoutMs = 120000 } = {}) {
+// A vision read on a CPU-only box runs minutes, not seconds (measured 2026-09-30: gemma3:4b 265-375 s for one 720x1280 screenshot),
+// so the ceiling is the operator's to raise: ER7_VISION_TIMEOUT_MS. The default is unchanged.
+const VISION_TIMEOUT_MS = Number(process.env.ER7_VISION_TIMEOUT_MS) > 0 ? Number(process.env.ER7_VISION_TIMEOUT_MS) : 120000;
+async function completeVision(messages, { model = VISION_LADDER[0].model, maxTokens = 250, temperature = 0, timeoutMs = VISION_TIMEOUT_MS } = {}) {
   // THE SAFETY GATE, ON THE VISION LANE TOO (falsification F1): a model call
   // is a model call — the prompt is scanned before the fetch, forceBlock
   // always (the vision path never honors ER7_ANTISTRAUSS=off), and the
