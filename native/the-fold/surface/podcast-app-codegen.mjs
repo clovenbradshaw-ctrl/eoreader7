@@ -66,11 +66,69 @@ function extractCode(text) {
 }
 
 /**
+ * templateLiteralAssignments(html, prop) — every `<expr>.<prop> = \`...\`;`
+ * block in the source, matched by hand-walking `${...}` nesting rather than
+ * a single regex (a naive `[\s\S]*?\`` non-greedy match stops at the FIRST
+ * closing backtick, which can sit inside an unrelated nested `${...}` —
+ * this walks depth so a real backtick terminates the block only outside any
+ * open `${`). Returns the RAW block text (including the backticks) for each
+ * assignment found, oldest first.
+ */
+export function templateLiteralAssignments(html, prop) {
+  const assignRe = new RegExp(`\\.${prop}\\s*=\\s*\``, "g");
+  const blocks = [];
+  let m;
+  while ((m = assignRe.exec(html))) {
+    const start = m.index + m[0].length - 1; // the opening backtick's own index
+    let i = start + 1;
+    let depth = 0;
+    while (i < html.length) {
+      if (html[i] === "\\") { i += 2; continue; }
+      if (depth === 0 && html[i] === "`") break;
+      if (html[i] === "$" && html[i + 1] === "{") { depth += 1; i += 2; continue; }
+      if (depth > 0 && html[i] === "{") { depth += 1; i += 1; continue; }
+      if (depth > 0 && html[i] === "}") { depth -= 1; i += 1; continue; }
+      i += 1;
+    }
+    blocks.push(html.slice(start, i + 1));
+    assignRe.lastIndex = i;
+  }
+  return blocks;
+}
+
+/**
  * checkCode(html) — the mechanical evaluate step, code's analogue of
  * podcast.js::evaluateSegment. Every check is a real, checkable fact about
  * the bytes, never a style opinion. Returns { issues, findings }.
+ *
+ * FOUND LIVE, ADDED HERE (2026-09-30): every prior version of this check
+ * was PURELY TEXTUAL — regex presence tests against the raw source — and a
+ * real e2e run found exactly the gap that shape always has (the same one
+ * harm-properties.mjs's consistencyScore/otherModelingScore already had to
+ * be rewritten away from, this session): a round that swapped
+ * `.innerHTML =` for `.textContent =` on the IDENTICAL raw-markup template
+ * string scored "0 mechanical issues" here, because `/<audio[\s>]/i` still
+ * matched the literal substring "<audio" sitting inert inside a
+ * `.textContent` assignment — verified live, in real Chrome, that the
+ * resulting page has NO real <audio> element at all; the whole episode
+ * markup renders as literal escaped text on screen. Two checks below are
+ * the fix, both real structural facts about the bytes, neither requiring a
+ * live DOM to compute (a live-browser behavioral check, the more general
+ * fix, is real future work — see the podcast-cv-checkpoint-demo.mjs /
+ * escapingScore precedent this session already built for that shape):
+ *
+ * (1) episodeDataInInnerHtml — the SPECIFIC, already-proven-exploitable
+ *     pattern (a real NPR title containing a quote broke exactly this
+ *     shape): episode.title/pubDate/ethos interpolated directly into a
+ *     `.innerHTML = \`...\`` template literal. This is not a style
+ *     opinion; it is the literal bytes of a real, demonstrated injection.
+ * (2) markupSunkIntoTextContent — the NEW regression this e2e run found:
+ *     a `.textContent = \`...\`` assignment whose string contains what
+ *     look like HTML tags (`<h3`, `<audio`, `<div`, etc.) is a tell that
+ *     markup meant to be REAL elements got assigned as inert text instead
+ *     — exactly the round-15 defect, structurally.
  */
-function checkCode(html) {
+export function checkCode(html) {
   const findings = [];
   const has = (re, why) => { if (!re.test(html)) findings.push(why); };
   has(/<!doctype html>/i, "missing a <!doctype html> declaration");
@@ -86,6 +144,17 @@ function checkCode(html) {
   const opens = (html.match(/\{/g) ?? []).length;
   const closes = (html.match(/\}/g) ?? []).length;
   if (opens !== closes) findings.push(`unbalanced braces (${opens} "{" vs ${closes} "}") — likely truncated or malformed script`);
+
+  const injected = templateLiteralAssignments(html, "innerHTML")
+    .filter((block) => /\$\{[^}]*\.(title|pubDate|ethos)\b[^}]*\}/.test(block));
+  if (injected.length) {
+    findings.push(`episode data (.title/.pubDate/.ethos) is interpolated directly into an innerHTML template literal — a title containing a quote or HTML tag can break the markup or inject a script (this exact bug broke a real NPR episode title this session); use document.createElement(...) + element.textContent = ... to build each episode's markup instead of building it with innerHTML`);
+  }
+  const stranded = templateLiteralAssignments(html, "textContent")
+    .filter((block) => /<(h[1-6]|div|span|p|a|audio|img|button|li|ul)[\s>]/i.test(block));
+  if (stranded.length) {
+    findings.push(`a .textContent assignment contains what looks like real HTML markup (a <${/<([a-z0-9]+)/i.exec(stranded[0])?.[1] ?? "tag"}> tag) inside the string — .textContent always renders its whole argument as literal visible text, never as real elements, so this will show angle-bracket text on the page instead of a working episode list; build real elements with document.createElement(...) and appendChild(...) instead`);
+  }
   return { issues: findings.length, findings };
 }
 
@@ -223,4 +292,12 @@ async function main() {
   console.log(`landed on the ledger at round ${ledgerRound} (podcast-app-ledger.jsonl); snapshot written to ${evidenceFile}`);
 }
 
-main().catch((e) => { console.error(e); process.exitCode = 1; });
+// Guarded: importing this module for its exported checkCode/
+// templateLiteralAssignments (for testing, or for a sibling script) must
+// NEVER also trigger a real, live, multi-minute model generation as a side
+// effect — found live, the hard way, when a plain import() during testing
+// silently kicked off a real round against the local model. `main()` only
+// runs when this file is the process's own entry point.
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((e) => { console.error(e); process.exitCode = 1; });
+}
