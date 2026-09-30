@@ -14,22 +14,25 @@
 //
 // THE BUDGET IS DECLARED, NEVER OPEN-ENDED (this project's own standing
 // P9 discipline): MAX_ROUNDS = 3, giver "this driver," basis "generous
-// enough to attempt each of the two currently-implemented repair
-// strategies (contrast, differentiate) once, plus one retry round, before
-// reporting honestly rather than looping forever chasing a condition this
-// loop has no strategy for."
+// enough to attempt each currently-implemented repair strategy once,
+// plus one retry round, before reporting honestly rather than looping
+// forever chasing a condition this loop has no strategy for."
 //
-// TWO REPAIR STRATEGIES ARE IMPLEMENTED. A finding this loop has no
-// strategy for (a strain contradiction, a real claim cycle) is named and
-// left unrepaired, NEVER silently skipped without saying so — the same
-// "a gap is never a verdict" rule pathos.js itself holds.
+// FOUR REPAIR STRATEGIES ARE IMPLEMENTED: contrast (mechanical, WCAG),
+// differentiate (one isolated model call, Girard-checked), retaste (a
+// later Girard-only re-check of an already-landed differentiation that
+// pathos itself structurally cannot judge), and roundness (mechanical,
+// Girard-measured corner radius). A finding this loop has no strategy
+// for (a strain contradiction, a real claim cycle) is named and left
+// unrepaired, NEVER silently skipped without saying so — the same "a
+// gap is never a verdict" rule pathos.js itself holds.
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 import { extractElements } from "./podcast-cdp-lib.mjs";
 import { visualPathosOf } from "../organs/visual-pathos.js";
 import { contrastRatio, wcagFloorFor } from "../organs/contrast.js";
 import { proposeAnchor, foldCode, readAnchorLog, appendAnchorLog, settledContent } from "../adapters/build/code-anchor-log.js";
-import { checkMimicry, resolveToHex } from "../organs/girard.js";
+import { checkMimicry, resolveToHex, dominantConvention, stepLightness, ELEVATION_STEP } from "../organs/girard.js";
 import { checkCode } from "../the-fold/surface/podcast-app-codegen.mjs";
 import { coherenceGate } from "../adapters/build/coherence-properties.mjs";
 import { TEMPLATE } from "./podcast-anchor-log-drive.mjs";
@@ -126,6 +129,69 @@ const MIMICRY_DIAL = { value: 15, giver: "organs/girard.js — the-fold (#6d28d9
 function establishedAccentFrom(styleContent) {
   const m = /button\s*\{[^}]*background-color\s*:\s*([^;]+);/.exec(styleContent);
   return m ? resolveToHex(m[1].trim()) : null;
+}
+
+// ── strategy 3: ROUNDNESS — mechanical, measured from real local systems ──
+// "have it improve until it looks like real ones" named a real, visible gap
+// pathos/pop-out/contrast structurally cannot see (none of them measure
+// corner radius at all): the .episode row is a hard rectangle, and every
+// real local reference this repo can measure rounds its card-like
+// containers. This is a computable convention, not a judgment call — no
+// model asked, exactly like the contrast fix.
+let ROUNDNESS_CONVENTION = null;
+function roundnessConvention() {
+  if (ROUNDNESS_CONVENTION) return ROUNDNESS_CONVENTION;
+  const refs = [];
+  for (const [giver, path] of [
+    ["the-fold/index.html", new URL("../../../the-fold/index.html", import.meta.url)],
+    ["heimdall/src/style.css", new URL("../../../heimdall/src/style.css", import.meta.url)],
+  ]) {
+    try { refs.push({ giver, cssText: fs.readFileSync(path, "utf8") }); } catch { /* sibling checkout not present here — disclosed via n:0 below, never a crash */ }
+  }
+  ROUNDNESS_CONVENTION = dominantConvention(refs, "border-radius");
+  return ROUNDNESS_CONVENTION;
+}
+
+function flatEpisodeRow(styleContent) {
+  const { match } = ruleBlock(styleContent, ".episode");
+  if (!match) return false;
+  return !/(?<![\w-])border-radius\s*:/.test(match[1]);
+}
+
+function applyRoundness(styleContent, radiusPx) {
+  const { re, match } = ruleBlock(styleContent, ".episode");
+  if (!match) return { ok: false, detail: "no .episode rule found to round" };
+  const decls = match[1].trim();
+  const newBlock = `.episode {\n${decls}\n  border-radius: ${radiusPx}px;\n}`;
+  return { ok: true, content: styleContent.replace(re, newBlock) };
+}
+
+// ── strategy 4: ELEVATION — mechanical, measured from real local systems ──
+// A rounded corner on a box that shares its background with the page is
+// invisible — verified live: the roundness fix alone produced NO visible
+// change, because .episode has no background-color of its own at all. Two
+// real, independently-built local systems agree EXACTLY (+2.7 points of
+// HSL lightness, same hue) on the first surface-elevation step above a
+// page background (girard.js::ELEVATION_STEP) — the real convention that
+// makes a "card" read as a card at all.
+function pageBackgroundFrom(styleContent) {
+  const m = /body\s*\{[^}]*background-color\s*:\s*([^;]+);/.exec(styleContent);
+  return m ? resolveToHex(m[1].trim()) : null;
+}
+
+function flatEpisodeBackground(styleContent) {
+  const { match } = ruleBlock(styleContent, ".episode");
+  if (!match) return false;
+  return !/(?<![\w-])background(-color)?\s*:/.test(match[1]);
+}
+
+function applyElevation(styleContent, pageBgHex) {
+  const { re, match } = ruleBlock(styleContent, ".episode");
+  if (!match) return { ok: false, detail: "no .episode rule found to elevate" };
+  const surface = stepLightness(pageBgHex, ELEVATION_STEP.value);
+  const decls = match[1].trim();
+  const newBlock = `.episode {\n${decls}\n  background-color: ${surface};\n}`;
+  return { ok: true, content: styleContent.replace(re, newBlock), surface };
 }
 
 async function callMouth(prompt) {
@@ -235,6 +301,14 @@ function diagnose(report, styleContent) {
   if (report.strainState.contradictions.length && report.condition.kind !== "stale") {
     for (const c of report.strainState.contradictions) tasks.push({ kind: "unrepaired", detail: `strain contradiction [${c.kind}]: ${c.detail} — no repair strategy exists for grouping/regime contradictions yet` });
   }
+  const convention = roundnessConvention();
+  if (convention.median != null && flatEpisodeRow(styleContent)) {
+    tasks.push({ kind: "roundness", convention });
+  }
+  const pageBg = pageBackgroundFrom(styleContent);
+  if (pageBg && flatEpisodeBackground(styleContent)) {
+    tasks.push({ kind: "elevation", pageBg });
+  }
   return tasks;
 }
 
@@ -310,6 +384,18 @@ async function main() {
         console.log(`    redone — attempt ${result.attempt}, mimicry checked: ${result.mimicryChecked}`);
         styleContent = result.content;
         applied.push({ task, ok: true, detail: `conceded the arbitrary ${task.tasteless.prop}: ${task.tasteless.value} and re-proposed under Girard's mimicry contract`, writer: MODEL, prompt: result.prompt, rawResponse: result.raw });
+      } else if (task.kind === "roundness") {
+        console.log(`  [roundness/mechanical, Girard] .episode is a hard rectangle; real local systems measure ${task.convention.detail}`);
+        const applied_ = applyRoundness(styleContent, task.convention.median);
+        if (!applied_.ok) { applied.push({ task, ok: false, detail: applied_.detail }); continue; }
+        styleContent = applied_.content;
+        applied.push({ task, ok: true, detail: `applied border-radius: ${task.convention.median}px to .episode — the real median across ${task.convention.n} declarations in ${task.convention.perReference.length} local design system(s)`, writer: "mechanical" });
+      } else if (task.kind === "elevation") {
+        console.log(`  [elevation/mechanical, Girard] .episode shares the page background (${task.pageBg}); real local systems agree on +${ELEVATION_STEP.value} lightness for the first surface`);
+        const applied_ = applyElevation(styleContent, task.pageBg);
+        if (!applied_.ok) { applied.push({ task, ok: false, detail: applied_.detail }); continue; }
+        styleContent = applied_.content;
+        applied.push({ task, ok: true, detail: `applied background-color: ${applied_.surface} to .episode — ${ELEVATION_STEP.value} points of HSL lightness above the page's own ${task.pageBg}, the exact step both real local design systems measure`, writer: "mechanical" });
       }
     }
 

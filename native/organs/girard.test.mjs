@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { hexToHsl, hueDistance, extractAccentTokens, mimeticFinding, checkMimicry, resolveToHex } from "./girard.js";
+import { hexToHsl, hslToHex, stepLightness, ELEVATION_STEP, hueDistance, extractAccentTokens, mimeticFinding, checkMimicry, resolveToHex, extractNumericPxTokens, dominantConvention } from "./girard.js";
 
 test("resolveToHex: hex, shorthand hex, rgb(), and a received named keyword all resolve; an unknown value is a typed null, never a guess", () => {
   assert.equal(resolveToHex("#ff0000"), "#ff0000");
@@ -40,7 +40,7 @@ test("mimeticFinding: a reference with fewer than 2 accent tokens is disclosed a
 
 test("REAL DATA: this repo's own local, already-built the-fold accent tokens measure as tightly hue-convergent", () => {
   let css;
-  try { css = fs.readFileSync(new URL("../../the-fold/explore/explore.css", import.meta.url), "utf8"); }
+  try { css = fs.readFileSync(new URL("../../../the-fold/explore/explore.css", import.meta.url), "utf8"); }
   catch { css = null; }
   if (!css) { console.log("(the-fold sibling checkout not present here — skipping the real-file assertion)"); return; }
   const r = mimeticFinding([{ giver: "the-fold/explore/explore.css", cssText: css }]);
@@ -71,4 +71,34 @@ test("checkMimicry: the accent itself always imitates itself (0° distance)", ()
   const r = checkMimicry("#1DB954", "#1DB954", DIAL);
   assert.equal(r.hueDistance, 0);
   assert.equal(r.mimetic, true);
+});
+
+test("extractNumericPxTokens: pulls plain px values, drops pill/circle outliers by default", () => {
+  const css = ".a{border-radius:8px}.b{border-radius:6px}.c{border-radius:999px}.d{border-radius:50%}`";
+  assert.deepEqual(extractNumericPxTokens(css, "border-radius"), [8, 6]);
+});
+
+test("dominantConvention: a reference with no matching declarations reports n:0 for it, never a fabricated zero baked into the median", () => {
+  const r = dominantConvention([{ giver: "empty", cssText: ".a{color:red}" }], "border-radius");
+  assert.equal(r.n, 0);
+  assert.equal(r.median, null);
+});
+
+test("hslToHex: round-trips a real hex color exactly", () => {
+  assert.equal(hslToHex(hexToHsl("#0f0f12").h, hexToHsl("#0f0f12").s, hexToHsl("#0f0f12").l), "#0f0f12");
+});
+
+test("stepLightness: reproduces the REAL measured the-fold elevation exactly (#0f0f12 + 2.7 -> #15151a)", () => {
+  assert.equal(stepLightness("#0f0f12", ELEVATION_STEP.value), "#15151a");
+});
+
+test("REAL DATA: this repo's own local design systems converge on a real, measured border-radius (median 8px, excluding pill shapes)", () => {
+  let foldCss, heimdallCss;
+  try {
+    foldCss = fs.readFileSync(new URL("../../../the-fold/index.html", import.meta.url), "utf8");
+    heimdallCss = fs.readFileSync(new URL("../../../heimdall/src/style.css", import.meta.url), "utf8");
+  } catch { return; }
+  const r = dominantConvention([{ giver: "the-fold/index.html", cssText: foldCss }, { giver: "heimdall/src/style.css", cssText: heimdallCss }], "border-radius");
+  assert.ok(r.n >= 50, `expected a large real sample, got ${r.n}`);
+  assert.equal(r.median, 8);
 });

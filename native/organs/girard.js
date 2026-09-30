@@ -83,6 +83,40 @@ export function hexToHsl(hex) {
   return { h, s, l };
 }
 
+/** hslToHex(h, s, l) -> "#rrggbb", the inverse of hexToHsl. h in degrees, s/l in 0..1. */
+export function hslToHex(h, s, l) {
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = l - c / 2;
+  let [r, g, b] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+  return toHexArr([(r + m) * 255, (g + m) * 255, (b + m) * 255]);
+}
+function toHexArr(arr) { return "#" + arr.map((v) => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, "0")).join(""); }
+
+/**
+ * stepLightness(hex, deltaPercent) -> a hex color with the SAME hue and
+ * saturation, lightness shifted by `deltaPercent` (on HSL's own 0..100
+ * scale). The mechanical half of the "elevation" convention: a real
+ * surface color, one measured step lighter than a real background — see
+ * ELEVATION_STEP below for the measurement this repair loop actually uses.
+ */
+export function stepLightness(hex, deltaPercent) {
+  const { h, s, l } = hexToHsl(hex);
+  const newL = Math.max(0, Math.min(1, l + deltaPercent / 100));
+  return hslToHex(h, s, newL);
+}
+
+// MEASURED, n=2, exact agreement: both real, independently-built local
+// design systems step their FIRST surface elevation above the page
+// background by +2.7 points of HSL lightness (0-100 scale), same hue —
+//   the-fold:  --bg #0f0f12 (L 6.5%) -> --panel #15151a (L 9.2%), +2.7
+//   heimdall:  --bg #0b0e14 (L 6.1%) -> --bg-2  #10141d (L 8.8%), +2.7
+// Disclosed as a literal citation (not a generalized extractor — a
+// background/surface PAIR is a :root-block-level relationship, not a
+// flat property scan the way accent/border-radius tokens are; building a
+// real paired-token extractor is named, real, unattempted future work).
+export const ELEVATION_STEP = { value: 2.7, giver: "organs/girard.js — the-fold (--bg/--panel) and heimdall (--bg/--bg-2), both measured at exactly +2.7 points of HSL lightness", basis: "an exact agreement between two independently-built local systems on the FIRST elevation step above the page background — the real convention a flat rectangle sitting on the page background is missing" };
+
 /** hueDistance(hexA, hexB) -> degrees, 0..180, the shorter way round the wheel. */
 export function hueDistance(hexA, hexB) {
   const a = hexToHsl(hexA).h;
@@ -136,6 +170,54 @@ export function mimeticFinding(references) {
     detail: measuredRefs.length
       ? `${measuredRefs.length} real local design system(s) measured — each varies its accent's emphasis/dim state by lightness alone, within ${maxAcrossAll}° of hue`
       : "no reference had 2+ accent-family tokens to measure",
+  };
+}
+
+/**
+ * extractNumericPxTokens(cssText, property, { excludeAtOrAbove }) -> [px,
+ * ...] — every plain `property: Npx` value in real CSS text. A pill/
+ * circle value (border-radius: 999px, 50%) is a DIFFERENT convention
+ * ("fully rounded") from a card's corner radius, so `excludeAtOrAbove`
+ * (default 50) drops it rather than letting one outlier drag a median
+ * measured for rectangular cards toward "everything is a pill."
+ */
+export function extractNumericPxTokens(cssText, property, { excludeAtOrAbove = 50 } = {}) {
+  const re = new RegExp(`(?<![\\w-])${property}\\s*:\\s*(\\d+(?:\\.\\d+)?)px\\b`, "g");
+  const out = [];
+  let m;
+  while ((m = re.exec(String(cssText ?? "")))) {
+    const v = Number(m[1]);
+    if (v < excludeAtOrAbove) out.push(v);
+  }
+  return out;
+}
+
+/**
+ * dominantConvention(references, property, opts) -> a real, measured
+ * numeric convention (the MEDIAN observed value) for a CSS property
+ * across real, already-built local design systems. `references`:
+ * [{ giver, cssText }]. Never a threshold invented here — the caller
+ * states its own giver/basis, typically citing this function's own
+ * result (see mimeticFinding's own disclosure discipline).
+ */
+export function dominantConvention(references, property, opts) {
+  const values = [];
+  const perReference = [];
+  for (const { giver, cssText } of references ?? []) {
+    const vs = extractNumericPxTokens(cssText, property, opts);
+    perReference.push({ giver, n: vs.length });
+    values.push(...vs);
+  }
+  values.sort((a, b) => a - b);
+  const n = values.length;
+  const median = n ? (n % 2 ? values[(n - 1) / 2] : (values[n / 2 - 1] + values[n / 2]) / 2) : null;
+  return {
+    schema: "EODominantConvention@1",
+    property,
+    n,
+    perReference,
+    median,
+    detail: n ? `${n} real declaration(s) of "${property}" across ${perReference.length} local design system(s) — median ${median}px` : `no real "${property}" declarations found`,
   };
 }
 
