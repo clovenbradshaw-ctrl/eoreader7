@@ -26,17 +26,9 @@ import { phrase, statusOf, promote, support, STATUSES } from "./bench.mjs";
 import { resolveHandles, labelOf } from "./handles.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const file = (dir) => path.join(dir, "notebook.json");
-
-export function load(dir) {
-  if (!fs.existsSync(file(dir))) return emptyNotebook();
-  const j = JSON.parse(fs.readFileSync(file(dir), "utf8"));
-  const st = { nb: { schema: NOTEBOOK_SCHEMA, entries: j.nb }, bench: { schema: "EOBench@1", entries: j.bench }, files: j.files ?? {} };
-  const v = verify(st);
-  if (!v.notebook.ok || !v.bench.ok) throw new Error(`the ledger does not verify: ${JSON.stringify(v)}`);
-  return st;
-}
-export function save(dir, st) { fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(file(dir) + ".tmp", JSON.stringify({ nb: st.nb.entries, bench: st.bench.entries, files: st.files })); fs.renameSync(file(dir) + ".tmp", file(dir)); }
+import { load, save } from "./notebook-store.mjs";
+import { openWorkspace } from "./notebook-workspace.mjs";
+export { load, save };
 
 let toolsCache;
 async function toolsText(st) { if (toolsCache) return toolsCache; const r = runPython("tools()", {}, { timeoutMs: 20000 }); return (toolsCache = r.output); }
@@ -191,19 +183,32 @@ export async function act(st, by, b, ctx = {}) {
 }
 
 
-/** notebookHandler({ dir, by, learned, base, skillsBase, swarm, mouth }) -> async (req, res, pathname) => handled? — the notebook as a mountable route set. */
+/** notebookHandler({ dir, by, learned, base, skillsBase, swarm, mouth }) -> async (req, res, pathname, url) => handled?
+ *  The notebook as a mountable route set, over a WORKSPACE of conversations (notebook-workspace.mjs): each its own ledger, each flagged
+ *  chat / generate / notebook, forkable. `?c=<id>` (GET) or `c` in the body (POST) picks the conversation; the first open one otherwise. */
 export function notebookHandler({ dir, by, learned = learnedDir(), base = "", skillsBase = null, swarm, mouth }) {
-  let st = load(dir);
+  const ws = openWorkspace(dir); if (!ws.list(true).length) ws.create({ type: "notebook", by });
   const ctx = { dir: learned, ...(swarm !== undefined ? { swarm } : {}), ...(mouth !== undefined ? { mouth } : {}) };
+  const pick = (id) => { const open = ws.list(); return open.find((c) => c.id === id) ?? open[0] ?? (ws.create({ type: "notebook", by }), ws.list()[0]); };
+  const WS_OPS = { "ws-new": (b, c) => { const r = ws.create({ type: b.type, title: b.title, by }); return r.error ? r : { goto: r.id }; }, "ws-fork": (b, c) => { const r = ws.fork(c.id, { at: b.at ?? "end", title: b.title, by }); return r.error ? r : { goto: r.id, notice: `forked at ${b.at ?? "the end"}: ${r.entries} entries carried (same seals); ${r.notCarried ? `${r.notCarried} promotion(s) stayed with the parent — decisions do not travel` : "no promotions to leave behind"}` }; },
+    "ws-retype": (b, c) => { const r = ws.retype(c.id, b.type, by); return r.error ? r : { notice: null }; }, "ws-rename": (b, c) => { const r = ws.rename(c.id, b.title, by); return r.error ? r : {}; },
+    "ws-close": (b, c) => { const r = ws.close(c.id, by); if (r.error) return r; return { goto: (ws.list()[0] ?? pick()).id }; } };
   return async (req, res, p, url) => {
     if (req.method === "POST" && p === "/api") {
       let body = ""; for await (const c of req) body += c;
-      let r; try { r = await act(st, by, JSON.parse(body), ctx); } catch (e) { r = { error: String(e.message) }; }
-      if (r.state) { st = r.state; save(dir, st); }
-      res.setHeader("content-type", "application/json"); res.end(JSON.stringify({ error: r.error ?? null, notice: r.notice ?? null, selected: r.selected ?? null })); return true;
+      let b = {}, r; try { b = JSON.parse(body); const c = pick(b.c);
+        if (WS_OPS[b.op]) r = WS_OPS[b.op](b, c); else { const st = ws.state(c.id); r = await act(st, by, b, ctx); if (r.state) ws.save(c.id, r.state); }
+      } catch (e) { r = { error: String(e.message) }; }
+      res.setHeader("content-type", "application/json"); res.end(JSON.stringify({ error: r.error ?? null, notice: r.notice ?? null, selected: r.selected ?? null, goto: r.goto ?? null })); return true;
     }
-    if (p === "/ipynb") { res.setHeader("content-type", "application/json"); res.end(JSON.stringify(toIpynb(st), null, 1)); return true; }
-    if (p === "/") { const q = url.searchParams; res.setHeader("content-type", "text/html"); res.end(renderPage(st, { live: true, by, sel: q.get("sel") || null, style: q.get("style") || "notebook", dir: learned, drawer: q.get("drawer") === "1", tab: q.get("tab") || "skills", base, skillsBase })); return true; }
+    if (p === "/ipynb") { const c = pick(url.searchParams.get("c")); res.setHeader("content-type", "application/json"); res.end(JSON.stringify(toIpynb(ws.state(c.id)), null, 1)); return true; }
+    if (p === "/") {
+      const q = url.searchParams, c = pick(q.get("c")), st = ws.state(c.id), par = c.parent ? ws.get(c.parent) : null;
+      const lineage = par ? `forked from “${esc(par.title)}” (${esc(par.id)}) after ${esc(c.forkedAt)} — the first ${st.nb.entries.length ? "entries" : "entries"} are the parent's own, with the same seals; ${c.notCarried ? `${c.notCarried} promotion(s) were not carried` : "no promotions were left behind"}` : null;
+      res.setHeader("content-type", "text/html");
+      res.end(renderPage(st, { live: true, by, sel: q.get("sel") || null, style: q.get("style") || c.type, dir: learned, drawer: q.get("drawer") === "1", tab: q.get("tab") || "skills", base, skillsBase, tabs: ws.list(), current: c.id, lineage }));
+      return true;
+    }
     return false;
   };
 }

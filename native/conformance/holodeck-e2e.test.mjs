@@ -14,7 +14,7 @@ test("holodeck, end to end over HTTP: hub, notebook, colony, gate, skill, switch
   const srv = await listen(holodeck({ dir, learned, by: "human:tester", swarm: { rounds: 2, ants: 10 }, mouth: null })); const base = `http://127.0.0.1:${srv.address().port}`;
   try {
     const hub = await call(base, "/"); assert.equal(hub.status, 200); assert.match(hub.text, /Holodeck/); assert.match(hub.text, /href="\/notebook\/"/); assert.match(hub.text, /href="\/skills\/"/);
-    assert.deepEqual((await call(base, "/health")).json().chains, { notebook: true, claims: true, learned: true });
+    assert.deepEqual((await call(base, "/health")).json().chains, { notebook: true, claims: true, learned: true, workspace: true });
     assert.equal((await call(base, "/nowhere")).status, 404);
 
     const up = await call(base, "/notebook/api", { op: "upload", name: "mixed.csv", base64: Buffer.from(csv()).toString("base64") }); assert.equal(up.json().error, null); assert.match(up.json().notice, /table/);
