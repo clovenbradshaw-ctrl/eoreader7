@@ -13,12 +13,13 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { TASKS } from "../eval/reach/tasks.mjs";
-import { closeBrowser } from "../eval/reach/check.mjs";
+import { closeBrowser, htmlAvailable } from "../eval/reach/check.mjs";
 import * as B from "../eval/reach/battery.mjs";
 import * as R from "../eval/reach/revise.mjs";
 import * as C from "../eval/reach/counterfactual.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
+const htmlOk = await htmlAvailable();
 after(async () => { await closeBrowser(); });
 const byId = (id) => TASKS.find((t) => t.id === id);
 const answer = (edits) => async () => ({ text: JSON.stringify({ edits, risk: "none" }), ms: 1, tokens: { prompt: 1, generated: 1 } });
@@ -254,7 +255,7 @@ test("the results document carries its own caveats, the landing-rule table, the 
 });
 
 // ── the committed results cannot drift from the committed raw records ────────
-test("the committed repair results are the re-summary of the committed raw records, one results file per model", async () => {
+test("the committed repair results are the re-summary of the committed raw records, one results file per model", { skip: htmlOk ? false : "chromium unavailable: the html tasks cannot be re-executed" }, async () => {
   const dir = path.join(HERE, "..", "eval", "raw");
   const raws = fs.existsSync(dir) ? fs.readdirSync(dir).filter((n) => n.startsWith("reach-revise-") && n.endsWith(".jsonl")).sort() : [];
   if (!raws.length) return; // no live repair run committed yet

@@ -12,11 +12,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { TASKS } from "../eval/reach/tasks.mjs";
-import { closeBrowser } from "../eval/reach/check.mjs";
+import { closeBrowser, htmlAvailable } from "../eval/reach/check.mjs";
 import * as B from "../eval/reach/battery.mjs";
 import * as C from "../eval/reach/counterfactual.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
+const htmlOk = await htmlAvailable();
 after(async () => { await closeBrowser(); });
 const byId = (id) => TASKS.find((t) => t.id === id);
 
@@ -96,7 +97,7 @@ test("the results document states the control, the estimate's limit, and what th
 });
 
 // ── the committed results cannot drift from the committed raw records ────────
-test("the committed counterfactual results are the re-derivation of the committed raw records, and the control holds on every row", async () => {
+test("the committed counterfactual results are the re-derivation of the committed raw records, and the control holds on every row", { skip: htmlOk ? false : "chromium unavailable: the html tasks cannot be re-executed" }, async () => {
   const dir = path.join(HERE, "..", "eval", "raw");
   const raws = fs.existsSync(dir) ? fs.readdirSync(dir).filter((n) => n.startsWith("reach-battery-") && n.endsWith(".jsonl")).sort() : [];
   if (!raws.length) return;
