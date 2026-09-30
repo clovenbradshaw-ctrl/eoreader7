@@ -34,6 +34,8 @@ import { visualPathosOf } from "../organs/visual-pathos.js";
 import { contrastRatio, wcagFloorFor } from "../organs/contrast.js";
 import { proposeAnchor, foldCode, readAnchorLog, appendAnchorLog, settledContent } from "../adapters/build/code-anchor-log.js";
 import { checkMimicry, resolveToHex, dominantConvention, stepLightness, ELEVATION_STEP } from "../organs/girard.js";
+import { proposeReference, signMeasurement, bindCorrespondence, synthesizeCandidate, defineCandidate, evaluateCandidate, fitStatus, needsReopen, latestRound } from "../organs/reference-fit.js";
+import { createTaskLog, append as appendTaskEntry } from "../kernel/task-log.js";
 import { checkCode } from "../the-fold/surface/podcast-app-codegen.mjs";
 import { coherenceGate } from "../adapters/build/coherence-properties.mjs";
 import { TEMPLATE } from "./podcast-anchor-log-drive.mjs";
@@ -283,7 +285,99 @@ function tastelessDifferentiation(styleContent) {
 }
 
 // ── diagnosis: which findings are repairable, and by which strategy ────────
-function diagnose(report, styleContent) {
+// ── strategy 5: REFERENCE-FIT — "grow the organs so the pipeline naturally
+// tries to fit toward a real reference, always revisable." organs/
+// reference-fit.js's own kernel-task-log ledger, persisted here (the pure
+// module holds no disk I/O — this is the one crossing). Unlike the other
+// four strategies, this one's own EVA can refuse to ever apply anything —
+// a CONTESTED reference corpus is a named, disclosed finding, not
+// something this loop forces a compromise value out of.
+const REFERENCE_FIT_LEDGER = new URL("../the-fold/surface/podcast-reference-fit-log.jsonl", import.meta.url).pathname;
+
+// Real, measured background values — the-fold and heimdall cited exactly
+// as girard.js's own ELEVATION_STEP header already cites them; Pocket
+// Casts measured live from the real downloaded screenshot's status-bar
+// band (eval/extract-image-palette.mjs, eval/reference-images/pocket-
+// casts-podcast-tab.png — a real, freely-licensed image, not invented).
+const BACKGROUND_REFERENCES = Object.freeze([
+  { name: "the-fold", giver: "the-fold/index.html (--bg)", hex: "#0f0f12" },
+  { name: "heimdall", giver: "heimdall/src/style.css (--bg)", hex: "#0b0e14" },
+  { name: "pocket-casts", giver: "Wikimedia Commons, freely-licensed screenshot, status-bar band (96.3% of sampled pixels)", hex: "#303030" },
+]);
+
+function loadReferenceFitLog() {
+  let log = createTaskLog();
+  if (!fs.existsSync(REFERENCE_FIT_LEDGER)) return log;
+  const lines = fs.readFileSync(REFERENCE_FIT_LEDGER, "utf8").split("\n").filter(Boolean);
+  for (const line of lines) log = appendTaskEntry(log, JSON.parse(line));
+  return log;
+}
+
+function persistReferenceFitLog(log, fromSeq) {
+  const newEntries = log.entries.slice(fromSeq);
+  if (!newEntries.length) return;
+  fs.appendFileSync(REFERENCE_FIT_LEDGER, newEntries.map((e) => JSON.stringify(e)).join("\n") + "\n");
+}
+
+function pageTextColorFrom(styleContent) {
+  const m = /body\s*\{[^}]*color\s*:\s*([^;]+);/.exec(styleContent);
+  return m ? resolveToHex(m[1].trim()) : null;
+}
+
+/**
+ * runReferenceFit(log, styleContent) — the nine-operator cycle, run once
+ * per property per repair-loop invocation. INS proposes each reference
+ * (idempotent); SIG signs its measured value (idempotent when unchanged);
+ * CON declares the correspondence (idempotent). If no round has been
+ * defined yet for this property (fitStatus "open"), SYN synthesizes a
+ * candidate, DEF cuts it out as a clause, and EVA checks it — against the
+ * corpus's own agreement first (a CONTESTED synthesis is refused before
+ * any check runs), then against a real WCAG contrast floor against the
+ * page's own actual text color. A property already landed, refused, or
+ * conceded is NOT re-litigated automatically every run — reopening it is
+ * an explicit act (retractFinding + a fresh round), never a loop that
+ * keeps re-asking a question the ledger already answered.
+ */
+function runReferenceFit(log, styleContent) {
+  for (const ref of BACKGROUND_REFERENCES) log = proposeReference(log, { name: ref.name, giver: ref.giver });
+  for (const ref of BACKGROUND_REFERENCES) log = signMeasurement(log, { property: "background", reference: ref.name, hex: ref.hex });
+  for (const ref of BACKGROUND_REFERENCES) log = bindCorrespondence(log, { property: "background", reference: ref.name });
+
+  let status = fitStatus(log, "background");
+  // "Always revisable" as an automatic property of the pipeline: a
+  // retraction or a genuinely new measurement changes the live evidence
+  // out from under a refused/conceded round, and needsReopen catches
+  // that mismatch — the next round opens on its own, no one has to
+  // remember to re-run anything by hand.
+  const reopen = status.status !== "open" && needsReopen(log, "background");
+  if (status.status === "open" || reopen) {
+    const round = latestRound(log, "background") + 1;
+    const syn = synthesizeCandidate(log, { property: "background", round });
+    log = syn.log;
+    log = defineCandidate(log, { property: "background", round });
+    const textHex = pageTextColorFrom(styleContent);
+    log = evaluateCandidate(log, {
+      property: "background", round, candidateHex: syn.candidateHex, contested: syn.contested,
+      check: (hex) => {
+        if (!textHex) return { holds: false, detail: "no page text color found to check contrast against" };
+        const toRgb = (h) => [0, 2, 4].map((i) => parseInt(h.slice(1).slice(i, i + 2), 16));
+        const ratio = contrastRatio(toRgb(hex), toRgb(textHex));
+        const floor = wcagFloorFor("normal");
+        return { holds: ratio >= floor, detail: `${hex} vs page text ${textHex}: ${ratio.toFixed(2)}:1 (floor ${floor}:1)` };
+      },
+    });
+    status = fitStatus(log, "background");
+  }
+  return { log, status };
+}
+
+function applyReferenceFit(styleContent, hex) {
+  const re = /(body\s*\{[^}]*background-color\s*:\s*)([^;]+)(;)/;
+  if (!re.test(styleContent)) return { ok: false, detail: "no body background-color declaration found to fit" };
+  return { ok: true, content: styleContent.replace(re, `$1${hex}$3`) };
+}
+
+function diagnose(report, styleContent, refFit) {
   const tasks = [];
   for (const c of report.contrast) {
     if (!c.clears) tasks.push({ kind: "contrast", id: c.id });
@@ -309,6 +403,13 @@ function diagnose(report, styleContent) {
   const pageBg = pageBackgroundFrom(styleContent);
   if (pageBg && flatEpisodeBackground(styleContent)) {
     tasks.push({ kind: "elevation", pageBg });
+  }
+  if (refFit) {
+    if (refFit.status.status === "landed" && pageBg !== refFit.status.candidateHex) {
+      tasks.push({ kind: "reference-fit", property: "background", candidateHex: refFit.status.candidateHex, round: refFit.status.round });
+    } else if (refFit.status.status === "refused" || refFit.status.status === "conceded") {
+      tasks.push({ kind: "unrepaired", detail: `reference-fit on background: ${refFit.status.detail} — always revisable (retract a reference, or corroborate with a new one, to reopen)` });
+    }
   }
   return tasks;
 }
@@ -368,7 +469,13 @@ async function main() {
     const fromStart = log.nextSeq;
     let styleContent = settledContent(log, "style").content;
 
-    const tasks = diagnose(before, styleContent);
+    let refLog = loadReferenceFitLog();
+    const refFromSeq = refLog.nextSeq;
+    const ref = runReferenceFit(refLog, styleContent);
+    persistReferenceFitLog(ref.log, refFromSeq);
+    console.log(`  reference-fit (background): ${ref.status.status}${ref.status.round ? ` (round ${ref.status.round})` : ""} — ${ref.status.detail ?? ""}`);
+
+    const tasks = diagnose(before, styleContent, ref);
     const repairable = tasks.filter((t) => t.kind !== "unrepaired");
     const unrepaired = tasks.filter((t) => t.kind === "unrepaired");
     for (const u of unrepaired) console.log(`  NAMED, NOT REPAIRED: ${u.detail}`);
@@ -422,6 +529,12 @@ async function main() {
         if (!applied_.ok) { applied.push({ task, ok: false, detail: applied_.detail }); continue; }
         styleContent = applied_.content;
         applied.push({ task, ok: true, detail: `applied background-color: ${applied_.surface} to .episode — ${ELEVATION_STEP.value} points of HSL lightness above the page's own ${task.pageBg}, the exact step both real local design systems measure`, writer: "mechanical" });
+      } else if (task.kind === "reference-fit") {
+        console.log(`  [reference-fit/mechanical, EVA·Figure held] round ${task.round}'s corroborated background ${task.candidateHex} clears its WCAG check — landing it (REC always revisable)`);
+        const applied_ = applyReferenceFit(styleContent, task.candidateHex);
+        if (!applied_.ok) { applied.push({ task, ok: false, detail: applied_.detail }); continue; }
+        styleContent = applied_.content;
+        applied.push({ task, ok: true, detail: `applied background-color: ${task.candidateHex} to body — round ${task.round}'s corroborated, WCAG-checked reference-fit candidate (see podcast-reference-fit-log.jsonl for the full nine-operator record)`, writer: "mechanical" });
       }
     }
 
