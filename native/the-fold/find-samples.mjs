@@ -12,7 +12,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { cultivate, licensedCheck } from "../organs/cultivating.js";
 import { traceSample, licensed, leavesOf, redeal } from "../organs/tracing.js";
-import { parseSearchResults, extractUrls, decodeEntities, WEB_UA } from "../organs/web.js";
+import { parseSearchResults, extractUrls, decodeEntities, searchRequest, WEB_UA } from "../organs/web.js";
 import { tokenize } from "../organs/source.js";
 import { makeFetcher, openSeenLedger } from "./comp-research.mjs";
 
@@ -45,7 +45,7 @@ export async function findSamples({ need, queries, out, needCount = 2, budget = 
   for (const q of qs) {
     let r, parsed;
     for (let attempt = 0; attempt < 2; attempt++) {
-      r = await searcher("https://lite.duckduckgo.com/lite/", { accept: "text/html", method: "POST", body: `q=${encodeURIComponent(q)}`, headers: { "content-type": "application/x-www-form-urlencoded" } }); // the GET face answers a burst with its bot-challenge page (measured 2026-10-01, 3 of 3 GETs); the POST face answered 10 results every time it connected
+      const sreq = searchRequest(q); r = await searcher(sreq.url, { accept: "text/html", method: sreq.init.method, body: sreq.init.body, headers: sreq.init.headers });
       parsed = r.ok ? parseSearchResults(r.text) : { results: [], blocked: false };
       if (r.ok && !parsed.blocked && parsed.results.length) break;
       if (attempt === 0) { L.see("search-backoff", { q, why: !r.ok ? `status ${r.status}` : parsed.blocked ? "anomaly page" : "no results parsed", waitMs: SEARCH_BACKOFF_MS }); await sleep(SEARCH_BACKOFF_MS); }

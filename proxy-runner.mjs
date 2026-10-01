@@ -93,7 +93,7 @@ import { findClaimCycle } from "./native/organs/reasoning-lint.js";
 // Web organ: the pure half of search and page ingestion (extractReadable,
 // parseSearchResults, extractUrls, normalizeUrl). The network egress lives
 // inline below — the proxy is the one sanctioned crossing (P13).
-import { extractReadable, parseSearchResults, extractUrls, normalizeUrl, WEB_SEARCH_MAX_RESULTS, looksLikeShell } from "./native/organs/web.js";
+import { extractReadable, parseSearchResults, extractUrls, normalizeUrl, WEB_SEARCH_MAX_RESULTS, looksLikeShell, searchRequest } from "./native/organs/web.js";
 // The look organ (native/organs/look.js): the native "looking" capacity,
 // ported from the fold's browser-side /visual machinery. CV (OpenCV boxes +
 // per-region OCR) and OCR, a vision-model read, judge + escalation on
@@ -491,20 +491,14 @@ async function voidWebSearchFallback(task, { force = false } = {}) {
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 12000);
-    const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
-    const res = await fetch(searchUrl, { signal: ctrl.signal, headers: { "user-agent": "eoreader7-proxy" } });
+    const sreq = searchRequest(query);
+    const res = await fetch(sreq.url, { ...sreq.init, signal: ctrl.signal, headers: { ...sreq.init.headers, "user-agent": "eoreader7-proxy" } });
     clearTimeout(t);
     if (!res.ok) return null;
     const html = await res.text();
 
-    // Extract result snippets — the short descriptive text DDG shows under each title.
-    const snippets = [];
-    const snippetRe = /<a[^>]*class="[^"]*result__snippet[^"]*"[^>]*>([\s\S]*?)<\/a>/gi;
-    let m;
-    while ((m = snippetRe.exec(html)) && snippets.length < 3) {
-      const s = m[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
-      if (s.length > 20) snippets.push(s);
-    }
+    // Extract result snippets — the short descriptive text DDG shows under each title (read by the organ's parser, which knows both faces).
+    const snippets = parseSearchResults(html).results.map((x) => String(x.snippet ?? "").replace(/\s+/g, " ").trim()).filter((s) => s.length > 20).slice(0, 3);
     // No snippets found — the web itself has nothing on this entity.
     // Return a typed void rather than null so the call site can express it.
     if (!snippets.length) return { found: false, query };
@@ -984,12 +978,12 @@ class T(HTMLParser):
 async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "gather", maxPages = WEB_MAX_PAGES, webConsent = false } = {}) {
   if ((!WEB_SEARCH_ON && !webConsent) || !query.trim()) return { searched: false, pages: 0, chars: 0 };
   const started = Date.now();
-  const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+  const sreq = searchRequest(query);
   let searchHtml;
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 20000);
-    const res = await fetch(searchUrl, { signal: ctrl.signal, headers: { "user-agent": "the-fold-explore/0.1 (local research instrument; one page per explicit request)" } });
+    const res = await fetch(sreq.url, { ...sreq.init, signal: ctrl.signal });
     clearTimeout(t);
     if (!res.ok) throw new Error(`search ${res.status}`);
     searchHtml = await res.text();
@@ -997,21 +991,11 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
     if (onNote) onNote({ move: "web_error", detail: err.message });
     return { searched: true, pages: 0, chars: 0, error: err.message };
   }
-  // Minimal search result parsing: extract links and snippets from DDG HTML.
-  const results = [];
-  const seen = new Set();
-  const re = /<a[^>]*class="[^"]*result__a[^"]*"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
-  let m;
-  while ((m = re.exec(searchHtml)) && results.length < 12) {
-    let href = m[1];
-    if (/[?&]uddg=([^&]+)/.test(href)) {
-      try { href = decodeURIComponent(href.match(/[?&]uddg=([^&]+)/)[1]); } catch { continue; }
-    }
-    if (!/^https?:\/\//i.test(href) || /duckduckgo\.com\//.test(href)) continue;
-    if (seen.has(href)) continue;
-    seen.add(href);
-    results.push({ url: href, title: m[2].replace(/<[^>]+>/g, "").trim() });
-  }
+  // The results are read by the web organ's own parser (organs/web.js parseSearchResults), which knows BOTH of DuckDuckGo's faces. This used to be a regex keyed to the html face's
+  // `result__a` class, so moving the search to the lite face (POST) read every results page as empty — `web_no_results`, found live 2026-10-01.
+  const parsedSearch = parseSearchResults(searchHtml);
+  const results = parsedSearch.blocked ? [] : parsedSearch.results.filter((x) => /^https?:\/\//i.test(x.url) && !/duckduckgo\.com\//.test(x.url)).slice(0, 12).map((x) => ({ url: x.url, title: x.title, snippet: x.snippet ?? "" }));
+  if (parsedSearch.blocked && onNote) onNote({ move: "web_blocked", detail: "the search face answered with its bot-challenge page" });
   if (!results.length) {
     if (onNote) onNote({ move: "web_no_results" });
     return { searched: true, pages: 0, chars: 0 };

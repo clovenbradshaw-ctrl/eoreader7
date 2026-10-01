@@ -25,7 +25,7 @@
 // tests and on DuckDuckGo's no-key HTML face live (liveWeb, via organs/web.js
 // — the engine's own reader of that face, blocked-page detection included).
 
-import { parseSearchResults, extractReadable, blankSpans, hostOf, WEB_UA, WEB_FETCH_TIMEOUT_MS, WEB_FETCH_MAX_BYTES } from "../organs/web.js";
+import { parseSearchResults, extractReadable, blankSpans, hostOf, searchRequest, WEB_UA, WEB_FETCH_TIMEOUT_MS, WEB_FETCH_MAX_BYTES } from "../organs/web.js";
 
 export const SURF_SCHEMA = "EOSurf@1";
 
@@ -178,21 +178,22 @@ export function surfLines(s) {
   return out;
 }
 
-/** The live web: DuckDuckGo's HTML face read by organs/web.js, one page per
+/** The live web: DuckDuckGo's lite face (POST, organs/web.js searchRequest) read by organs/web.js, one page per
  *  fetch, bounded. `fetchImpl` is injectable for tests of this wrapper. */
 export function liveWeb({ fetchImpl = globalThis.fetch, timeoutMs = WEB_FETCH_TIMEOUT_MS } = {}) {
-  const get = async (url) => {
+  const get = async (target) => { // a bare address (a page) or a search request ({ url, init }: the POST face carries its own method and body)
+    const req = typeof target === "string" ? { url: target, init: { headers: { "user-agent": WEB_UA, accept: "text/html,application/xhtml+xml" } } } : target;
     const ctl = new AbortController();
     const t = setTimeout(() => ctl.abort(), timeoutMs);
     try {
-      const res = await fetchImpl(url, { headers: { "user-agent": WEB_UA, accept: "text/html,application/xhtml+xml" }, signal: ctl.signal, redirect: "follow" });
+      const res = await fetchImpl(req.url, { ...req.init, signal: ctl.signal, redirect: "follow" });
       const body = (await res.text()).slice(0, WEB_FETCH_MAX_BYTES);
       return { status: res.status, body };
     } finally { clearTimeout(t); }
   };
   return {
     search: async (q) => {
-      const { status, body } = await get(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(q)}`);
+      const { status, body } = await get(searchRequest(q));
       if (status >= 400) return { blocked: [401, 403, 429, 503].includes(status), offEndpoint: ![401, 403, 429, 503].includes(status), results: [], status };
       return parseSearchResults(body);
     },
