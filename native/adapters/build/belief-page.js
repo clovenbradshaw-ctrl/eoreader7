@@ -24,6 +24,10 @@ const STYLE = ":root{--bg:#f5f6f8;--fg:#1b2129;--card:#fff;--muted:#5d6773;--rul
   + "dd.derived{font-style:italic;color:var(--muted)}"
   + "button{font:inherit;padding:8px 14px;border:0;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}nav a{margin-right:12px}";
 
+/** The engine's own stylesheet, for a caller that layers something over it (organs/screen-style.js's layerStyle): the shape
+ *  renderBeliefMapped takes as `style`, minus a provenance — it was written by hand, not snipped. */
+export const FALLBACK_STYLE = Object.freeze({ css: STYLE, comment: "/* the engine's own base stylesheet, written by hand */" });
+
 // "community" -> "communities", "post" -> "posts", "species" stays
 const pluralOf = (k) => k.endsWith("s") ? k : k.endsWith("y") && !"aeiou".includes(k.at(-2)) ? k.slice(0, -1) + "ies" : k + "s";
 const nameOf = (t) => t.name ?? [t.modifier, t.kind].filter(Boolean).join(" ");

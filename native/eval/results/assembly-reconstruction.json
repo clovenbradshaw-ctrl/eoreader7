@@ -405,6 +405,17 @@
                 "native/adapters/build/podcast-app-ledger.js"
             ],
             "basis": "falsification that the four structural properties hold with zero scripture in the writer's own prompt (citations moved to a convergent-validation record) — UI-codegen organ, no registered row; recorded as a typed gap"
+        },
+        "screen-roundtrip.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/screen-roundtrip.mjs",
+                "native/organs/look-screen.js",
+                "native/adapters/image/screen-sidecar.js"
+            ],
+            "basis": "the screenshot pipeline's Chrome round trip (read, regenerate from the sidecar alone, render in headless Chrome, re-read) — an image-reading organ, no row in the starting reading registry; a .md summary cannot self-stamp (A2.1 forward), so it is declared here as a typed gap"
         }
     }
 }
