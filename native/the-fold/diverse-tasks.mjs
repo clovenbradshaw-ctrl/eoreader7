@@ -5,12 +5,13 @@
 //
 //   busTimes      unpadded clock times -> "HH:MM"            cards: padTime            key slip: stop_name
 //   flightLeg     two airports -> route, km, miles            cards: haversineKm, roundTo  key slip: latitude/longitude
-//   bedReport     a hospital ward -> free beds, % full, status   cards: roundTo          key slips: ward_name, total_beds
-//   orderTotal    "$1,234.50" strings x qty -> totals          cards: roundTo at most    NEGATIVE CONTROL: money strings need real logic
+//   bedReport     a hospital ward -> free beds, % full, status   NO card (a whole-number round is Math.round)  key slips: ward_name, total_beds
+//   orderTotal    "$1,234.50" strings x qty -> totals          cards: parseMoney, roundTo   (a control until 2026-10-01: both mouths failed on money strings, which is how the card was found)
 //   topAuthors    commit list -> top three authors             NO card applies           NEGATIVE CONTROL
-//   dueSoon       tasks + today -> titles due within 7 days    NO card applies (date arithmetic; month and leap-year edges) NEGATIVE CONTROL
-//   wordStats     text -> counts, longest, mean length         roundTo at most           NEGATIVE CONTROL
+//   dueSoon       tasks + today -> titles due within 7 days    cards: daysBetween  (a control until 2026-10-01: both mouths failed on calendar days)
+//   wordStats     text -> counts, longest, mean length         cards: splitWords, roundTo  (a control until 2026-10-01: a whitespace split keeps the punctuation)
 //
+// topAuthors is still a negative control; diverse-heldout.mjs holds tasks written AFTER the cards, for the cards that were found by failing here.
 // The negative controls are the point of the falsification: if cards or hints made a task with NO relevant card worse (a dozen function
 // names in the prompt are noise to a model that needs none of them), that is a cost the mechanism has to show it does not carry.
 // Samples are small and inline; every run after the first is a row the prompt did not show, so a function that only reproduces the
@@ -95,7 +96,7 @@ export const bedReportContract = {
   runs: WARDS.map((w, i) => run(i === 0 ? "the shown ward" : `ward ${i + 1}`, [w], bedWant)),
 };
 
-// ---- 4. orderTotal (negative control: money strings need real logic, no card) ----
+// ---- 4. orderTotal (was a negative control until the record asked for parseMoney: both mouths failed on money strings) ----
 const money = (v) => (typeof v === "number" ? v : Number(String(v).replace(/[$,\s]/g, "")));
 export const orderWant = (o) => { const sub = o.items.reduce((s, it) => s + money(it.price) * Number(it.qty), 0); const subtotal = r2(sub), tax = r2(sub * o.tax_rate); return { subtotal, tax, total: r2(subtotal + tax) }; };
 const ORDERS = [
@@ -130,7 +131,7 @@ export const topAuthorsContract = {
   runs: LOGS.map((l, i) => run(i === 0 ? "the shown log" : `log ${i + 1}`, [l], authorsWant)),
 };
 
-// ---- 6. dueSoon (negative control: date arithmetic, month and leap-year edges) ----
+// ---- 6. dueSoon (was a negative control until the record asked for daysBetween: both mouths failed on calendar days) ----
 const dayNo = (iso) => Math.round(Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10)) / 86400000);
 export const dueWant = (tasks, today) => tasks.map((t, i) => ({ t, i })).filter(({ t }) => !t.done && dayNo(t.due) - dayNo(today) >= 0 && dayNo(t.due) - dayNo(today) <= 7).sort((a, b) => dayNo(a.t.due) - dayNo(b.t.due) || a.i - b.i).map(({ t }) => t.title);
 const T = (title, due, done = false) => ({ title, due, done });
@@ -150,7 +151,7 @@ export const dueSoonContract = {
   runs: DUE.map((d, i) => run(i === 0 ? "the shown list" : `list ${i + 1}`, d, dueWant)),
 };
 
-// ---- 7. wordStats (negative control) ----
+// ---- 7. wordStats (was a negative control until the record asked for splitWords: a split on whitespace keeps the punctuation) ----
 export const statsWant = (text) => { const w = String(text).match(/[A-Za-z0-9']+/g) ?? []; const longest = w.reduce((a, b) => (b.length > a.length ? b : a), ""); return { words: w.length, unique: new Set(w.map((x) => x.toLowerCase())).size, longest, avgLen: w.length ? r1(w.reduce((s, x) => s + x.length, 0) / w.length) : 0 }; };
 const TEXTS = ["The quick brown fox jumps over the lazy dog, and the dog sleeps.", "It's a dog-eat-dog world; isn't it?", "", "Repeat repeat REPEAT, again and AGAIN.", "One"];
 export const wordStatsContract = {
@@ -166,9 +167,9 @@ export const wordStatsContract = {
 /** name -> contract, with what each one is FOR in the falsification (which mechanism it should reward, or that it is a control) */
 export const DIVERSE = [
   { contract: busTimesContract, role: "cards", note: "padTime" }, { contract: flightLegContract, role: "cards+keys", note: "haversineKm, roundTo; latitude/longitude" },
-  { contract: bedReportContract, role: "keys", note: "ward_name, total_beds, occupied_beds" }, { contract: orderTotalContract, role: "control", note: "money strings; no card" },
-  { contract: topAuthorsContract, role: "control", note: "no card" }, { contract: dueSoonContract, role: "control", note: "date arithmetic; no card" },
-  { contract: wordStatsContract, role: "control", note: "no card" },
+  { contract: bedReportContract, role: "keys", note: "ward_name, total_beds, occupied_beds" }, { contract: orderTotalContract, role: "cards", note: "parseMoney, roundTo (was a control)" },
+  { contract: topAuthorsContract, role: "control", note: "no card" }, { contract: dueSoonContract, role: "cards", note: "daysBetween (was a control)" },
+  { contract: wordStatsContract, role: "cards", note: "splitWords, roundTo (was a control)" },
 ].map((d) => ({ ...d, contract: { ...d.contract, salt: "diverse-1" } }));
 
 /** reference solutions (code) — for the tests only; never shown to a model */

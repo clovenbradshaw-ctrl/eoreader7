@@ -116,13 +116,21 @@ test("cardsFor: the operation a task's own words name is offered; one it does no
 
 test("cardsFor: a task that names no operation is offered NONE (the prompt carries nothing it does not need) — a generic word like `name` offers nothing, because the match is against what a card is FOR", () => {
   assert.deepEqual(cardsFor(task("Turn a commit log into its most active authors.", "an array of at most three objects { name, commits }", "An author is identified by author.name.")), []);
-  assert.deepEqual(cardsFor(task("Pick the to-do items that are due soon.", "an array of titles", "Dates are ISO YYYY-MM-DD. Count calendar days (months and leap years included).")), []);
+  assert.deepEqual(cardsFor(task("Group the to-do items by their owner.", "an object mapping each owner to the titles they own", "Owners are compared as written.")), []);
 });
 
 test("cardsFor: a word many cards share says little about any one — `kilometres` alone does not offer a speed conversion for a distance task", () => {
   const names = cardsFor(task("the distance in kilometres and miles")).map((c) => c.name);
   assert.ok(!names.includes("kmhToMph") && !names.includes("msToKmh"), names.join());
   assert.equal(CARD_RELEVANCE_FLOOR, 1);
+});
+
+test("cardsFor: the new operations are offered by what they are FOR — money amounts, calendar days, words — and a task that only mentions a date, a price or a word in passing is not enough", () => {
+  const names = (...a) => cardsFor(task(...a)).map((c) => c.name);
+  assert.deepEqual(names("Pick the to-do items that are due soon.", "an array of titles", "Dates are ISO YYYY-MM-DD. Count calendar days (months and leap years included)."), ["daysBetween"]);
+  assert.ok(names("Turn one shop order into its subtotal.", "", "A price is a string like \"$1,234.50\", or a plain number.").includes("parseMoney"));
+  assert.ok(names("Count the words of a passage.").includes("splitWords"));
+  assert.deepEqual(names("Show the name of the user who signed up on that date."), [], "one passing word is not what the operation is for");
 });
 
 test("cardsFor: a whole-number round is Math.round — roundTo is offered for DECIMAL PLACES (the toFixed-returns-a-string trap), not for any use of the word `round`", () => {
@@ -175,4 +183,28 @@ test("a direction is read inside one clause: `rounded to one decimal, miles = ..
 
 test("every card that declares what it converts names two words, and each is one of its own tags", () => {
   for (const n of CARD_NAMES.filter((n) => CARDS[n].converts)) { const [a, b] = CARDS[n].converts.split(" "), tags = CARDS[n].tags.split(/\s+/); assert.ok(a && b && tags.includes(a) && tags.includes(b), n); }
+});
+
+test("parseMoney: the amount a price is written as, from a number or from text; anything that is not an amount is null", () => {
+  const f = CARDS.parseMoney.fn;
+  near(f("$1,234.50"), 1234.5); near(f("12.5"), 12.5); near(f(5), 5); near(f("$1,000"), 1000); near(f(" $0.99 "), 0.99); near(f("-$5.00"), -5); near(f("€9.90"), 9.9); near(f(".5"), 0.5);
+  for (const bad of ["", "abc", "$", "1.2.3", "12 dollars", null, undefined, NaN, Infinity, "(5.00)"]) assert.equal(f(bad), null, String(bad));
+});
+
+test("daysBetween: calendar days, with the edges a hand-rolled version gets wrong — month ends, a leap day, a year end — written down independently", () => {
+  const f = CARDS.daysBetween.fn;
+  assert.equal(f("2026-10-01", "2026-10-01"), 0); assert.equal(f("2026-10-01", "2026-10-08"), 7);
+  assert.equal(f("2024-02-28", "2024-03-01"), 2, "2024 is a leap year"); assert.equal(f("2023-02-28", "2023-03-01"), 1);
+  assert.equal(f("2026-12-31", "2027-01-01"), 1); assert.equal(f("2026-10-28", "2026-11-04"), 7); assert.equal(f("2028-02-26", "2028-03-04"), 7);
+  assert.equal(f("2026-10-08", "2026-10-01"), -7, "negative when the second is earlier");
+  assert.equal(f("2026-03-28", "2026-03-30"), 2, "a daylight-saving week is still whole days"); assert.equal(f("2026-10-01T23:59:59Z", "2026-10-02"), 1, "a time of day is ignored");
+  assert.ok(Number.isNaN(f("soon", "2026-10-01")) && Number.isNaN(f("2026-10-01", "")));
+  assert.equal(f(new Date("2026-10-01T00:00:00Z"), "2026-10-04"), 3);
+});
+
+test("splitWords: letters, digits and apostrophes make a word; punctuation and hyphens split; case is kept; non-ASCII letters are letters", () => {
+  const f = CARDS.splitWords.fn;
+  assert.deepEqual(f("The quick brown fox, the lazy dog!"), ["The", "quick", "brown", "fox", "the", "lazy", "dog"]);
+  assert.deepEqual(f("It's a dog-eat-dog world; isn't it?"), ["It's", "a", "dog", "eat", "dog", "world", "isn't", "it"]);
+  assert.deepEqual(f("naïve café 42nd"), ["naïve", "café", "42nd"]); assert.deepEqual(f(""), []); assert.deepEqual(f("!!! ... ---"), []); assert.deepEqual(f(null), []);
 });

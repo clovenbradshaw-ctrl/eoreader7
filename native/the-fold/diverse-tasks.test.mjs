@@ -21,8 +21,8 @@ test("every task: the reference passes its whole oracle, and a constant (the sho
 });
 
 test("the roles say which tasks are controls for the cards; a control's reference needs no card except roundTo", () => {
-  assert.deepEqual(DIVERSE.filter((d) => d.role === "control").map((d) => d.contract.name).sort(), ["dueSoon", "orderTotal", "topAuthors", "wordStats"]);
-  for (const n of ["topAuthors", "dueSoon"]) assert.ok(!/padTime|haversineKm|roundTo|toNumber|joinPresent|compass16|ToFahrenheit/.test(DIVERSE_REFERENCE[n]), `${n} is a true negative control: no card applies`);
+  assert.deepEqual(DIVERSE.filter((d) => d.role === "control").map((d) => d.contract.name).sort(), ["topAuthors"], "the other three were controls until the record asked for their cards");
+  for (const n of ["topAuthors"]) assert.ok(!/padTime|haversineKm|roundTo|toNumber|joinPresent|compass16|ToFahrenheit/.test(DIVERSE_REFERENCE[n]), `${n} is a true negative control: no card applies`);
 });
 
 test("each oracle rejects its task's characteristic slip", () => {
@@ -66,10 +66,11 @@ test("a task's prompt carries only the cards its own words name: the card-releva
   for (const d of DIVERSE) {
     const p = unitPrompt(d.contract), n = d.contract.name;
     // bedReport rounds to a WHOLE percent (Math.round); roundTo is for decimal places, so it is offered nothing (measured 2026-10-01: the offer flipped a draw)
-    if (["topAuthors", "dueSoon", "bedReport"].includes(n)) assert.doesNotMatch(p, /already exist/, `${n}: no card applies, so the prompt carries none`);
+    if (["topAuthors", "bedReport"].includes(n)) assert.doesNotMatch(p, /already exist/, `${n}: no card applies, so the prompt carries none`);
     else assert.match(p, /These functions already exist/, n);
     assert.doesNotMatch(unitPrompt({ ...d.contract, cards: false }), /already exist/);
   }
   assert.match(unitPrompt(by.busTimes.contract), /- padTime:/); assert.doesNotMatch(unitPrompt(by.busTimes.contract), /- haversineKm:|- compass16:/);
   assert.match(unitPrompt(by.flightLeg.contract), /- haversineKm:/);
+  assert.match(unitPrompt(by.orderTotal.contract), /- parseMoney:/); assert.match(unitPrompt(by.dueSoon.contract), /- daysBetween:/); assert.match(unitPrompt(by.wordStats.contract), /- splitWords:/);
 });

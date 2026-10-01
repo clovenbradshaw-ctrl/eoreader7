@@ -50,6 +50,16 @@ function haversineKm(lat1, lon1, lat2, lon2) {
   return 2 * 6371 * Math.asin(Math.sqrt(a));
 }
 function roundTo(x, places) { const k = 10 ** (places || 0); return Math.round(Number(x) * k) / k; }
+function parseMoney(x) {
+  if (typeof x === "number") return Number.isFinite(x) ? x : null;
+  const t = String(x ?? "").replace(/[\s,$€£¥]/g, "");
+  return /^[-+]?(\d+\.?\d*|\.\d+)$/.test(t) ? Number(t) : null;
+}
+function daysBetween(from, to) {
+  const day = (d) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d instanceof Date ? d.toISOString() : String(d)); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) / 86400000 : NaN; };
+  return Math.round(day(to) - day(from));
+}
+function splitWords(text) { return String(text ?? "").match(/[\p{L}\p{N}']+/gu) ?? []; }
 function toNumber(x) { const n = typeof x === "number" || (typeof x === "string" && x.trim() !== "") ? Number(x) : NaN; return Number.isFinite(n) ? n : null; }
 
 /** name -> { fn, doc, tags }: the library, in the order the prompt shows it. `tags` are the few words that name what a card is FOR, declared by whoever makes the card: they (not the doc prose) are what a task's own words are matched against */
@@ -69,6 +79,9 @@ export const CARDS = Object.freeze({
   joinPresent: { fn: joinPresent, doc: "joinPresent([a, b, c], \", \") joins the parts that are present (not null, undefined or empty); the separator defaults to \", \"", tags: "join joined separator present missing label" },
   haversineKm: { fn: haversineKm, doc: "haversineKm(lat1, lon1, lat2, lon2): great-circle distance in kilometres (not rounded)", tags: "haversine great-circle distance latitude longitude kilometres" },
   roundTo: { fn: roundTo, doc: "roundTo(x, places): x rounded to that many decimal places (0 for a whole number)", tags: "decimal decimals place places" },
+  parseMoney: { fn: parseMoney, doc: "a money amount, a number or text like \"$1,234.50\" or \"12.5\" -> the number; null if it is not an amount (US formatting: dot for decimals, comma for thousands)", tags: "money price prices currency dollars amount cost" },
+  daysBetween: { fn: daysBetween, doc: "daysBetween(from, to): whole calendar days from the first ISO date \"YYYY-MM-DD\" to the second (month lengths and leap years counted; negative when the second is earlier; NaN if either is not a date)", tags: "calendar days overdue elapsed late due" },
+  splitWords: { fn: splitWords, doc: "text -> its words in order, case as written: runs of letters, digits and apostrophes (punctuation and hyphens separate words); [] for none", tags: "words word tokenize tokens" },
   toNumber: { fn: toNumber, doc: "a number or numeric string -> the number; null for anything else (blank, text, missing)", tags: "numeric nan blank coerce" },
 });
 
