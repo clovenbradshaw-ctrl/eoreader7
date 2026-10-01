@@ -1,0 +1,1 @@
+{"task":"Find an open API with no key that returns the current air quality for a latitude and longitude. Fetch one real sample response from it and show me the real fields it returns. Use only local models.","sessionId":"find-samples-3","model":"gemma2:2b","webConsent":true}
