@@ -942,6 +942,17 @@ export const ARCHONS = Object.freeze([
     topics: ["ubuntu", "personhood", "relation", "self", "identity", "fold", "constituted", "botho", "community"],
   },
   {
+    handle: "ostrom",
+    name: "Elinor Ostrom",
+    organ: "organs/ethos.js",
+    role: "the ground as a commons — bounded, earned, and read by those who draw on it; its rules are a reading of the commons, never a configuration laid over it",
+    pdStatus: "fair-use",
+    work: "The political economist who showed, from field cases (Swiss alpine meadows, Japanese common lands, Spanish huerta irrigation, Philippine zanjeras), that communities sustain a shared resource neither through a central regulator nor through privatization but through rules they make, monitor and enforce themselves. Her design principles for long-enduring commons: clearly defined boundaries; congruence between the rules and local conditions; collective-choice arrangements; monitoring by, or accountable to, the users; graduated sanctions; conflict-resolution mechanisms; minimal recognition of the users' right to organize; and nested enterprises for larger systems. Here she is the archon of ethos read as an enabling capacity: the ground earns its authority by being bounded and witnessed by its participants, and a harm is not banned but self-defeating, because it draws down the commons the harmer's own next act stands on. The dormant eoreader5 social/commons.js already mapped her principles onto witness exchange.",
+    source: "Elinor Ostrom, Governing the Commons: The Evolution of Institutions for Collective Action (1990)",
+    credit: "Elinor Ostrom — communities can sustain a shared resource through rules they make, monitor and enforce themselves, without a central regulator and without privatization (Governing the Commons, 1990).",
+    topics: ["commons", "boundaries", "monitoring", "sanctions", "collective choice", "self-organization", "stewardship", "free-riding", "governance", "ground", "polycentric", "enduring"],
+  },
+  {
     handle: "tschichold",
     name: "Jan Tschichold",
     organ: "organs/tschichold.js",

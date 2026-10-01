@@ -56,7 +56,7 @@ import { answerRecord } from "./native/the-fold/answer-record.js";
 // header for how it is wired and why it must never be bypassed.
 import { groundGate, draftGate, foldGate, tightenGate, arriveGate, chainStrain, measuredInflation, lastSentence as lastSentenceOmni } from "./native/the-fold/spiral-contract.js";
 import { deposit as depositAdmitted, admit as admitCandidate, measureVariance, measureBondNull, claimCore as claimCoreOmni, segmentSentences as segmentSentencesOmni, wordTokens as wordTokensOmni, nameGate as referentNameGate, bond as bondOf } from "./native/the-fold/admission.js";
-import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, relevantSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy, detectTrajectoryBoredom, holonicSatisfaction, holonTreeFromText, holonicTreeSatisfaction, holonAssertionTree, holonicAssertionSatisfaction, holonLeaves } from "./native/the-fold/document-ledger.js";
+import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, relevantSources, checkEssayShape, ledgerFilePath, projectLedgerFile, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy, detectTrajectoryBoredom, holonicSatisfaction, holonTreeFromText, holonicTreeSatisfaction, holonAssertionTree, holonicAssertionSatisfaction, holonLeaves } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
 import { inventedNameRuns as verifyInventedNameRuns, isMetaSentence as verifyIsMetaSentence } from "./native/the-fold/referent-verify.js";
 import { houdiniExclusivity } from "./native/the-fold/archon-rules.js";
@@ -121,7 +121,10 @@ import { buildClarify, recordRound, foldAnswersFromTask, SCHEMA as CLARIFY_SCHEM
 // checkout, a public-domain fallback excerpt otherwise — so a missing corpus
 // never silently ungoverns the system. Never fires on descriptive voice
 // (reading and talking about human atrocities passes by construction).
-import { familyVerdict, familyAffordances, giveCharterFamily, configureGfp } from "./native/organs/charter.js";
+import { familyVerdict, familyAffordances, configureGfp } from "./native/organs/charter.js";
+import { admitHandedOver } from "./native/the-fold/ground-carries.js";
+import { findPriorsGround, persistEarnedGround, makeAskEvidence } from "./native/the-fold/priors-ground.js";
+import { traceToGround, makeTracer } from "./native/the-fold/ground-trace.js";
 import { groundFacts, holographType } from "./native/organs/output-holograph.js";
 import { splitSentences as engineSplitSentences } from "./native/adapters/text/spans.js";
 import { askShape } from "./native/organs/askshape.js";
@@ -193,6 +196,13 @@ export { upstreamAnthropicModelFor, refreshAnthropicModels, anthropicReachable, 
 export { knownAnthropicModels } from "./anthropic-upstream.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
+// The received ground: the corpus this machine keeps as its own commons (live_priors), searched for passages that carry an ask. The
+// word -> documents cache lives in state/, never inside the corpus.
+// The received ground is two roots: live_priors (read-only, never written) and the ground this proxy has EARNED — pages a
+// consented web hunt fetched that carried an ask, kept so the ground grows (persistEarnedGround; state/, never the corpus repo).
+const EARNED_ROOT = process.env.ER7_EARNED_DIR ?? path.join(HERE, "state", "earned-ground");
+const PRIORS_ROOTS = [{ dir: process.env.ER7_PRIORS_DIR ?? path.join(HERE, "..", "live_priors"), label: "live_priors" }, { dir: EARNED_ROOT, label: "earned" }];
+const PRIORS_CACHE = path.join(HERE, "state", "priors-words.json");
 
 // GFP CHECKING for the Charter organ (2026-09-16): the checking side reads
 // intent via a real grammar adapter (relations-positional.js + a measured
@@ -262,9 +272,23 @@ export const MODEL_GIVER = (model) => {
 const DEFAULT_POS_PRIOR = path.join(HERE, "cli/priors/pos-prior-en.json");
 
 // The daemon's PRIVATE address (native/kernel/model-server.js): the runner's
-// own draws go straight to it — the door already admitted them — never back
-// through the channel on the conventional port.
+// own draws used to go straight to it — the door already admitted them, never
+// back through the channel on the conventional port. Since 2026-10-01 that is
+// the FALLBACK: with ER7_GENERATION_DOOR set (default: Penelope's door — the
+// operator's directive "all generation related to eoreader7 runs through
+// Penelope"), every local draw is asked of Penelope first; her door draws
+// through Heimdall's channel (the same gate, the same host picker), and this
+// direct path is what a draw falls back to only when the door is unreachable
+// — a finding, never a silent bypass (see streamOllamaChat).
 export const OLLAMA = MODEL_SERVER_URL;
+
+// THE GENERATION DOOR (2026-10-01, "all generation related to eoreader7 runs
+// through Penelope"): the URL of Penelope's draw door. Every local model draw
+// in streamOllamaChat is asked there first; the door checks the box (organs),
+// draws the residue through Heimdall's channel with Penelope's one identity +
+// the draw's kind, and records every draw on her swatch. Set to "off" to
+// return to direct draws.
+export const GENERATION_DOOR = String(process.env.ER7_GENERATION_DOOR ?? "http://127.0.0.1:8137/api/generate").trim() === "off" ? null : String(process.env.ER7_GENERATION_DOOR ?? "http://127.0.0.1:8137/api/generate").trim();
 
 // Model warmth: Ollama unloads a model after its keep_alive window (default
 // 5m), so an idle gap between turns pays a multi-GB cold-load on the next
@@ -3169,7 +3193,7 @@ const RESOLUTIONS_LEVEL = (() => { const raw = process.env.ER7_RESOLUTIONS; if (
 // creativity may hold tension, never a silent pick. ER7_KELSEN_MODALITY.
 const KELSEN_MODALITY = (() => { const v = Number(process.env.ER7_KELSEN_MODALITY ?? ""); return [0, 0.5, 1].includes(v) ? v : 1; })();
 
-export async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal, stop } = {}) {
+export async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal, stop, kind = "chat", priority = "interactive" } = {}) {
   // ANTIStrauss — the safety-and-ethics gate (native/the-fold/antistrauss.mjs).
   // THIS is the choke point every real model call in the proxy passes
   // through (draw() → runProxyTurn → here). The gate settles a physics
@@ -3383,6 +3407,84 @@ export async function* streamOllamaChat(model, messages, { maxTokens, json, onNo
       signal.addEventListener("abort", onAbort, { once: true });
     }
     const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
+    // THE GENERATION DOOR (2026-10-01, "all generation related to eoreader7
+    // runs through Penelope"): the local draw is asked of Penelope's door
+    // FIRST, not of a host directly. The door checks the box (organs), draws
+    // the residue through Heimdall's channel — the SAME gate that ran above,
+    // the same host picker, admission re-entered as hop 1 so the draw never
+    // re-queues (the queue decided at the doorway) — and records every draw
+    // on her swatch. The output guard still holds the door's text like every
+    // other mouth's bytes. A door that is UNREACHABLE is a finding, never a
+    // silent bypass: the note names it and this attempt falls through to the
+    // direct host path so the box stays alive; a door that is UP but refuses
+    // is the truth of the box — a typed throw, never a retry storm.
+    if (GENERATION_DOOR) {
+      let doorServed = null;
+      try {
+        const up = await fetch(GENERATION_DOOR, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            prompt: messages.map((m) => String(m?.content ?? "")).filter(Boolean).join("\n"),
+            model,
+            kind,
+            maxTokens: maxTokens ?? CALL_MAX_TOKENS,
+            temperature: 0.1 + (1 - (kelsen ?? DEFAULT_KELSEN)) * 0.8,
+            priority,
+            hop: 1,
+            keepAliveS: Math.max(OLLAMA_KEEP_ALIVE_S, 1200),
+          }),
+          signal: ctrl.signal,
+        });
+        const j = await up.json().catch(() => null);
+        if (up.ok && j?.ok && typeof j?.text === "string" && j.text.trim()) doorServed = j;
+        else {
+          clearTimeout(timer);
+          finishReview(false);
+          throw Object.assign(new Error(`generation door refused the draw: ${String(j?.error ?? `HTTP ${up.status}`).slice(0, 300)}`), {
+            code: "ERR_DRAW_DOOR_REFUSED", retryable: false, doorStatus: up.status,
+          });
+        }
+      } catch (err) {
+        if (err?.code === "ERR_DRAW_DOOR_REFUSED" || err?.code === "ERR_ANTISTRAUSS_BLOCKED") throw err;
+        if (signal?.aborted && err?.name === "AbortError") { clearTimeout(timer); if (attempt === CALL_RETRIES - 1) { finishReview(false); throw new Error("cancelled"); } }
+        // Unreachable is a FINDING: fall through to the direct host path for
+        // this attempt — the box stays alive, the note names the door down.
+        // The shared ctrl/timer/abort-listener stay armed for the host path.
+        if (onNote) { try { onNote({ move: "draw_door_unreachable", error: err?.cause?.code ?? err?.message, attempt: attempt + 1 }); } catch { /* notes never break a turn */ } }
+      }
+      if (doorServed) {
+        if (onNote) { try { onNote({ move: "draw_door", winner: doorServed.winner ?? "mouth", servedBy: doorServed.model ?? model, kind }); } catch { /* notes never break a turn */ } }
+        emitted.push(doorServed.text);
+        {
+          const g = guardAccept(doorServed.text);
+          if (g.emit) yield g.emit;
+          if (g.blocked) {
+            yield refusalFor(outBlocked);
+            yield { done: true, outputBlocked: true, truncated: false, prompt_eval_count: 0, eval_count: doorServed.text.length };
+            clearTimeout(timer);
+            if (signal) signal.removeEventListener("abort", onAbort);
+            finishReview(true);
+            return;
+          }
+        }
+        {
+          const fin = guardFinish();
+          if (fin.blocked) yield fin.refusal;
+          else if (fin.emit) yield fin.emit;
+        }
+        import("./heimdall.mjs").then((h) => h.observeCall({
+          model: doorServed.model ?? model, host: doorServed.host ?? null,
+          promptTokens: doorServed.promptTokens ?? 0, promptMs: 0,
+          genTokens: doorServed.evalTokens ?? 0, genMs: doorServed.ms ?? 0, loadMs: 0,
+        })).catch(() => {});
+        yield { done: true, truncated: false, outputBlocked: false, prompt_eval_count: doorServed.promptTokens ?? 0, eval_count: doorServed.evalTokens ?? 0, door: true, winner: doorServed.winner ?? "mouth", servedBy: doorServed.model ?? null };
+        clearTimeout(timer);
+        if (signal) signal.removeEventListener("abort", onAbort);
+        finishReview(true);
+        return;
+      }
+    }
     // WHICH SERVER (2026-09-21): heimdall picks the host — sticky per session,
     // resident first, shortest measured wait, rotate ties (heimdall.mjs
     // "INFERENCE HOSTS"). One local daemon is the default, so this is the
@@ -3628,6 +3730,93 @@ const reader = res.body.getReader();
 // one note per (host, reason) per turn would be ideal; per call is what we
 // have — noted only when the pick was not the obvious sole host
 function hosts_note_once(name, reason) { return reason !== "sticky_session" && reason !== "shortest_expected_wait" ? true : false; }
+
+// THE CHARTER IS NOT THE COMPOSITION'S VOCABULARY (user direction, 2026-09-30).
+// The hyperlexicon is what composition draws on — the outline's section titles, the digest the mouth is told, the
+// primary-source door's search terms all read it. Until 2026-09-30 the charter family was GIVEN into it, so the UDHR's
+// clauses ("prohibit", "slavery or servitude", "in all their forms") were read as the topic: two /v1/documents jobs about
+// a bicycle freewheel and a spinning top searched Wikisource for those three phrases and shipped 34k characters of the
+// UN convention and a gun bill as their answer (tests/ethos-commons.test.mjs holds the measured control). Ethos is the
+// earned ground that lets logos and pathos stand — a commons read by its participants (Ostrom), never a ruleset laid
+// over the composition that can be lifted. What an ask does to the people it is aimed at is judged from the ask's
+// arms by the structural null (kernel/mayeroff.js): unrealizable in a stable system, not a term on a banned list.
+export function buildCompositionHyperlexicon(observed, giver) {
+  return admitHyperlexiconCandidates(createHyperlexicon(), (observed ?? []).map((c) => ({
+    left: c.left, right: c.right, giver,
+    witnesses: (c.witnesses ?? []).slice(0, 3).map((w) => w?.[0]).filter(Boolean),
+    meta: { independentSupport: c.meta?.support ?? 0, rememberedLeft: false, rememberedRight: false },
+  })));
+}
+
+// THE GROUND FOR AN ASK (2026-09-30): the operator's documents that CARRY the ask's subject, not every document handed
+// over (native/the-fold/ground-carries.js holds the rule and its measured reason). Chat lines are never ground; a
+// fetched document (not in `given`) never outranks the operator's, and is excluded whenever any given document exists —
+// the 2026-09-21 rule this function inherits. One function for groundingText() and groundingSources(), so the ledger's
+// ground row and the ground the mouth reads cannot disagree.
+export function selectGroundDocs({ documents, given = null, topic = null, priors = null } = {}) {
+  const hasGiven = given instanceof Map && given.size > 0;
+  const givenDocs = [], fetchedDocs = [], priorsDocs = [];
+  for (const [sid, doc] of documents ?? []) {
+    if (String(sid).startsWith("chat:")) continue;
+    const text = String(doc?.text ?? "");
+    if (text.trim().length <= 40) continue;
+    // A passage of the received corpus (id "priors:<corpus>/<path>#<start>-<end>") is ground only for an ask it was FOUND for — the
+    // caller passes that search's result in `priors`; without it, a stray passage in the corpus is nothing to stand on.
+    if (String(sid).startsWith("priors:")) { if (priors && priors.mode === "carried") priorsDocs.push({ id: String(sid), text }); continue; }
+    // FETCHED is by where the page came from, not by whether something else was handed over: a page the hunt brought (id
+    // "web:…" / "wikisource:…") is fetched even when nothing was given — measured 2026-09-30, a consented hunt with nothing
+    // handed over read as tier "given", so the ledger said the operator supplied what the web did.
+    const fetched = !(given instanceof Map && given.has(String(sid))) && (hasGiven || /^(web|wikisource):/.test(String(sid)));
+    (fetched ? fetchedDocs : givenDocs).push({ id: String(sid), text });
+  }
+  // THE LADDER. The operator's material first — if it carries the ask it is the ground and outranks everything (the
+  // 2026-09-21 rule). If it does not it is not a wall: next the received corpus, whose passages were found by the passage
+  // rule (priors-ground.js) and are located; next what the hunt fetched, judged by the same rule as handed-over material. If
+  // none carries there is no ground — tier "none" — and the job must not write from nowhere.
+  const fromGiven = admitHandedOver({ docs: givenDocs, topic });
+  const keepGiven = new Set(fromGiven.admitted.map((d) => d.id));
+  const excluded = (list) => list.map((d) => ({ id: d.id, chars: d.text.length }));
+  if (givenDocs.length && keepGiven.size) {
+    return { docs: givenDocs.filter((d) => keepGiven.has(d.id)), admission: fromGiven, tier: "given", candidates: givenDocs.length, excludedFetched: excluded([...fetchedDocs, ...priorsDocs]), hasGiven };
+  }
+  if (priorsDocs.length) {
+    return { docs: priorsDocs, admission: { schema: fromGiven.schema, mode: "carried", words: fromGiven.words, carried: [], coverage: fromGiven.coverage, admitted: priorsDocs.map((d) => ({ id: d.id, carries: [] })), refused: fromGiven.refused, basis: priors.basis }, tier: "priors", candidates: givenDocs.length + priorsDocs.length + fetchedDocs.length, excludedFetched: excluded(fetchedDocs), hasGiven };
+  }
+  const fromFetched = fetchedDocs.length ? admitHandedOver({ docs: fetchedDocs, topic }) : null;
+  const keepFetched = new Set((fromFetched?.admitted ?? []).map((d) => d.id));
+  if (fromFetched && keepFetched.size && fromFetched.mode !== "no-subject") {
+    return { docs: fetchedDocs.filter((d) => keepFetched.has(d.id)), admission: { ...fromFetched, refused: [...fromGiven.refused, ...fromFetched.refused] }, tier: "fetched", candidates: givenDocs.length + fetchedDocs.length, excludedFetched: [], hasGiven };
+  }
+  const refused = [...fromGiven.refused, ...(fromFetched?.refused ?? [])];
+  return { docs: [], admission: { ...(fromFetched ?? fromGiven), admitted: [], refused, mode: givenDocs.length || fetchedDocs.length ? "not-carried" : fromGiven.mode, basis: givenDocs.length || fetchedDocs.length ? (fromFetched?.basis ?? fromGiven.basis) : "nothing was handed over and nothing was fetched" }, tier: "none", candidates: givenDocs.length + fetchedDocs.length, excludedFetched: [], hasGiven };
+}
+
+// NO VIEW FROM NOWHERE (2026-09-30): when no tier carries the ask, the job writes nothing from nothing. It says, in
+// plain words and from the measurement alone (no model), what it looked at and how to build a ground. The wording is
+// pinned by tests/ground-carries.test.mjs because it is the whole of what the reader sees.
+// A fetched page's corpus id is `web:<session>:<n>:<url>` (searchAndAdmitWeb); the URL is what provenance keeps. The session id may itself hold colons.
+export const webUrlOfSourceId = (id) => (/^web:.*?:\d+:(https?:\/\/.*)$/.exec(String(id)) ?? [])[1] ?? null;
+
+export function noGroundReport({ words = [], admission = null, webConsent = false, fetchedPages = 0, priors = null } = {}) {
+  const lines = ["No ground. Nothing handed over or fetched carries this ask, so nothing has been written."];
+  if (words.length) lines.push(`The ask's subject, as words: ${words.join(", ")}.`);
+  const refused = admission?.refused ?? [];
+  if (refused.length) lines.push(`${refused.length === 1 ? "The 1 source" : `The ${refused.length} sources`} handed over or fetched did not carry it. ${admission.basis ? admission.basis.charAt(0).toUpperCase() + admission.basis.slice(1) + "." : ""}`.trim());
+  else lines.push("Nothing was handed over.");
+  if (priors && priors.mode !== "no-subject") lines.push(priors.mode === "no-corpus" ? "No received corpus was available to search." : `The received corpus was searched: ${priors.basis.charAt(0).toUpperCase() + priors.basis.slice(1)}.`);
+  lines.push(webConsent ? (fetchedPages ? `The web search found ${fetchedPages} page(s); none of them carried it.` : "The web search found no page that could be read.") : "The web was not searched, so nothing was fetched.");
+  lines.push("To build a ground: hand over a source that is about this, or allow the web to be searched for one (that sends the ask's topic to a search engine).");
+  return lines.join("\n\n");
+}
+
+// The primary-source door's nominations: the terms of GIVEN compositions, bounded. Nomination is not admission.
+export function wikisourceTermsOf(composition, max) {
+  return [...new Set(
+    Object.values(composition ?? {})
+      .filter((e) => e?.standing === "given")
+      .flatMap((e) => [e.left, e.right].map((s) => String(s ?? "").trim()).filter(Boolean)),
+  )].slice(0, max);
+}
 
 // --- turn execution -----------------------------------------------------------
 
@@ -4882,6 +5071,12 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // subject); the shape-instrument cells steer internally but are not reader
   // sections. The seed question is still the first content question.
   const voidQuestions = preVoid.cells.filter((c) => c.relevant && c.essay).map((c) => c.question);
+  // Each void cell carries the TERRAIN it stands on (Void/Entity/Kind · Field/Link/Network · Atmosphere/Lens/Paradigm); the plan reaches
+  // the section loop as bare questions, so the terrain of each is kept here to fold the plan by terrain (below).
+  const normQ = (q) => String(q ?? "").toLowerCase().replace(/\s+/g, " ").trim();
+  const terrainOfQ = new Map();
+  const noteTerrains = (cells) => { for (const c of cells ?? []) if (c?.question && c.terrain) terrainOfQ.set(normQ(c.question), c.terrain); };
+  noteTerrains(preVoid.cells);
   if (onNote) onNote({ move: "void_questions", of: voidQuestions.length, cells: `${preVoid.cells.filter((c) => c.relevant && c.essay).length} content / ${preVoid.cells.filter((c) => c.relevant && !c.essay).length} shape of ${preVoid.relevant} relevant`, questions: voidQuestions.slice(0, 5) });
   // THE MODE DECISION — made HERE, before any expensive essay-oriented work,
   // and never upgraded by material discovered later. "auto" is a normal
@@ -5115,10 +5310,34 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // PROJECTION hunts the web for its shape. A normal chat turn does NOT go out
   // and search the topic — chat is the main use case; a research-shaped ask
   // may still gather when the web door is explicitly open (ER7_WEB_SEARCH=1).
+  // THE RECEIVED GROUND (2026-09-30, user direction: "ground should be live_priors"). When nothing handed over carries the ask,
+  // the next place to stand is the received corpus: passages that carry it, each located (file and byte range), are admitted to
+  // this session's corpus like any source — same pii gate, same stamp, stepped through the reader — and become citable. The
+  // web hunt below is the consented step after this one; it runs only when neither the operator's material nor the received
+  // corpus carries the ask, so nothing leaves the machine that the machine already holds an answer for.
+  let priorsResult = null; const priorsIds = [];
+  if (runMode === "projection" && !isCode) {
+    if (!session.corpus) session.corpus = createCorpusSession();
+    const tier0 = selectGroundDocs({ documents: session.corpus.documents, given: session.corpusIndex instanceof Map ? session.corpusIndex : null, topic }).tier;
+    if (tier0 !== "given") {
+      try {
+        priorsResult = await findPriorsGround({ topic, roots: PRIORS_ROOTS, cacheFile: PRIORS_CACHE, yieldFn: yieldToEventLoop });
+        for (const p of priorsResult.passages) {
+          admitChunked(session.corpus, { text: piiAdmit(session, p.text, p.id, onNote), sourceId: p.id });
+          stampAdmission(session, p.id, { task, salience: p.score, resolution: "fine", kind: "live_priors" });
+          priorsIds.push(p.id);
+          // the reader's cost grows fast with length: the same declared window the web door reads (EOT_MAX_CHARS), the whole section stays in the corpus
+          for (const enc of textEncounters(p.text.slice(0, EOT_MAX_CHARS), { source: p.id, offset: 0 })) await session.reader.step(enc);
+        }
+        if (onNote) onNote({ move: "priors_ground", mode: priorsResult.mode, anchor: priorsResult.anchor ?? null, passages: priorsResult.passages.length, basis: priorsResult.basis, ms: priorsResult.scanned.ms });
+      } catch (err) { if (onNote) onNote({ move: "priors_error", detail: err.message }); priorsResult = null; }
+    }
+  }
   const seedQuery = topic;
   let webResult = { pages: 0, chars: 0 };
   let hasWeb = false;
-  if (runMode === "projection" && !isCode) {
+  const groundAlreadyLocal = runMode === "projection" && !isCode && (priorsResult?.mode === "carried" || selectGroundDocs({ documents: session.corpus?.documents, given: session.corpusIndex instanceof Map ? session.corpusIndex : null, topic, priors: priorsResult }).tier === "given");
+  if (runMode === "projection" && !isCode && !groundAlreadyLocal) {
     // Projection hunts the web for its shape — the void's own hunt.
     webResult = await searchAndAdmitWeb(session, sessionId, seedQuery, onNote, { move: "gather", webConsent });
     hasWeb = webResult.pages > 0;
@@ -5129,12 +5348,25 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     hasWeb = webResult.pages > 0;
   }
 
+  // THE GROUND GROWS: pages the hunt fetched that carried this ask are kept as earned ground, with where they came from, so
+  // the next ask of the same subject finds them in the received ground and goes nowhere. Kept here, at the hunt, so it does
+  // not wait on a composition that may take minutes (or never finish).
+  if (runMode === "projection" && !isCode && hasWeb) {
+    try {
+      const g = selectGroundDocs({ documents: session.corpus?.documents, given: session.corpusIndex instanceof Map ? session.corpusIndex : null, topic, priors: priorsResult });
+      if (g.tier === "fetched") {
+        const kept = persistEarnedGround({ dir: EARNED_ROOT, docs: g.docs.map((d) => ({ url: webUrlOfSourceId(d.id), text: d.text })).filter((d) => d.url), task });
+        if (onNote) onNote({ move: "ground_earned", pages: kept.written.length, new: kept.written.filter((w) => w.changed).length });
+      }
+    } catch (err) { if (onNote) onNote({ move: "ground_earned_error", detail: err.message }); }
+  }
+
   // MEMBERSHIP SET: the source ids THIS TURN grounded on — surfaced by its
   // own surf, adopted by its own prompt, or admitted for it by its own
   // primary-source hunt. The citation sweep ranges over this set, never
   // over the whole accumulated corpus: a source the turn did not use is
   // inadmissible, not merely filtered (2026-09-17, the stale-citation fix).
-  const turnUsedSourceIds = new Set();
+  const turnUsedSourceIds = new Set(priorsIds);
 
   // 2. Surf AND fold the conversation itself: the chat history is admitted to
   // the same corpus session as the workspace (unique per-turn sourceId, so
@@ -5245,20 +5477,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   const ledger = createRelationCompositionLedger(rawEntries);
   const stats = ledger.diagnostics();
   const observed = acquireCompositionCandidates(rawEntries, { minWitnesses: 1 });
-  // THE LICENSE (THE-MORAL-CORE.md): the charter family's prohibitions and
-  // protections are GIVEN affordances with the charters as giver — the LICENSE
-  // the composition runs under, not a filter it passes through. Only a given
-  // affordance licenses composition (kernel/hyperlexicon.js): a reading that
-  // would compose "permit torture" finds no such given, because the family gave
-  // "prohibit torture" instead. Issued BEFORE any observed candidate, so
-  // experience can never override the charters (admission's own
-  // `standing === "given"` guard drops later candidates on a given key).
-  const licensedHyperlexicon = giveCharterFamily(createHyperlexicon(), charterFamily, giveHyperlexiconAffordance);
-  const hyperlexicon = admitHyperlexiconCandidates(licensedHyperlexicon, observed.map((c) => ({
-    left: c.left, right: c.right, giver: GIVER,
-    witnesses: (c.witnesses ?? []).slice(0, 3).map((w) => w?.[0]).filter(Boolean),
-    meta: { independentSupport: c.meta?.support ?? 0, rememberedLeft: false, rememberedRight: false },
-  })));
+  // The charter is not given into this vocabulary (see buildCompositionHyperlexicon): observed relations only, as
+  // candidates. The charter's own checks below (familyVerdict, askShape over the family) read text directly.
+  const hyperlexicon = buildCompositionHyperlexicon(observed, GIVER);
 
   if (onNote) onNote({ move: "composed", relations: stats.relationEdges, bindings: stats.referentBindings, hyperlexicon: Object.keys(hyperlexicon.composition ?? {}).length });
 
@@ -5479,11 +5700,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // residency ping for the duration of active setup work, cleared after.
     const residentTimer = keepResidentDuringSetup(typeof model === "string" && model ? model.replace(/^er7:/, "") : MODEL_REGISTRY.id);
     try {
-    const hlTerms = [...new Set(
-      Object.values(digestInfo.composition)
-        .filter((e) => e?.standing === "given")
-        .flatMap((e) => [e.left, e.right].map((s) => String(s ?? "").trim()).filter(Boolean)),
-    )].slice(0, WIKI_MAX_CONCEPTS);
+    const hlTerms = wikisourceTermsOf(hyperlexicon.composition, WIKI_MAX_CONCEPTS);
     const primary = [];
     for (const term of hlTerms) {
       const got = await wikisourceText(term);
@@ -5838,6 +6055,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       // declare) steer the composition internally but are not sections of a
       // standalone piece — an essay about the bongo does not have a section
       // titled "when would the essay concede its frame."
+      noteTerrains(enriched.cells);
       compositionPlan = { questions: enriched.cells.filter((c) => c.relevant && c.essay).map((c) => c.question), declaration: null };
     }
   }
@@ -5980,6 +6198,22 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // rather than churning ungrounded rewrites forever.
   const hasGrounding = (session.webSources?.size ?? 0) > 0 || (workspaceStats.files ?? 0) > 0 || surfacedSegments.length > 0;
   if (runMode === "projection" && !hasGrounding && !isCode) sections = sections.slice(0, 2);
+  // THE TERRAIN FOLD (2026-09-30, user direction: "we fold terrains so we can have a compressed bucket"). The plan is one part per void
+  // cell; two cells on the same terrain (NUL·Ground and INS·Ground are both Void; NUL·Figure and SIG·Figure both Entity) are the same
+  // ground seen by different operators, and each was drawing a window of its own from a finite commons (measured: 12 parts, 9-10 of
+  // them empty, every draw refused by the link gate). Cells sharing a terrain collapse into ONE bucket: its question is its members'
+  // questions in plan order, its window is one share of the ground. A question with no terrain stays its own bucket. Nothing is cut:
+  // every member question is still asked, in the bucket, and disclosed.
+  let terrainFold = null;
+  if (runMode === "projection" && !isCode && sections.length > 1) {
+    const order = [], by = new Map();
+    for (const q of sections) { const key = terrainOfQ.get(normQ(q)) ?? `~${normQ(q)}`; if (!by.has(key)) { by.set(key, []); order.push(key); } by.get(key).push(q); }
+    if (order.length < sections.length) {
+      terrainFold = { from: sections.length, to: order.length, buckets: order.map((k) => ({ terrain: k.startsWith("~") ? null : k, questions: by.get(k) })) };
+      sections = order.map((k) => by.get(k).join(" "));
+      if (onNote) onNote({ move: "terrain_fold", from: terrainFold.from, to: terrainFold.to, terrains: terrainFold.buckets.map((b) => `${b.terrain ?? "—"}×${b.questions.length}`) });
+    }
+  }
   // THE PLAN (D/E/R): after the impression DEF's EVA, the void stages —
   // phases × question-form × topic, arc climbing toward the DEF'd shape.
   // The plan is a PREDICTION; the read and write will be measured against it.
@@ -6108,6 +6342,13 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // have returned two windows. Grounding against the whole corpus is the
   // honest test. Hoisted to function scope so the section loop, Murch, and
   // the final satisfaction check all measure against the same ground.
+  let _handed = null;
+  const handedGround = () => {
+    const documents = session.corpus?.documents;
+    const key = `${documents?.size ?? 0}|${topicPhrase(task)}`;
+    if (_handed?.key !== key) _handed = { key, ...selectGroundDocs({ documents, given: session.corpusIndex instanceof Map ? session.corpusIndex : null, topic: topicPhrase(task), priors: priorsResult }) };
+    return _handed;
+  };
   const groundingText = () => {
     const parts = [];
     if (session.webSources?.size) for (const text of session.webSources.values()) if (text) parts.push(String(text));
@@ -6139,13 +6380,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       // vocabulary. When the operator gave material, that IS the ground; a
       // fetch may still inform the reading, but it cannot become the field
       // the piece is measured against.
-      const given = session.corpusIndex instanceof Map ? session.corpusIndex : null;
-      const hasGiven = !!given?.size;
-      for (const [sid, doc] of session.corpus.documents) {
-        if (String(sid).startsWith("chat:")) continue;
-        if (hasGiven && !given.has(String(sid))) continue;
-        if (doc?.text && String(doc.text).trim().length > 40) parts.push(String(doc.text));
-      }
+      // THE OPERATOR'S MATERIAL IS THE GROUND FOR AN ASK IT CARRIES (2026-09-30): see selectGroundDocs. Measured: a bicycle
+      // answer written from the one file handed over, which was about Katherine Johnson.
+      for (const d of handedGround().docs) parts.push(d.text);
     }
     return parts.join("\n").slice(0, 200000);
   };
@@ -6158,21 +6395,16 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     const corpusInHand = runMode === "projection" && (session.corpus?.documents?.size ?? 0) > 0;
     if (!corpusInHand) for (const s of surfacedSegments ?? []) out.surf += String(s?.text ?? "").length;
     if (runMode === "projection" && session.corpus?.documents?.size) {
-      const given = session.corpusIndex instanceof Map ? session.corpusIndex : null;
-      const hasGiven = !!given?.size;
-      out.given = hasGiven ? given.size : 0;
-      for (const [sid, doc] of session.corpus.documents) {
-        if (String(sid).startsWith("chat:")) continue;
-        const t = String(doc?.text ?? "");
-        if (t.trim().length <= 40) continue;
-        if (hasGiven && !given.has(String(sid))) {
-          out.excludedDocs = (out.excludedDocs ?? 0) + 1;
-          out.excludedChars = (out.excludedChars ?? 0) + t.length;
-          if ((out.excludedIds ??= []).length < 4) out.excludedIds.push(String(sid).slice(0, 60));
-          continue;
-        }
-        out.corpusDocs++; out.corpusChars += t.length; if (out.docIds.length < 6) out.docIds.push(String(sid).slice(0, 60));
-      }
+      const g = handedGround();
+      out.given = g.hasGiven ? session.corpusIndex.size : 0;
+      out.excludedDocs = g.excludedFetched.length || undefined;
+      out.excludedChars = g.excludedFetched.length ? g.excludedFetched.reduce((n, x) => n + x.chars, 0) : undefined;
+      if (g.excludedFetched.length) out.excludedIds = g.excludedFetched.slice(0, 4).map((x) => x.id.slice(0, 60));
+      for (const d of g.docs) { out.corpusDocs++; out.corpusChars += d.text.length; if (out.docIds.length < 6) out.docIds.push(d.id.slice(0, d.id.startsWith("priors:") ? 160 : 60)); }
+      // The ask's subject and what the handed-over material did with it, on the record.
+      out.tier = g.tier;
+      if (priorsResult) out.priors = { mode: priorsResult.mode, anchor: priorsResult.anchor ?? null, scanned: priorsResult.scanned, basis: priorsResult.basis, passages: priorsResult.passages.map((p) => p.id) };
+      out.carries = { mode: g.admission.mode, coverage: g.admission.coverage, basis: g.admission.basis, refused: g.admission.refused.slice(0, 4).map((r) => ({ id: r.id.slice(0, 60), why: r.why })) };
     }
     return out;
   };
@@ -6207,7 +6439,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     return v;
   };
   const WINDOW_STOP = new Set("the and for with that this from under through after during was were are is had has have by to of in on at it its their there here which where when how what who into across over been being not but or as than then so such only also very just an a your our their its".split(" "));
-  const groundedWindowFor = (section, claims, material, usedSentences = null, handedClaims = null, position = 0) => {
+  // The ask as a steer for the window (projection only; uniform weights where no corpus search supplied any).
+  const askEvidence = (runMode === "projection" && !isCode && topic) ? makeAskEvidence(topic, priorsResult?.weights ?? null) : null;
+  const groundedWindowFor = (section, claims, material, usedSentences = null, handedClaims = null, position = 0, parts = 0) => {
     const text = String(material ?? "");
     if (text.length < 60) return "";
     const terms = new Set();
@@ -6217,7 +6451,11 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       if (!WINDOW_STOP.has(t) && !omniVariance.has(t)) terms.add(t);
     }
     if (!terms.size) return "";
-    const sentences = segmentSentencesOmni(text).filter((s) => s.length > 40 && s.length < 400);
+    // NO UPPER LIMIT where the window is a share (user direction, 2026-09-30: "no upper limit"): a ground sentence longer than 400
+    // characters used to be dropped here and could never be handed to the mouth, lit, or linked to. The fixed caps (this ceiling and
+    // SECTION_WINDOW_CHARS) remain only for callers with no plan to divide the ground across.
+    const shared = parts > 0;
+    const sentences = segmentSentencesOmni(text).filter((s) => s.length > 40 && (shared || s.length < 400));
     // THE STIGMERGIC TRAIL, CLAIM-CORE LEVEL (2026-09-21, Wilson run deeper):
     // `usedSentences` holds exact sentences, their opening templates, AND the
     // CLAIM-CORE of each used sentence — the being·relation pair the mouth
@@ -6288,7 +6526,10 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       }
       const lc = s.toLowerCase();
       const hits = [...terms].filter((t) => lc.includes(t)).length;
-      if (hits >= 2) scored.push({ s, hits });
+      // A sentence that carries the ASK is a candidate whatever the plan cell's terms say: the terms are the cell's, the ask is the
+      // piece's (measured: 7 of 12 parts had an empty window while the bicycle sentences of the ground went unhanded).
+      const ask = askEvidence ? askEvidence(s) : 0;
+      if (hits >= 2 || ask > 0) scored.push({ s, hits, ask });
     }
     // THE EXHAUSTED-GROUND FALLBACK (2026-09-21): when every relevant sentence
     // is already used, an empty window would silently drop grounding. The
@@ -6296,11 +6537,14 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // grounded on, MARKED — "already established, write this ANEW from a
     // different angle, never the same sentence." The ground is not withdrawn
     // (a section with no ground at all is ungrounded), it is re-approached.
-    const exhausted = !scored.length && usedSentences && usedSentences.size > 0;
-    let source = exhausted
-      ? sentences.filter((s) => usedSentences.has(s)).slice(0, 3).map((s) => ({ s, hits: 1, used: true }))
-      : scored;
-    source.sort((a, b) => b.hits - a.hits);
+    // A SPENT SENTENCE IS NOT HANDED BACK (2026-09-30, the archon poll). This fallback used to return the first three spent
+    // sentences, each prefixed with a "write this anew, never the same sentence" instruction: gary.js flags that as a prohibition aimed
+    // at the mouth (information-not-prohibition), it fired when no sentence matched the section's terms — not when the ground was
+    // spent (Ostrom: 8 of 15 ground sentences were never drawn) — and it ignored the query. An empty window is the honest state:
+    // nothing here is left to say, and the section is a named gap, not a re-quote.
+    let source = scored;
+    // Most of the ask first, then most of the cell: the window is ordered by what the piece was asked, and only then by the part.
+    source.sort((a, b) => ((b.ask ?? 0) - (a.ask ?? 0)) || (b.hits - a.hits));
     // THE ROTATING WINDOW (2026-09-21): sibling sections resolve to the same
     // theme, so without this every section ranks the SAME top sentence first
     // and opens by copying it ("The Cumberland River is a major waterway of
@@ -6326,10 +6570,16 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       const rotated = [...top.slice(seed % top.length), ...top.slice(0, seed % top.length), ...rest];
       source = rotated;
     }
+    // A WINDOW IS A SHARE OF THE GROUND, NOT A FIXED SIZE (2026-09-30, Ostrom's rule for a finite commons; measured: with the
+    // window ordered by the ask, the first part of a 12-part plan was handed the whole 2,186-character ground — the cap is 2,500 —
+    // and marked all of it spent, so the other eleven had nothing). With the plan's part count given, each part's window is an
+    // equal share of the material, at least one whole sentence, and no upper limit (the fixed cap stays only where there is no plan to share across). No number is tuned.
+    const cap = shared ? Math.max(1, Math.ceil(text.length / parts)) : SECTION_WINDOW_CHARS;
     let out = "", n = 0;
-    for (const { s, used } of source) {
-      if (out.length + s.length > SECTION_WINDOW_CHARS) break;
-      out += (n++ ? " " : "") + (used ? `[already grounded — write this anew, never the same sentence] ${s}` : s);
+    for (const { s } of source) {
+      if (n > 0 && out.length + s.length > cap) break;
+      if (!shared && n === 0 && s.length > SECTION_WINDOW_CHARS) break;
+      out += (n++ ? " " : "") + s;
     }
     return out.trim();
   };
@@ -6493,6 +6743,22 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       // MATERIAL pre-emptied the matter vocabulary before the piece said a
       // word). Matter words are deposited here, by admitted sentences alone.
       const matterRegistry = new Set();
+      // NO VIEW FROM NOWHERE (2026-09-30, user direction): a composition with no ground to stand on is not written. The
+      // ladder is handed-over material that carries the ask, then what the hunt fetched that carries it (selectGroundDocs);
+      // if neither, the job says so and stops — mechanically, no model draw — and offers to build a ground. Code is out of
+      // scope here: its ground is the workspace and the tests.
+      if (runMode === "projection" && !isCode && handedGround().tier === "none") {
+        const g = handedGround();
+        const report = noGroundReport({ words: g.admission.words ?? [], admission: g.admission, webConsent, fetchedPages: webResult?.pages ?? 0, priors: priorsResult });
+        if (onNote) onNote({ move: "no_ground", tier: g.tier, basis: g.admission.basis, webConsent: !!webConsent });
+        if (documentLedger) {
+          try {
+            appendLedgerLine(documentLedger, { role: "ground", title: "No ground", text: `sources: ${JSON.stringify({ web: 0, surf: 0, corpusDocs: 0, corpusChars: 0, docIds: [], carries: { mode: g.admission.mode, coverage: g.admission.coverage, basis: g.admission.basis, refused: (g.admission.refused ?? []).slice(0, 4).map((r) => ({ id: String(r.id).slice(0, 60), why: r.why })) } })}`, giver: "eoreader7:ground", basis: "no tier carries the ask — nothing will be written from nowhere" }, { dir: ESSAY_LEDGER_DIR });
+            appendLedgerLine(documentLedger, { role: "part", title: "No ground", text: report, giver: "eoreader7:ground", basis: "mechanical: measured from the ask and the material, no model" }, { dir: ESSAY_LEDGER_DIR });
+          } catch {}
+        }
+        return { ...earlyResult(report, { answerShape: "composition" }), satisfaction: { ok: false, filled: 0, of: sections.length, failures: [{ kind: "no_ground", detail: g.admission.basis }], totalStrain: 0, basis: "no ground carries this ask; nothing was written" } };
+      }
       // ── THE SPIRAL CONTRACT, LAYER 1: GROUND (2026-09-21, the user's law:
       // "hyper-defined layers, explicit revisable work product at each loop;
       // low sets possibility for high, high probability for low"). The ground
@@ -6526,6 +6792,22 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       // reachable from the fold so a gap beat's redraw is admitted by the
       // SAME rule as every other sentence. (The section loop keeps its own
       // inline copy because it carries the section's window-scoped registry.)
+      // The tracer for THIS composition's ground (projection, not code): one read of the ground's sentences, asked one sentence
+      // at a time as the mouth draws. Null where there is no ground discipline to hold (code, non-projection).
+      let _tracer = null;
+      // SPENDING A LIT SENTENCE must hold whatever the splitters do: every window sentence that contains the lit sentence, or is
+      // contained by it, is spent (the tracer and the window once cut `"slipping." In this scenario…` differently, and one lit
+      // sentence survived into the next window). Nothing is told to the mouth; the window is simply built without them.
+      const spendLit = (lit) => {
+        if (!lit?.text) return;
+        usedSentences.add(lit.text);
+        for (const w of segmentSentencesOmni(String(groundingText() ?? ""))) if (w.length > 20 && (w.includes(lit.text) || lit.text.includes(w))) usedSentences.add(w);
+      };
+      const groundTracer = () => {
+        if (runMode !== "projection" || isCode) return null;
+        if (!_tracer) _tracer = makeTracer(handedGround().docs.map((d) => ({ id: d.id, text: d.text })));
+        return _tracer;
+      };
       const admitWide = (text, { priorLanding = "", registry = null, section = "" } = {}) => {
         const ground = String(groundingText() ?? "");
         const { variance, bondNull, gate } = omniOf(ground);
@@ -6536,10 +6818,10 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         for (const cand of segmentSentencesOmni(text).filter((x) => x.length > 20)) {
           if (priorCore && claimCoreOmni(cand, variance) === priorCore) { out.refusals.push({ kind: "relanding", given: "model" }); continue; }
           if (verifyIsMetaSentence(cand)) { out.refusals.push({ kind: "meta", given: "model" }); continue; }
-          const v = admitCandidate(cand, { ground, priorLanding, instruction: `${task}\n${section}`, registry: reg, continues: (c, p) => { try { const A = propsIndex?.resolveIn?.(c); const B = propsIndex?.resolveIn?.(p); const a = A instanceof Set ? A : new Set(A ?? []); const b = B instanceof Set ? B : new Set(B ?? []); for (const id of a) if (b.has(id)) return true; } catch {} return false; }, variance, bondNull, isGrounded: grounded, invented: gate.applies ? ((x) => verifyInventedNameRuns(x, ground)) : null });
+          const v = admitCandidate(cand, { ground, priorLanding, instruction: `${task}\n${section}`, registry: reg, continues: (c, p) => { try { const A = propsIndex?.resolveIn?.(c); const B = propsIndex?.resolveIn?.(p); const a = A instanceof Set ? A : new Set(A ?? []); const b = B instanceof Set ? B : new Set(B ?? []); for (const id of a) if (b.has(id)) return true; } catch {} return false; }, variance, bondNull, isGrounded: grounded, invented: gate.applies ? ((x) => verifyInventedNameRuns(x, ground)) : null, linked: groundTracer() });
           if (!v.admit) { out.refusals.push(...(v.refused ?? [])); continue; }
           out.survivors.push(cand); out.roads.push(v.road); depositAdmitted(reg, v); depositAdmitted(matterRegistry, v);
-          usedSentences.add(cand); if (v.core) usedSentences.add(v.core);
+          usedSentences.add(cand); if (v.core) usedSentences.add(v.core); if (v.lit) spendLit(v.lit);
         }
         return out;
       };
@@ -6669,7 +6951,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         // them. The snapshot is the boundary of what is already spent.
         const handedKeysBefore = new Set(handedKeys);
         const secProps = propsForSection(section);
-        const secWindow = groundedWindowFor(section, secProps, groundingText(), usedSentences, handedKeysBefore, i);
+        const secWindow = groundedWindowFor(section, secProps, groundingText(), usedSentences, handedKeysBefore, i, askEvidence ? plannedSections.length : 0);
         // Record the sentences this window actually used — the next section
         // cannot re-read them.
         if (secWindow) {
@@ -6890,7 +7172,16 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         let stopped = false;
         let drawFailure = "";
         let snipSummary = "";
-        if (sentenceAtATime) {
+        // THE SECTION COUNT IS BOUNDED BY WHAT THE WINDOW CAN HAND OUT (2026-09-30, Ostrom's poll: 12 planned sections, about 7
+        // hand-outs, 9-10 empty parts per job, each having spent model draws and redraws on a paragraph the link gate then refused
+        // whole). A part whose window is EMPTY has no ground left to be written from; drawing for it asks the mouth to write from
+        // the ask alone. It is recorded as a named gap, with its reason, and no model call is spent. The opening is not skipped (it is
+        // drawn from the thesis), and code is out of scope.
+        const windowSpent = sentenceAtATime && runMode === "projection" && !isCode && !!groundTracer() && !String(secWindow ?? "").trim();
+        if (windowSpent) {
+          snipSummary = "no window: nothing in the ground is left to hand this part — a gap, not a draw";
+          if (onNote) onNote({ move: "window_spent", section, index: i + 1, of: plannedSections.length });
+        } else if (sentenceAtATime) {
           // THE PARAGRAPH, DRAWN WIDE, SNIPPED MECHANICALLY (2026-09-21, the
           // user's synthesis: "we did have fairly decent longform essay writing
           // on a 2b when it was asked to write paragraphs — this effort caused
@@ -7017,6 +7308,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
               // reading's own referent index carries the guard instead — said
               // out loud rather than assumed.
               invented: omniGate.applies ? ((x) => inventedNameRuns(x)) : null,
+              linked: groundTracer(),
             });
             if (!verdict.admit) { refusals.push(...(verdict.refused ?? [])); continue; }
             survivors.push(cand);
@@ -7024,6 +7316,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
             depositAdmitted(globalRegistry, verdict); depositAdmitted(matterRegistry, verdict);
             usedSentences.add(cand);
             if (verdict.core) usedSentences.add(verdict.core);
+            // THE ACTIVATION FEEDS GENERATION: the source sentence this one lit is spent, so the next window is built from what
+            // the output has not yet lit — not from a rule told to the mouth, from the window it is handed.
+            if (verdict.lit) spendLit(verdict.lit);
           }
           if (onNote) onNote({
             move: "paragraph_snip",
@@ -7198,14 +7493,18 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
             // the sibling admission loop above, line ~6749) can never drift
             // again, because there is nothing left here to drift.
             if (isMetaSentence(cand)) continue;
+            // the opening is held to the same definition: a sentence that links to no address in the ground is the model's own
+            const lk = groundTracer()?.(cand);
+            if (lk && lk.status === "ungrounded") continue;
             openSurvivors.push(cand);
             usedSentences.add(cand);
             usedSentences.add(core);
+            if (lk?.link) spendLit(lk.link);
           }
           if (openSurvivors.length) {
             buf = openSurvivors.join(" ");
           } else if (openSentences.length && !stopped) {
-            const firstOk = openSentences.find((s) => !inventedNameRuns(s).length && !isMetaSentence(s));
+            const firstOk = openSentences.find((s) => !inventedNameRuns(s).length && !isMetaSentence(s) && groundTracer()?.(s)?.status !== "ungrounded");
             if (firstOk) {
               buf = firstOk;
               usedSentences.add(firstOk);
@@ -8848,6 +9147,28 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     admitChunked(session.corpus, { text: `[assistant]: ${_replyLine}`, sourceId: `chat:${sessionId}:turn-${session.turnCount - 1}:response` });
   }
 
+  // WHAT THE MODEL SAYS IS GROUNDED ONLY IF IT LINKS (2026-09-30, user direction: "anything the model says that can't be
+  // holographically linked to an auditable source is ungrounded by definition"). The trace is of the FINAL projection — the prose
+  // a reader is handed, not the first-draft parts the fold superseded (measured: a pre-fold trace counted three sentences the
+  // fold had already replaced). Every sentence is traced to an address in the ground the composition stood on, at the grain of
+  // the claim; the citation ledger counts three words anywhere in a whole source as sourced and called the model's own sentences
+  // "verbatim". Footnotes are the ledger's own and are not the model's prose.
+  if (documentLedger && runMode === "projection" && !isCode) {
+    try {
+      // The prose a reader is handed is projected from the ledger FILE (proxy.mjs reads it there). The in-memory ledger object does
+      // not hold the fold's parts — measured: at this point it projected to the title and nothing else, so the trace counted 0
+      // sentences of a job that shipped one. Read the file; fall back to memory only if the file cannot be read.
+      const fromFile = projectLedgerFile(ledgerFilePath(ESSAY_LEDGER_DIR, documentLedger.docId));
+      const body = String(fromFile ?? projectDocument(documentLedger) ?? "").split(/\n## Footnotes\b/)[0];
+      const trace = traceToGround({ text: body, sources: handedGround().docs.map((d) => ({ id: d.id, text: d.text })) });
+      appendLedgerLine(documentLedger, {
+        role: "trace", title: "Ground trace",
+        text: `${trace.basis}\nungrounded: ${JSON.stringify(trace.sentences.filter((x) => x.status === "ungrounded").map((x) => x.text))}\nlinked: ${JSON.stringify(trace.sentences.filter((x) => x.status === "linked").map((x) => ({ text: x.text, id: x.link.id, start: x.link.start, end: x.link.end })))}`,
+        giver: "eoreader7:ground-trace", basis: "mechanical: a sentence links to one source sentence carrying more than half of its content words and every number, else it is ungrounded — no model",
+      }, { dir: ESSAY_LEDGER_DIR });
+      if (onNote) onNote({ move: "ground_trace", linked: trace.linked, ungrounded: trace.ungrounded });
+    } catch (err) { if (onNote) onNote({ move: "ground_trace_error", detail: err.message }); }
+  }
   return {
     text,
     // giver + sha256 + source ride the result so a consumer can always tell

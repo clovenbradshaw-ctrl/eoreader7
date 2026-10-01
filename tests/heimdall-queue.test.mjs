@@ -8,11 +8,12 @@ import * as h from "../heimdall.mjs";
 
 const { __queueTest } = h;
 
-function call(person, { pass, claim, device } = {}) {
+function call(person, { pass, claim, device, kind } = {}) {
   const headers = { "x-er7-user": person };
   if (pass) headers["x-er7-pass"] = pass;
   if (claim) headers["x-er7-claim"] = claim;
   if (device) __queueTest.setDevice(device);
+  if (kind) headers["x-er7-kind"] = kind;
   return h.admitChat(JSON.stringify({ model: "gemma2:2b" }), headers);
 }
 
@@ -93,4 +94,42 @@ test("PRIORITY: a swarm (batch) is queued behind interactive work, always", () =
   // The human must sort ahead of the swarm even though the swarm arrived first.
   assert.ok(human < swarm, `human #${human} must be ahead of swarm #${swarm}`);
   assert.equal(human, 1, "the interactive caller is at the head");
+});
+
+test("KIND FAIR-SHARE: a kind the box served more yields to a kind served less", () => {
+  // A and B are both served once — A as chat, B as chat (pressure: chat 2).
+  __queueTest.setSaturated(false);
+  assert.equal(call("A", { kind: "chat" }).allowed, true);
+  assert.equal(call("B", { kind: "chat" }).allowed, true);
+  // The box saturates. A re-queues as chat (pressure 2). B re-queues as a
+  // probe — a kind the box has NOT served this window. Even though B was
+  // served MORE RECENTLY than A (B's servedAt is newer), the probe's lower
+  // kind pressure must rank B ahead: kind rotation overrides last-served.
+  __queueTest.setSaturated(true);
+  call("A", { kind: "chat" });
+  call("B", { kind: "probe" });
+  const pa = call("A", { kind: "chat" }).queue?.position ?? 0;
+  const pb = call("B", { kind: "probe" }).queue?.position ?? 0;
+  assert.equal(pb, 1, `the under-served kind (probe) is at the head, got #${pb}`);
+  assert.ok(pb < pa, `probe #${pb} ranks ahead of the chat backlog #${pa}`);
+  // CONTROL: the same two people, both re-queuing the SAME kind — the
+  // last-served round robin still holds (A, served earlier, is ahead).
+  call("A", { kind: "chat" });
+  call("B", { kind: "chat" });
+  const pa2 = call("A", { kind: "chat" }).queue?.position ?? 0;
+  const pb2 = call("B", { kind: "chat" }).queue?.position ?? 0;
+  assert.ok(pa2 < pb2, `same kind → last-served decides: A #${pa2} ahead of B #${pb2}`);
+  // The disclosure names the kind mix: chat was SERVED (twice), the probe
+  // is queued but never served — the count of serves is the pressure.
+  const kinds = h.disclosure().queue.kinds;
+  assert.ok(kinds?.served?.chat >= 2, "chat serves are counted in the disclosure");
+  assert.ok((kinds?.served?.probe ?? 0) === 0, "the queued probe has not been served — its 0 pressure is why it leads");
+});
+
+test("KIND FALLBACK: an unlabeled stream body reads as stream; a task body reads as build", () => {
+  // The body's own shape is read when the header is absent.
+  const streamR = h.admitChat(JSON.stringify({ model: "gemma2:2b", stream: true }), { "x-er7-user": "streamer" });
+  const buildR = h.admitChat(JSON.stringify({ model: "gemma2:2b", task: "make a site" }), { "x-er7-user": "builder" });
+  assert.equal(streamR.kind, "stream");
+  assert.equal(buildR.kind, "build");
 });

@@ -833,6 +833,70 @@ clean: (all routed lenses reviewed above)
 
 Context: user — fix five tests failing on a pristine main (73639c5): `organs/what.test.mjs` and four `native/tests/conformance/` files failing at import. The row was never committed on any ref; it was in stash@{0} (2026-09-23, 45 files, never popped — the anchors/thea rows and the what/anchors organs' drafted Reading-Spec entries are still there, untouched). The four were copies: `native/tests/{conformance,kernel,text}/` duplicated conformance/, kernel/ and adapters/text/ (swept in by the 14dc2c5 checkpoint; `tests/kernel/self.js` is `kernel/self.js` as of 0b0c94d), 33 of the 35 copied tests failing while their canonical originals pass. Unique content was ported before removal; two source pieces that exist nowhere else went to STASH.md at 14dc2c5, not into the tree. New guard `conformance/tests-boundary.test.mjs` was seen failing on the copy tree (111 modules, 30 tests) and passing after; its first version misread fixture strings in code-hunk/code-scan as imports until anchored — CODING-LESSONS §79. The native-suite delta also includes a LIVE gemma2:2b witness passing after failing: environmental (depends on the local model), not this diff. Tooling note: chorus-fast's routing pointer undercounts line numbers by the blank added lines above a hit (its awk counts only non-empty `+` lines) — it reported CODING-LESSONS.md:1973 for line 1977.
 
+## 2026-09-30 — the charter leaves the composition vocabulary; Ostrom archon of ethos (main, eoreader7)
+fast: 5 files · 27 affected test files · 8 tests fail, all pre-existing and unrelated (provenance-feed x5, single-grain-audit, holodeck-e2e x2: a Python resource-limit error on this host) — identical in clean HEAD · law: 2 pre-existing duplicate-header WARNs
+| lens | citation | file:line | verdict | one line |
+| Feynman | P71-style tuned constant | tests/ethos-commons.test.mjs:31 | fixed | `> 40` was a hand-set bound for a measured 44; now `> 0`, the count in a comment |
+| Alexander | composition gate defaulting to "don't compose" | proxy-runner.mjs wikisourceTermsOf | noted | the primary-source door is now dormant in production (no other giver); written in CODING-LESSONS 81 and the amendment, not silent |
+| Pearl | independence claim | proxy-runner.mjs:3603 | false-positive-on-review | `independentSupport` line moved verbatim into buildCompositionHyperlexicon |
+| Dijkstra | allowlist | tests/ethos-commons.test.mjs:45 | false-positive-on-review | a Set of test-data words, no identity claim |
+| Kondo / Lévi-Strauss | unwired export / stash | charter.js giveCharterFamily | noted | still exported and read by tests; nothing dead, nothing stash-worthy |
+clean: none claimed
+
+## 2026-09-30 — no view from nowhere: the ground ladder, the no-ground stop, documents handed in (main, eoreader7)
+fast: 7 files · 27 affected test files · 8 tests fail, all pre-existing and unrelated (provenance-feed x5, single-grain-audit, holodeck-e2e x2) — the same 8 as the previous entry · law: 2 pre-existing duplicate-header WARNs
+| lens | citation | file:line | verdict | one line |
+| Feynman | numeric constant | proxy-runner.mjs:3619 | false-positive-on-review | `<= 40` is the existing 40-character gate on a document's text, moved verbatim from groundingText |
+| Dijkstra | allowlist | proxy-runner.mjs:3646 | false-positive-on-review | a plural in a message; no identity claim |
+| Ostrom | scope of absence | ground-carries.js:42 | noted | "not found" is scoped to the handed-over material and the engine's word form, stated in the header |
+| Greenberg | language scope | ground-carries.js:34 | fixed | draftWords' stem and isFunctionWord are the engine's English prior; the header now says so and what happens without one (refuses, never admits) |
+| Simon/Chekhov | new module | job-workspace.mjs, ground-carries.js | noted | both imported by tests (6 + 12); proxy.mjs's `documents` route has no unit test — verified over real HTTP (typed refusals, a hostile name landing inside the job directory) |
+clean: none claimed
+
+## 2026-09-30 — priors-ground.js, earned ground, ladder bucketing (proxy-runner.mjs, tests/priors-ground.test.mjs)
+| archon | lens | where | verdict | note |
+|---|---|---|---|---|
+| Simon/Chekhov | new module | priors-ground.js | fixed | 26 tests incl. real-corpus controls; every rule has a test that fails without it; persistEarnedGround covered by 3 tests incl. hostile URLs |
+| Ostrom | commons | persistEarnedGround | noted | kept pages carry url/ask/time/sha1; nothing is written into live_priors; earned root is searched as a second root |
+| Kant | bucketing | selectGroundDocs | fixed | fetched pages read as tier "given" when nothing was handed over; control test added |
+| Hume | what carrying proves | priors-ground.js | noted | live: the located passage for the bicycle ask is a rotorcraft paragraph that mentions a bicycle; lexical carrying cannot tell mention from aboutness (lesson 83, unbuilt) |
+clean: none claimed
+
+## 2026-09-30 (later) — ground-trace.js, admit() `linked`, recurrence rank (priors-ground.js, admission.js, proxy-runner.mjs)
+| archon | lens | where | verdict | note |
+|---|---|---|---|---|
+| Hume | what a link proves | ground-trace.js | noted | lexical: a negation that keeps the words links; limits are in the header and lesson 84 |
+| Kant | additive option | admission.js `linked` | fixed | null by default: `admit` without a tracer is unchanged (93 admission/spiral/fiction tests pass; a test pins it) |
+| Simon/Chekhov | controls | tests/ground-trace.test.mjs, priors-ground.test.mjs | fixed | the citationLedger gap and the presence rank are each reproduced on real bytes and fail the old way |
+| Ostrom | commons | earned ground | noted | the ground grows only from consented hunts; nothing is written into live_priors |
+clean: none claimed
+
+## 2026-09-30 (archon poll) — "activation feeds generation" (ground-trace.js, proxy-runner.mjs groundedWindowFor / spendLit)
+| archon | lens | where | verdict | note |
+|---|---|---|---|---|
+| Gary | information-not-prohibition | groundedWindowFor exhausted fallback | fixed | real organ flagged 3 prohibitions; marker removed, spent sentences not re-handed; source control test |
+| Wilson | stigmergy | tracer vs window splitter | fixed | 14 of 15 exact; tracer now uses the window's segmenter, spendLit is splitter-proof; control on the real ground |
+| Kelsen | validity of a link | ground-trace.js | noted | overlap screen, not truth: negation/role swap/number words/hidden clause link; limits in lesson 85 |
+| Ostrom | commons | section count vs window | noted | 12 sections vs ~7 hand-outs; 9-10 empty per job; bound sections by window capacity — unbuilt |
+| Gebser | arrival | final piece | noted | not arrived; provenance is not answer-hood — unbuilt |
+clean: none claimed
+
+
+## 2026-09-30 (lowercase lane) — capitals are one witness, not the gate (keyness.js, descriptor-lane.js, nominal-beings.js namingGate, reading-log.js, READING-SPEC S137)
+fast: 6 files · 20 affected tests pass (lowercase-lane-falsify 10/10, nominal-beings, transcript-reading, referent-name) · law: WARN pre-existing duplicate headers S17, S96 (READING-SPEC) and P19/P115-117/P233 (the-fold) — not this diff; 9 citations resolve
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Feynman | — | reading-log.js (naming gate catch) | fixed | a gate that THROWS defaulted to admit, silently disabling its own refusal; now fails closed and the refusal is counted; a mutation test turns red |
+| Alexander | S137 | descriptor-lane.js | fixed | `descriptorLane(null)` returned null, so "asked, no prior" read as "never asked" — a silent default to don't-compose; now a typed `no_baseline` lane, told apart from `off` |
+| Kondo | — | descriptor-lane.js `alpha` | fixed | an unused dial on a declared resolution removed; KEY_ALPHA is the one 5% |
+| Diaconis | S37, S24 | keyness.js | noted | the null is a received rate (UD EWT) at the repo's declared 5%, same standing as CAP_SIG_ALPHA; no multiplicity correction across candidates, same as the sibling instrument — disclosed in S137 alongside the genre mismatch (web-text baseline on fiction leaks body parts) |
+| Ostrom | S137 | keyness.js baseline | noted | a pooled received baseline applied to a different genre is the scope question; the fix is a genre-matched prior, a giver and not a dial (S137) |
+| Dijkstra | II.13 | keyness.js receivedRate `toLowerCase` | noted | form identity against the prior's keys is English-scoped (declared); heads are diaNorm'd before lookup so an accented loanword ("abbé") reads as unseen — small, English-only, same approximation nominalClass makes |
+| Holmes | — | reading-log.js name precedence | clean | the lane refuses to mint a second being for a name's token; it merges nothing, so no alias-from-overlap |
+| Simon/Chekhov | S87 | descriptor-lane.js | noted | ships OPT-IN and UNWIRED from every production path, on purpose (resolveIn/referents feed document-ledger, essay-shape-register, synonymPool, groundSeed); the same shape referentFromDescriptorHypothesis sat in for months — disclosed in S137, the memory note and the commit; wiring is a product decision, ask-side first |
+| Marshall | S86–S89, S24, S37, II.13 | READING-SPEC.md S137 | clean | new entry, not an amendment; carries **Generality:**; its enforcement test is in the same diff; the S89 quote is verbatim |
+clean: none claimed
+
 ## 2026-09-30 — the screenshot reader brought into the pipeline: reading (lookAtImage), generation (page-build style), shell (screenshot-pipeline, 17 paths)
 fast: 6 modified + 11 new paths · screen-pipeline 22/22, assembly-registry + earned-constants pass · native suite 2005→2027 tests, the same 43 fail by name as a clean origin/main (0981582), 0 regressions · law: ok (0 citations; dup headers pre-existing: P115 P116 P117 P19 P233 in the-fold/POLICIES.md, S17 S96 here)
 FAIL carried, not fixed — identical on a clean origin/main worktree: tests/provenance-feed (5) and tests/single-grain-audit (imports auditSingleGrain, which proxy-runner.mjs never defined); native holodeck-e2e (2) fail on the colony evaluator's `setrlimit` ("current limit exceeds maximum limit") on this host.

@@ -2066,3 +2066,248 @@ the "posts shown" count and the whole-spec count are the sharper measures.
 The ask cap (120) is set by hand. Programs are not on this path yet. On the
 program rungs the bare model builds a page instead of a program on rungs 3–5
 (1.5b) and on rungs 2, 4 and 5 (3b).
+
+
+## 81. A constitution's text is not composition vocabulary, and a control that counts words passes what one that counts sentences refutes (2026-09-30)
+
+Two `/v1/documents` jobs, one on a bicycle freewheel and one on why a spinning top stays upright, each shipped about
+34,000 characters of the UN convention and a gun bill and reported `complete`. Their ground rows named three
+Wikisource documents: "prohibit", "slavery or servitude", "in all their forms". Those are the first three given
+terms of the charter family. `proxy-runner.mjs` gave the charter into the composition hyperlexicon, and three readers of
+that one object took its clauses for the topic: the outline's section titles, the digest the mouth is told, and the
+primary-source door's search terms.
+
+The direction (user, 2026-09-30): ethos is the earned ground that enables logos and pathos, a commons read by its
+participants (Ostrom is now the compendium's archon of `organs/ethos.js`), never a moral rulebook that governs and
+can be lifted; and harm must be irrational, not flagged or cautioned against.
+
+**The change.** `buildCompositionHyperlexicon` builds the vocabulary from observed relations only, as candidates, and
+`wikisourceTermsOf` chooses the door's terms; the charter is not given into either. The charter's own text checks
+(`familyVerdict`, `askShape` over the family) are unchanged and their future is open.
+
+**Measured.** With the fix, two jobs run over one real handed-over file (web off) no longer search or paste the
+charter. The ask-level verdict from `mayeroff.js` is identical with and without the charter on twelve asks, so its
+removal took no protection with it. The same verdict reads only two of six extractive asks, so detection is the wrong
+mechanism for the second half of the direction.
+
+**Falsifying controls, kept as tests** (`tests/ethos-commons.test.mjs`; holodeck's `holodeck-doors.test.mjs`):
+- The old wiring, run through the same term function, reproduces exactly the three searches the ledger shows.
+- The vocabulary carries no charter given; observed relations are still admitted; other givers still feed the door.
+- A topic control that counts words across the whole projection passed a bicycle answer of four sentences about
+  Katherine Johnson and one about bicycles (8 topic words against 7). Counting sentences refuted it, and then
+  refuted itself: "the" is a topic word of one task phrase and matched 147 of 211 sentences of any text. Now it counts
+  sentences, drops function words with the engine's `isFunctionWord`, and reads "about its task" as most sentences
+  carry the topic and more than another job's do.
+
+**Open.** The primary-source (Wikisource) door is now dormant in production: no other giver feeds it, so it nominates
+nothing until its terms come from the ask's own subject. The pipeline takes handed-over material as ground without testing that it bears on the task (the bicycle
+job admitted the Johnson file), so it does not yet build a ground: relevance admission over the operator's own
+material, and an honest "no ground carries this" when nothing does, are unbuilt. A browser workspace cannot become a
+job's ground (the document door takes only a filesystem path). The on-topic job wrote "Two sources agree" over one
+source, and its excerpt bullets carried page furniture ("Jump to content"). The harm hypothesis (an artifact's effect
+does not survive disclosure of its own basis) is a test still to write, not a finding.
+
+## 82. There is no view from nowhere: a job that finds no ground stops, and says what it would take to build one (2026-09-30)
+
+Lesson 81 ended with the pipeline taking whatever was handed over as ground and writing from nothing when nothing was
+handed over. Two live jobs over one handed-over file (web off) showed both failures: the bicycle-freewheel answer was four
+sentences about Katherine Johnson, and with no ground at all the small model wrote "reveals a fundamental truth about the
+nature of reality" with the ungrounded disclosure never reaching the reader. User direction: "no view from nowhere, we
+need to go build the ground to grow from."
+
+**The ladder** (`selectGroundDocs`, `native/the-fold/ground-carries.js`): the operator's material that carries the ask is
+the ground and outranks anything fetched; if it does not carry the ask it is not a wall, and what the hunt fetched is
+judged by the same rule; if neither carries, the tier is `none` and `runProxyTurn` stops before composing — no model
+draw — and writes one mechanical part, "No ground", that says what the ask's subject was as words, the count that refused
+the material, whether the web was searched, and how to build a ground (`noGroundReport`). The job ends `unsatisfied`.
+"Carries" is a definition with no tuned number: the material carries the ask when it carries more than half of the
+ask's content words (engine `isFunctionWord`), and a document is admitted when it carries more than half of the words
+the material carries, plus the fewest further documents that cover the rest.
+
+**A surface can now hand over its own sources.** `POST /v1/documents` takes `documents: [{ name, text }]` (or a
+`workspace` path, never both); `job-workspace.mjs` writes them to a per-job directory. A name is data, never a path
+(`../../../etc/passwd` became `passwd.txt` inside the job's directory, verified over HTTP); limits are typed refusals.
+
+**Falsifying controls, kept as tests** (`tests/ground-carries.test.mjs`, `tests/job-workspace.test.mjs`; holodeck's
+`holodeck-doors.test.mjs` on the real ledgers):
+- The bicycle ask over the Johnson file is refused (1 of 8 words, "still"); a single-word test would have admitted it.
+- "set" in an unrelated file does not admit that file for the continuum ask; a question spread over two documents gets both.
+- An unrelated workspace does not block what the hunt fetched (a first version excluded fetched pages whenever any
+  document was handed over).
+- The no-ground job wrote 0 characters; its real ledger is a fixture.
+
+**Measured, and it cut against my first rule.** Against `live_priors` (938 MB, about 2,100 documents), "a document carries
+the ask when it holds most of its words" ranks a file of Guardian cryptic clues and *Ulysses* as 8-of-8 matches for the
+bicycle ask: large documents contain every common word somewhere. The unit must be a passage where the words occur
+together, and a file with no paragraph breaks must use the line. With that, `live_priors` holds real located ground for the
+continuum ask (`02-encyclopedic/wikipedia/Logic.txt`, "Set theory originated in the study of the infinite by Georg
+Cantor…") and nothing for the bicycle or Johnson asks. `rg` is only a shell function on this host, so production code
+cannot shell out to it.
+
+**Open.** `live_priors` is not yet a tier in the ladder (needs a passage index built once and cached under `state/`, never
+inside that repo). Acquisition is the existing web hunt and is not yet exercised against this ladder: the viewer offers
+"Build a ground: search the web", and that click is the consent, so no live fetch has been run. Admitted ground is not
+yet persisted, so the ground does not yet grow. The no-ground job's `satisfaction.basis` still carries the pipeline's
+default LaVar wording; something downstream recomputes it and was not traced. Earlier open items stand: the Wikisource
+door is dormant in production, "Two sources agree" over one source, page furniture shipped as excerpts.
+
+
+## 83. The received ground: passages of live_priors that carry an ask, and the three conditions a passage must meet (2026-09-30)
+
+User direction: "there is no view from nowhere; go build the ground to grow from"; "ground should be live_priors." When nothing
+handed over carries an ask, the ladder's next rung is the received corpus (`native/the-fold/priors-ground.js`, wired in
+`runProxyTurn` before the web hunt): passages that carry the ask, each LOCATED (corpus/path and a byte range that slices back to
+the exact text), admitted to the session corpus like any source (pii gate, stamp, stepped through the reader) and citable.
+Order: handed-over that carries it, then live_priors, then what the hunt fetched, then nothing. The web hunt now runs only when
+neither local rung carries the ask, so nothing leaves the machine that the machine already holds an answer for. Retrieval is
+two-level and cached (`state/priors-words.json`, keyed by a fingerprint of every eligible file's path, size and mtime; one pass
+over the corpus per new word, about 26 s cold and under 1 s warm on 938 MB; nothing is written into the corpus).
+
+**Measured against the real corpus, and each rule came from a failure.**
+- A per-DOCUMENT rule ranked a file of cryptic clues and Ulysses as 8-of-8 matches for the bicycle-freewheel ask. The unit is the
+  passage: a blank-line paragraph, or the line when most lines of a block end in terminal punctuation (the cryptic-clues file is
+  one 10 MB block of 142,381 lines, 142,383 of 142,407 ending in a full stop or bracket).
+- Project Gutenberg files break paragraphs with `\r\n\r\n`; read as one block, Ulysses, War and Peace and Little Women each came
+  back as one "passage" the size of the book. A blank line may carry a carriage return.
+- More than half of the words is not enough (a machine-learning paragraph with "hypothesis", "size" and "set" for the continuum
+  ask); words are weighted by how rare they are in this corpus, `ln(1 + N/df)`, and more than half of the EVIDENCE is needed.
+- More than half of the evidence is not enough (a paragraph on black boxes in cybernetics holds "bicycle", "pedal", "wheel" and
+  "let", and never says "freewheel"); the passage must carry the ANCHOR, the ask's most surprising word the corpus attests.
+- More than half of the evidence and the anchor are not enough (two rare words meeting by coincidence: "continuum" and
+  "hypothesis" in a relativity paper and a creole survey; "spinning" and "top" in a novel and a cryptic clue); more than half of
+  the WORDS must be carried too. Three conditions, each shown by a test that fails without it.
+- Selection is the best passage of each document that has one, most evidence first: a source is the unit of provenance.
+
+- A passage is what was FOUND; the ground is the SECTION it sits in (`sectionOf`: the blocks between the nearest headings; a
+  document with no headings or a list of lines is not expanded). The continuum passage was 346 characters and the pipeline's own
+  gate said "Ground not licensed"; its section is 1,912 characters and was licensed.
+
+**Real results (2026-09-30).** Continuum ask: `02-encyclopedic/wikipedia/Logic.txt#48004-49916`, ground licensed, tier `priors`.
+Bicycle, spinning-top and Katherine Johnson asks: no ground, so the job stops (0 model characters) and its report says the received
+corpus was searched and with what result.
+
+**The ground grows (`persistEarnedGround`).** Pages a consented web hunt fetched that carried the ask are kept in their own root
+(`state/earned-ground/90-earned/`, never the corpus repo) with a manifest (`earned.jsonl`: url, file, sha1, the ask that earned it,
+when). A URL is data, never a path (slug + its own hash); the same page twice is one file and one line; a changed page replaces the
+file and adds a line. Live: the bicycle ask, web off, was "No ground"; after one consented hunt (Wikipedia "Freewheel" and a
+LinkedIn article kept) the same ask with the web off found `priors:earned/90-earned/en-wikipedia-org-wiki-freewheel-…#11643-12106`,
+tier `priors`, web 0. Nothing left the machine the second time.
+
+**Two findings that came from running it, and are not fixed.**
+1. `selectGroundDocs` bucketed a fetched page as `given` whenever nothing was handed over (`hasGiven` false), so a consented hunt read
+   as the operator's material. Fetched is now by where the page came from (id `web:`/`wikisource:`); control test added.
+2. FALSIFIED, THEN FIXED: the located ground for the bicycle ask was the rotorcraft paragraph of the Freewheel article ("Just as a
+   bicycle's wheels must be able to rotate faster than the pedals, a rotorcraft's blades…"): it held six of the eight words once, in
+   42 words, and the model wrote a sentence in no ground. Which carrying passage is chosen is now by RECURRENCE, not presence: the
+   evidence summed with each word counted ln(1 + occurrences) times. On the real page: bicycle-mechanism 22.9, history 21.1,
+   rotorcraft 20.2 (by presence the rotorcraft paragraph won). Heading words were tried first and dropped: "Helicopters" and
+   "Mechanics" cannot be told apart by what they share with the ask. Two controls fail under the old rule (a mini-corpus simile that
+   holds MORE of the ask's words, and the real page). Page furniture ("[ edit ]") is neither a heading nor content and is trimmed
+   from a section's edges. Live: the ground became `#1333-3519`, the Mechanics section.
+
+**Limits, stated.** Word forms are draftWords' English stems; a single unbroken line is one passage however long; eligibility is
+numbered category folders and `.txt`/`.md` only; the word cache is keyed by the whole corpus fingerprint, so a newly earned page
+makes the next search rescan once (seconds). A first consented job once found "no page that could be read" from a live search that
+later worked: the hunt has no retry and no fallback to the Intelechia fetch proxy.
+
+## 84. What the model says is grounded only if it links to an address in the ground — traced as it is drawn (2026-09-30)
+
+User direction: "anything the model says that can't be holographically linked to an auditable source is ungrounded by definition";
+"the proper state of things is it is ungrounded if the model has no input"; "trace it in real time and have this activation feed
+generation"; priors steer, they do not enter as content. `native/the-fold/ground-trace.js`: a sentence is LINKED when more than half of
+its content words occur in ONE sentence of one source AND every number it states occurs there; its link is that source sentence's
+address (id, start, end). Otherwise it is ungrounded — no third state. No model call, no tuned number.
+
+**The gap it closes, measured on real bytes.** The existing `citationLedger` counts a sentence sourced when three of its words occur
+ANYWHERE in a whole source. On the live job's output it marked the model's invented "This is achieved by a mechanism that allows the
+wheel to continue rotating…" as `verbatim` and "Bicycles don't just coast; they actively shift their momentum." as `company`, with
+0 unsupported (the per-document presence failure again, at the grain of the claim). A control test reproduces that on the job's bytes.
+
+**Real time.** `makeTracer(sources)` reads the ground's sentences once and is asked one sentence at a time; `admission.js admit()`
+takes it as `linked`: an unlinked candidate is refused on BOTH roads (`unlinked` — the motion road admits a turn, never an unsourced
+claim) and an admitted one returns `lit`, the source sentence it lit, which the caller adds to `usedSentences` so the next window is
+built from what the output has not yet lit (the activation feeds generation through the window it is handed, not through a rule told
+to the mouth). Wired at every admit site of the projection path: the snip loop, the redraw (`admitWide`), and the opening path, which
+had its own filter and a live "first sentence" fallback with no link test — the first live run shipped an invented opening through it.
+The final trace row is computed on the FINAL projection (a pre-fold trace counted three sentences the fold had already superseded);
+markdown headings are names, not claims.
+
+**Live result (gemma2:2b, same ask, web off, ground = the earned Freewheel page).** The model's invented sentences are refused
+`unlinked` in every section's admission row; the shipped prose is the sentences that link; the ledger's `trace` row lists what was
+linked (with addresses) and what was not. Remaining: lexical only — a negation that keeps the words links; a claim assembled from two
+source sentences reads as ungrounded (the failure is to say so); the motion contract now often exhausts its redraw budget because
+a bridging sentence has nothing to link to; the model's first-draft `part` rows still carry its own words (the ledger keeps the
+record; the projection does not). Not yet built: the holodeck surface for `trace` (mark ungrounded sentences in Preview), and choosing
+the next window by walking the source's own order from the last lit sentence.
+
+## 85. The archon poll on "activation feeds generation": the claim as worded was refuted, four defects fixed, two left open (2026-09-30)
+
+User direction: "poll gary and the other archons if this is working right and falsify." Gary was run as the real organ
+(`native/organs/gary.js`); Wilson, Kelsen, Ostrom and Gebser read as independent probe-running agents (read-only, scratch files only).
+
+**Gary.** The normal window prompt is clean (information only, no address, no prohibition). The exhausted-window prompt is FLAGGED:
+`groundedWindowFor` handed back the first three spent sentences each prefixed "write this anew, never the same sentence" — a prohibition
+aimed at the mouth, which contradicted "no prompt rule". Removed: a spent sentence is not handed back; an empty window is a named gap.
+
+**Wilson (stigmergy).** Spending works except where the splitters disagree: the tracer cut `"slipping." In this scenario…` as one unit
+and the window as two, so the lit string matched no window sentence exactly and one lit sentence survived into the next window (14 of 15
+exact). Fixed twice over: the tracer now cuts with the window's own segmenter inside each paragraph (whitespace-flexible offsets), and
+`spendLit` spends every window sentence that contains the lit one or is contained by it, whatever the splitters do. Spending one
+sentence never wrongly excluded another.
+
+**Kelsen (validity).** A link is a lexical-overlap screen, not a validity test. It proves a sentence is NOT quoted or closely
+paraphrased from one source sentence; it cannot prove truth. Linked falsely: negation, swapped roles ("driven disc locks the drive
+disc"), "three" discs for "two" (number words are not numbers), "commonly" for "rarely", numbers checked one at a time ("12 grams, 2
+teeth" for "2 grams, 12 teeth"), an invented clause hidden after a full source sentence (19 of 26 words). Wrongly ungrounded:
+synonym paraphrase, "1869" vs "1,869". Stated limits, not fixed: they need polarity/role/number-binding, not another overlap rule.
+
+**Ostrom (commons).** Refuted as worded: the ground was never exhausted (at least 8 of 15 sentences never drawn). The plan has 12
+sections; the window's term gate hands out about 7 distinct sentences; 9-10 sections per job shipped empty, 12 of 12 drafts failed the
+contract. The starvation is the window and the section count, not the ground. Rule the evidence supports, UNBUILT: bound the
+section count by what the window can hand out. Sentences are also spent when HANDED to the mouth, not only when linked — the wider
+rule is hand-off marking; spend-on-link is additive.
+
+**Gebser (arrival).** Refuted: no beginning, turn or ending; 139-510 characters from a 2,186-character ground; the best run shipped one
+genuine answer sentence, the worst two source sentences that never reach the pedals or the pawl. Provenance is not answer-hood:
+nothing checks that what ships answers the ask. Part of his evidence was the superseded first-draft rows (the shipped projections
+contain none of the ungrounded sentences he quoted) — read the projection, not the parts.
+
+**Found while fixing.** The final trace ran on `projectDocument(documentLedger)`; the in-memory ledger does not hold the fold's parts
+(it projected to the title alone), so a job that shipped one sentence traced "0 of 0". The prose a reader gets is projected from the
+ledger FILE; the trace now reads that. A markdown title on the line above a paragraph fused with its first sentence and took it out
+of the trace; heading lines are blanked (same length) before cutting. Both have controls that fail the old way.
+
+**Still open.** The opening part and two fold parts in the LEDGER still carry model sentences that link to nothing (they are
+superseded, not shipped); the fold's "Two sources agree"/"The sources agree" preface is a template over one source; answer-hood;
+section count vs window capacity.
+
+**Built after the poll (Ostrom's rule, in part): a part whose window is empty is a named gap, not a draw.** `windowSpent` in the section
+loop (`proxy-runner.mjs`): with a ground tracer in force, a sentence-at-a-time part whose `groundedWindowFor` returns nothing spends no
+model call and records `no window: nothing in the ground is left to hand this part`. The opening is not skipped. Live, same ask, same
+ground, web off: 134 s against 338, 354 and 568 s before; 7 of 12 parts recorded as gaps with no draw; the shipped piece is the same
+kind (one sentence, linked: "1 of 1"); status still `unsatisfied`. It saves model calls; it does not make the piece arrive, and the
+section count itself is still set by the plan, not by the ground (the remaining Ostrom rule: plan fewer sections). Limit: the skip
+is keyed to an EMPTY window, which can also mean the section's terms matched nothing in a ground that still has unspent sentences (the
+window's term gate, not exhaustion) — measured, not separated.
+
+## 87. The window is a share of the ground with no upper limit; the plan folds by terrain (2026-09-30)
+
+User direction: "no upper limit"; "we fold terrains so we can have a compressed bucket" (my first reading of "fold" as sentence dedup was
+wrong — the fold here is over the cube's TERRAINS: Void/Entity/Kind · Field/Link/Network · Atmosphere/Lens/Paradigm).
+
+**Window.** `groundedWindowFor` takes the plan's part count: a part's window is an equal share of the material (at least one whole
+sentence, never a sentence cut), with no fixed cap and no 400-character sentence ceiling where a share is in force (the old caps stay
+only for callers with no plan to divide). The window is ordered by the ASK first (`makeAskEvidence`, the same recurrence-weighted
+evidence that chooses a passage) and by the cell's terms second; a sentence that carries the ask is a candidate whatever the cell's
+terms say. Measured first: ordering by the ask with the old 2,500-character cap handed the first part the WHOLE 2,186-character ground and
+marked it spent — 9 of 12 parts had no window; the share is what made the ordering usable.
+
+**Terrain fold.** Void cells carry a terrain; the plan reached the section loop as bare questions, so the terrain of each is kept and
+cells that share a terrain collapse into ONE bucket (its question = its members' questions in plan order; nothing is cut, every member
+is still asked). Live, same ask and ground, web off: 12 parts became 6 terrain buckets; parts with nothing shipped fell from 9-10 of 12
+to 3 of 6; 123 s against 338-568 s at the start of the day. `terrain_fold` is disclosed as a note. The ledger's plan row now lists the
+buckets, so the Cells view shows them.
+
+**Not solved.** The shipped piece is still one linked sentence and still the disc-tooth description, not the pedals or the pawl; "It
+states that…" links by overlap although its "It" refers to nothing. Compression fixed the starvation, not answer-hood. The mouth's
+refused drafts still carry the model's own prefaces ("This seemingly simple change…").

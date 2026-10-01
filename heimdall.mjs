@@ -208,14 +208,28 @@ export function pickHost({ model = null, session = null, exclude = null } = {}) 
   }
   const waits = new Map(cands.map((h) => [h.name, waitOf(h)]));
   const min = Math.min(...waits.values());
-  const tied = cands.filter((h) => waits.get(h.name) === min);
-  // 4. rotate ties
-  const pick = tied.length > 1 ? tied[hostRotate++ % tied.length] : tied[0];
+  // 4. MEASURED SPREAD, never a naive round robin (2026-10-01; the 2026-09-21
+  // lesson: a naive round robin pays a cold load per server and throws away
+  // every prefix cache). Hosts whose wait exceeds the best by no more than
+  // the CHEAPEST MEASURED cold load anywhere are EQUAL ENOUGH: waiting that
+  // extra turn there costs less than loading the model on a colder host, so
+  // rotating among them spreads the fleet without ever paying a reload. The
+  // tolerance derives from the hosts' own measured load costs (none measured
+  // → exact ties only, the old behavior); the rotation prefers the least-
+  // PICKED host among the equal-enough set (measured round-robin, never a
+  // pinned favorite), with the rotate cursor breaking exact pick ties.
+  const measuredLoads = cands.map((h) => h.loadMs).filter((v) => Number.isFinite(v) && v > 0);
+  const tol = measuredLoads.length ? Math.min(...measuredLoads) : 0;
+  const tied = cands.filter((h) => waits.get(h.name) - min <= tol);
+  const least = Math.min(...tied.map((h) => h.picks));
+  const fewest = tied.filter((h) => h.picks === least);
+  const pick = fewest.length > 1 ? fewest[hostRotate++ % fewest.length] : fewest[0];
   pick.picks++;
   if (session) sessionHost.set(session, pick.name);
   if (sessionHost.size > 5000) { const first = sessionHost.keys().next().value; sessionHost.delete(first); }
   const order = cands.slice().sort((x, y) => waits.get(x.name) - waits.get(y.name)).map((h) => h.name);
-  const reason = tied.length > 1 ? "rotate_tie" : (model && hostResident(pick, model)) ? "resident_shortest_wait" : "shortest_expected_wait";
+  const reason = waits.get(pick.name) > min ? "spread_within_load_cost"
+    : (tied.length > 1 ? "rotate_tie" : (model && hostResident(pick, model)) ? "resident_shortest_wait" : "shortest_expected_wait");
   return { host: pick, reason, order };
 }
 // ADMITTED, NOT YET STARTED: a turn passes the door seconds before it
@@ -405,6 +419,7 @@ export const __queueTest = {
   reset() {
     waiters.clear(); lastServed.clear(); passes.length = 0; zipperLock = 0; claims.clear();
     profiles.clear(); unservable.clear(); _testSaturated = null; _testDevice = null; _testNow = null; _testVitals = null;
+    kindServed = {}; kindTurnMs = {}; kindWindowStart = Date.now();
     ollamaModels = null;
   },
 };
@@ -556,6 +571,43 @@ function personKeyOf(headers = {}) {
   return String(headers["x-er7-user"] || headers["x-er7-caller"] || headers["x-er7-session"] || "anon").slice(0, 64);
 }
 
+// ── REQUEST KINDS (2026-10-01) — what a request IS, for the fair-share round
+// robin. A caller declares it (x-er7-kind); the fallback guesses from the wire
+// shape, mechanically, never a model. Closed vocabulary; an unrecognized shape
+// is `other`, never invented. Kinds rotate fairly in the line: within a lane,
+// a kind that has been served MORE this window yields to a kind served LESS,
+// so a burst of probes can't bury a chat, and a build can't hog the box — the
+// mix stays round. The pressure is MEASURED (serves this window), never a
+// hand-set weight; the window is the ration's own (never a fresh number).
+const REQUEST_KINDS = ["chat", "probe", "stream", "build", "swarm", "vision", "other"];
+const KIND_SET = new Set(REQUEST_KINDS);
+function kindOf(headers = {}, body = "{}") {
+  const declared = String(headers["x-er7-kind"] || "").trim().toLowerCase();
+  if (KIND_SET.has(declared)) return declared;
+  try {
+    const j = JSON.parse(body);
+    if (j.stream === true) return "stream";
+    if (Array.isArray(j.images) && j.images.length) return "vision";
+    if (typeof j.task === "string" && j.task.trim()) return /swarm|chapter|batch|wilson/i.test(j.task) ? "swarm" : "build";
+    if (Array.isArray(j.messages) && j.messages.length) return "chat";
+    if (typeof j.prompt === "string" && j.prompt.trim()) return "chat";
+  } catch { /* unparsable body: no kind to read */ }
+  return "other";
+}
+let kindServed = {}; // kind -> serves this window (the fair-share pressure)
+let kindTurnMs = {}; // kind -> EWMA ms per turn (the kind-aware ETA)
+let kindWindowStart = Date.now();
+function kindPressureReset(now = Date.now()) {
+  if (now - kindWindowStart > RATION_WINDOW_MS) { kindServed = {}; kindWindowStart = now; }
+}
+function kindServedOf(kind) { kindPressureReset(); return kindServed[kind] ?? 0; }
+function noteKindServed(kind) { kindPressureReset(); kindServed[kind] = (kindServed[kind] ?? 0) + 1; }
+/** The kind-aware per-turn EWMA: a probe's ~2s is not a chat's ~30s, so the
+ *  ETA a waiter is told is the wait in ITS OWN kind's measured units — the
+ *  same EWMA shape as the global lastTurnMs, seeded by it, never a fresh
+ *  constant. */
+function kindTurnMsOf(kind) { return kindTurnMs[kind] ?? null; }
+
 /** A presented pass code is honored only if it is a real, unredeemed code of
  *  the current window — anything else is a typed 400, never a silent
  *  misorder. */
@@ -601,12 +653,18 @@ function pruneWaiters() {
   }
 }
 
-/** Rank a waiter within its lane: interactive work first (a human waiting),
+/** Order a waiter within its lane: interactive work first (a human waiting),
  *  then batch/swarm work — the swarm is always at the back of the cue. Within
- *  a lane, the round-robin holds (last-served sorts last), so a fresh caller
- *  cuts in front of a backlog. */
-function laneRank([, w]) {
-  return (w.priority === "batch" ? 1 : 0) * 1e12 + (w.servedAt ?? 0);
+ *  a lane, the FAIR-SHARE round robin holds on two measured scales: the KIND
+ *  pressure first (a kind the box served more this window yields to a kind it
+ *  served less, so no request kind ever hogs the lane), then last-served (a
+ *  fresh caller cuts in front of a backlog). */
+function laneCmp(a, b) {
+  const [, wa] = a; const [, wb] = b;
+  if ((wa.priority === "batch" ? 1 : 0) !== (wb.priority === "batch" ? 1 : 0)) return (wa.priority === "batch" ? 1 : 0) - (wb.priority === "batch" ? 1 : 0);
+  const ka = kindServedOf(wa.kind); const kb = kindServedOf(wb.kind);
+  if (ka !== kb) return ka - kb;
+  return (wa.servedAt ?? 0) - (wb.servedAt ?? 0);
 }
 
 /** The LINE, in service order — SLA-enforced AND round-robin. A waiter past
@@ -616,7 +674,7 @@ function laneRank([, w]) {
 function lineOrder() {
   const normal = [...waiters.entries()]
     .filter(([, w]) => slaOverMs(w) <= 0)
-    .sort((a, b) => laneRank(a) - laneRank(b));
+    .sort(laneCmp);
   const over = [...waiters.entries()]
     .filter(([, w]) => slaOverMs(w) > 0)
     .sort((a, b) => slaOverMs(b[1]) - slaOverMs(a[1])); // longest past the SLA first
@@ -1476,15 +1534,20 @@ let lastTurnActualMs = null; // the last MEASURED prompt→response wall time (t
 let turnSamples = 0;
 const TURN_MS_SEED = 20000;
 const TURN_MS_FLOOR = 5000;
-export function recordTurnMs(ms) {
+export function recordTurnMs(ms, kind = null) {
   if (!Number.isFinite(ms) || ms <= 0) return;
   lastTurnActualMs = Math.round(ms);
   turnSamples++;
   lastTurnMs = Math.round(0.6 * lastTurnMs + 0.4 * ms); // EWMA
+  if (kind) {
+    const prev = kindTurnMs[kind];
+    kindTurnMs[kind] = prev == null ? Math.round(ms) : Math.round(0.6 * prev + 0.4 * ms); // same EWMA, per kind
+  }
 }
-function etaFor(workAhead) {
-  if (workAhead <= 0) return { ahead: 0, etaMs: 0, perTurnMs: lastTurnMs };
-  return { ahead: workAhead, etaMs: Math.round(workAhead * lastTurnMs), perTurnMs: lastTurnMs };
+function etaFor(workAhead, kind = null) {
+  const perTurnMs = (kind && kindTurnMs[kind] != null) ? kindTurnMs[kind] : lastTurnMs;
+  if (workAhead <= 0) return { ahead: 0, etaMs: 0, perTurnMs };
+  return { ahead: workAhead, etaMs: Math.round(workAhead * perTurnMs), perTurnMs };
 }
 // The disclosure object every surface /heimdall and every thinking block can
 // read: the box's breathing room, in plain numbers.
@@ -1508,6 +1571,15 @@ export function disclosure() {
       etaHuman: eta.etaMs ? `${Math.round(eta.etaMs / 1000)}s` : "now",
       // the live line, head first — who is waiting and where each sits
       positions: [...waiters.keys()].map((k) => ({ caller: k, position: effectivePositionOf(k) })),
+      // the fair-share round robin, disclosed: how many turns of each kind
+      // the box served this window, and each kind's measured per-turn EWMA —
+      // a kind served more yields to one served less, and the ETA a waiter
+      // is told is in its own kind's units.
+      kinds: {
+        served: { ...kindServed },
+        perTurnMs: { ...kindTurnMs },
+        rule: `within a lane, a request kind the box served more this window yields to a kind it served less — a burst of probes can't bury a chat, a build can't hog the box; the ETA you're told is measured in your own kind's turns.`,
+      },
     },
     // multi-device: which device is serving, what turns are claimed (inferred
     // once, by one device at a time), and how a stalled or failed device's
@@ -3689,6 +3761,7 @@ export function admitChat(body = "{}", headers = {}) {
   const model = modelOf(body);
   const family = familyOfRequest(model);
   const key = personKeyOf(headers);
+  const kind = kindOf(headers, body);
   const passCode = String(headers["x-er7-pass"] || "").trim() || null;
   const pass = validPassCode(passCode, headers);
   if (passCode && !pass) {
@@ -3741,8 +3814,9 @@ export function admitChat(body = "{}", headers = {}) {
     profile.turns += 1;
     profile.lastServeAt = Date.now();
     lastServed.set(key, Date.now());
-    appendLog({ act: "crossing", finding: "fast_pass", key, model, family, ungated: true });
-    return { allowed: true, family, model, pass: null, claim, priority: profile.priority, fastPass: true, ungated: true };
+    noteKindServed(kind);
+    appendLog({ act: "crossing", finding: "fast_pass", key, model, family, kind, ungated: true });
+    return { allowed: true, family, model, pass: null, claim, priority: profile.priority, kind, fastPass: true, ungated: true };
   }
 
   // MEMORY GATE (2026-09-19, learned; widened 2026-09-20): a model that is
@@ -3866,13 +3940,16 @@ export function admitChat(body = "{}", headers = {}) {
   const busy = saturated || laneFull;
   const existing = waiters.get(key);
   if (!existing) {
-    // Enqueue with the round-robin marker (when this person was last served),
-    // their work class (batch = the swarm, always at the back), and enteredAt
-    // — the honest start of their wait, for the SLA. enteredAt never refreshes
-    // on retry, so the longest-wait metric is real.
-    waiters.set(key, { at: Date.now(), enteredAt: nowMs(), pass: pass ? pass.code : null, servedAt: lastServed.get(key) ?? 0, priority: profile.priority });
+    // Enqueue with the round-robin markers: the kind of the request that
+    // holds the place (re-polled to the LATEST request's kind), when this
+    // person was last served (a fresh caller cuts in), their work class
+    // (batch = the swarm, always at the back), and enteredAt — the honest
+    // start of their wait, for the SLA. enteredAt never refreshes on retry,
+    // so the longest-wait metric is real.
+    waiters.set(key, { at: Date.now(), enteredAt: nowMs(), pass: pass ? pass.code : null, servedAt: lastServed.get(key) ?? 0, priority: profile.priority, kind });
   } else {
     existing.at = Date.now();
+    existing.kind = kind; // the place now waits for THIS request's kind
     if (pass) existing.pass = pass.code;
   }
 
@@ -3927,9 +4004,10 @@ export function admitChat(body = "{}", headers = {}) {
       profile.turns += 1;
       profile.lastServeAt = Date.now();
       lastServed.set(key, Date.now());
+      noteKindServed(kind);
       waiters.delete(key);
       noteAdmitted();
-      return { allowed: true, family, model, pass: pass ? pass.code : null, claim, priority: profile.priority };
+      return { allowed: true, family, model, pass: pass ? pass.code : null, claim, priority: profile.priority, kind };
     }
     // The box has room, but it is not your turn yet — hold your place.
     const eff = position;
@@ -3961,7 +4039,9 @@ export function admitChat(body = "{}", headers = {}) {
 
 function queueOf(key, position) {
   const workAhead = surfaces.reduce((a, s) => a + s.inflight, 0) + waiters.size;
-  const eta = etaFor(Math.max(0, workAhead));
+  // The ETA in the WAITER'S OWN kind's measured units: a probe ahead is not
+  // a build ahead. Unknown kind falls back to the global EWMA — never a hold.
+  const eta = etaFor(Math.max(0, workAhead), waiters.get(key)?.kind);
   return {
     position: position ?? effectivePositionOf(key),
     workAhead,

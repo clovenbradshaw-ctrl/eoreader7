@@ -429,6 +429,7 @@ export function admit(candidate, {
   invented = null,
   continues = null,
   verse = false,
+  linked = null,
 } = {}) {
   const s = String(candidate ?? "").trim();
   const refused = [];
@@ -444,6 +445,19 @@ export function admit(candidate, {
     const runs = typeof invented === "function" ? (invented(s) ?? []) : [];
     if (runs.length) return { admit: false, road: null, refused: [{ kind: "invented", given: "model", runs }] };
     return { admit: true, road: "verse", core: null, matter: [], refused };
+  }
+
+  // A SENTENCE THE MODEL SAYS IS GROUNDED ONLY IF IT LINKS (2026-09-30, user direction: "anything the model says that can't be
+  // holographically linked to an auditable source is ungrounded by definition"; "trace it in real time and have this activation
+  // feed generation"). `linked` is ground-trace.js's tracer for this composition's ground. A candidate that carries its claim in
+  // no one sentence of the ground is refused on BOTH roads — the motion road admits a turn, never an unsourced claim — and an
+  // admitted one returns the source sentence it lit (`lit`), which the caller deposits so the next window is built from what
+  // the output has not yet lit.
+  let lit = null;
+  if (typeof linked === "function") {
+    const t = linked(s);
+    if (t.status === "ungrounded") return { admit: false, road: null, refused: [{ kind: "unlinked", given: "model", basis: "no sentence of the ground carries more than half of this sentence's words (and its numbers)" }] };
+    if (t.status === "linked") lit = t.link;
   }
 
   const v = variance instanceof Set ? variance : measureVariance(ground, locale);
@@ -541,7 +555,7 @@ export function admit(candidate, {
   const grounded = typeof isGrounded === "function" ? !!isGrounded(s) : null;
   if (grounded || isTurn) {
     const road = grounded && isTurn ? "both" : (isTurn ? "motion" : "matter");
-    return { admit: true, road, core, matter, bond: toPrior, nullMax: nul.max, refused };
+    return { admit: true, road, core, matter, bond: toPrior, nullMax: nul.max, refused, lit };
   }
 
   refused.push({ kind: grounded === null ? "unbonded" : "ungrounded", given: "model", bond: toPrior, nullMax: nul.max });

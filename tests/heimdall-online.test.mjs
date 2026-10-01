@@ -46,6 +46,20 @@ test("down: a failure stands a provider down for a bounded spell; latency is mea
   t += 6 * 60 * 1000;
   assert.equal(reg.pick().provider.name, "google", "back after the spell");
 });
+test("rotation: measured-equal providers rotate, so one rate window is never burned first", () => {
+  const reg = makeOnlineRegistry({ env: { GROQ_API_KEY: "a", GEMINI_API_KEY: "b", MISTRAL_API_KEY: "c" }, keys: {}, now: () => 1 });
+  reg.observe("groq", { ms: 500, ok: true });
+  reg.observe("google", { ms: 520, ok: true });
+  reg.observe("mistral", { ms: 510, ok: true });
+  const picks = [reg.pick(), reg.pick(), reg.pick()].map((p) => p.provider.name);
+  assert.equal(new Set(picks).size, 3, "three measured-equal providers all serve in a row, not one until exhausted");
+  // CONTROL: a clearly-faster provider is never rotated away from — the
+  // spread only ever trades measurement noise, never real speed.
+  const fast = makeOnlineRegistry({ env: { GROQ_API_KEY: "a", GEMINI_API_KEY: "b" }, keys: {}, now: () => 1 });
+  fast.observe("groq", { ms: 100, ok: true });
+  fast.observe("google", { ms: 2000, ok: true });
+  for (let i = 0; i < 3; i++) assert.equal(fast.pick().provider.name, "groq", "a clearly-faster provider wins every call");
+});
 test("wire: an Ollama chat body becomes an OpenAI body with the options mapped; a generate prompt becomes messages", () => {
   const b = toOpenAIBody({ model: "gemma2:2b", messages: [{ role: "user", content: "hi" }], options: { temperature: 0, num_predict: 8 } }, "llama-3.1-8b-instant");
   assert.deepEqual(b, { model: "llama-3.1-8b-instant", messages: [{ role: "user", content: "hi" }], stream: false, temperature: 0, max_tokens: 8 });

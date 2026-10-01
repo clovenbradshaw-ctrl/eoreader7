@@ -8,6 +8,8 @@ import * as ProxyRunner from "./proxy-runner.mjs";
 // and /v1/reason (claude-code-doorway.mjs). Namespace-imported for the same
 // reason as ProxyRunner below.
 import * as ClaudeCodeDoorway from "./claude-code-doorway.mjs";
+// The territory door (territory-door.mjs): a whole folder made sense of almost instantly, then the part you open goes to the reader.
+import * as TerritoryDoor from "./territory-door.mjs";
 // Namespace-imported and destructured so a sibling editing proxy-runner.mjs
 // can never take this process down by removing one export: a missing name is
 // undefined (and defaulted below), never a fatal static-import error.
@@ -54,6 +56,7 @@ function pickDefaultModel() {
 }
 import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
+import { writeJobWorkspace, JobWorkspaceError, safeName } from "./job-workspace.mjs";
 import { runCodeLoop } from "./native/the-fold/code-loop.js";
 import { getCodeDrawMonitor, shipCodeDrawResult } from "./native/kernel/code-draw-monitor.js";
 import { runSwarmTurn } from "./swarm-server.mjs";
@@ -412,6 +415,7 @@ async function handleRequest(req, res) {
   }
 
   if (await ClaudeCodeDoorway.route?.(req, res, { log })) return;
+  if (await TerritoryDoor.route?.(req, res, { log })) return;
 
   // GET / — the self-describing front door. Any app pointed at this base
   // URL with no other knowledge learns every way in, in one request: the
@@ -455,7 +459,13 @@ async function handleRequest(req, res) {
         terms: "GET /v1/search",
         resolve: "POST /v1/search  { target, candidates: [...], pattern?: {source, flags?}, shape?: {kind, args}, allowNearMiss?: bool }",
       },
-      documents: { start: "POST /v1/documents", poll: "GET /v1/documents/:id" },
+      territory: {
+        description: "Make sense of a whole folder almost instantly: an index read in parallel, a map of territories (a split is made only where it shortens the description, each carrying its price), and questions answered from the index. The reader is the deep tier, for what you open.",
+        open: "POST /v1/territory  { root?, k? }  (root defaults to x-er7-workspace)",
+        ask: "POST /v1/territory  { id, q }",
+        deeper: "POST /v1/territory  { id, territory }  -> { documents: [{ name, text }] }, which POST /v1/documents takes as it is",
+      },
+      documents: { start: "POST /v1/documents  { task, model?, workspace? | documents?: [{ name, text }], sessionId?, holonLevel?, webConsent? }", poll: "GET /v1/documents/:id", ledger: "GET /v1/documents/:id_1.jsonl" },
       sessions: { list: "GET /v1/sessions", description: "Every live reader fold on this proxy, newest first. Reuse a sessionId (x-er7-session header or body field) to keep one accumulating fold; list them here." },
       ui: { description: "The built-in browser surface — no sibling repo needed.", open: "GET /ui" },
       heimdall: { description: "The watch — what Heimdall is seeing, live: every surface, every model's throughput, the sequence of prompts, CPU/GPU.", surface: "GET /heimdall-ui", stream: "GET /heimdall/live" },
@@ -977,11 +987,30 @@ async function handleRequest(req, res) {
           res.end(JSON.stringify({ error: { message: `holonLevel must be one of ${[...HOLON_LEVELS].join(", ")} — got "${holonLevel}"`, type: "unknown_holon_level" } }));
           return;
         }
-const job = await startDocumentJob({
+// DOCUMENTS HANDED OVER IN THE REQUEST (2026-09-30): a surface whose sources live in memory (holodeck's browser
+        // workspace) sends `documents: [{ name, text }]`; they are written to a per-job directory the job then reads as
+        // its workspace. One or the other, never both — the ground must have one source.
+        let workspace = parsed.workspace ?? "", sessionId = parsed.sessionId ?? null;
+        if (parsed.documents !== undefined) {
+          if (parsed.workspace) {
+            res.writeHead(400, { "content-type": "application/json" });
+            res.end(JSON.stringify({ error: { message: "send `documents` or `workspace`, not both: the ground must have one source", type: "workspace_and_documents" } }));
+            return;
+          }
+          sessionId = sessionId ?? `er7-doc-${Date.now()}`;
+          try { workspace = writeJobWorkspace({ dir: path.join(HERE, "documents", `${safeName(sessionId)}.workspace`), documents: parsed.documents }).dir; }
+          catch (e) {
+            if (!(e instanceof JobWorkspaceError)) throw e;
+            res.writeHead(e.type === "workspace_write_failed" ? 500 : 400, { "content-type": "application/json" });
+            res.end(JSON.stringify({ error: { message: e.message, type: e.type } }));
+            return;
+          }
+        }
+        const job = await startDocumentJob({
           task: String(parsed.task ?? "").trim(),
           model: parsed.model ?? pickDefaultModel(),
-          workspace: parsed.workspace ?? "",
-          sessionId: parsed.sessionId ?? null,
+          workspace,
+          sessionId,
           holonLevel: parsed.holonLevel ?? "section",
           webConsent: parsed.webConsent === true || parsed.webConsent === "true",
           seed: parsed.seed != null ? String(parsed.seed) : null,
@@ -1314,7 +1343,7 @@ const job = await startDocumentJob({
             if (typeof chunk === "string" && chunk) { noteSurfaceActivity(surface, "chars", { chars: chunk.length }); emitLive({ act: "token", surface, model, sessionId, text: chunk }); }
           }));
           markServable(model); // it answered — Heimdall keeps it servable
-          recordTurnMs(Date.now() - turnT0);
+          recordTurnMs(Date.now() - turnT0, String(req.headers["x-er7-kind"] || "").trim().toLowerCase() || undefined);
           endTurn(_tid); // E1: one row per turn — draws · load · prompt · gen
           _inflight--;
           noteSurfaceActivity(surface, "end");
