@@ -64,7 +64,7 @@ export const CARDS = Object.freeze({
   padTime: { fn: padTime, doc: "a clock time written without padding (0, \"300\", \"1200\") -> \"HH:MM\"; null if it is not a time", tags: "pad padding padded unpadded clock hhmm" },
   joinPresent: { fn: joinPresent, doc: "joinPresent([a, b, c], \", \") joins the parts that are present (not null, undefined or empty); the separator defaults to \", \"", tags: "join joined separator present missing label" },
   haversineKm: { fn: haversineKm, doc: "haversineKm(lat1, lon1, lat2, lon2): great-circle distance in kilometres (not rounded)", tags: "haversine great-circle distance latitude longitude kilometres" },
-  roundTo: { fn: roundTo, doc: "roundTo(x, places): x rounded to that many decimal places (0 for a whole number)", tags: "round rounded rounding decimal decimals places" },
+  roundTo: { fn: roundTo, doc: "roundTo(x, places): x rounded to that many decimal places (0 for a whole number)", tags: "decimal decimals place places" },
   toNumber: { fn: toNumber, doc: "a number or numeric string -> the number; null for anything else (blank, text, missing)", tags: "numeric nan blank coerce" },
 });
 
@@ -146,6 +146,9 @@ export function resolveCard(asked, names = CARD_NAMES) {
 // block: a card is offered when the task's own words name what it is FOR. Matching against the doc PROSE was tried first and offered `compass16` for a commit
 // log because the doc says "name"; so a card declares `tags`, the few words that name its purpose, and a tag shared by several cards counts for less
 // (1 / the number of cards that carry it) — the same reason a rare term outranks a common one in retrieval.
+// Measured 2026-10-01 (bedReport, gemma2:2b, same draw, same task): `keys` alone passed and `cards` failed — the only difference was `roundTo` offered, because the task said
+// "rounded to the nearest whole percent". A whole-number round is `Math.round`, which the model already writes correctly; the card is for DECIMAL PLACES (`toFixed` hands back
+// a string, the shown wrong answer in flightLeg). An offer costs tokens and a draw that flips; it is made only where the card does something the model does not already do.
 /** a card is offered when the summed weight of its tags that the task names reaches this (one tag only that card has, or two shared by two). Set by hand 2026-09-30; measured by falsification on 16 contracts: flightLeg keeps haversineKm and roundTo, topAuthors and dueSoon offer none. */
 export const CARD_RELEVANCE_FLOOR = 1;
 

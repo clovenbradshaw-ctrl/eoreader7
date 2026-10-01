@@ -125,8 +125,13 @@ test("cardsFor: a word many cards share says little about any one — `kilometre
   assert.equal(CARD_RELEVANCE_FLOOR, 1);
 });
 
+test("cardsFor: a whole-number round is Math.round — roundTo is offered for DECIMAL PLACES (the toFixed-returns-a-string trap), not for any use of the word `round`", () => {
+  assert.ok(!cardsFor(task("Turn one ward's bed counts into a status line.", "percentFull = occupied beds as a whole-number percentage of all beds", "percentFull is a NUMBER, rounded to the nearest whole percent (87.5 rounds to 88).")).map((c) => c.name).includes("roundTo"));
+  assert.ok(cardsFor(task("km = the distance rounded to one decimal")).map((c) => c.name).includes("roundTo"));
+});
+
 test("cardsFor is ranked and explained: each offered card says which words of the task named it", () => {
-  const r = cardsFor(task("round the result to 2 decimals", "a number rounded to one decimal"));
+  const r = cardsFor(task("round the result to 2 decimal places", "a number rounded to one decimal"));
   assert.equal(r[0].name, "roundTo"); assert.ok(r[0].words.length >= 2 && r[0].score >= CARD_RELEVANCE_FLOOR);
 });
 
