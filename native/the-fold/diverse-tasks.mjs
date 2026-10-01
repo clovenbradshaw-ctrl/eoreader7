@@ -37,7 +37,7 @@ function diff(got, want, path, out, tol = {}) {
   if (!ok) out.push(`${path} is ${JSON.stringify(got)}, the recorded data says ${JSON.stringify(want)}${t ? ` (±${t})` : `\u0001${JSON.stringify(want)}`}`);
 }
 /** one run: its arguments are cloned fresh for every call (a unit may mutate what it is given), and its check closes over the same arguments */
-export const run = (label, argv, wantOf, tol) => ({ label, args: () => clone(argv), check: (o) => { const f = []; diff(o, wantOf(...clone(argv)), "", f, tol); return f; } });
+export const run = (label, argv, wantOf, tol) => ({ label, args: () => clone(argv), want: () => wantOf(...clone(argv)), check: (o) => { const f = []; diff(o, wantOf(...clone(argv)), "", f, tol); return f; } });
 export const shownOf = (params, values) => params.map((p, i) => `${p} = ${JSON.stringify(values[i])}`).join("\n");
 
 // ---- 1. busTimes ----
