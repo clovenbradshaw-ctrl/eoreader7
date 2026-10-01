@@ -172,6 +172,21 @@ Through the plain doorway (`POST /v1/ask`, no `door` field, gemma2:2b, a three-f
 
 The held-out set (written after the cards) said, as single rows: none of the three card tasks flipped to a pass; qwen used `parseMoney`/`roundTo` correctly on `cartTotal` and failed only the "priciest" logic, gemma ignored the cards; `overdueReport` exposed an argument-order convention (fixed by following the order date-fns, moment and Python use — and both mouths were measured to assume); `readingTime` exposed a return-type confusion (a string method on the array `splitWords` returns — the doc now shows the return). Those are real observations about *why* a draw failed. Whether the mechanisms raise the pass rate is what the sampled run measures.
 
+### The sampled result (qwen2.5-coder:1.5b, first draw, n = 6 per task, 12 tasks — `native/the-fold/results/sample-qwen-2026-10-01.*`)
+
+| | effect | 95% interval (tasks resampled) |
+|---|---|---|
+| cards offered (prompt + wall) vs bare, **pass rate** | +0.03 | −0.04 … +0.13 |
+| cards offered vs bare, **fraction of runs failed** (lower is better) | −0.06 | −0.03 … +0.16 |
+| **canonical reading vs the same draws raw** (paired) | −0.04 | 0.00 … +0.12 |
+| everything vs bare, pass rate | +0.08 | −0.03 … +0.26 |
+
+Read plainly: **no mechanism has a detectable effect on this model's first draw at this sample size**, except that the canonical reading never made a draw worse (its interval's lower edge is 0.00) and was decisive where it applied — `orderTotal` went 0% → 50% passing with the cards offered and → **100%** once the reading replaced the model's own `parseMoney` with the verified one (6 of 6 draws rewritten). The prompt-level offers are mixed per task (helped `orderTotal` and `dueSoon`'s partial credit, nothing for `busTimes`, `flightLeg` or the three held-out card tasks, and made `wordStats` worse: failed fraction 0.80 → 1.00). The no-card control `topAuthors` is 6 of 6 in every arm: no cost there.
+
+Why so flat: in most cells the pass rate is 0 in *every* arm. qwen's first draw is wrong in the **idea** (what to compute: the bound it dropped, the sort direction, the count it returned as an array), not only in the form the reading can fix. The honest bound on a form-level reading is the fraction of failing draws that are one rewrite away from a passing program; the next measurement is to classify the failing draws by cause (idea / form) from their saved code, which the sampler now keeps.
+
+**Revises the answer given earlier today** to "how close are we to gauging intent": reference-level intent is read *safely*, but at this model size its **payoff is small**, because the error mass is idea-level.
+
 ## 5. Where this stands
 
 - Branch `ccr-a3663d65-cv04ak`, draft PR #148. The comp research, structural reader, leaf generation, stigmergic
