@@ -1,4 +1,4 @@
-// eoreader6 · referents/cooccurrence — a second, complementary alias pass
+// the legacy engine · referents/cooccurrence — a second, complementary alias pass
 // over an admitted register, before any edge is asked about.
 //
 // The actual structural-edge question — do two admitted beings recur

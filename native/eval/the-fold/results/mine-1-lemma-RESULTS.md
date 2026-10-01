@@ -161,7 +161,7 @@ load it" exactly as open as it already was for `verbForms`.
 
 `hypergraph.js` (the `sameAct` amendment); `hypergraph.test.mjs` (3 new
 cases); `eval/mine-1-unimorph-lemma.mjs` (new); `eval/fixtures/
-unimorph-morphology-prior.json` (new, built via eoreader6.1's own
+unimorph-morphology-prior.json` (new, built via the legacy engine.1's own
 `scripts/build-morphology-prior.mjs` against the same UniMorph TSV
 already vendored for the verb-forms/ambiguous-word fixtures — 5,531
 irregular lemma/form pairs, the regular tail dropped by design per that

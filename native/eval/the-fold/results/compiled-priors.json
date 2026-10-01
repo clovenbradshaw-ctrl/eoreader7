@@ -807,7 +807,7 @@
   },
   {
    "gap": "not-present",
-   "detail": "POSPrior@1 (bin/priors/pos/en-ud-ewt.json) lives in the legacy-eoreader6.1 submodule, uninitialized in this checkout — the reader below runs without it, disclosed"
+   "detail": "POSPrior@1 (bin/priors/pos/en-ud-ewt.json) lives in the legacy-legacy-engine.1 submodule, uninitialized in this checkout — the reader below runs without it, disclosed"
   }
  ],
  "composed": {

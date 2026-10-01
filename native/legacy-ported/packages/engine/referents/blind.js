@@ -1,4 +1,4 @@
-// eoreader6 · referents/blind — existence detection with no human-named
+// the legacy engine · referents/blind — existence detection with no human-named
 // prior. admitFromPrior (perceiver/text/admit.js) is "received, never
 // derived": correct for WHICH surfaces predicate one being, which is
 // witness-tier knowledge that must be injected. But noticing that

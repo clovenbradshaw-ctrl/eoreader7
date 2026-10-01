@@ -29,15 +29,15 @@ const GIVER = "reader:eoreader7-cli";
 const CANONICALIZATION_FLOOR = 2;
 const ANCHORING = { minActivation: 0.05, minMargin: 0.2 };
 
-// Bundled here, not read from the legacy-eoreader6.1 submodule — a plain
+// Bundled here, not read from the legacy-legacy-engine.1 submodule — a plain
 // `git clone` (no --recurse-submodules) leaves that submodule empty, which
 // broke the CLI's default path entirely. Same file
-// (legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json), copied in, so the CLI
+// (legacy-legacy-engine.1/bin/priors/pos/en-ud-ewt.json), copied in, so the CLI
 // has no submodule dependency at all.
 const DEFAULT_POS_PRIOR = path.join(HERE, "priors/pos-prior-en.json");
 // live_priors is a sibling checkout (see reference_live_priors_github_repo
 // memory) — not vendored here, and not auto-pulled. Resolve it relative to
-// this repo's parent directory, same layout as the eoreader6.1 workspace.
+// this repo's parent directory, same layout as the legacy engine.1 workspace.
 const LIVE_PRIORS_POS = path.join(REPO_ROOT, "..", "live_priors/derived-priors/pos-priors/pos-prior-en.json");
 
 function usage(msg) {
@@ -47,7 +47,7 @@ function usage(msg) {
   <file>              text file to read
   --priors <dir>      directory to resolve priors from; must contain a
                        pos-priors/pos-prior-en.json (or a pos/en-ud-ewt.json,
-                       eoreader6.1-layout, file) unless --priors live_priors
+                       the legacy engine.1-layout, file) unless --priors live_priors
   --priors live_priors  use the live_priors checkout at ../live_priors
                          relative to this repo (run 'git pull' there yourself
                          first — this CLI does not fetch)

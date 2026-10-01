@@ -1,7 +1,7 @@
 // lib/legacy-sibling.mjs — the same refusal posture as fold-sibling.mjs
 // (S65/P95: a driver refuses what its checkout lacks, typed, never an
 // uncaught crash), for the OTHER sibling repo some organs reach into:
-// `legacy-eoreader6.1`, vendored here as a git submodule (.gitmodules) and
+// `legacy-legacy-engine.1`, vendored here as a git submodule (.gitmodules) and
 // left uninitialised on most checkouts — including this repo's own CI
 // (native-kernel.yml checks out eoreader7 alone, submodule or not).
 //
@@ -14,14 +14,14 @@ import { existsSync } from "node:fs";
 
 export class LegacyUnavailableError extends Error {
   constructor(detail) {
-    super(`the sibling legacy-eoreader6.1 checkout is not available: ${detail}`);
+    super(`the sibling legacy-legacy-engine.1 checkout is not available: ${detail}`);
     this.name = "LegacyUnavailableError";
     this.type = "legacy_sibling_unreachable";
   }
 }
 
 /**
- * resolveLegacySibling(metaUrl, upLevels) — the sibling `legacy-eoreader6.1`
+ * resolveLegacySibling(metaUrl, upLevels) — the sibling `legacy-legacy-engine.1`
  * directory, as a `file://`-relative URL string, plus whether it actually
  * exists (an uninitialised submodule leaves the directory present but
  * empty — no package.json — so that counts as absent too).

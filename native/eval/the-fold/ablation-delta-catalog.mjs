@@ -192,7 +192,7 @@ async function main() {
   for (const lang of LANGS) {
     let sentences;
     if (lang.treebank === "ud-english-ewt-held") {
-      const EWT = path.join(here, "../../../legacy-eoreader6.1/scripts/corpus/en_ewt-ud-train.conllu");
+      const EWT = path.join(here, "../../../legacy-legacy-engine.1/scripts/corpus/en_ewt-ud-train.conllu");
       sentences = parseConllu(fs.readFileSync(EWT, "utf8")).filter((_, i) => i % 10 === 9);
     } else {
       const tb = banks.find((b) => b.name === lang.treebank);

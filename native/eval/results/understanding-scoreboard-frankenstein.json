@@ -1,7 +1,7 @@
 {
   "schema": "EOUnderstandingScoreboard@1",
   "material": {
-    "path": "legacy-eoreader6.1/scripts/adversarial/fixtures/pg84-frankenstein.txt",
+    "path": "legacy-legacy-engine.1/scripts/adversarial/fixtures/pg84-frankenstein.txt",
     "encounters": 3392,
     "fast": false
   },

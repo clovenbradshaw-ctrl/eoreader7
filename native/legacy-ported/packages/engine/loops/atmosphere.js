@@ -1,4 +1,4 @@
-// eoreader6 · loops/atmosphere — TURN 1's interpretation cell:
+// the legacy engine · loops/atmosphere — TURN 1's interpretation cell:
 // Interpretation × Ground = ATMOSPHERE. The first place all three tiers can
 // actually run, because its existence tier (nul's VOID) is the only one
 // already solid.

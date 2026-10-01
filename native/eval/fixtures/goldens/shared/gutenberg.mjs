@@ -1,4 +1,4 @@
-// eoreader6 · goldens/shared/gutenberg — Project Gutenberg boilerplate
+// the legacy engine · goldens/shared/gutenberg — Project Gutenberg boilerplate
 // stripping, shared by every golden that reads a PG plaintext edition.
 //
 // Previously duplicated verbatim in goldens/cast/read.mjs (as `body`) and

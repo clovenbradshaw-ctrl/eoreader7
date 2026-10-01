@@ -1,6 +1,6 @@
 // THROWAWAY investigation script — not clean, not meant to stay clean.
 // Investigates whether widget.js::scoutSpan can locate real function
-// definitions (ground/difference/witness) inside eoreader6.1's real
+// definitions (ground/difference/witness) inside the legacy engine.1's real
 // nul/index.js, in contrast to a separate investigation that found
 // packages/host/surfer.js::executePrompt essentially fails at this same
 // task on this same file (lexical-coverage scoring dilutes across the

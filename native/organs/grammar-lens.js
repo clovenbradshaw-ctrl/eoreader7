@@ -30,7 +30,7 @@ tion, Adverb,  and  Conjunction.”
 // classification alongside it — `edge.verb`/`edge.subject`/`edge.object`
 // are never renamed, and nothing here changes what relationFindings/
 // relationsClean/the record already say. The classification itself is
-// eoreader6.1's own new organ, `perceiver/text/wordclass.js`
+// the legacy engine.1's own new organ, `perceiver/text/wordclass.js`
 // (classifyWord/dominantClass, Universal Dependencies UD_English-EWT
 // behind it, CC BY-SA 4.0) — injected the cast.js way, exactly like
 // verbForms/createLemmatizer already are in hypergraph.js. Nothing here
@@ -66,7 +66,7 @@ tion, Adverb,  and  Conjunction.”
 /**
  * @param {object} organs
  * @param {function} organs.classifyWord perceiver/text/wordclass.js's own
- *   export, injected — this file has no import of eoreader6.1 itself.
+ *   export, injected — this file has no import of the legacy engine.1 itself.
  * @param {function} organs.dominantClass ditto.
  * @param {object} organs.posPrior a POSPrior@1-shaped object
  *   (scripts/build-pos-prior.mjs's output) — injected, never assumed

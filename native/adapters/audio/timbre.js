@@ -1,4 +1,4 @@
-// eoreader6 · perceiver/audio — promoted verbatim from eoreader5's
+// the legacy engine · perceiver/audio — promoted verbatim from eoreader5's
 // perceiver/audio/timbre.js. Mel filterbank + DCT coefficients (MFCC-style).
 
 function hzToMel(f) { return 2595 * Math.log10(1 + f / 700); }

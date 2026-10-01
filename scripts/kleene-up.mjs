@@ -28,7 +28,7 @@ const ROOT = path.resolve(HERE, "..");
 
 const SKIP_DIRS = new Set([
   "node_modules", ".git", "documents", "moral-shadows", "canon",
-  "legacy-eoreader6.1", "state", "goldens", ".github", "eval", "plans",
+  "legacy-legacy-engine.1", "state", "goldens", ".github", "eval", "plans",
   "priors", "the-fold", "interpretation", "memory", "adapters", "conformance",
 ]);
 const SKIP_FILES = new Set(["package-lock.json"]);

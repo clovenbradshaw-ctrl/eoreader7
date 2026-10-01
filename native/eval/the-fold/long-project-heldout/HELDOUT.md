@@ -84,7 +84,7 @@ following were never opened, read, or touched:
 - `long-project/PREREGISTRATION.md` — not opened at all, at any point.
 - `eoreader7-context-doorway/` (the whole directory) — not read.
 - `eoreader7/proxy-runner.mjs`, `eoreader7/proxy.mjs` — not read.
-- `legacy-eoreader6.1/` — not read.
+- `legacy-legacy-engine.1/` — not read.
 - `long-project/results/`, `long-project/frozen-v1/` — not read.
 - `/private/tmp/` — not read as a source of information (only used, as
   instructed, as this session's own scratchpad for temporary working files

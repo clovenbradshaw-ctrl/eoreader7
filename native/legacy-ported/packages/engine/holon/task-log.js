@@ -1,4 +1,4 @@
-// eoreader6 · engine/holon/task-log — the append-only log, re-earned as
+// the legacy engine · engine/holon/task-log — the append-only log, re-earned as
 // engine code.
 //
 // Re-earned, not ported (constitution Article I.2: "nothing is ported from

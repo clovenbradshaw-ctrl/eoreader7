@@ -1,4 +1,4 @@
-// eoreader6 · perceiver/video — real frames in, motion energy per transition
+// the legacy engine · perceiver/video — real frames in, motion energy per transition
 // out. Material is mean absolute pixel difference between consecutive
 // grayscale frames: "perceive only by difference" made literal for the
 // visual modality. No optical-flow library, no synthetic cut-timing array —

@@ -74,7 +74,7 @@ const ASSEMBLY =
 // about a path. Both known layouts are tried and the one found is DECLARED.
 
 const KERNEL_LAYOUTS = [
-  { name: "eoreader6.1 (packages/engine)", cube: "../../eoreader6.1/packages/engine/operators.js", log: "../../eoreader6.1/packages/engine/holon/task-log.js" },
+  { name: "the legacy engine.1 (packages/engine)", cube: "../../legacy-engine.1/packages/engine/operators.js", log: "../../legacy-engine.1/packages/engine/holon/task-log.js" },
   { name: "eoreader7 (native/kernel)", cube: "../../kernel/cube.js", log: "../../kernel/task-log.js" },
 ];
 

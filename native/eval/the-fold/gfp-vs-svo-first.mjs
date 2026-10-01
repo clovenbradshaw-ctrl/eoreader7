@@ -20,7 +20,7 @@
 // labels (root VERB + its nsubj* + its obj/iobj), never hand-picked, using
 // the identical rule applied to both routes' predictions.
 //
-// CORPUS: legacy-eoreader6.1/scripts/corpus/en_ewt-ud-train.conllu, the
+// CORPUS: legacy-legacy-engine.1/scripts/corpus/en_ewt-ud-train.conllu, the
 // SAME every-tenth-sentence held-out split english-parser.js's own 95.2/
 // 81.2/77.0 numbers were measured on (english-parser.test.mjs), so this
 // experiment's numbers sit on the same footing as that baseline.
@@ -54,7 +54,7 @@ import { rootTripleFrom, scoreClaims, scrambleTokens, fisherGreater } from "./cl
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(here, "../../..");
-const EWT = path.join(ROOT, "legacy-eoreader6.1/scripts/corpus/en_ewt-ud-train.conllu");
+const EWT = path.join(ROOT, "legacy-legacy-engine.1/scripts/corpus/en_ewt-ud-train.conllu");
 const POS_PRIOR = path.join(ROOT, "native/priors/pos-en.json");
 const PARSER_MODEL = path.join(ROOT, "native/priors/parser-eng-ewt.json");
 

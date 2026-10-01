@@ -1,6 +1,6 @@
 // eval/local-llm-patch-nul-index.mjs — can a real local LLM propose a
 // genuine, mechanically-checked improvement to real code from
-// eoreader6.1/nul/index.js, using the-fold's OWN real build-iteration
+// the legacy engine.1/nul/index.js, using the-fold's OWN real build-iteration
 // ladder (build-log.js + widget.js::scoutSpan + witness.js)?
 //
 // Run: node eval/local-llm-patch-nul-index.mjs
@@ -46,7 +46,7 @@ import { readFileSync } from "node:fs";
 const buildLog = makeBuildLog(taskLog);
 const INFLECTIONAL_SUFFIXES = enginePriors.INFLECTIONAL_SUFFIXES;
 
-const SOURCE_PATH = "/home/user/eoreader6.1/nul/index.js";
+const SOURCE_PATH = "/home/user/legacy-engine.1/nul/index.js";
 const FULL_CODE = readFileSync(SOURCE_PATH, "utf8");
 
 const PATCH_SCHEMA = {
@@ -335,7 +335,7 @@ async function main() {
         turn: 1,
         caption: "nul/index.js",
         seg: { type: "code", lang: "js", code: FULL_CODE },
-        instruction: "the real eoreader6.1 nul/index.js source, as a build to iterate on",
+        instruction: "the real the legacy engine.1 nul/index.js source, as a build to iterate on",
       }),
     };
   }

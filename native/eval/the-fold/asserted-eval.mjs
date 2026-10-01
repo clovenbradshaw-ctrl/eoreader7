@@ -30,7 +30,7 @@
 //      exactly that wherever it lands.
 //
 // DECLARED NUMBERS, fixed before the first run and not revisited
-// (eoreader6.1's tune-nothing-against-the-answer rule):
+// (the legacy engine.1's tune-nothing-against-the-answer rule):
 //
 //   · draws = 200, seed = 0 — the arm's resolution; this repo's standing
 //     null-arm number (the kinds arm, the measure door, the reflex meter

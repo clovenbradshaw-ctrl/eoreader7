@@ -82,7 +82,7 @@ for (const p of paths) {
   loaded.push({ kind: "prose", name, path: p, bytes: text.length, chunks: cs.length, sha256: createHash("sha256").update(text).digest("hex").slice(0, 16) });
 }
 const corpusId = createHash("sha256").update(loaded.map((l) => `${l.kind}:${l.name}:${l.sha256}`).join("|")).digest("hex").slice(0, 16);
-const POS_PRIOR_PATH = `${ROOT}eoreader7/legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json`;
+const POS_PRIOR_PATH = `${ROOT}eoreader7/legacy-legacy-engine.1/bin/priors/pos/en-ud-ewt.json`;
 const READING_ASSEMBLY = "causalTextPerceiver+reviseTextFold@refresh25";
 const RESULTS_ROOT = join(NATIVE, "eval/the-fold/results");
 const READING_PATH = join(RESULTS_ROOT, "readings", `${corpusId}-${READING_ASSEMBLY.replace(/[^\w.-]+/g, "_")}.jsonl`);

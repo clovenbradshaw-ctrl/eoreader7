@@ -85,7 +85,7 @@ export function createSession({ spanCap = DEFAULT_SPAN_CAP, engineVersion } = {}
 
 // ── serializeSession / deserializeSession — the export/reimport boundary ────
 //
-// eoreader6 itself makes no persistence claim (SEED.md/CUBE.md name none) —
+// the legacy engine itself makes no persistence claim (SEED.md/CUBE.md name none) —
 // but a HOST built on this library (eochat, storing sessions in an
 // origin-private OPFS) cannot honor "reimported state is fold-equivalent to
 // the original" if the library it wraps offers no way to carry a session's

@@ -1,4 +1,4 @@
-// eoreader6 · engine/interpretation/hl — HL, a content-general logic for
+// the legacy engine · engine/interpretation/hl — HL, a content-general logic for
 // the Interpretation domain (DEF SIG EVA... no: DEF EVA REC — the kernel's
 // own "Significance triad", same domain `operators.js` calls
 // Interpretation). Re-earned as engine code, not left in an application

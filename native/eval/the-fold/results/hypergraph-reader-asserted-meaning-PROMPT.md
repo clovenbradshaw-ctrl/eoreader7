@@ -90,7 +90,7 @@ Not a bigger vocabulary. A mechanism where a candidate edge is a claim the
 extractor STAKES, with evidence, and can be made to withdraw:
 
 1. **Search for the organ before writing one — this repo's own rule, from
-   `eoreader6.1/CLAUDE.md`.** Before inventing a new statistic: read
+   `the legacy engine.1/CLAUDE.md`.** Before inventing a new statistic: read
    `nul/index.js`'s `LICENSED` perturbation table end to end and ask
    whether a test for "is this really the predicate" already exists there
    under a different name (a perturbation that swaps the candidate verb
@@ -121,7 +121,7 @@ extractor STAKES, with evidence, and can be made to withdraw:
    result proves it).** Concretely:
    - A stratified, BLIND hand-precision check — pull a genuinely random
      sample of edges (not "the ones that scored `bound`"), write the
-     rubric down BEFORE looking at any aggregate number (the eoreader6.1
+     rubric down BEFORE looking at any aggregate number (the legacy engine.1
      "never tune against a golden's score" discipline, applied to
      *scoring the metric itself*, not just to a threshold), and report the
      result even if it's ugly.
@@ -144,7 +144,7 @@ extractor STAKES, with evidence, and can be made to withdraw:
    night already ran on**: state a threshold's justification BEFORE
    running it against a golden, not after (the `minArrivals=4` structural
    derivation is the house example — worth re-reading in
-   `eoreader6.1/CLAUDE.md`'s "never tune a parameter" section); disclose a
+   `the legacy engine.1/CLAUDE.md`'s "never tune a parameter" section); disclose a
    negative result with the same weight as a positive one (every file this
    session produced does this — keep doing it); stay local-only, no
    hosted judge, mechanical organs only, per P1/P4/P20 — a "reader" here
@@ -162,7 +162,7 @@ extractor STAKES, with evidence, and can be made to withdraw:
 2. Read `nul/index.js`'s `LICENSED` table and `emergence/activation.js`
    fully before writing anything — the search-first rule is not optional
    here, this repo has already paid for skipping it once (`goldens/network`'s
-   postmortem, `eoreader6.1/CLAUDE.md`'s own opening section).
+   postmortem, `the legacy engine.1/CLAUDE.md`'s own opening section).
 3. Prototype the self-corroboration idea as a small, PURE, standalone
    function against 3–5 real essays by hand, read the actual output the
    way `mine-1-next-steps.md`'s two rejected attempts did ("read the

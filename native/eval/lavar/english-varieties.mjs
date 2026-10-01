@@ -62,7 +62,7 @@ function conllSentences(text, { formCol = 1, tagCol = 3, idPattern = /^\d+$/ } =
   return sents;
 }
 
-const EWT = path.join(ROOT, "legacy-eoreader6.1", "scripts", "corpus", "en_ewt-ud-train.conllu");
+const EWT = path.join(ROOT, "legacy-legacy-engine.1", "scripts", "corpus", "en_ewt-ud-train.conllu");
 const CORAAL = ["dcb", "prv", "roc"].map((c) => path.join(DPC, "coraal", c));
 const NAIJA_UD = ["train_sample", "dev_sample", "test_sample"].map((s) => path.join(DPC, "creoleval", "pos_ud_naija_pcm", `pcm_nsc-ud-${s}.conllu`));
 const SINGLISH = ["train_sample", "dev", "test"].map((s) => path.join(DPC, "creoleval", "pos_singlish", `${s}.conll`));

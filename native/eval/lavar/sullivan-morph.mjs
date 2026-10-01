@@ -66,7 +66,7 @@ const SPANS = {
 const TREEBANKS = [
   {
     lang: "en", name: "English EWT", language: { iso: "eng", name: "English", stage: "Present-day English, web register" },
-    learn: path.resolve(HERE, "..", "..", "..", "legacy-eoreader6.1", "scripts", "corpus", "en_ewt-ud-train.conllu"),
+    learn: path.resolve(HERE, "..", "..", "..", "legacy-legacy-engine.1", "scripts", "corpus", "en_ewt-ud-train.conllu"),
     // the conllu lives in the legacy corpus; its README and license are
     // shipped in a fixture directory of their own (fetched 2026-09-25)
     readme: path.join(FIX, "ud-english-ewt", "README.md"), licenseFile: path.join(FIX, "ud-english-ewt", "LICENSE.txt"),

@@ -18,7 +18,7 @@
 // words at all — the omnimodal commitment, same as material.js and spans.js.
 //
 // RE-EARNED, NOT PORTED. eoreader-chat carried this machinery for eoreader5's
-// corpus; it is brought here under eoreader6's terms, with the measured
+// corpus; it is brought here under the legacy engine's terms, with the measured
 // lessons carried as design rather than copied as code:
 //
 //  1. A heading is form, not content. A short line, followed by a blank line,

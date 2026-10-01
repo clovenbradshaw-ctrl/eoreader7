@@ -1,6 +1,6 @@
 # Prior-art inventory — what past readers already proved, and where each organ's v7 seat is
 
-The archive on this disk IS the past versions: eoreader6.1's engine and its
+The archive on this disk IS the past versions: the legacy engine.1's engine and its
 attempt log (READING-POLICY A1–A25 — each entry a mistake made once),
 module headers that carry eoreader5's lessons forward verbatim
 (morphology.js: "ported from eoreader5's packages/def/morphology.js, which
@@ -91,10 +91,10 @@ with a real pattern() gap and an `Object.is` identity assertion; suite
 1188/1175, zero regressions) — drafted by a 1.5B local model through
 the-fold's referent-scout/byte-delta pipeline and adversarially verified
 (650-combination differential), full account in the-fold's
-`eval/results/referent-patch-RESULTS.md`. The eoreader6.1 remote is
+`eval/results/referent-patch-RESULTS.md`. The the legacy engine.1 remote is
 outside this session's push scope, so the commit also ships as a
 `git am`-able patch: the-fold
-`eval/results/eoreader6.1-witness-gap-passthrough.patch`.
+`eval/results/legacy-witness-gap-passthrough.patch`.
 
 **`perceiver/text/narrator.js` / `presence.js`** — unread here beyond
 their names; named so the next pass greps before building anything

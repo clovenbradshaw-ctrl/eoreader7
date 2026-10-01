@@ -54,7 +54,7 @@
 //     fixed live while building this.)
 // Both nulls take declared {draws, seed, alpha} — undeclared throws, this
 // project's own standing rule (II.23: a threshold nobody chose is not a
-// threshold) — citing legacy-eoreader6.1/packages/host/population.js's
+// threshold) — citing legacy-legacy-engine.1/packages/host/population.js's
 // LINK_SPEC as the convention's giver (a declared-parameters shape to
 // follow, not literal numbers to copy).
 //

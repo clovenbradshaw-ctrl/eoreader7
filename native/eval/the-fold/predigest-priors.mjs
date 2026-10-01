@@ -19,7 +19,7 @@
 // The reader is the REAL native recursive reader with the same assembly
 // experienced-new-book.mjs uses, minus one prior this checkout does not
 // carry: POSPrior@1 (bin/priors/pos/en-ud-ewt.json) was retired out of the
-// legacy-eoreader6.1 submodule to cli/priors/pos-prior-en.json (2026-09-10)
+// legacy-legacy-engine.1 submodule to cli/priors/pos-prior-en.json (2026-09-10)
 // but this driver does not read it — recorded in the artifact's `received`
 // inventory as a named gap, never quietly dropped.
 //
@@ -78,7 +78,7 @@ function receivedInventory() {
   point("../priors/construction-eng.json", "UPOS distributions, UD_English-EWT");
   point("../priors/morphology-eng.json", "UniMorph irregular tail");
   point("native/eval/the-fold/fixtures/unimorph-morphology-prior.json", "UniMorph morphology prior, the-fold fixture");
-  rows.push({ gap: "not-present", detail: "POSPrior@1 lives at cli/priors/pos-prior-en.json (vendored out of legacy-eoreader6.1 2026-09-10) — this driver does not read it, the reader below runs without it, disclosed" });
+  rows.push({ gap: "not-present", detail: "POSPrior@1 lives at cli/priors/pos-prior-en.json (vendored out of legacy-legacy-engine.1 2026-09-10) — this driver does not read it, the reader below runs without it, disclosed" });
   return rows;
 }
 

@@ -229,7 +229,7 @@ into one verdict is the failure, not a simplification of it.
 
 Domain A's relation edges (\`contradicted\`/\`bound\`) are hand-typed against
 the real, verbatim material shown above — the real relation extractor
-(\`hypergraph.js::makeRelationReader\`) needs \`eoreader7/legacy-eoreader6.1\`,
+(\`hypergraph.js::makeRelationReader\`) needs \`eoreader7/legacy-legacy-engine.1\`,
 an uninitialized submodule in this checkout, and was not run. What IS real
 throughout: the classification and ledger code (\`metacognition.js\`,
 unmodified), the material's own bytes for Domain A, and the arithmetic

@@ -81,7 +81,7 @@ const runB = flow({ seed: 4242, n: 3072, burstEvery: 72, amp: 1.2 });
 
 // ── F0, the licensed statistical door: is there structure at all? ────────
 // measure.js's own gate + nul, not a hand-rolled test. The declaration is
-// fixed before the run (eoreader6.1's tune-nothing rule): window 8 = the
+// fixed before the run (the legacy engine.1's tune-nothing rule): window 8 = the
 // planted structure's own width, draws 200 = this repo's standing null-arm
 // number, seed 0.
 fs.writeFileSync(`${OUT}/run-a.csv`, "u,v\n" + [...runA.u].map((x, i) => `${x},${runA.v[i]}`).join("\n"));
@@ -89,7 +89,7 @@ const table = { head: ["u", "v"], rows: [...runA.u].map((x, i) => [x, runA.v[i]]
 // through the REAL door — parseMeasure, not a hand-built object: a
 // hand-built declaration reached admit() with the wrong field names and
 // was refused `undeclared`, which is the door working. The declaration is
-// fixed before the run (eoreader6.1's tune-nothing rule): window 8 = the
+// fixed before the run (the legacy engine.1's tune-nothing rule): window 8 = the
 // planted structure's own half-width, draws 200 = this repo's standing
 // null-arm number, windowMean/shuffle = a pair nul itself licenses.
 const parsed = parseMeasure(`/measure ${OUT}/run-a.csv series:u as:windowMean broken:shuffle draws:200 window:8 seed:0`);

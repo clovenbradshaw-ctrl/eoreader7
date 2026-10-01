@@ -1,6 +1,6 @@
 // notes-text-recipe.test.mjs — recipeId's own tests, in a SEPARATE file on
 // purpose (the notes-text-stance.test.mjs precedent): notes-text.test.mjs
-// reaches the engine through ../eoreader7/legacy-eoreader6.1, an
+// reaches the engine through ../eoreader7/legacy-legacy-engine.1, an
 // uninitialised submodule in this checkout, so that whole file cannot load —
 // a case appended there would silently never execute. recipeId itself needs
 // no engine organ (LP5's identity is over a plain descriptor object), so it

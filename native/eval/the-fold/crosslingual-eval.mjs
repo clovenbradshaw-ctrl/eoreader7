@@ -61,7 +61,7 @@
 // scale; running it there was this pass's own first mistake.
 //
 // PRIOR ART, found by searching before building anything new (this repo's
-// own house rule): eoreader6.1/scripts/word-order.mjs already asked the
+// own house rule): the legacy engine.1/scripts/word-order.mjs already asked the
 // adjacent question — English vs. Basque (a case-marked, freer-order
 // language), measured by embedding-cosine drift under shuffle, on the SAME
 // pg2600 War and Peace file — and named the mechanism this predicts: "Any
@@ -102,7 +102,7 @@ import { makeRelationReader } from "../../../../the-fold/hypergraph.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ENGINE = join(HERE, "..", "..", "adapters", "text");
-const HOST = join(HERE, "..", "..", "..", "legacy-eoreader6.1", "packages", "host", "index.js");
+const HOST = join(HERE, "..", "..", "..", "legacy-legacy-engine.1", "packages", "host", "index.js");
 
 const DRAWS = 200;
 const SEED = 0;

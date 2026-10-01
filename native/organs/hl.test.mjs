@@ -1,7 +1,7 @@
 // node --test hl.test.mjs
 //
 // The core logic's own conformance now lives at
-// eoreader6.1/packages/engine/interpretation/hl.test.mjs (22 cases,
+// the legacy engine.1/packages/engine/interpretation/hl.test.mjs (22 cases,
 // including the omnimodal non-linguistic check) — not duplicated here.
 // This file tests exactly what's the-fold's to own: the adapter, against
 // both a synthetic edge shape and the REAL public edge face of a real

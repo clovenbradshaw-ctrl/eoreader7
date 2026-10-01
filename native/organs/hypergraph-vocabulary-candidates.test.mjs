@@ -1,6 +1,6 @@
 // hypergraph-vocabulary-candidates.test.mjs — vocabulary.candidates, a
 // SEPARATE file on purpose: hypergraph.test.mjs reaches the engine through
-// ../eoreader7/legacy-eoreader6.1, an uninitialised submodule in this
+// ../eoreader7/legacy-legacy-engine.1, an uninitialised submodule in this
 // checkout, so a case appended there would silently never execute (the same
 // precedent hyperlexicon-stance.test.mjs already established). This tests
 // against eoreader7's real NATIVE organs instead — a real sibling here.

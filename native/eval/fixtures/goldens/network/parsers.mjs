@@ -1,4 +1,4 @@
-// eoreader6 · goldens/network/parsers — reading the four received ground
+// the legacy engine · goldens/network/parsers — reading the four received ground
 // truths back into one shape: { nodes: [name, …], edges: [{a, b, weight}] }.
 //
 // Every parser here only READS a frozen third-party artifact (goldens/network/

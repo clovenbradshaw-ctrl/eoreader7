@@ -1,4 +1,4 @@
-// eoreader6 · spec/canonical-json — deterministic bytes for a sealed record.
+// the legacy engine · spec/canonical-json — deterministic bytes for a sealed record.
 //
 // Re-earned from eoreader5's packages/spec/canonical-json, not copied: v5's
 // canonicalizer is kept (it is correct and the rules below are its rules), but

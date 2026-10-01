@@ -3,7 +3,7 @@
 //
 // SEPARATE FILE, the same reason notes-text-stance.test.mjs states in its
 // own header: `notes-text.test.mjs` reaches the engine through
-// `legacy-eoreader6.1`, an uninitialised submodule in some checkouts, so a
+// `legacy-legacy-engine.1`, an uninitialised submodule in some checkouts, so a
 // test appended there can silently never run. These import eoreader7's
 // NATIVE kernel — a real sibling — so the seam is exercised wherever this
 // repo is checked out.

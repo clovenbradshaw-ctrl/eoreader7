@@ -121,7 +121,7 @@ function medianFromHistogram(entries, total) {
  *
  * `medianGap` is a declared standard summary of the pooled gaps, never a
  * tuned threshold: no value of it was ever chosen by checking what it did to
- * a target's score (eoreader6.1's own "never tune a parameter by checking
+ * a target's score (the legacy engine.1's own "never tune a parameter by checking
  * what it does to a golden's own score").
  */
 export function deriveRhythmPrior(items = [], { id = "rhythm-prior", giver, minWorkSupport = 1 } = {}) {

@@ -2,7 +2,7 @@
 // logic (not/and/or/exists/forall). Before this file, this machinery had
 // ZERO test coverage anywhere in this repo: no conformance test imported
 // interpretation/hl.js at all, and the only prior compound-logic suite
-// (eoreader6.1-RETIRED/packages/engine/interpretation/hl.test.mjs, 22
+// (the legacy engine.1-RETIRED/packages/engine/interpretation/hl.test.mjs, 22
 // cases) sat in a retired checkout and never exercised AND/OR at the one
 // pair that actually distinguishes a genuine four-valued lattice from a
 // linearized approximation of one — its own "compounds" test only ever
@@ -138,7 +138,7 @@ test("AND/OR: exhaustive cross-check against canonical FDE (all 16 pairs x 2 ope
 test("AND/OR: the cross-term a linear order gets wrong — CONTESTED with UNBOUND", () => {
   // This is the specific pairing the retired suite's own "compounds" test
   // never reached (it only ever combined BOUND/CONTRADICTED/BEYOND_REACH —
-  // grep eoreader6.1-RETIRED/packages/engine/interpretation/hl.test.mjs's
+  // grep the legacy engine.1-RETIRED/packages/engine/interpretation/hl.test.mjs's
   // own "compounds" case to confirm). Pinned by name, not just folded into
   // the exhaustive loop above, so a future refactor that breaks this one
   // pair fails with a message naming exactly what regressed.

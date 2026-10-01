@@ -23,7 +23,7 @@ test("canonical text API exposes native encounter, perception, and revision", ()
 test("native text adapter never imports legacy or historical engine paths", () => {
   for (const file of walk(textDir)) {
     const source = fs.readFileSync(file, "utf8");
-    assert.doesNotMatch(source, /legacy-eoreader6\.1/, `${file} imports the frozen provider`);
+    assert.doesNotMatch(source, /legacy-legacy-engine/, `${file} imports the frozen provider`);
     assert.doesNotMatch(source, /packages\/engine/, `${file} imports historical engine paths`);
   }
 });

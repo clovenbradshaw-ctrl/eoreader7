@@ -1,4 +1,4 @@
-// eoreader6 · perceiver/text/wordclass — Dionysius Thrax's eight parts of
+// the legacy engine · perceiver/text/wordclass — Dionysius Thrax's eight parts of
 // speech as a giver-named LENS over a word, never a fact this engine
 // derives. Composes two already-received priors; invents no new mechanism.
 //

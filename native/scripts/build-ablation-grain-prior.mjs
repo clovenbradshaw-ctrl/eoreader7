@@ -113,7 +113,7 @@ async function deltasForLanguage(sentences, seedKey) {
 
 async function main() {
   console.log("=== English (UD_English-EWT, held-out tenth) ===");
-  const EWT = path.join(ROOT, "legacy-eoreader6.1/scripts/corpus/en_ewt-ud-train.conllu");
+  const EWT = path.join(ROOT, "legacy-legacy-engine.1/scripts/corpus/en_ewt-ud-train.conllu");
   const engSents = parseConllu(fs.readFileSync(EWT, "utf8")).filter((_, i) => i % 10 === 9);
   const engDeltas = await deltasForLanguage(engSents, "ablation-grain-prior-eng");
   const engPrior = buildCentroidsFrom(engDeltas, {

@@ -13,7 +13,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 // morphologyFromPrior takes the already-parsed prior (the native-boundary
 // wall keeps adapters/text/ from touching the filesystem itself) — loadMorphology
 // did its own fs.readFileSync; the read now happens here at the call site,
-// ported out of legacy-eoreader6.1/packages/engine/perceiver/text/morphology.js
+// ported out of legacy-legacy-engine.1/packages/engine/perceiver/text/morphology.js
 // 2026-09-10, same schema check, same behavior.
 const prior = morphologyFromPrior(JSON.parse(fs.readFileSync(path.resolve(here, "../priors/morphology-eng.json"), "utf8")));
 const lem = createLemmatizer(prior.forms, { language: prior.language });

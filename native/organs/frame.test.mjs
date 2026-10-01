@@ -46,7 +46,7 @@ test("the id is content-addressed: same declaration, same frame; any component m
 });
 
 test("THE WALL: cross-frame verdicts refuse comparison, NAMING the components that differ; unframed verdicts join nothing", { skip: SKIP }, async () => {
-  const legacy = (await declareFrame({ organs: { provider: "legacy-eoreader6.1" }, givers: {}, numbers: {} })).frame;
+  const legacy = (await declareFrame({ organs: { provider: "legacy-legacy-engine.1" }, givers: {}, numbers: {} })).frame;
   const native = (await declareFrame({ organs: { provider: "native" }, givers: {}, numbers: {} })).frame;
   const va = framed({ verdict: "bound", passing: 54 }, legacy);
   const vb = framed({ verdict: "bound", passing: 52 }, native);
@@ -57,7 +57,7 @@ test("THE WALL: cross-frame verdicts refuse comparison, NAMING the components th
   const cross = comparable(va, vb, { frames: { [legacy.id]: legacy, [native.id]: native } });
   assert.equal(cross.comparable, false);
   assert.equal(cross.refused, "cross_frame");
-  assert.deepEqual(cross.differs, [{ at: "organs.provider", a: "legacy-eoreader6.1", b: "native" }],
+  assert.deepEqual(cross.differs, [{ at: "organs.provider", a: "legacy-legacy-engine.1", b: "native" }],
     "the refusal carries WHICH ground differs — 54 vs 52 is about the frames, not the material");
 
   assert.equal(comparable({ verdict: "bound" }, va).refused, "unframed");

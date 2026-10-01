@@ -1,4 +1,4 @@
-// eoreader6 · engine/ground-floor — the measured minimum-ground floors
+// the legacy engine · engine/ground-floor — the measured minimum-ground floors
 // shared by the organs built on nul/index.js's difference()-driven
 // ground/observe mechanism (emergence/fold.js, formation/index.js's
 // `collapse`, loops/turn.js's `buildAt`, and loops/atmosphere.js's
@@ -71,7 +71,7 @@ export const TIME_PATTERN_FLOOR = (window) => 3 * window;
  * GROUND_FLOOR_DIFFERENCE refuses to even BUILD a ground; this gate decides
  * whether to trust a proposed regime-boundary reset, which never builds a
  * ground from the short regime alone. See candidates.js's own call site
- * (and eoreader6 PR #38) for why "matches groundFrom's floor" was checked
+ * (and the legacy engine PR #38) for why "matches groundFrom's floor" was checked
  * and found wrong twice over.
  */
 export const CANDIDATE_TRUST_FLOOR = (window) => window + 2;

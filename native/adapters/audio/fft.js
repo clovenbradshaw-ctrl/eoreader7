@@ -1,4 +1,4 @@
-// eoreader6 · perceiver/audio — promoted verbatim from eoreader5's
+// the legacy engine · perceiver/audio — promoted verbatim from eoreader5's
 // perceiver/audio/fft.js. Iterative radix-2 Cooley-Tukey FFT, in place on parallel re/im arrays.
 // Framework-free: runs in browser and plain node.
 

@@ -11,7 +11,7 @@
 // exactly the low-margin half. The motivating real failure -- "Photosynthesis
 // converts light energy into..." mistagging "converts" as NOUN (margin
 // 4.627) -- traces to a real data gap: `grep -c "^converts\t"
-// legacy-eoreader6.1/scripts/corpus/en_ewt-ud-train.conllu` returns 0, and
+// legacy-legacy-engine.1/scripts/corpus/en_ewt-ud-train.conllu` returns 0, and
 // the lemma "convert" occurs only 3 times total in the whole training
 // treebank (too sparse to build anything from alone).
 //

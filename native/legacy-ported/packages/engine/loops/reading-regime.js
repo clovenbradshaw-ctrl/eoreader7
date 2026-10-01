@@ -1,4 +1,4 @@
-// eoreader6 · loops/reading-regime — Assembly B of "11 — Terrain occupancy
+// the legacy engine · loops/reading-regime — Assembly B of "11 — Terrain occupancy
 // and the two ascents": wires emergence/activation.js's measured channels
 // into loops/atmosphere.js's regime tracker, so an Atmosphere can be built
 // from the reader's own accumulated recall instead of only the material's

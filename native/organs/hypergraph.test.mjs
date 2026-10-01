@@ -28,7 +28,7 @@ import { readFileSync } from "node:fs";
 // silently; `ENGINE=native node --test hypergraph.test.mjs` runs the
 // PRODUCTION configuration, and the delta between them is a measurement
 // anyone can take instead of a surprise.
-// The frozen provider was ported out of the legacy-eoreader6.1 submodule to
+// The frozen provider was ported out of the legacy-legacy-engine.1 submodule to
 // native/legacy-ported/packages/engine/perceiver/text/ on 2026-09-10 (see
 // eoreader7/CLAUDE.md), so it is now always present in this checkout;
 // `ENGINE=legacy` still pins it explicitly and `ENGINE=native` (the

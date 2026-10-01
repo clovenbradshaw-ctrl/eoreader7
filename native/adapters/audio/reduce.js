@@ -1,4 +1,4 @@
-// eoreader6 · perceiver/audio/reduce — the pure half, importable anywhere.
+// the legacy engine · perceiver/audio/reduce — the pure half, importable anywhere.
 //
 // Split out of material.js (2026-08-17) for one reason only: material.js's
 // `load` decodes with the system ffmpeg, so the module imports

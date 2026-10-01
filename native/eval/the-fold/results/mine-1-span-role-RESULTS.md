@@ -18,9 +18,9 @@ standing in as a referent-anchor, because "recurs ≥2 times" has no
 noun/adjective distinction.
 
 The reframe, from the user directly: these words don't mean things
-objectively — they are contextual and point at referents. eoreader6.1's
+objectively — they are contextual and point at referents. the legacy engine.1's
 own stripped research scratch (`scripts/experiments/FINDINGS.md`, found by
-checking whether eoreader6/5/4.2 had already solved this) had independently
+checking whether legacy-engine/5/4.2 had already solved this) had independently
 reached the identical conclusion for a related problem (agent-role
 resolution in civic text): **"a surface span is never the thing with a
 part of speech — the referent is."** Aggregating a word's occurrences into
@@ -31,7 +31,7 @@ fill a given role, by one causal recurrent hop?
 
 ## What was built
 
-`packages/engine/perceiver/text/roles.js` (new, in `eoreader6.1`) —
+`packages/engine/perceiver/text/roles.js` (new, in `the legacy engine.1`) —
 `resolveSpanRole`, the general sibling of `pronouns.js::resolvePronouns` at
 the same quarantine level: both are thin text-tier consumers of
 `emergence/activation.js`'s fully domain-agnostic mechanism (`tokens`/

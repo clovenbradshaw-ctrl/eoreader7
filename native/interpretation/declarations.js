@@ -1,4 +1,4 @@
-// eoreader6 · engine/interpretation/declarations — an append-only register
+// the legacy engine · engine/interpretation/declarations — an append-only register
 // for hl.js declarations, with REC concession for the case hl.js's own
 // persistence rule (R4) does not cover.
 //

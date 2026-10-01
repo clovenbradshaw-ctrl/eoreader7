@@ -1,4 +1,4 @@
-// eoreader6 · perceiver/text — turns real text into the numeric material `nul`
+// the legacy engine · perceiver/text — turns real text into the numeric material `nul`
 // requires. Unicode-aware (not ASCII-only): a ground built from this must
 // hold for any script, not just English, or the omnimodal commitment is a
 // lie for every language but one.

@@ -12,7 +12,7 @@ const CURRENT = new Set(["NUL","SIG","INS","SEG","CON","SYN","DEF","EVA","REC"])
 test("native kernel has no legacy implementation dependency", () => {
   for (const name of fs.readdirSync(kernelDir).filter((x) => x.endsWith(".js"))) {
     const text = fs.readFileSync(path.join(kernelDir, name), "utf8");
-    assert.equal(text.includes("legacy-eoreader6.1"), false, `${name} imports the legacy provider`);
+    assert.equal(text.includes("legacy-legacy-engine.1"), false, `${name} imports the legacy provider`);
     assert.equal(text.includes("packages/engine"), false, `${name} imports the compatibility engine`);
     assert.equal(text.includes("../engine/"), false, `${name} reaches back into historical engine paths`);
   }

@@ -1,7 +1,7 @@
 // arrangement.test.mjs — end1/label/end2, added alongside subject/verb/object.
 // A SEPARATE file on purpose, the same precedent hyperlexicon-stance.test.mjs
 // and hypergraph-vocabulary-candidates.test.mjs already established:
-// hypergraph.test.mjs reaches the engine through ../eoreader7/legacy-eoreader6.1,
+// hypergraph.test.mjs reaches the engine through ../eoreader7/legacy-legacy-engine.1,
 // an uninitialised submodule in this checkout, so a case appended there would
 // silently never execute. This tests against eoreader7's real NATIVE organs.
 //

@@ -54,13 +54,13 @@ measured).
 
 **Candidate:** the engine's kind-induction pair — `induceKinds` plus its
 null arm (`emergence/kinds.js` + `host/terrains.js::kindsNullArm`,
-eoreader6.1) — already live in Explore's kinds view, already carrying the
+the legacy engine.1) — already live in Explore's kinds view, already carrying the
 discipline this cell needs (per-population null arm, `finestRank`,
 `refused-as-underpowered`). Inducing a Kind from recurrence and signing
 it provisionally is a natural Relate·Existence·Pattern reading.
 
 **To confirm:** the typing (nominated, not documented), and the PATH —
-the organ lives in the legacy engine (`eoreader7/legacy-eoreader6.1/...`),
+the organ lives in the legacy engine (`eoreader7/legacy-legacy-engine.1/...`),
 which this checkout cannot even read (uninitialized submodule), and the
 registry has so far only named modules the page/tests can resolve.
 Registering a legacy-engine module is a real decision (Constitution I.2

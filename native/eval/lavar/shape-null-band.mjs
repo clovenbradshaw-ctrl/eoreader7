@@ -135,7 +135,7 @@ function loadProps(ch) {
 }
 
 // -------------------------------------------------------------------------
-// Reused verbatim from eoreader6.1 packages/host/terrains.js — the organ's
+// Reused verbatim from the legacy engine.1 packages/host/terrains.js — the organ's
 // real production configuration. Never hand-picked for this test.
 const ATMOSPHERE_REGIME = Object.freeze({ window: 5, draws: 256, tolerance: 3, hop: 5 });
 const CHUNK_WORDS = 40;

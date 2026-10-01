@@ -1,4 +1,4 @@
-// eoreader6 · goldens/shared/chance — a Monte Carlo chance baseline, shared.
+// the legacy engine · goldens/shared/chance — a Monte Carlo chance baseline, shared.
 //
 // Without this a recall number is uninterpretable: eoreader5's span-golden
 // once reported 5/21 for a year with no baseline attached, and 5/21 turns

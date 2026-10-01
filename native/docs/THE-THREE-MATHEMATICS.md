@@ -214,7 +214,7 @@ superseded "HELIX" ordering — an INVERSION. The canon, checked at its
 sources on user direction, says the opposite:)*
 
 **The canonical order is NUL → SIG → INS → SEG → CON → SYN → DEF → EVA →
-REC.** Givers: `eoreader6/CUBE.md` line 39 (`operator = (mode, domain)
+REC.** Givers: `legacy-engine/CUBE.md` line 39 (`operator = (mode, domain)
 NUL SIG INS / SEG CON SYN / DEF EVA REC`); the handbook's
 construction-language chapter, which states it as a **strict linear
 dependency chain** and reports that *"of nearly thirteen hundred possible

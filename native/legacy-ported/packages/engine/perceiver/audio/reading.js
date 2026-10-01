@@ -1,4 +1,4 @@
-// eoreader6 · perceiver/audio — promoted verbatim from eoreader5's
+// the legacy engine · perceiver/audio — promoted verbatim from eoreader5's
 // perceiver/audio/reading.js. The field-vector perceiver: PCM in, Reading@1
 // out (per-frame chroma+timbre+moments). Structure-neutral by construction —
 // onsets, beats, segmentation are emergence's, never this module's.

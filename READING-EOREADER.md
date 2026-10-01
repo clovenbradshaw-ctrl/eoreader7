@@ -611,8 +611,8 @@ browser internals (`the-fold/`, the folding of a turn to a ~100-character
 line plus an addressed record); the modality adapters (audio, image, video,
 math, midi, chat); the swarm internals (`swarm-server.mjs`, the capacity
 swarm, `POST /v1/swarm`); the Heimdall queue mechanics; the sealed-room
-transport (Matrix, E2EE). And the legacy: `eoreader6.1` is retired and frozen
-(`eoreader7/LEGACY-EOREADER6.1.md`).
+transport (Matrix, E2EE). And the legacy: `the legacy engine.1` is retired and frozen
+(`eoreader7/LEGACY-ENGINE.md`).
 
 ## The walls, restated once
 

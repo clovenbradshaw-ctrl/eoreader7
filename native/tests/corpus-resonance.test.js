@@ -1,7 +1,7 @@
 // tests/corpus-resonance.test.js — requires a real, local Ollama with
 // nomic-embed-text pulled (this file makes no non-embedding fallback, on
 // purpose — see corpus-resonance.js's own header). Skips cleanly, same
-// pattern this repo already uses for the legacy-eoreader6.1 submodule,
+// pattern this repo already uses for the legacy-legacy-engine.1 submodule,
 // when that real dependency is not present rather than failing the run.
 import test from "node:test";
 import assert from "node:assert/strict";

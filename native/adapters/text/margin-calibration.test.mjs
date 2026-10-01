@@ -29,7 +29,7 @@ import { fisherGreater } from "../../eval/the-fold/claim-null-scoring.mjs";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "..", "..", "..");
 const MODEL = path.join(ROOT, "native", "priors", "parser-eng-ewt.json");
-const EWT = path.join(ROOT, "legacy-eoreader6.1", "scripts", "corpus", "en_ewt-ud-train.conllu");
+const EWT = path.join(ROOT, "legacy-legacy-engine.1", "scripts", "corpus", "en_ewt-ud-train.conllu");
 const ready = fs.existsSync(MODEL) && fs.existsSync(EWT);
 
 test("CALIBRATION: margin predicts real tagging correctness on the held-out tenth, floor below measurement", { skip: !ready }, () => {
