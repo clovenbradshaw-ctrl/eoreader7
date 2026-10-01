@@ -9,6 +9,8 @@
 // really there, and record the resolution as a typed transformation:
 //
 //   const_to_let      a `const` assigned again later. The program throws as written, so the only reading is the one the model meant.
+//   redeclared_to_assignment  a `const`/`let` declared twice in one scope — a SyntaxError the engine itself names ("Identifier 'x' has already been declared"); the later
+//                     declaration is the assignment it was meant to be. Kept only if re-compiling shows that error gone.
 //   call_resolved     a call to a name nothing declares, which the referent rules resolve to exactly ONE verified card (cards.js):
 //                     `cToF(` is `celsiusToFahrenheit(`. Ambiguous and unknown names are FINDINGS, never guessed (`mph` starts three).
 //   key_resolved      a read of a key the received object lacks, which the wall resolved to exactly one real key (key-referents.js):
@@ -25,7 +27,32 @@ import { freeCalls, declaredIn, resolveCard, CARD_NAMES } from "./cards.js";
 
 export const CANONICAL_SCHEMA = "EOCanonicalCode@1";
 
+/** the engine's own message for source that does not compile, or null; `Function` compiles without running, in a browser as in node */
+const syntaxError = (src) => { try { new Function(String(src).replace(/^\s*export\s+(?:default\s+)?/gm, "")); return null; } catch (e) { return e instanceof SyntaxError ? e.message : null; } };
+
 const esc = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Names the ENGINE says are declared twice in one scope, and the code with each later declaration read as an assignment. The engine names the identifier; the rewrite is
+ * tried one declaration at a time and kept only if the error for that name is gone after re-compiling — never by guessing which scope two declarations share.
+ */
+export function redeclaredToAssignment(code) {
+  let out = String(code ?? ""); const names = [];
+  for (let guard = 0; guard < 12; guard++) {
+    const m = /Identifier '([^']+)' has already been declared/.exec(syntaxError(out) ?? "");
+    if (!m) break;
+    const name = m[1], hits = [...out.matchAll(new RegExp(`\\b(?:const|let|var)\\s+${esc(name)}(\\s*=)`, "g"))];
+    let fixed = false;
+    for (let i = hits.length > 1 ? 1 : 0; i < hits.length && !fixed; i++) {
+      const h = hits[i], candidate = out.slice(0, h.index) + name + h[1] + out.slice(h.index + h[0].length), again = syntaxError(candidate);
+      // progress is: it compiles, or the only thing left is ANOTHER name declared twice. A rewrite that trades this error for a different kind is not kept.
+      const other = again === null || (/has already been declared/.test(again) && !again.includes(`'${name}'`));
+      if (other) { out = candidate; names.push(name); fixed = true; }
+    }
+    if (!fixed) break;
+  }
+  return { code: out, names };
+}
 
 /**
  * `const` names assigned again later (`const at = ...; at = ...; at += ...; at++`). The engine's own message ("Assignment to constant variable")
@@ -75,6 +102,10 @@ export function canonicalize(suggestion, { resolutions = [], cardNames = CARD_NA
   const input = String(suggestion ?? "");
   let code = input;
   const transformations = [], findings = [];
+
+  const re = redeclaredToAssignment(code);
+  for (const name of re.names) transformations.push({ kind: "redeclared_to_assignment", name, basis: "declared twice in one scope, which does not compile; the later declaration is read as the assignment it was meant to be" });
+  code = re.code;
 
   for (const v of constReassigned(code)) {
     const re = new RegExp(`\\bconst(\\s+${esc(v)}\\s*=)`, "g");
