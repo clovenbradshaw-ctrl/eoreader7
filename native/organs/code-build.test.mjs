@@ -7,7 +7,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import vm from "node:vm";
-import { buildCodeTask, taskLanguage, unitPrompt, planUnits } from "./code-build.js";
+import { buildCodeTask, taskLanguage, unitPrompt, planUnits, extractUnit } from "./code-build.js";
 import { readAnchorLog, settledContent } from "../adapters/build/code-anchor-log.js";
 
 const TASK = "Write a JavaScript module with these functions: describeTemp(celsius) returns the temperature in Fahrenheit rounded to one decimal, like 72.5F; tally(numbers) returns the sum of an array of numbers.";
@@ -101,4 +101,25 @@ test("the record outlives the run: each draw lands as a suggestion and a canonic
 
 test("planUnits is unchanged: only call-shaped names are units", () => {
   assert.deepEqual(planUnits(TASK).map((u) => u.name), ["describeTemp", "tally"]);
+});
+
+test("extractUnit keeps the WHOLE unit: a body is full of lines that start with const/let (the cut that shipped every JavaScript unit with a local variable as a bare signature)", () => {
+  const text = "```js\nfunction windLabel(ms) {\n  const mph = ms * 2.2369362920544;\n  let s = Math.round(mph);\n  return `${s} mph`;\n}\n\nfunction other(x) {\n  const y = 1;\n  return y;\n}\n```";
+  const got = extractUnit(text, "windLabel");
+  assert.match(got, /^function windLabel\(ms\) \{/); assert.match(got, /const mph/); assert.match(got, /return `\$\{s\} mph`;\n\}$/); assert.doesNotMatch(got, /other/);
+  assert.equal(run(got, "windLabel(10)"), "22 mph");
+});
+
+test("extractUnit ends a unit at ITS closing brace: strings, template literals and comments that hold braces do not fool it; an arrow and a const function are units too", () => {
+  const tricky = "function f(a) {\n  // a } in a comment\n  const s = \"}\" + `{${a}}`; /* } */\n  if (a) { return s; }\n  return '{';\n}\nfunction g() { return 1; }";
+  assert.match(extractUnit(tricky, "f"), /return '\{';\n\}$/); assert.doesNotMatch(extractUnit(tricky, "f"), /function g/);
+  assert.equal(extractUnit("const sq = (x) => x * x;\nconst cube = (x) => x * x * x;", "sq"), "const sq = (x) => x * x;");
+  assert.equal(extractUnit("const add = (a, b) => {\n  const t = a + b;\n  return t;\n};\nconst z = 1;", "add"), "const add = (a, b) => {\n  const t = a + b;\n  return t;\n};");
+  assert.equal(extractUnit("function nope() {}", "missing"), "");
+});
+
+test("extractUnit for Python ends at the first line indented no deeper than the def: a nested def stays, the next top-level function does not", () => {
+  const text = "def tally(numbers):\n    def add(a, b):\n        return a + b\n    total = 0\n    for n in numbers:\n        total = add(total, n)\n    return total\n\ndef other():\n    return 1\n";
+  const got = extractUnit(text, "tally");
+  assert.match(got, /def add/); assert.match(got, /return total$/); assert.doesNotMatch(got, /other/);
 });

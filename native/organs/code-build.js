@@ -101,16 +101,40 @@ const clean = (txt) => {
   const m = /(?:def |function |const |class )[\s\S]*/.exec(t);
   return (m ? m[0] : t).trim();
 };
-// Keep EXACTLY the unit named — split on definition boundaries and take the
-// chunk whose own name matches (the model often emits every function it sees).
-function extractUnit(text, name) {
+// Keep EXACTLY the unit named (the model often emits every function it sees). The END of a unit is where its own body ends — braces for
+// JavaScript, indentation for Python — never "the next line that starts with const": a body is full of lines that do, and splitting there shipped
+// every JavaScript unit with a local variable cut off at its first one (measured 2026-10-01: windLabel and legMiles came back as a bare signature).
+const indentOf = (line) => line.match(/^[ \t]*/)[0].replace(/\t/g, "    ").length;
+/** the index just past the statement that starts at `from`: the `}` that closes its first `{`, or the end of an arrow-expression body; strings, template literals and comments are skipped */
+function jsUnitEnd(src, from) {
+  let depth = 0, seen = false;
+  for (let i = from; i < src.length; i++) {
+    const c = src[i], n = src[i + 1];
+    if (c === "/" && n === "/") { while (i < src.length && src[i] !== "\n") i++; i--; continue; }
+    if (c === "/" && n === "*") { const e = src.indexOf("*/", i + 2); i = e < 0 ? src.length : e + 1; continue; }
+    if (c === "'" || c === '"' || c === "`") { for (i++; i < src.length && src[i] !== c; i++) if (src[i] === "\\") i++; continue; }
+    if (c === "{" || c === "(" || c === "[") { depth++; if (c === "{") seen = true; continue; }
+    if (c === "}" || c === ")" || c === "]") { depth--; if (depth <= 0 && c === "}" && seen) return src[i + 1] === ";" ? i + 2 : i + 1; continue; }
+    if (depth === 0 && !seen && (c === ";" || (c === "\n" && /=>\s*[^\s=]/.test(src.slice(from, i)) && !/[=>,+\-*/&|?:(]\s*$/.test(src.slice(from, i))))) return c === ";" ? i + 1 : i;
+  }
+  return src.length;
+}
+export function extractUnit(text, name) {
   const t = String(text ?? "").replace(/```[a-z]*/gi, "");
   const esc = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const chunks = t.split(/\n(?=[ \t]*(?:def|async def|function|const|let|var|class)[ \t])/);
-  const head = new RegExp(`^[ \\t]*(?:async[ \\t]+)?def[ \\t]+${esc}[ \\t]*\\(`);
-  const jshead = new RegExp(`^[ \\t]*(?:function[ \\t]+${esc}[ \\t]*\\(|(?:const|let|var)[ \\t]+${esc}[ \\t]*=)`);
-  const hit = chunks.find((c) => head.test(c) || jshead.test(c));
-  return (hit || "").trim();
+  const pyHead = new RegExp(`^[ \\t]*(?:async[ \\t]+)?def[ \\t]+${esc}[ \\t]*\\(`);
+  const jsHead = new RegExp(`^[ \\t]*(?:(?:export[ \\t]+)?(?:async[ \\t]+)?function[ \\t]*\\*?[ \\t]*${esc}[ \\t]*\\(|(?:export[ \\t]+)?(?:const|let|var)[ \\t]+${esc}[ \\t]*=)`);
+  const lines = t.split("\n");
+  const at = lines.findIndex((l) => pyHead.test(l) || jsHead.test(l));
+  if (at < 0) return "";
+  if (pyHead.test(lines[at])) {
+    const base = indentOf(lines[at]);
+    let end = at + 1;
+    while (end < lines.length && (lines[end].trim() === "" || indentOf(lines[end]) > base)) end++;
+    return lines.slice(at, end).join("\n").trim();
+  }
+  const from = lines.slice(0, at).reduce((n, l) => n + l.length + 1, 0);
+  return t.slice(from, jsUnitEnd(t, from)).trim();
 }
 
 /** Build the file the NL task named: decompose → concurrent draws → assemble →
