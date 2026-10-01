@@ -115,14 +115,15 @@ function extractUnit(text, name) {
 
 /** Build the file the NL task named: decompose → concurrent draws → assemble →
  *  validate. `testCommand` (optional) is the gate; without it the assembled
- *  file is written and disclosed as UNVERIFIED (never dressed as tested). */
-export async function buildCodeTask({ task, model, testCommand = null, out = null, parallelism = 2, drawFn = draw, anchorDir = null } = {}) {
+ *  file is written and disclosed as UNVERIFIED (never dressed as tested).
+ *  `read: false` is the falsification control: no operations offered, no canonical stage. */
+export async function buildCodeTask({ task, model, testCommand = null, out = null, parallelism = 2, drawFn = draw, anchorDir = null, read = true } = {}) {
   const started = Date.now();
   const units = planUnits(task);
   if (!units.length) return { ok: false, error: "no independent units found in the task — not a discrete build (defer to the normal turn)" };
   const unitNames = units.map((u) => u.name);
   // the operations the task's own words name (JavaScript tasks only), never one the file itself is asked to define
-  const offered = taskLanguage(task) === "js" ? cardsFor({ doc: task }).map((c) => c.name).filter((n) => !unitNames.includes(n)) : [];
+  const offered = read && taskLanguage(task) === "js" ? cardsFor({ doc: task }).map((c) => c.name).filter((n) => !unitNames.includes(n)) : [];
   const draws = await pool(units, parallelism, (u) => drawFn(model, unitPrompt(task, u.name, offered)));
   // A draw is a SUGGESTION. What it means is read, resolved against what really exists (the card library; the file's own units), and the
   // reading is recorded as typed transformations (code-canonical.js). Adopted only where the code still parses: a rewrite that breaks it is refused.
@@ -130,7 +131,7 @@ export async function buildCodeTask({ task, model, testCommand = null, out = nul
   const transformations = [], unresolved = [], ambiguous = [];
   const parts = draws.map((d, i) => {
     const raw = extractUnit(d?.text || "", units[i].name);
-    if (!raw || !looksJs(raw)) return raw;
+    if (!read || !raw || !looksJs(raw)) return raw; // read:false is the control arm — the draw is shipped as said, which is what this door did before it read anything
     const can = canonicalize(raw, { cardNames: cardPool, declared: unitNames.filter((n) => n !== units[i].name) });
     const adopted = can.changed && adoptIf(parses(raw) ? 1 : 0, parses(can.code) ? 1 : 0);
     const code = adopted ? can.code : raw;
