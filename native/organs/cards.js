@@ -76,11 +76,11 @@ export const CARDS = Object.freeze({
   radiansToDegrees: { fn: radiansToDegrees, doc: "an angle in radians -> the same angle in degrees (what Math.atan2 and Math.acos hand back)", tags: "radians degrees angle trigonometry bearing", aliases: "degrees toDegrees toDeg radToDeg rad2deg radtodeg", aliasGiver: "Python math.degrees, numpy.degrees/rad2deg, Java Math.toDegrees", converts: "radians degrees" },
   compass16: { fn: compass16, doc: "a bearing in degrees -> its 16-point compass name (\"N\", \"NNE\", ... \"NNW\")", tags: "compass bearing direction degrees cardinal" },
   padTime: { fn: padTime, doc: "a clock time written without padding (0, \"300\", \"1200\") -> \"HH:MM\"; null if it is not a time", tags: "pad padding padded unpadded clock hhmm" },
-  joinPresent: { fn: joinPresent, doc: "joinPresent([a, b, c], \", \") joins the parts that are present (not null, undefined or empty); the separator defaults to \", \"", tags: "join joined separator present missing label" },
+  joinPresent: { fn: joinPresent, doc: "joinPresent([a, b, c], \", \") joins the parts that are present (not null, undefined or empty); the separator defaults to \", \"", tags: "join joined separator present missing label", min: 2 },
   haversineKm: { fn: haversineKm, doc: "haversineKm(lat1, lon1, lat2, lon2): great-circle distance in kilometres (not rounded)", tags: "haversine great-circle distance latitude longitude kilometres" },
   roundTo: { fn: roundTo, doc: "roundTo(x, places): x rounded to that many decimal places (0 for a whole number)", tags: "decimal decimals place places" },
-  parseMoney: { fn: parseMoney, doc: "a money amount, a number or text like \"$1,234.50\" or \"12.5\" -> the number; null if it is not an amount (US formatting: dot for decimals, comma for thousands)", tags: "money price prices currency dollars amount cost" },
-  daysBetween: { fn: daysBetween, doc: "daysBetween(from, to): whole calendar days from the first ISO date \"YYYY-MM-DD\" to the second (month lengths and leap years counted; negative when the second is earlier; NaN if either is not a date)", tags: "calendar days overdue elapsed late due" },
+  parseMoney: { fn: parseMoney, doc: "a money amount, a number or text like \"$1,234.50\" or \"12.5\" -> the number; null if it is not an amount (US formatting: dot for decimals, comma for thousands)", tags: "money price prices currency dollars" },
+  daysBetween: { fn: daysBetween, doc: "daysBetween(from, to): whole calendar days from the first ISO date \"YYYY-MM-DD\" to the second (month lengths and leap years counted; negative when the second is earlier; NaN if either is not a date)", tags: "calendar overdue elapsed" },
   splitWords: { fn: splitWords, doc: "text -> its words in order, case as written: runs of letters, digits and apostrophes (punctuation and hyphens separate words); [] for none", tags: "words word tokenize tokens" },
   toNumber: { fn: toNumber, doc: "a number or numeric string -> the number; null for anything else (blank, text, missing)", tags: "numeric nan blank coerce" },
 });
@@ -168,6 +168,9 @@ export function resolveCard(asked, names = CARD_NAMES) {
 // block: a card is offered when the task's own words name what it is FOR. Matching against the doc PROSE was tried first and offered `compass16` for a commit
 // log because the doc says "name"; so a card declares `tags`, the few words that name its purpose, and a tag shared by several cards counts for less
 // (1 / the number of cards that carry it) — the same reason a rare term outranks a common one in retrieval.
+// Measured 2026-10-01 on the held-out set: a tag that is an ordinary word offers the card wherever the word appears — `day` offered daysBetween on three weather tasks, `amount`
+// offered parseMoney for a precipitation amount, `join`+`missing` offered joinPresent for a tree path. Tags name the PURPOSE (calendar, overdue, money, currency); a card whose
+// tags are everyday words declares `min: 2`, the number of distinct tags the task must name.
 // Measured 2026-10-01 (bedReport, gemma2:2b, same draw, same task): `keys` alone passed and `cards` failed — the only difference was `roundTo` offered, because the task said
 // "rounded to the nearest whole percent". A whole-number round is `Math.round`, which the model already writes correctly; the card is for DECIMAL PLACES (`toFixed` hands back
 // a string, the shown wrong answer in flightLeg). An offer costs tokens and a draw that flips; it is made only where the card does something the model does not already do.
@@ -201,7 +204,7 @@ export function cardsFor(contract, names = CARD_NAMES) {
   const df = new Map();
   for (const d of tagged) for (const w of d.t) df.set(w, (df.get(w) ?? 0) + 1);
   return tagged.map((d) => { const shared = d.t.filter((w) => task.has(w)); return { name: d.n, score: shared.reduce((a, w) => a + 1 / df.get(w), 0), words: shared }; })
-    .filter((c) => c.score >= CARD_RELEVANCE_FLOOR)
+    .filter((c) => c.score >= CARD_RELEVANCE_FLOOR && c.words.length >= (CARDS[c.name].min ?? 1)) // `min`: a card whose tags are everyday words (join, missing) needs two of them
     .filter((c) => { const [from, to] = (CARDS[c.name].converts ?? "").split(" ").map(stem); if (!to) return true; const d = directed(from, to); return !(d.backward && !d.forward); })
     .sort((a, b) => b.score - a.score);
 }

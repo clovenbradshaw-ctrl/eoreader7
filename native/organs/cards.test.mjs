@@ -208,3 +208,12 @@ test("splitWords: letters, digits and apostrophes make a word; punctuation and h
   assert.deepEqual(f("It's a dog-eat-dog world; isn't it?"), ["It's", "a", "dog", "eat", "dog", "world", "isn't", "it"]);
   assert.deepEqual(f("naïve café 42nd"), ["naïve", "café", "42nd"]); assert.deepEqual(f(""), []); assert.deepEqual(f("!!! ... ---"), []); assert.deepEqual(f(null), []);
 });
+
+test("a tag that is an ordinary word does not offer a card on its own: `day` is not calendar arithmetic, `amount` is not money, and `joined … missing` in a tree-path spec is not a label join (the three misfires measured on the held-out set)", () => {
+  const names = (...a) => cardsFor(task(...a)).map((c) => c.name);
+  assert.deepEqual(names("Show the forecast for the next 3 days.", "an array of { day, high, low }"), [], "days is not daysBetween");
+  assert.deepEqual(names("Report the rain.", "precipitation = the amount that fell, in millimetres"), [], "an amount is not money");
+  assert.deepEqual(names("List every leaf of a menu as a path.", "its path from the root joined with \"/\"", "An entry whose children list is absent is a leaf."), [], "one of its tags (`joined`) is not enough: min: 2");
+  assert.ok(names("Make a label from the name and region joined with a comma, leaving out any part that is missing.").includes("joinPresent"), "two of its tags: it is offered");
+  assert.equal(CARDS.joinPresent.min, 2);
+});

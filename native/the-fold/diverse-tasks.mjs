@@ -16,8 +16,8 @@
 // names in the prompt are noise to a model that needs none of them), that is a cost the mechanism has to show it does not carry.
 // Samples are small and inline; every run after the first is a row the prompt did not show, so a function that only reproduces the
 // shown example fails the rest.
-const clone = (v) => JSON.parse(JSON.stringify(v));
-const r1 = (x) => Math.round(x * 10) / 10, r2 = (x) => Math.round(x * 100) / 100;
+export const clone = (v) => JSON.parse(JSON.stringify(v));
+export const r1 = (x) => Math.round(x * 10) / 10, r2 = (x) => Math.round(x * 100) / 100;
 
 /** deep compare of a function's answer against the wanted one: every failure names the path, what came back and what the data says; scalars carry the expected value for the runner to locate in the input */
 function diff(got, want, path, out, tol = {}) {
@@ -37,8 +37,8 @@ function diff(got, want, path, out, tol = {}) {
   if (!ok) out.push(`${path} is ${JSON.stringify(got)}, the recorded data says ${JSON.stringify(want)}${t ? ` (±${t})` : `\u0001${JSON.stringify(want)}`}`);
 }
 /** one run: its arguments are cloned fresh for every call (a unit may mutate what it is given), and its check closes over the same arguments */
-const run = (label, argv, wantOf, tol) => ({ label, args: () => clone(argv), check: (o) => { const f = []; diff(o, wantOf(...clone(argv)), "", f, tol); return f; } });
-const shownOf = (params, values) => params.map((p, i) => `${p} = ${JSON.stringify(values[i])}`).join("\n");
+export const run = (label, argv, wantOf, tol) => ({ label, args: () => clone(argv), check: (o) => { const f = []; diff(o, wantOf(...clone(argv)), "", f, tol); return f; } });
+export const shownOf = (params, values) => params.map((p, i) => `${p} = ${JSON.stringify(values[i])}`).join("\n");
 
 // ---- 1. busTimes ----
 const padHHMM = (t) => { const s = String(t).padStart(4, "0"); return s.slice(0, 2) + ":" + s.slice(2); };
