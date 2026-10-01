@@ -35,6 +35,11 @@ test("distance: 1 mile = 1.609344 km exactly; a 42.195 km marathon is 26.2188 mi
   near(CARDS.kmToMiles.fn("8"), 4.970969537898672, 1e-9);
 });
 
+test("freeCalls sees a call nested inside another call: `roundTo(cToF(x))` has TWO calls and the inner one is the free one (a scan that consumed the `(` before each name hid every nested call)", () => {
+  assert.deepEqual(freeCalls(`function f(x) { return roundTo(cToF(x.c), 1) + wrap(pad(x.t), mph(x.k)); }`).sort(), ["cToF", "mph", "pad", "wrap"]);
+  assert.deepEqual(freeCalls(`function f(x) { return a.b(c(x)) + d(e(f2(x))); }`).sort(), ["c", "d", "e", "f2"]);
+});
+
 test("compass16: each of the sixteen points at its own bearing, the seam at 360, negatives, and the half-step rounding", () => {
   const rose = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
   rose.forEach((name, i) => assert.equal(CARDS.compass16.fn(i * 22.5), name, `${i * 22.5} is ${name}`));

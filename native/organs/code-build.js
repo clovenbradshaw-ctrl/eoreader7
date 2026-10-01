@@ -14,8 +14,12 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import vm from "node:vm";
 import { execSync } from "node:child_process";
 import { validatePython, validateHtml } from "../../postprocess.mjs";
+import { CARD_NAMES, cardsFor, cardsDoc, cardSource } from "./cards.js";
+import { canonicalize, adoptIf } from "./code-canonical.js";
+import { proposeCanonical, readAnchorLog, appendAnchorLog } from "../adapters/build/code-anchor-log.js";
 
 const OLLAMA = process.env.ER7_OLLAMA_URL ?? "http://localhost:11434";
 
@@ -62,6 +66,26 @@ async function pool(items, limit, fn) {
   return out;
 }
 
+/** What the task's own words say the language is: "js", "py", or null when it does not say. The cards are JavaScript, so they are only offered to a task that asks for it. */
+export function taskLanguage(task) {
+  const t = String(task ?? "");
+  const js = /\b(javascript|typescript|node(?:\.?js)?|ecmascript|js)\b|\.m?js\b|=>/i.test(t);
+  const py = /\b(python|py|pytest)\b|\.py\b|\bdef\s+\w+\s*\(/i.test(t);
+  return js && !py ? "js" : py && !js ? "py" : null;
+}
+
+const looksJs = (code) => /\b(function|=>|const |let |require\(|export )/.test(code) && !/^\s*def |^\s*import |^\s*from /m.test(code);
+const parses = (code) => { try { new vm.Script(String(code).replace(/^\s*export\s+(?:default\s+)?/, "")); return true; } catch { return false; } };
+
+/** Calls the host environment provides, so a call to one is not "a name nothing declares" (cards.js GLOBALS holds the language's own; these are the platform's). */
+const ENVIRONMENT_CALLS = new Set(["require", "fetch", "setTimeout", "setInterval", "clearTimeout", "clearInterval", "queueMicrotask", "structuredClone", "Buffer", "URL", "URLSearchParams", "TextEncoder", "TextDecoder", "AbortController", "atob", "btoa", "alert", "prompt", "confirm", "readFileSync", "writeFileSync", "test", "describe", "it", "expect", "assert"]);
+
+/** The one-unit prompt. A JavaScript task is shown the operations its own words name (cards.js cardsFor): the model CALLS them instead of re-deriving them. */
+export function unitPrompt(task, name, offered = []) {
+  const base = `Write ONLY raw code (no prose, no markdown fences) for EXACTLY ONE function, named \`${name}\` — do NOT output any other function. It is one unit of this file: ${task}\nOutput only the single function \`${name}\`. Assume each function takes a string argument.`;
+  return offered.length ? `${base}\nThese functions already exist — call them, do not write them yourself, and do not declare them:\n${cardsDoc(offered)}` : base;
+}
+
 async function draw(model, prompt, { maxTokens = 220, timeoutMs = 90000 } = {}) {
   const r = await fetch(`${OLLAMA}/api/generate`, {
     method: "POST", headers: { "content-type": "application/json" },
@@ -92,17 +116,41 @@ function extractUnit(text, name) {
 /** Build the file the NL task named: decompose → concurrent draws → assemble →
  *  validate. `testCommand` (optional) is the gate; without it the assembled
  *  file is written and disclosed as UNVERIFIED (never dressed as tested). */
-export async function buildCodeTask({ task, model, testCommand = null, out = null, parallelism = 2 } = {}) {
+export async function buildCodeTask({ task, model, testCommand = null, out = null, parallelism = 2, drawFn = draw, anchorDir = null } = {}) {
   const started = Date.now();
   const units = planUnits(task);
   if (!units.length) return { ok: false, error: "no independent units found in the task — not a discrete build (defer to the normal turn)" };
-  const draws = await pool(units, parallelism, (u) =>
-    draw(model, `Write ONLY raw code (no prose, no markdown fences) for EXACTLY ONE function, named \`${u.name}\` — do NOT output any other function. It is one unit of this file: ${task}\nOutput only the single function \`${u.name}\`. Assume each function takes a string argument.`));
-  const parts = draws.map((d, i) => extractUnit(d?.text || "", units[i].name)).filter(Boolean);
-  const code = parts.join("\n\n") + "\n";
-  const looksJs = /\b(function|=>|const |let |require\(|export )/.test(code) && !/^\s*def |^\s*import |^\s*from /m.test(code);
+  const unitNames = units.map((u) => u.name);
+  // the operations the task's own words name (JavaScript tasks only), never one the file itself is asked to define
+  const offered = taskLanguage(task) === "js" ? cardsFor({ doc: task }).map((c) => c.name).filter((n) => !unitNames.includes(n)) : [];
+  const draws = await pool(units, parallelism, (u) => drawFn(model, unitPrompt(task, u.name, offered)));
+  // A draw is a SUGGESTION. What it means is read, resolved against what really exists (the card library; the file's own units), and the
+  // reading is recorded as typed transformations (code-canonical.js). Adopted only where the code still parses: a rewrite that breaks it is refused.
+  const cardPool = CARD_NAMES.filter((n) => !unitNames.includes(n));
+  const transformations = [], unresolved = [], ambiguous = [];
+  const parts = draws.map((d, i) => {
+    const raw = extractUnit(d?.text || "", units[i].name);
+    if (!raw || !looksJs(raw)) return raw;
+    const can = canonicalize(raw, { cardNames: cardPool, declared: unitNames.filter((n) => n !== units[i].name) });
+    const adopted = can.changed && adoptIf(parses(raw) ? 1 : 0, parses(can.code) ? 1 : 0);
+    const code = adopted ? can.code : raw;
+    if (adopted) for (const t of can.transformations) transformations.push({ unit: units[i].name, ...t });
+    for (const f of can.findings) {
+      if (f.kind === "unresolved_call" && ENVIRONMENT_CALLS.has(f.name)) continue;
+      (f.kind === "ambiguous_call" ? ambiguous : unresolved).push({ unit: units[i].name, ...f });
+    }
+    if (anchorDir) { // the record outlives the run: what was suggested, what was read of it, what stands
+      const file = path.join(anchorDir, `${units[i].name}.jsonl`), log = readAnchorLog(file), before = log.entries.length;
+      appendAnchorLog(file, proposeCanonical(log, { anchor: units[i].name, round: before, writer: model, suggestion: raw, canonical: { ...can, code } }), before);
+    }
+    return code;
+  }).filter(Boolean);
+  // the file carries the operations it calls, verbatim, once: a unit that names a card is whole without asking the reader for a library
+  const used = CARD_NAMES.filter((n) => !unitNames.includes(n) && parts.some((p) => new RegExp(`(^|[^.\\w$])${n}\\s*\\(`).test(p)));
+  const code = (used.length ? `// the operations below are written and checked once (organs/cards.js); the units call them\n${cardSource(used)}\n\n` : "") + parts.join("\n\n") + "\n";
+  const looksJsFile = /\b(function|=>|const |let |require\(|export )/.test(code) && !/^\s*def |^\s*import |^\s*from /m.test(code);
   const looksPy = /^\s*(def |import |from |class )/m.test(code);
-  const ext = looksJs ? "js" : "py";
+  const ext = looksJsFile ? "js" : "py";
   const target = out || path.join(os.tmpdir(), `er7-build-${Date.now()}.${ext}`);
   let written = null, verified = null, verifyError = null;
   try { fs.writeFileSync(target, code); written = target; } catch (e) { verifyError = e.message; }
@@ -136,6 +184,8 @@ export async function buildCodeTask({ task, model, testCommand = null, out = nul
     ok: true, kind: "mechanical-code-build", units: units.map((u) => u.name),
     draws: parts.length, tokens, wallMs: Date.now() - started, out: written,
     verified, verifyError, code,
+    // what the suggestion was read as: the operations offered and called, the typed rewrites made, and what nothing in the file declares
+    canonical: { offered, cards: used, transformations, unresolved, ambiguous },
     disclosure: {
       giver: "heimdall", standing: "disclosed",
       rule: "a discrete multi-unit coding task is DECOMPOSED into independent units, each drawn from the model CONCURRENTLY (bounded by parallelism), then ASSEMBLED and VALIDATED mechanically — the structure is computed, only the units are generated, and the test (not the prose) decides. No testCommand ⇒ written and disclosed as UNVERIFIED.",

@@ -31,6 +31,22 @@ test("call_resolved: a near name becomes the one card it names, with its tier an
   assert.match(c.code, /celsiusToFahrenheit\(x\.c\)/); assert.match(c.code, /mph\(x\.k\)/, "an ambiguous name is left exactly as written");
 });
 
+test("call_resolved reaches a nested call and every occurrence of it: roundTo(cToF(x), 1) + cToF(y)", () => {
+  const c = canonicalize(`function f(x, y) { return roundTo(cToF(x), 1) + cToF(y) + fmt(cToF(cToF(x))); }`);
+  assert.equal(c.code, `function f(x, y) { return roundTo(celsiusToFahrenheit(x), 1) + celsiusToFahrenheit(y) + fmt(celsiusToFahrenheit(celsiusToFahrenheit(x))); }`);
+  assert.deepEqual(c.findings.map((f) => f.name), ["fmt"]);
+});
+
+test("a name another unit of the same file declares is not a free call: it is never resolved to a card that resembles it, and never a finding", () => {
+  const raw = `function fmtRow(x) { return toFahrenheit(x.c) + round(x.v, 1) + mystery(x); }`;
+  const alone = canonicalize(raw);
+  assert.ok(alone.transformations.some((t) => t.from === "toFahrenheit"), "alone, toFahrenheit would be read as the card celsiusToFahrenheit");
+  const inFile = canonicalize(raw, { declared: ["toFahrenheit"] });
+  assert.ok(!inFile.transformations.some((t) => t.from === "toFahrenheit") && /toFahrenheit\(x\.c\)/.test(inFile.code), "a sibling's own name stays as written");
+  assert.ok(inFile.transformations.some((t) => t.from === "round"), "a name nothing declares is still resolved");
+  assert.deepEqual(inFile.findings.map((f) => f.name), ["mystery"]);
+});
+
 test("key_resolved: the wall's resolution is written INTO the code — property reads, bracket reads and destructuring — and a canonical function needs no run-time resolver", () => {
   const raw = `function f(loc) { const { tz, lat: la } = loc; return { zone: loc.tz, z2: loc["tz"], t: tz, la }; }`;
   const c = canonicalize(raw, { resolutions: [{ asked: "tz", real: "timezone", tier: 1, basis: "declared by the contract's worked example" }] });

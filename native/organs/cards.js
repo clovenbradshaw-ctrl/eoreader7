@@ -103,8 +103,8 @@ export function freeCalls(code) {
   const src = String(code ?? "");
   const declared = declaredIn(src);
   const out = new Set();
-  for (const m of src.matchAll(/(^|[^.\w$])([A-Za-z_$][\w$]*)\s*\(/g)) {
-    const n = m[2];
+  for (const m of src.matchAll(/(?<![.\w$])([A-Za-z_$][\w$]*)\s*\(/g)) { // a lookbehind, not a consumed character: in `f(g(x))` the `(` before `g` belongs to BOTH calls
+    const n = m[1];
     if (KEYWORDS.has(n) || GLOBALS.has(n) || declared.has(n) || CARDS[n]) continue;
     out.add(n);
   }

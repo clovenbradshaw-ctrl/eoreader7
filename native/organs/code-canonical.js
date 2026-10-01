@@ -66,11 +66,12 @@ export function rewriteKey(code, asked, real) {
 }
 
 /**
- * canonicalize(suggestion, { resolutions, cardNames }) -> { schema, code, changed, transformations, findings }
+ * canonicalize(suggestion, { resolutions, cardNames, declared }) -> { schema, code, changed, transformations, findings }
  *   resolutions  what the wall recorded when it READ the suggestion against the received object ({ asked, real, basis, tier }); key-referents.js
+ *   declared     names declared OUTSIDE this suggestion that it may call (the other units of the same file): a call to one is never a free call, so it is neither resolved to a card nor a finding
  * Nothing is deleted from the suggestion that the transformations do not name.
  */
-export function canonicalize(suggestion, { resolutions = [], cardNames = CARD_NAMES } = {}) {
+export function canonicalize(suggestion, { resolutions = [], cardNames = CARD_NAMES, declared: elsewhere = [] } = {}) {
   const input = String(suggestion ?? "");
   let code = input;
   const transformations = [], findings = [];
@@ -80,11 +81,12 @@ export function canonicalize(suggestion, { resolutions = [], cardNames = CARD_NA
     if (re.test(code)) { code = code.replace(new RegExp(`\\bconst(\\s+${esc(v)}\\s*=)`, "g"), "let$1"); transformations.push({ kind: "const_to_let", name: v, basis: "assigned again later in the function; the program throws as written" }); }
   }
 
-  const declared = declaredIn(code), present = cardNames.filter((n) => !declared.has(n));
+  const declared = new Set([...declaredIn(code), ...elsewhere]), present = cardNames.filter((n) => !declared.has(n));
   for (const asked of freeCalls(code)) {
+    if (declared.has(asked)) continue;
     const r = resolveCard(asked, present);
     if (r.resolved) {
-      code = code.replace(new RegExp(`(^|[^.\\w$])${esc(asked)}(\\s*\\()`, "g"), `$1${r.real}$2`);
+      code = code.replace(new RegExp(`(?<![.\\w$])${esc(asked)}(?=\\s*\\()`, "g"), r.real);
       transformations.push({ kind: "call_resolved", from: asked, to: r.real, tier: r.tier, basis: r.basis });
     } else if (r.ambiguous) findings.push({ kind: "ambiguous_call", name: asked, candidates: r.candidates });
     else findings.push({ kind: "unresolved_call", name: asked, near: r.near ?? [] });
