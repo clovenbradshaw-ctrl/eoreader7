@@ -209,7 +209,8 @@ export function branch(contract, slot) {
 
 /** string paths of the input, KEYS FROM THE UNION of the shown runs (a key a shown run lacks is `undefined` there: that is what makes it optional), a list's first item by `[0]`, each also `.trim()`med */
 export function optionalStrings(contract) {
-  const runs = contract.runs.slice(0, SHOWN), a0 = runs.map((r) => r.args()), out = [];
+  // PATHS are discovered over every run's INPUT (a key that only some inputs carry is how an optional field shows itself); the ANSWERS stay as they were — the shown ones fit, the held-out ones decide
+  const a0 = contract.runs.map((r) => r.args()), out = [];
   contract.params.forEach((p, i) => {
     const walk = (vals, path, js, depth) => {
       const present = vals.filter((v) => v !== undefined && v !== null);
@@ -217,6 +218,7 @@ export function optionalStrings(contract) {
       if (present.every((v) => typeof v === "string")) {
         out.push({ js, f: (a) => get(a[i], path) });
         if (present.some((v) => v !== v.trim())) out.push({ js: `${js}?.trim()`, f: (a) => get(a[i], path)?.trim() });
+        if (present.some((v) => v.includes(","))) out.push({ js: `${js}?.split(",")[0].trim()`, f: (a) => get(a[i], path)?.split(",")[0].trim() }); // the first part of a comma-joined string
         return;
       }
       if (present.every((v) => Array.isArray(v) && v.length && v.every((x) => x && typeof x === "object" || typeof x === "string"))) { walk(vals.map((v) => v?.[0]), [...path, 0], `${js}[0]`, depth + 1); return; }
@@ -263,7 +265,7 @@ export function coalesce(contract, wants, accept = () => true) {
 const SEPARATORS = [", ", " ", " - ", "-", "/", " / ", ": ", " · ", ""];
 export function joinPresent(contract, wants, accept = () => true) {
   if (!wants.every((w) => w === null || typeof w === "string")) return null;
-  const args = contract.runs.slice(0, SHOWN).map((r) => r.args()), L = optionalStrings(contract).filter((l) => !l.js.endsWith("?.trim()")), seps = [...SEPARATORS, ...quotedIn(contract)];
+  const args = contract.runs.slice(0, SHOWN).map((r) => r.args()), L = optionalStrings(contract).filter((l) => !/\?\.(trim\(\)|split\()/.test(l.js)), seps = [...SEPARATORS, ...quotedIn(contract)];
   const nullWord = /\bnull\b/i.test([contract.doc, contract.returns, contract.notes].join(" "));
   const subsets = [];
   for (const a of L) for (const b of L) if (a !== b) { subsets.push([a, b]); for (const c of L) if (c !== a && c !== b) subsets.push([a, b, c]); }
@@ -284,7 +286,7 @@ export function nullConstant(contract, wants) {
 /** SLICE: a stretch `[a, b)` of one string path, a and b searched from 0 to the longest shown string */
 export function slice(contract, wants, accept = () => true) {
   if (!wants.every((w) => typeof w === "string")) return null;
-  const args = contract.runs.slice(0, SHOWN).map((r) => r.args()), L = optionalStrings(contract).filter((l) => !l.js.endsWith("?.trim()"));
+  const args = contract.runs.slice(0, SHOWN).map((r) => r.args()), L = optionalStrings(contract).filter((l) => !/\?\.(trim\(\)|split\()/.test(l.js));
   for (const l of L) {
     const lens = args.map((a) => safe(l.f, a)).map((v) => (typeof v === "string" ? v.length : 0)), max = Math.max(0, ...lens);
     if (!max) continue;

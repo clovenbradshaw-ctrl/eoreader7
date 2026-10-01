@@ -23,6 +23,10 @@ export const wordConstants = (contract) => { const text = String([contract.doc, 
 
 /** how many levels of nested objects the input is walked for numbers — a budget, named (P9): 3 reached `a.b.c.d`, 5 reaches a provider's `entry.data.instant.details.x` */
 export const MAX_LEAF_DEPTH = 5;
+/** how many base numeric leaves the four-nested haversine search may run over (n^4 terms): a budget, named (P9) — 10 before the same field in alternative places (node lat / way center.lat) added leaves */
+export const HAVERSINE_LEAF_BUDGET = 14;
+/** the search may keep going past an expression the held-out runs reject ONLY when at least this many remain to judge the next one: choosing among candidates BY the held-out runs spends them, and two runs cannot tell a rule from a lucky hit (measured: readingTime, 2 held-out runs, redealt targets, was solved by a junk expression) */
+export const MIN_HELD_FOR_SEARCH = 6;
 export function leaves(contract) {
   const out = [], runs = contract.runs.slice(0, SHOWN), a0 = runs.map((r) => r.args());
   contract.params.forEach((p, i) => {
@@ -40,6 +44,23 @@ export function leaves(contract) {
     };
     walk(a0.map((a) => a[i]), [], p, 0);
   });
+  // the same field in ALTERNATIVE places (a node's `lat` and a way's `center.lat`): numeric paths that only some runs carry, paired by their last key, as `a ?? b`
+  const all = contract.runs.map((r) => r.args()), part = [];
+  contract.params.forEach((p, i) => {
+    const walk = (vals, path, expr, depth) => {
+      const present = vals.filter((v) => v !== undefined && v !== null);
+      if (!present.length || depth > MAX_LEAF_DEPTH) return;
+      if (present.every((v) => isNum(v))) { if (present.length < vals.length) part.push({ expr, path, i, key: path[path.length - 1] }); return; }
+      if (present.every((v) => v && typeof v === "object" && !Array.isArray(v))) for (const k of [...new Set(present.flatMap(Object.keys))]) walk(vals.map((v) => v?.[k]), [...path, k], /^[A-Za-z_$][\w$]*$/.test(k) ? `${expr}.${k}` : `${expr}[${JSON.stringify(k)}]`, depth + 1);
+    };
+    walk(all.map((a) => a[i]), [], p, 0);
+  });
+  const have = new Set(out.map((t) => t.expr));
+  for (const a of part.concat(out.filter((t) => !t.arr && !t.expr.includes("(")).map((t) => ({ expr: t.expr, key: t.expr.split(".").pop(), f: t.f, plain: true })))) for (const b of part) {
+    if (a === b || a.key !== b.key || a.expr === b.expr) continue;
+    const fa = a.plain ? a.f : (args) => get(args[a.i], a.path), fb = (args) => get(args[b.i], b.path), expr = `(${a.expr} ?? ${b.expr})`;
+    if (!have.has(expr)) { have.add(expr); out.push({ expr, js: expr, f: (args) => fa(args) ?? fb(args) }); }
+  }
   return out;
 }
 /** expressions over word lists: count, sum of lengths, distinct count */
@@ -54,13 +75,14 @@ export const UNIT_FACTORS = Object.freeze({ percent: 100, percentage: 100, minut
 const unitConstants = (contract) => [...new Set(String([contract.doc, contract.returns, contract.notes].join(" ")).toLowerCase().match(/[a-z]+/g)?.map((w) => UNIT_FACTORS[w]).filter(Boolean) ?? [])];
 
 /** search for a numeric expression reproducing `want` (one value per shown run) -> { expr, f } | null. Bottom-up in stages, observational equivalence, bounded: leaves, then the card operations, then rounding, then one and two arithmetic steps (each followed by rounding). */
-export function synthesize(contract, want, extraLeaves = []) {
+export function synthesize(contract, want, extraLeaves = [], accept = () => true) {
   const runs = contract.runs.slice(0, SHOWN), args = runs.map((r) => r.args()), key = (vals) => vals.map((v) => (isNum(v) ? roundTo(v, 9) : String(v))).join("|");
+  const everyArgs = contract.runs.map((r) => r.args()), everyRun = (t) => everyArgs.slice(SHOWN).map((a) => { try { const v = t.f(a); return isNum(v) ? roundTo(v, 9) : "x"; } catch { return "x"; } }).join(","); // two terms that agree on the shown runs but differ on a run it was not shown are NOT the same term
   const seen = new Set(), pool = []; let found = null;
   const add = (t) => { if (found || pool.length >= MAX_TERMS) return false; let vals; try { vals = args.map((a) => t.f(a)); } catch { return false; }
     if (!vals.every(isNum)) { // the guard: where the expression has no value (a mean of nothing) and the example wants 0, the answer is 0 — only a term that DIVIDES can have this, and the held-out runs still decide
       if (!/\//.test(t.expr) || !vals.every((v, i) => isNum(v) || (!Number.isFinite(v) && Number.isNaN(v) && want[i] === 0))) return false;
-      const g = t.f; t = { ...t, js: `((v) => (Number.isFinite(v) ? v : 0))(${t.js})`, f: (a) => { const v = g(a); return Number.isFinite(v) ? v : 0; }, guarded: true }; vals = args.map((a) => t.f(a)); } const k = key(vals); if (seen.has(k)) return false; seen.add(k); t.vals = vals; pool.push(t); if (vals.every((v, i) => same(v, want[i]))) found = t; return true; };
+      const g = t.f; t = { ...t, js: `((v) => (Number.isFinite(v) ? v : 0))(${t.js})`, f: (a) => { const v = g(a); return Number.isFinite(v) ? v : 0; }, guarded: true }; vals = args.map((a) => t.f(a)); } const k = key(vals) + "#" + everyRun(t); if (seen.has(k)) return false; seen.add(k); t.vals = vals; pool.push(t); if (vals.every((v, i) => same(v, want[i])) && accept(t)) found = t; return true; };
   const base = [...leaves(contract), ...extraLeaves]; for (const t of base) for (const o of listOps(t)) base.push(o);
   for (const c of [...wordConstants(contract), ...unitConstants(contract)]) base.push({ expr: String(c), js: String(c), f: () => c, constant: true });
   for (const t of base) add(t); if (found) return found;
@@ -68,7 +90,7 @@ export function synthesize(contract, want, extraLeaves = []) {
   const numeric = () => pool.filter((t) => !t.arr);
   const offered = new Set(cardsFor(contract).map((c) => c.name)); // only the operations the person's own words name enter the search
   const raw = numeric().filter((t) => !t.constant && base.includes(t));
-  if (raw.length <= 10 && offered.has("haversineKm")) for (const a of raw) for (const b of raw) for (const c of raw) for (const d of raw) add({ expr: `haversineKm(${a.expr}, ${b.expr}, ${c.expr}, ${d.expr})`, js: `haversineKm(${a.js}, ${b.js}, ${c.js}, ${d.js})`, f: (x) => CARDS.haversineKm.fn(a.f(x), b.f(x), c.f(x), d.f(x)) });
+  if (raw.length <= HAVERSINE_LEAF_BUDGET && offered.has("haversineKm")) for (const a of raw) for (const b of raw) for (const c of raw) for (const d of raw) add({ expr: `haversineKm(${a.expr}, ${b.expr}, ${c.expr}, ${d.expr})`, js: `haversineKm(${a.js}, ${b.js}, ${c.js}, ${d.js})`, f: (x) => CARDS.haversineKm.fn(a.f(x), b.f(x), c.f(x), d.f(x)) });
   // every offered one-argument operation (kmToMiles, celsiusToFahrenheit, ...) is tried on every number found so far; one that does not return a number is dropped by `add`
   for (const name of [...offered]) if (CARDS[name]?.fn.length === 1) for (const t of [...numeric()]) { if (t.constant) continue; add({ expr: `${name}(${t.expr})`, js: `${name}(${t.js})`, f: (a) => CARDS[name].fn(t.f(a)) }); }
   if (found) return found; wrap([...pool]); if (found) return found;
@@ -80,10 +102,14 @@ export function synthesize(contract, want, extraLeaves = []) {
 
 /** one numeric field: SOLVED only when the expression found on the shown examples also reproduces every run it was not shown; matching the shown examples alone is a COINCIDENCE (three numbers can be hit by a strange expression) */
 export function solveField(contract, key, vals, extra = []) {
-  const runs = contract.runs, t = synthesize(contract, vals, extra);
+  const runs = contract.runs, heldOk = (t) => runs.slice(SHOWN).every((r) => { try { return same(t.f(r.args()), r.want()[key]); } catch { return false; } });
+  // the search keeps going past an expression that fits the shown runs but not the held-out ones (a node's `lat` fits until a way's `center.lat` turns up)
+  const mayContinue = runs.length - SHOWN >= MIN_HELD_FOR_SEARCH;
+  let t = mayContinue ? synthesize(contract, vals, extra, heldOk) : null, coincidence = false;
+  if (!t) { t = synthesize(contract, vals, extra); coincidence = mayContinue ? !!t : false; }
   if (!t) return { key, kind: "unsolved" };
   let held = 0, total = 0; for (const r of runs.slice(SHOWN)) { total++; try { if (same(t.f(r.args()), r.want()[key])) held++; } catch { /* a throw is a miss */ } }
-  return { key, kind: total > 0 && held === total ? "solved" : "coincidence", expr: t.expr, heldOut: `${held}/${total}`, term: t };
+  return { key, kind: !coincidence && total > 0 && held === total ? "solved" : "coincidence", expr: t.expr, heldOut: `${held}/${total}`, term: t };
 }
 
 /** every numeric output field of a contract: solved (and does it hold on the runs it was not shown?) or left to the model */
