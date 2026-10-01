@@ -881,3 +881,18 @@ clean: none claimed
 | Gebser | arrival | final piece | noted | not arrived; provenance is not answer-hood — unbuilt |
 clean: none claimed
 
+
+## 2026-09-30 (lowercase lane) — capitals are one witness, not the gate (keyness.js, descriptor-lane.js, nominal-beings.js namingGate, reading-log.js, READING-SPEC S137)
+fast: 6 files · 20 affected tests pass (lowercase-lane-falsify 10/10, nominal-beings, transcript-reading, referent-name) · law: WARN pre-existing duplicate headers S17, S96 (READING-SPEC) and P19/P115-117/P233 (the-fold) — not this diff; 9 citations resolve
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Feynman | — | reading-log.js (naming gate catch) | fixed | a gate that THROWS defaulted to admit, silently disabling its own refusal; now fails closed and the refusal is counted; a mutation test turns red |
+| Alexander | S137 | descriptor-lane.js | fixed | `descriptorLane(null)` returned null, so "asked, no prior" read as "never asked" — a silent default to don't-compose; now a typed `no_baseline` lane, told apart from `off` |
+| Kondo | — | descriptor-lane.js `alpha` | fixed | an unused dial on a declared resolution removed; KEY_ALPHA is the one 5% |
+| Diaconis | S37, S24 | keyness.js | noted | the null is a received rate (UD EWT) at the repo's declared 5%, same standing as CAP_SIG_ALPHA; no multiplicity correction across candidates, same as the sibling instrument — disclosed in S137 alongside the genre mismatch (web-text baseline on fiction leaks body parts) |
+| Ostrom | S137 | keyness.js baseline | noted | a pooled received baseline applied to a different genre is the scope question; the fix is a genre-matched prior, a giver and not a dial (S137) |
+| Dijkstra | II.13 | keyness.js receivedRate `toLowerCase` | noted | form identity against the prior's keys is English-scoped (declared); heads are diaNorm'd before lookup so an accented loanword ("abbé") reads as unseen — small, English-only, same approximation nominalClass makes |
+| Holmes | — | reading-log.js name precedence | clean | the lane refuses to mint a second being for a name's token; it merges nothing, so no alias-from-overlap |
+| Simon/Chekhov | S87 | descriptor-lane.js | noted | ships OPT-IN and UNWIRED from every production path, on purpose (resolveIn/referents feed document-ledger, essay-shape-register, synonymPool, groundSeed); the same shape referentFromDescriptorHypothesis sat in for months — disclosed in S137, the memory note and the commit; wiring is a product decision, ask-side first |
+| Marshall | S86–S89, S24, S37, II.13 | READING-SPEC.md S137 | clean | new entry, not an amendment; carries **Generality:**; its enforcement test is in the same diff; the S89 quote is verbatim |
+clean: none claimed

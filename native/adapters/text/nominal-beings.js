@@ -76,6 +76,35 @@ export function nominalClass(form, prior, { minShare = GRAMMAR_MIN_SHARE } = {})
 }
 
 /**
+ * namingGate(prior, {minShare}) — `(head, cue) => boolean`: may `head` name a
+ * being, given the `cue` (the determiner) that opened it? Two readings of the
+ * SAME received prior, each asymmetric the way heard-surfaces.js's is (S83/S87):
+ *   - the prior SETTLES the head into a class that cannot name a being
+ *     ("disengages" VERB, "same" ADJ) → refused; attested as NOUN/PROPN →
+ *     admitted, whatever the cue;
+ *   - the head is unattested or unsettled ("driveshaft", "pawl") → the CUE
+ *     decides, by how settled the cue itself is: an article-class cue the prior
+ *     settles as DET ("the", "this", "some") carries an unseen head, because a
+ *     treebank of ordinary prose has never met "driveshaft" and not having seen
+ *     a word is no evidence it names nothing; a cue the prior settles as
+ *     anything else or leaves unsettled ("that" — relative pronoun, SCONJ or
+ *     demonstrative; a possessive PRON like "her") does not, because "that
+ *     disengages" is a clause and not a description. The cue's weight is read
+ *     off the prior, not off a list of words.
+ * No prior: nothing is refused (the lane's own signal is structural; the prior
+ * only REMOVES what it can prove is not a nominal, it never admits).
+ */
+export function namingGate(prior, { minShare = GRAMMAR_MIN_SHARE } = {}) {
+  if (!prior) return () => true;
+  const cls = (form) => nominalClass(String(form ?? "").toLowerCase(), prior, { minShare });
+  return (head, cue = null) => {
+    const h = cls(head);
+    if (h != null) return NAMING_CLASSES.has(h);
+    return cue == null ? true : cls(cue) === "DET";
+  };
+}
+
+/**
  * discoverNominalBeings(text, prior, {minOccurrences, minStem, minShare}) —
  * THE BEING TIER. A being is a recurring NOUN/PROPN-typed stem: a token
  * whose received-prior dominant class is NAMING_CLASSES, recurring

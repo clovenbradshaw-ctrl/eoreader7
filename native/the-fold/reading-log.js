@@ -18,6 +18,13 @@
 //       text with no case anywhere (a Hebrew question and an English one go
 //       through the same line); `vocabulary` is every token the reader
 //       encountered, the material's own, for the absence bar.
+//   `descriptors` (opt-in, both faces): { referentFrom, naming, key } — the
+//       text adapter's projection of a recurring definite/possessive
+//       descriptor into a PROVISIONAL referent (adapters/text/descriptor-lane.js
+//       assembles all three), its head gate, and its standing test (the head
+//       said here significantly more than a received corpus says it). Case is one witness
+//       of a being, never the gate on whether the index may hold one; see
+//       the lowercase lane in foldReading.
 //   mentionBookFromLog(entries)           → the address book activation
 //       retrieval reads: one row per encounter that carries a mention, its
 //       referent ids, its absolute range; byId: referent → rows.
@@ -43,6 +50,7 @@ const isReferent = (e) => e?.schema === "EOReferent@1";
 const isOccurrence = (e) => e?.schema === "EOReferentOccurrence@1";
 const isMerge = (e) => e?.schema === "EOReferentMerge@1";
 const isReassignment = (e) => e?.schema === "EOReferentReassignment@1";
+const isHypothesis = (e) => e?.schema === "EOIdentityHypothesis@1";
 
 // foldReading is a union-find plus a coreference containment pass over every
 // referent's surfaces (up to 3 passes) — the expensive step. A turn asks for
@@ -54,13 +62,17 @@ const isReassignment = (e) => e?.schema === "EOReferentReassignment@1";
 // concat'd into a NEW array, never mutated in place — conversation.mjs), so a
 // WeakMap keyed on the array identity is exact: it never serves a stale fold
 // for a log that has since grown, because growth always produces a new array.
-const FOLD_MEMO = new WeakMap(); // entries array -> its foldReading(...) result, for one fixed set of organs
+const FOLD_MEMO = new WeakMap(); // entries array -> { lane, out }: its foldReading(...) result for one fixed set of organs
 function foldReadingOnce(entries, organs) {
   if (!Array.isArray(entries)) return foldReading(entries, organs);
+  // The descriptor lane is part of what was folded: a caller that asks
+  // without it must not be served the fold that promoted descriptors, nor
+  // the reverse (the same entries array, two faces, one lane).
+  const lane = organs?.descriptors ?? null;
   const hit = FOLD_MEMO.get(entries);
-  if (hit) return hit;
+  if (hit && hit.lane === lane) return hit.out;
   const out = foldReading(entries, organs);
-  FOLD_MEMO.set(entries, out);
+  FOLD_MEMO.set(entries, { lane, out });
   return out;
 }
 
@@ -74,8 +86,8 @@ function foldReadingOnce(entries, organs) {
  * top-level `Encounter@1` rows. A material shorter than the refresh cadence
  * has no referents yet: that is the reader's own state, reported as such.
  */
-export function foldReading(entries = [], { reconstruct = null, diaNorm = null, namesCorefer = null, surfaceIndex = null, surfacesIn = null } = {}) {
-  const referents = new Map(); const encounters = new Map(); const mentions = []; const occurrences = []; const reassignments = [];
+export function foldReading(entries = [], { reconstruct = null, diaNorm = null, namesCorefer = null, surfaceIndex = null, surfacesIn = null, descriptors = null } = {}) {
+  const referents = new Map(); const encounters = new Map(); const mentions = []; const occurrences = []; const reassignments = []; const hypotheses = [];
   let order = 0;
   let graph = [];
   if (typeof reconstruct === "function") { try { graph = reconstruct(entries)?.graphEntries ?? []; } catch { graph = []; } }
@@ -101,6 +113,7 @@ export function foldReading(entries = [], { reconstruct = null, diaNorm = null, 
       if (!encounters.has(key)) encounters.set(key, { key, source: e.source, modality: e.modality ?? null, start: Number(e.anchor?.start), end: Number(e.anchor?.end), text: String(e.material ?? ""), sequencePosition: e.sequencePosition ?? null, order: order++, ids: new Set() });
     } else if (isMention(e)) mentions.push(e);
     else if (isOccurrence(e)) occurrences.push(e);
+    else if (isHypothesis(e)) hypotheses.push(e);
   }
   // ONE BEING, MANY ADDRESSES. A reader that gives an address at birth
   // (S80) and clusters by evidence order (S17) leaves the fragments it
@@ -161,6 +174,57 @@ export function foldReading(entries = [], { reconstruct = null, diaNorm = null, 
   // EOReferentOccurrence@1 is every surface the reader saw, from the first sentence, before any refresh. It attaches at TYPE level only when its surface names exactly ONE referent — an ambiguous surface is the occurrence layer's question (S17-type, S11) and is counted as a gap, never guessed.
   // Resolution is the same two organs the index resolves with: the session's fold for an exact surface, then the coreference organ against each referent's own surfaces ("Rodion Raskolnikov" against "Raskolnikov").
   const foldKey = (t) => (typeof diaNorm === "function" ? diaNorm(String(t ?? "")) : String(t ?? "")).toLowerCase().replace(/\s+/g, " ").trim();
+  // THE LOWERCASE LANE (opt-in: `descriptors = { referentFrom, naming }`).
+  // The referents above are what the reader ADMITTED, and the admitting
+  // pool is case-derived (capitalised surfaces) plus positional (heard). A
+  // material whose beings are common nouns — "the pawl", "the cassette",
+  // "the cyclist" — earns an EOIdentityHypothesis@1 from the reader (the
+  // same descriptor recurring across distinct encounters) and nothing ever
+  // lands in the index, so a question naming them resolves to nothing.
+  // `referentFrom` is the text adapter's own projection of a hypothesis
+  // (individuation.js::referentFromDescriptorHypothesis: definite or
+  // possessive only — a repeated "a spring" is never one being), and it
+  // stays PROVISIONAL and REVISABLE: case is one witness of a being here,
+  // not the gate on whether the index may hold one.
+  //   The lane is strictly additive and never overrides a name. A descriptor
+  // is skipped when its head is a token of a being the name lanes already
+  // hold ("the cumberland", "the river" beside «Cumberland River»: whether
+  // those are one being is the coreference organs' question, not a second
+  // being minted here) or when its surface is already registered; and when
+  // `naming(head, cue)` is false — the received prior settles the head into a
+  // class that cannot name a being ("the same"), or leaves it unattested
+  // under a cue that is not itself settled ("that disengages"; the gate's
+  // own two-reading rule, nominal-beings.js::namingGate). No case
+  // is read; no word of any language is named here (the determiner class,
+  // the closed classes and the prior are the injected adapter's).
+  let descriptorBeings = 0, descriptorsSkipped = 0, descriptorLane = "off";
+  if (descriptors && typeof descriptors.referentFrom === "function" && hypotheses.length) {
+    const tokensOfKey = (t) => foldKey(t).split(/[^\p{L}\p{N}'’-]+/u).filter(Boolean);
+    // A lane with nothing to measure a head against abstains — typed, not
+    // silent. Recurrence under a determiner is cheap; without a baseline
+    // there is no standing to earn, and promoting on it alone admitted
+    // "the time", "the thing", "her eyes" beside the real cast.
+    if (typeof descriptors.key !== "function") descriptorLane = "no_baseline";
+    else descriptorLane = "on";
+    const headCount = new Map(); let words = 0;
+    if (descriptorLane === "on") for (const enc of encounters.values()) for (const w of tokensOfKey(enc.text)) { words += 1; headCount.set(w, (headCount.get(w) ?? 0) + 1); }
+    const nameTokens = new Set(); const registered = new Set();
+    for (const r of referents.values()) for (const sf of r.surfaces) { registered.add(foldKey(sf)); for (const t of tokensOfKey(sf)) nameTokens.add(t); }
+    for (const h of descriptorLane === "on" ? hypotheses : []) {
+      let ref = null; try { ref = descriptors.referentFrom(h); } catch { ref = null; }
+      if (!ref || referents.has(ref.id)) continue;
+      const surface = String((ref.surfaces ?? [])[0] ?? ref.display ?? "");
+      const toks = tokensOfKey(surface); const head = toks[toks.length - 1];
+      if (!head || toks.length < 2) { descriptorsSkipped += 1; continue; }
+      if (registered.has(foldKey(surface)) || nameTokens.has(head)) { descriptorsSkipped += 1; continue; }
+      // A gate that THROWS refuses: a broken refusal must not read as no refusal.
+      if (typeof descriptors.naming === "function") { let ok = false; try { ok = descriptors.naming(head, toks[0]) !== false; } catch { ok = false; } if (!ok) { descriptorsSkipped += 1; continue; } }
+      let key = false; try { key = descriptors.key(head, headCount.get(head) ?? 0, words) === true; } catch { key = false; }
+      if (!key) { descriptorsSkipped += 1; continue; }
+      referents.set(ref.id, { id: ref.id, surfaces: new Set([surface]), provenance: ref.provenance ? [ref.provenance] : [], fedBy: new Set(), members: [ref.id], standing: ref.standing ?? "provisional", lane: "descriptor", occurrenceRefs: [...(ref.occurrenceRefs ?? [])] });
+      registered.add(foldKey(surface)); descriptorBeings += 1;
+    }
+  }
   const surfaceIds = new Map();
   for (const r of referents.values()) for (const s of r.surfaces) { const k = foldKey(s); if (!surfaceIds.has(k)) surfaceIds.set(k, new Set()); surfaceIds.get(k).add(r.id); }
    // A reassignment changes which live address a surface resolves to; it does
@@ -206,7 +270,7 @@ export function foldReading(entries = [], { reconstruct = null, diaNorm = null, 
       for (const sf of present) { const ids = idsOfSurface(sf); if (ids.size === 1) { const id = [...ids][0]; if (!enc.ids.has(id)) { enc.ids.add(id); located += 1; } } else if (ids.size > 1) ambiguous += 1; }
     }
   }
-  return { referents, encounters: [...encounters.values()].sort((a, b) => a.order - b.order), mentions, occurrences: occurrences.length, ambiguous, unresolved, fed, located, reassignments, identity: { beings: referents.size, fragments: canon.size, mergedByRecord, mergedByContainment, reassignments: reassignments.length, ambiguousForms } };
+  return { referents, encounters: [...encounters.values()].sort((a, b) => a.order - b.order), mentions, occurrences: occurrences.length, ambiguous, unresolved, fed, located, reassignments, identity: { beings: referents.size, fragments: canon.size, mergedByRecord, mergedByContainment, reassignments: reassignments.length, ambiguousForms, descriptorBeings, descriptorsSkipped, descriptorLane } };
 }
 const encounterKey = (e) => e?.anchor && Number.isFinite(Number(e.anchor.start)) ? `${e.source}#${e.anchor.start}-${e.anchor.end}` : `${e.source}:${e.sequencePosition}`;
 
@@ -216,9 +280,9 @@ const encounterKey = (e) => e?.anchor && Number.isFinite(Number(e.anchor.start))
  * injected organ; `resolveIn(text)`: every token run of `text` (up to the
  * longest surface, first token indexed) resolved the same way — no case.
  */
-export function readingIndexFromLog(entries = [], { diaNorm, namesCorefer, reconstruct = null, surfaceIndex = null, surfacesIn = null } = {}) {
+export function readingIndexFromLog(entries = [], { diaNorm, namesCorefer, reconstruct = null, surfaceIndex = null, surfacesIn = null, descriptors = null } = {}) {
   if (typeof diaNorm !== "function") throw new TypeError("readingIndexFromLog: diaNorm (the session's fold) is injected");
-  const { referents, encounters, mentions, reassignments } = foldReadingOnce(entries, { reconstruct, diaNorm, namesCorefer, surfaceIndex, surfacesIn });
+  const { referents, encounters, mentions, reassignments, identity } = foldReadingOnce(entries, { reconstruct, diaNorm, namesCorefer, surfaceIndex, surfacesIn, descriptors });
   const norm = (t) => diaNorm(String(t ?? "")).toLowerCase().trim();
   const bySurface = new Map(); const byFirst = new Map(); let longest = 1;
   for (const r of referents.values()) for (const s of r.surfaces) {
@@ -309,12 +373,12 @@ export function readingIndexFromLog(entries = [], { diaNorm, namesCorefer, recon
   const vocabulary = new Set(); for (const enc of encounters) for (const t of tokenize(enc.text)) vocabulary.add(t);
   // `events` is the face dialogue.js::surfacesOf reads (one row per registered surface, as the cast index keeps them), so the address check's re-ask hands the reader's own surfaces for a missing referent and not nothing.
   const events = []; for (const r of referents.values()) for (const sf of r.surfaces) events.push({ referent_id: r.id, surface: sf });
-  return Object.freeze({ referents: new Set(referents.keys()), events, resolve, resolveIn, represent, vocabulary, mentions: mentions.length, encounters: encounters.length, caseless: true, basis: "readingIndexFromLog: EOReferent@1 surfaces under the session's fold + namesCorefer; no case, no scan" });
+  return Object.freeze({ referents: new Set(referents.keys()), events, resolve, resolveIn, represent, vocabulary, mentions: mentions.length, encounters: encounters.length, caseless: true, descriptorBeings: identity?.descriptorBeings ?? 0, descriptorsSkipped: identity?.descriptorsSkipped ?? 0, descriptorLane: identity?.descriptorLane ?? "off", basis: "readingIndexFromLog: EOReferent@1 surfaces under the session's fold + namesCorefer; no case, no scan" });
 }
 
 /** The address book: one row per encounter carrying a mention, in reading order; byId: referent → rows. Same shape activation-retrieval.js reads. */
-export function mentionBookFromLog(entries = [], { reconstruct = null, diaNorm = null, namesCorefer = null, surfaceIndex = null, surfacesIn = null } = {}) {
-  const f = foldReadingOnce(entries, { reconstruct, diaNorm, namesCorefer, surfaceIndex, surfacesIn });
+export function mentionBookFromLog(entries = [], { reconstruct = null, diaNorm = null, namesCorefer = null, surfaceIndex = null, surfacesIn = null, descriptors = null } = {}) {
+  const f = foldReadingOnce(entries, { reconstruct, diaNorm, namesCorefer, surfaceIndex, surfacesIn, descriptors });
   const { encounters } = f;
   const sentences = []; const byId = new Map(); const gaps = [];
   for (const enc of encounters) {
