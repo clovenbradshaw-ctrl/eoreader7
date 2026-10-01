@@ -74,13 +74,13 @@ export function openSeenLedger(dir, { now = () => new Date().toISOString() } = {
 /** A polite fetcher: one request per host per MIN_GAP_MS, bounded body, typed failures — never a throw for a network fact. */
 export function makeFetcher({ fetchImpl = globalThis.fetch, sleep = (ms) => new Promise((r) => setTimeout(r, ms)), minGapMs = MIN_GAP_MS, ua = RESEARCH_UA } = {}) {
   const last = new Map();
-  return async function politeFetch(url, { binary = false, accept = "*/*", maxBytes = MAX_BYTES } = {}) {
+  return async function politeFetch(url, { binary = false, accept = "*/*", maxBytes = MAX_BYTES, method = "GET", body = undefined, headers = {} } = {}) {
     const host = hostOf(url) ?? "";
     const wait = (last.get(host) ?? 0) + minGapMs - Date.now();
     if (wait > 0) await sleep(wait);
     last.set(host, Date.now());
     try {
-      const r = await fetchImpl(url, { headers: { "user-agent": ua, accept }, redirect: "follow", signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+      const r = await fetchImpl(url, { method, body, headers: { "user-agent": ua, accept, ...headers }, redirect: "follow", signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
       const ab = await r.arrayBuffer();
       const buf = Buffer.from(ab);
       if (buf.length > maxBytes) return { ok: false, status: r.status, refused: "too_large", bytes: buf.length, finalUrl: r.url ?? url };
