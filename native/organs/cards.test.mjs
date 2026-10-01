@@ -4,7 +4,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import vm from "node:vm";
-import { CARDS, CARD_NAMES, CARDS_SCHEMA, cardSource, cardsDoc, freeCalls, resolveCard } from "./cards.js";
+import { CARDS, CARD_NAMES, CARDS_SCHEMA, cardSource, cardsDoc, freeCalls, resolveCard, declaredIn, mentions } from "./cards.js";
 
 const near = (a, b, eps = 1e-9) => assert.ok(Math.abs(a - b) <= eps, `${a} is not within ${eps} of ${b}`);
 
@@ -224,4 +224,16 @@ test("the examples in a card's doc are true: they are run against the card itsel
   assert.deepEqual(v("splitWords")("Don't stop, ok!"), ["Don't", "stop", "ok"]); assert.ok(Array.isArray(v("splitWords")("x")), "the doc says ARRAY, and it is one");
   near(v("parseMoney")("$1,234.50"), 1234.5); near(v("parseMoney")("12.5"), 12.5); near(v("parseMoney")(7), 7);
   assert.equal(v("daysBetween")("2026-10-08", "2026-10-01"), 7); assert.equal(v("daysBetween")("2026-10-01", "2026-10-08"), -7);
+});
+
+test("declaredIn takes parameters from where parameters are: a card passed as a VALUE — .map(padTime) — is not a declaration of it", () => {
+  assert.ok(!declaredIn(`function busTimes(stop) { return stop.times.map(padTime); }`).has("padTime"), "(padTime) after .map is an argument, not a parameter list");
+  assert.ok(!declaredIn(`function f(xs) { return xs.map(roundTo).filter(Boolean).map(parseMoney); }`).has("roundTo"));
+  const d = declaredIn(`function f(a, b = 2, { c, d: e }) { const g = (h, i) => h + i; const j = k => k; try {} catch (err) {} return [a, b, c, e, g, j, err]; }`);
+  for (const n of ["f", "a", "b", "c", "e", "g", "h", "i", "j", "k", "err"]) assert.ok(d.has(n), `${n} is declared`);
+});
+
+test("mentions: a card named as a call, a callback or an array element is used; a property of that name is not", () => {
+  assert.ok(mentions("x.map(padTime)", "padTime") && mentions("padTime(1)", "padTime") && mentions("[1].map(parseMoney)", "parseMoney"));
+  assert.ok(!mentions("obj.padTime", "padTime") && !mentions("padTimeout(1)", "padTime") && !mentions("myroundTo(1)", "roundTo"));
 });

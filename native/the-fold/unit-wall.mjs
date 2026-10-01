@@ -25,7 +25,7 @@
 // "the model reached for an operation we do not have" is exactly the list of cards still to be made out.
 import vm from "node:vm";
 import { residentSource } from "../organs/key-referents.js";
-import { CARD_NAMES, cardSource, declaredIn, freeCalls, resolveCard } from "../organs/cards.js";
+import { CARD_NAMES, cardSource, declaredIn, freeCalls, mentions, resolveCard } from "../organs/cards.js";
 
 /** A unit is run for at most this long (ms) — a synchronous spin is the one hole a vm timeout closes. */
 export const UNIT_RUN_TIMEOUT_MS = 2000;
@@ -48,7 +48,7 @@ export function cardPrelude(code, { aliases: aliasing = true } = {}) {
     else if (r.ambiguous) resolutions.push({ asked, ambiguous: true, candidates: r.candidates, kind: "card" });
     else resolutions.push({ asked, unresolved: true, near: r.near ?? [], kind: "card" });
   }
-  const used = present.filter((n) => new RegExp(`(^|[^.\\w$])${n}\\s*\\(`).test(code));
+  const used = present.filter((n) => mentions(code, n));
   return { prelude: `${cardSource(present)}\n${aliases.join("\n")}`, resolutions, used };
 }
 

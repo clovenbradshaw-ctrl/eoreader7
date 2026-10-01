@@ -174,3 +174,14 @@ test("describeBuild says what happened in plain words: how it was built, whether
   assert.doesNotMatch(said, /canonical|suggestion|apparatus|transformation/i, "the person reads plain words, not the machinery's names");
   fs.rmSync(out, { force: true });
 });
+
+test("a card a unit uses as a CALLBACK is carried into the file: .map(parseMoney) is a use, not only parseMoney(x)", async () => {
+  const out = tmp();
+  const r = await buildCodeTask({ task: "Write a JavaScript module with these functions: total(prices) returns the sum of prices written like \"$1,234.50\", count(items) returns how many.", model: "stand-in", out, drawFn: stand({
+    total: "function total(prices) { return prices.map(parseMoney).reduce((a, b) => a + b, 0); }",
+    count: "function count(items) { return items.length; }",
+  }) });
+  assert.deepEqual(r.canonical.cards, ["parseMoney"]);
+  assert.equal(run(r.code, "total([\"$1,234.50\", \"5\"])"), 1239.5);
+  fs.rmSync(out, { force: true });
+});

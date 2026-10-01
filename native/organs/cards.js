@@ -105,10 +105,18 @@ export function declaredIn(code) {
   const src = String(code ?? "");
   const declared = new Set();
   for (const m of src.matchAll(/\b(?:function\s*\*?|const|let|var|class)\s+([A-Za-z_$][\w$]*)/g)) declared.add(m[1]);
-  for (const m of src.matchAll(/[(,]\s*([A-Za-z_$][\w$]*)\s*(?=[,)=])/g)) declared.add(m[1]); // parameters, loosely
+  // parameters, from where parameters are: a `function` head, an arrow head, a `catch`. NOT from any `(name)` — `stop.times.map(padTime)` passes a card as a value, and reading it as a
+  // parameter list declared `padTime` and kept the card out of the unit (measured 2026-10-01, a draw whose own padTime had just been dropped for the verified one)
+  const addParams = (list) => { for (const part of String(list).split(",")) for (const id of part.split("=")[0].matchAll(/[A-Za-z_$][\w$]*/g)) declared.add(id[0]); };
+  for (const m of src.matchAll(/\bfunction\b[^(]*\(([^)]*)\)/g)) addParams(m[1]);
+  for (const m of src.matchAll(/\(([^()]*)\)\s*=>/g)) addParams(m[1]);
+  for (const m of src.matchAll(/\bcatch\s*\(([^)]*)\)/g)) addParams(m[1]);
   for (const m of src.matchAll(/\b([A-Za-z_$][\w$]*)\s*=>/g)) declared.add(m[1]);
   return declared;
 }
+
+/** does the code mention this name as a value or a call — `roundTo(x)`, `.map(padTime)`, `[a, b].map(parseMoney)` — and not as a property (`x.padTime`)? */
+export function mentions(code, name) { return new RegExp(`(^|[^.\\w$])${String(name).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w$])`).test(String(code ?? "")); }
 
 /**
  * The names a unit CALLS that nothing in it declares and no global provides — the ones that would be a ReferenceError. The

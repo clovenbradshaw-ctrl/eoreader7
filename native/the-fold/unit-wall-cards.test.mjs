@@ -140,3 +140,9 @@ test("a function that returns the same result for different inputs while the ora
   assert.equal(testUnit(`function f(x) { return [1]; }`, { ...contract, hints: false }).failures.some((m) => /identical result/.test(m)), false, "switchable, like the others");
   assert.equal(testUnit(`function f(x) { return [x.n]; }`, contract).ok, true);
 });
+
+test("a card handed over as a CALLBACK runs: .map(padTime) — the shape left behind when a unit's own padTime is dropped for the verified one", () => {
+  const f = loadUnit(`function busTimes(stop) { return { times: stop.times.map(padTime) }; }`, "busTimes", { cards: "exact" });
+  assert.deepEqual(f({ times: [0, 330, "45"] }), { times: ["00:00", "03:30", "00:45"] });
+  assert.deepEqual(f.cardsUsed(), ["padTime"], "the record says it was used, though it was never called by name with a paren");
+});

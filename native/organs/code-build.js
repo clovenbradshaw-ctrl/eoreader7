@@ -17,7 +17,7 @@ import path from "node:path";
 import vm from "node:vm";
 import { execSync } from "node:child_process";
 import { validatePython, validateHtml } from "../../postprocess.mjs";
-import { CARD_NAMES, cardsFor, cardsDoc, cardSource } from "./cards.js";
+import { CARD_NAMES, cardsFor, cardsDoc, cardSource, mentions } from "./cards.js";
 import { canonicalize, adoptIf, jsUnitEnd } from "./code-canonical.js";
 import { proposeCanonical, readAnchorLog, appendAnchorLog } from "../adapters/build/code-anchor-log.js";
 
@@ -177,7 +177,7 @@ export async function buildCodeTask({ task, model, testCommand = null, out = nul
     return code;
   }).filter(Boolean);
   // the file carries the operations it calls, verbatim, once: a unit that names a card is whole without asking the reader for a library
-  const used = CARD_NAMES.filter((n) => !unitNames.includes(n) && parts.some((p) => new RegExp(`(^|[^.\\w$])${n}\\s*\\(`).test(p)));
+  const used = CARD_NAMES.filter((n) => !unitNames.includes(n) && parts.some((p) => mentions(p, n)));
   const code = (used.length ? `// the operations below are written and checked once (organs/cards.js); the units call them\n${cardSource(used)}\n\n` : "") + parts.join("\n\n") + "\n";
   const looksJsFile = /\b(function|=>|const |let |require\(|export )/.test(code) && !/^\s*def |^\s*import |^\s*from /m.test(code);
   const looksPy = /^\s*(def |import |from |class )/m.test(code);
