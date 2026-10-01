@@ -5,6 +5,7 @@
 // SOLVED when a small expression over the input (leaves, the card operations, + − × ÷, round/ceil, counts and sums over lists) reproduces its value in every shown example; the expression is then CHECKED on the
 // runs it was not shown. Whatever is left is the model's real job, and the list of it is the answer to "when are we absolutely needed". Numbers in the person's own words (`divided by 200`) are constants.
 //   node native/the-fold/synth-fields.mjs
+import { keyTokens } from "../organs/key-referents.js";
 import { DIVERSE } from "./diverse-tasks.mjs";
 import { HELDOUT } from "./diverse-heldout.mjs";
 import { CARDS, cardsFor } from "../organs/cards.js";
@@ -75,7 +76,7 @@ export const UNIT_FACTORS = Object.freeze({ percent: 100, percentage: 100, minut
 const unitConstants = (contract) => [...new Set(String([contract.doc, contract.returns, contract.notes].join(" ")).toLowerCase().match(/[a-z]+/g)?.map((w) => UNIT_FACTORS[w]).filter(Boolean) ?? [])];
 
 /** search for a numeric expression reproducing `want` (one value per shown run) -> { expr, f } | null. Bottom-up in stages, observational equivalence, bounded: leaves, then the card operations, then rounding, then one and two arithmetic steps (each followed by rounding). */
-export function synthesize(contract, want, extraLeaves = [], accept = () => true) {
+export function synthesize(contract, want, extraLeaves = [], accept = () => true, prefer = null) {
   const runs = contract.runs.slice(0, SHOWN), args = runs.map((r) => r.args()), key = (vals) => vals.map((v) => (isNum(v) ? roundTo(v, 9) : String(v))).join("|");
   const everyArgs = contract.runs.map((r) => r.args()), everyRun = (t) => everyArgs.slice(SHOWN).map((a) => { try { const v = t.f(a); return isNum(v) ? roundTo(v, 9) : "x"; } catch { return "x"; } }).join(","); // two terms that agree on the shown runs but differ on a run it was not shown are NOT the same term
   const seen = new Set(), pool = []; let found = null;
@@ -83,7 +84,9 @@ export function synthesize(contract, want, extraLeaves = [], accept = () => true
     if (!vals.every(isNum)) { // the guard: where the expression has no value (a mean of nothing) and the example wants 0, the answer is 0 — only a term that DIVIDES can have this, and the held-out runs still decide
       if (!/\//.test(t.expr) || !vals.every((v, i) => isNum(v) || (!Number.isFinite(v) && Number.isNaN(v) && want[i] === 0))) return false;
       const g = t.f; t = { ...t, js: `((v) => (Number.isFinite(v) ? v : 0))(${t.js})`, f: (a) => { const v = g(a); return Number.isFinite(v) ? v : 0; }, guarded: true }; vals = args.map((a) => t.f(a)); } const k = key(vals) + "#" + everyRun(t); if (seen.has(k)) return false; seen.add(k); t.vals = vals; pool.push(t); if (vals.every((v, i) => same(v, want[i])) && accept(t)) found = t; return true; };
-  const base = [...leaves(contract), ...extraLeaves]; for (const t of base) for (const o of listOps(t)) base.push(o);
+  // among leaves the examples cannot tell apart, the one whose NAME is the slot's (`tempC` for `temp`, not `FeelsLikeC`) is tried first, and the dedupe keeps the first: name evidence breaks ties, it never overrides a value
+  const affinity = (t) => { if (!prefer) return 0; const k = new Set(keyTokens(prefer)), last = String(t.expr).split(".").pop().replace(/[^\w]/g, " "); return keyTokens(last).some((w) => k.has(w)) ? 1 : 0; };
+  const base = [...leaves(contract), ...extraLeaves].map((t, i) => [t, i]).sort((a, b) => affinity(b[0]) - affinity(a[0]) || a[1] - b[1]).map((x) => x[0]); for (const t of base) for (const o of listOps(t)) base.push(o);
   for (const c of [...wordConstants(contract), ...unitConstants(contract)]) base.push({ expr: String(c), js: String(c), f: () => c, constant: true });
   for (const t of base) add(t); if (found) return found;
   const wrap = (terms) => { for (const t of terms) { if (t.arr || t.constant) continue; for (const p of [0, 1, 2]) add({ expr: `roundTo(${t.expr}, ${p})`, js: `roundTo(${t.js}, ${p})`, f: (a) => roundTo(t.f(a), p) }); add({ expr: `ceil(${t.expr})`, js: `Math.ceil(${t.js})`, f: (a) => Math.ceil(t.f(a)) }); add({ expr: `abs(${t.expr})`, js: `Math.abs(${t.js})`, f: (a) => Math.abs(t.f(a)) }); if (found) return; } };
@@ -105,8 +108,8 @@ export function solveField(contract, key, vals, extra = []) {
   const runs = contract.runs, heldOk = (t) => runs.slice(SHOWN).every((r) => { try { return same(t.f(r.args()), r.want()[key]); } catch { return false; } });
   // the search keeps going past an expression that fits the shown runs but not the held-out ones (a node's `lat` fits until a way's `center.lat` turns up)
   const mayContinue = runs.length - SHOWN >= MIN_HELD_FOR_SEARCH;
-  let t = mayContinue ? synthesize(contract, vals, extra, heldOk) : null, coincidence = false;
-  if (!t) { t = synthesize(contract, vals, extra); coincidence = mayContinue ? !!t : false; }
+  let t = mayContinue ? synthesize(contract, vals, extra, heldOk, key) : null, coincidence = false;
+  if (!t) { t = synthesize(contract, vals, extra, () => true, key); coincidence = mayContinue ? !!t : false; }
   if (!t) return { key, kind: "unsolved" };
   let held = 0, total = 0; for (const r of runs.slice(SHOWN)) { total++; try { if (same(t.f(r.args()), r.want()[key])) held++; } catch { /* a throw is a miss */ } }
   return { key, kind: !coincidence && total > 0 && held === total ? "solved" : "coincidence", expr: t.expr, heldOut: `${held}/${total}`, term: t };

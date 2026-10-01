@@ -127,3 +127,12 @@ test("scrape: the last (or first) match of the tag before the value; a string th
   const plain = mkScrape(["text"], [["hello world"], ["foo bar"], ["x y"]], (t) => t.split(" ")[0]);
   assert.equal(scrape(plain), null);
 });
+
+// ---- name evidence breaks ties between leaves the examples cannot tell apart ----
+test("two leaves equal on every example: the one named for the slot wins, never the one that merely comes first", () => {
+  const data = [["metric", { FeelsLikeC: "20", tempC: "20" }], ["imperial", { FeelsLikeC: "20", tempC: "20" }], ["metric", { FeelsLikeC: "11", tempC: "11" }], ["imperial", { FeelsLikeC: "3", tempC: "3" }], ["metric", { FeelsLikeC: "7", tempC: "7" }], ["imperial", { FeelsLikeC: "9", tempC: "9" }]];
+  const c = { name: "h", params: ["units", "h"], doc: "d", returns: "the temp: when units is metric the reading, when imperial the reading times 2", notes: "", runs: data.map((d) => ({ args: () => JSON.parse(JSON.stringify(d)), want: () => ({ temp: d[0] === "metric" ? Number(d[1].tempC) : Number(d[1].tempC) * 2 }) })) };
+  const b = branch(c, "temp");
+  assert.ok(b, "found");
+  assert.match(b.js, /tempC/); assert.doesNotMatch(b.js, /FeelsLikeC/);
+});

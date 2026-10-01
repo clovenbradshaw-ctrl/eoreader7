@@ -63,6 +63,7 @@ export async function buildApp({ work, out, places = ["London"], mouths = ["qwen
   const t0 = Date.now();
   const gen = await generateUnits({ mouths, trails: loadTrails(trailsFile), cache, see: seeFold, decompose: "fields", species: speciesHook(), onLeaf });
   saveTrails(trailsFile, gen.trails);
+  if (gen.gap?.type === "integration_failed") fold.append("note", { note: `integration: ${gen.gap.unit} failed the whole-response oracle though every leaf passed its own checks — ${(gen.gap.failures ?? []).slice(0, 1).join("").slice(0, 140)}` });
   const generated = { ok: gen.ok, gap: gen.gap, whole: gen.whole, leaves: gen.leaves, ms: Date.now() - t0 };
   fs.writeFileSync(path.join(work, "units.json"), JSON.stringify(generated, null, 1));
   const account = accountOf(generated);

@@ -195,7 +195,7 @@ export function branch(contract, slot) {
     const parts = [];
     for (const d of distinct) {
       const idx = runs.map((_, i) => i).filter((i) => vals[i] === d), sub = { ...contract, runs: idx.map((i) => runs[i]) };
-      const t = synthesize(sub, idx.map((i) => got[i]));
+      const t = synthesize(sub, idx.map((i) => got[i]), [], () => true, slot);
       if (!t) { parts.length = 0; break; }
       parts.push({ d, t });
     }
