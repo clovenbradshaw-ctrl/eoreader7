@@ -434,7 +434,7 @@ export async function makeUnit(contract, { mouths, mouth, trails = {}, cache = n
       if (anchorFile) { appendAnchorLog(anchorFile, log, persisted); persisted = log.entries.length; }
       facts = factsFrom(canonical.findings ?? []);
       if (canonical.transformations.length) see("canonical", { name: contract.name, model, round, transformations: canonical.transformations.map((t) => `${t.kind}:${t.name ?? `${t.from}→${t.to}`}`), findings: canonical.findings });
-      see("unit-draw", { name: contract.name, model, round, ms: r.ms, promptTokens: r.promptTokens, tokens: r.outTokens, ok: res.ok, failures: res.failures.slice(0, 4), resolved: (res.resolutions ?? []).filter((x) => !x.ambiguous), ambiguous: (res.resolutions ?? []).filter((x) => x.ambiguous), code: code.slice(0, 1500) });
+      see("unit-draw", { name: contract.name, model, round, ms: r.ms, promptTokens: r.promptTokens, tokens: r.outTokens, ok: res.ok, failedRuns: res.ok ? 0 : failedRuns(contract, res.failures), failures: res.failures.slice(0, 4), resolved: (res.resolutions ?? []).filter((x) => !x.ambiguous), ambiguous: (res.resolutions ?? []).filter((x) => x.ambiguous), code: code.slice(0, 1500) });
       if (res.ok) {
         trails = deposit(trails, { head, route: model, ok: true, ms: r.ms, at: now });
         cache?.put(hash, { name: contract.name, model, code, hash, declared: res.declared ?? {}, resolutions: res.resolutions ?? [], verifiedAt: new Date(now).toISOString() });

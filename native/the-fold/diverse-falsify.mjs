@@ -38,10 +38,11 @@ if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).
     for (const arm of arms) {
       const t0 = Date.now();
       // every draw (its code, its failures) is kept beside the rows: a row says THAT an arm failed, the draws say WHY
-      const see = (event, f) => { if (out && event === "unit-draw") fs.appendFileSync(out.replace(/\.jsonl$/, "") + ".draws.jsonl", JSON.stringify({ task: d.contract.name, arm, ...f }) + "\n"); };
+      const best = { n: Infinity };
+      const see = (event, f) => { if (event === "unit-draw" && typeof f.failedRuns === "number") best.n = Math.min(best.n, f.failedRuns); if (out && event === "unit-draw") fs.appendFileSync(out.replace(/\.jsonl$/, "") + ".draws.jsonl", JSON.stringify({ task: d.contract.name, arm, ...f }) + "\n"); };
       const flags = Object.fromEntries(Object.entries(ARMS[arm]).filter(([k]) => !RUN_OPTS.includes(k))), opts = Object.fromEntries(Object.entries(ARMS[arm]).filter(([k]) => RUN_OPTS.includes(k)));
       const r = await makeUnit({ ...d.contract, ...flags }, { mouths, mouth, cache: null, rng: () => 0.99, explore: 0, see, ...opts });
-      const row = { task: d.contract.name, role: d.role, arm, ok: r.ok, model: r.model, calls: r.calls, rounds: r.rounds, failedRuns: r.ok ? 0 : failedRuns(d.contract, r.failures ?? []), of: d.contract.runs.length, secs: Math.round((Date.now() - t0) / 1000), cards: r.ok ? (r.resolutions ?? []).filter((x) => x.kind === "card").map((x) => `${x.asked}${x.real ? `→${x.real}` : x.ambiguous ? "?" : "✗"}`) : undefined, keys: r.ok ? (r.resolutions ?? []).filter((x) => !x.kind).map((x) => `${x.asked}→${x.real ?? "?"}`) : undefined, fail: r.ok ? undefined : (r.failures?.[0] ?? "").slice(0, 140) };
+      const row = { task: d.contract.name, role: d.role, arm, ok: r.ok, model: r.model, calls: r.calls, rounds: r.rounds, failedRuns: r.ok ? 0 : failedRuns(d.contract, r.failures ?? []), bestFailedRuns: Number.isFinite(best.n) ? best.n : undefined, of: d.contract.runs.length, secs: Math.round((Date.now() - t0) / 1000), cards: r.ok ? (r.resolutions ?? []).filter((x) => x.kind === "card").map((x) => `${x.asked}${x.real ? `→${x.real}` : x.ambiguous ? "?" : "✗"}`) : undefined, keys: r.ok ? (r.resolutions ?? []).filter((x) => !x.kind).map((x) => `${x.asked}→${x.real ?? "?"}`) : undefined, fail: r.ok ? undefined : (r.failures?.[0] ?? "").slice(0, 140) };
       console.log(JSON.stringify(row));
       if (out) fs.appendFileSync(out, JSON.stringify({ at: new Date().toISOString(), ...row }) + "\n");
     }
