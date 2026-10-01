@@ -22,12 +22,12 @@ export async function sampleTask(d, { mouth, model, n, out = null, log = () => {
   for (let i = 0; i < n; i++) {
     const row = { task: c.name, role: d.role, model, i, offered: cardsShown(offC), samePrompt };
     const b = await mouth(model, baseP), code = extractCode(b.text, c.name);
-    if (code) { const t = testUnit(code, baseC); Object.assign(row, { baseOk: t.ok, baseFail: t.ok ? 0 : frac(baseC, t.failures) }); } else Object.assign(row, { baseOk: false, baseFail: 1, baseNoCode: true });
+    if (code) { const t = testUnit(code, baseC); Object.assign(row, { baseOk: t.ok, baseFail: t.ok ? 0 : frac(baseC, t.failures), baseCode: code.slice(0, 1800) }); } else Object.assign(row, { baseOk: false, baseFail: 1, baseNoCode: true });
     // when the two prompts are byte-identical the draw is the SAME sample space: draw again rather than reuse, so base and offered stay independent draws
     const o = await mouth(model, offP), oc = extractCode(o.text, c.name);
     if (oc) {
       const raw = testUnit(oc, offC), read = readSuggestion(oc, offC);
-      Object.assign(row, { offeredRawOk: raw.ok, offeredRawFail: raw.ok ? 0 : frac(offC, raw.failures), readOk: read.res.ok, readFail: read.res.ok ? 0 : frac(offC, read.res.failures), transformations: (read.canonical.transformations ?? []).map((t) => t.kind), refused: Boolean(read.canonical.refused) });
+      Object.assign(row, { offeredCode: oc.slice(0, 1800), readCode: read.code.slice(0, 1800), offeredFailures: (raw.failures ?? []).slice(0, 2), offeredRawOk: raw.ok, offeredRawFail: raw.ok ? 0 : frac(offC, raw.failures), readOk: read.res.ok, readFail: read.res.ok ? 0 : frac(offC, read.res.failures), transformations: (read.canonical.transformations ?? []).map((t) => t.kind), refused: Boolean(read.canonical.refused) });
     } else Object.assign(row, { offeredRawOk: false, offeredRawFail: 1, readOk: false, readFail: 1, offeredNoCode: true, transformations: [] });
     rows.push(row); if (out) fs.appendFileSync(out, JSON.stringify(row) + "\n"); log(row);
   }
