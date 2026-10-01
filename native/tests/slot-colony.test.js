@@ -163,3 +163,143 @@ test("the habitat lands the fills: each fill names its species' house, and an em
   assert.deepEqual(houses.find((h) => h.cell === "DEF·Figure").occupants, ["u.total←decide"]);
   assert.equal(houses.find((h) => h.cell === "EVA·Figure").status, "empty");
 });
+
+// ================================================================ ADVERSARIAL — each case below is a finding of an independent
+// review of this module (2026-10-01), reproduced here first and fixed after. The 18 tests above passed on all of the buggy code.
+
+test("THE SPECIES GET A VIEW, NOT THE COLONY: a species that rewrites its slot's gate, forges a fill in the environment, or poisons the kind cannot change what the colony records", async () => {
+  const slot = (id, kind) => ({ id, kind, holds: () => false });            // a gate that refuses everything
+  const liar = { name: "liar", cell: "CON·Figure", fill: (s) => { try { s.holds = () => true; s.kind = "poisoned"; s.id = "renamed"; } catch { /* a frozen view throws in strict mode — also fine */ } return { f: () => 1 }; } };
+  const r = await colonize({ slots: [slot("a", "number")], species: [liar], mode: "declared", clock: clock() });
+  assert.equal(r.filled.size, 0, "the gate the caller supplied decides, not the gate the species left behind");
+  assert.deepEqual(r.unfilled, ["a"]);
+  assert.deepEqual(r.trails, {}, "no deposit for a refused candidate, under any head");
+
+  const forger = { name: "forger", cell: "CON·Figure", fill: (s, env) => { env.filled.set("victim", { species: "forger", cell: "CON·Figure", candidate: {}, pass: 0 }); return null; } };
+  const r2 = await colonize({ slots: [slot("victim", "number"), slot("b", "number")], species: [forger], mode: "declared", clock: clock() });
+  assert.equal(r2.filled.size, 0, "a forged environment entry is not a fill");
+  assert.deepEqual(r2.unfilled.sort(), ["b", "victim"]);
+});
+
+test("A species that empties the environment cannot make the colony run forever, and cannot un-fill a slot the gate already passed", async () => {
+  const slots = [{ id: "x", kind: "number", holds: (c) => c.f() === 1 }, { id: "y", kind: "string", holds: () => false }];
+  let calls = 0;
+  // fills x honestly, then on every other slot deletes x from the map it was handed (an adversary, or just a species with a bug)
+  const vandal = { name: "vandal", cell: "CON·Figure", fill: (s, env) => { calls++; if (calls > 300) return null; if (s.id === "x") return { f: () => 1 }; env.filled.delete("x"); return null; } };
+  const r = await colonize({ slots, species: [vandal], mode: "declared", clock: clock() });
+  assert.ok(calls < 40, `the run must end quickly (calls=${calls})`);
+  assert.deepEqual([...r.filled.keys()], ["x"], "x was filled through the gate and stays filled");
+});
+
+test("A gate that throws or rejects is a REFUSAL of that candidate, flagged — it does not kill the run and lose every earlier fill and trail", async () => {
+  const good = { id: "good", kind: "number", holds: (c) => c.f() === 1 };
+  const boom = { id: "boom", kind: "number", holds: () => { throw new Error("gate crashed"); } };
+  const rejects = { id: "rej", kind: "number", holds: async () => { throw new Error("async gate crashed"); } };
+  const sp = { name: "s", cell: "CON·Figure", fill: () => ({ f: () => 1 }) };
+  const r = await colonize({ slots: [good, boom, rejects], species: [sp], mode: "declared", clock: clock() });
+  assert.deepEqual([...r.filled.keys()], ["good"]);
+  assert.deepEqual(r.unfilled.sort(), ["boom", "rej"]);
+  assert.equal(r.rows.filter((x) => x.gateThrew).length >= 2, true, "the throw is on the record");
+  assert.equal(r.trails["slot|number"].length, 1, "only the real fill deposited");
+});
+
+test("Slots must be addressable: a duplicate or missing id is a typed refusal, not an unfilled slot that vanishes", async () => {
+  const sp = { name: "s", cell: "CON·Figure", fill: () => null };
+  const g = () => true;
+  await assert.rejects(() => colonize({ slots: [{ id: "u.x", kind: "number", holds: g }, { id: "u.x", kind: "string", holds: g }], species: [sp] }), /duplicate|unique/i);
+  await assert.rejects(() => colonize({ slots: [{ kind: "number", holds: g }], species: [sp] }), TypeError);
+  await assert.rejects(() => colonize({ slots: [{ id: "u", kind: 7, holds: g }], species: [sp] }), TypeError, "a kind is a string — a trail head is made of it");
+  await assert.rejects(() => colonize({ slots: [{ id: "u", kind: "number" }], species: [sp] }), TypeError, "a slot with no gate has nothing to believe");
+});
+
+test("a falsy candidate (0, \"\", false) is a candidate and is gated — only null/undefined is 'no candidate'", async () => {
+  const slot = { id: "z", kind: "number", holds: (c) => c === 0 };
+  const zero = { name: "zero", cell: "NUL·Figure", fill: () => 0 };
+  const r = await colonize({ slots: [slot], species: [zero], mode: "declared", clock: clock() });
+  assert.deepEqual([...r.filled.keys()], ["z"], "0 reproduced the held-out answer and was refused as 'no candidate'");
+});
+
+test("THE NULL ARM MAY NOT PASS VACUOUSLY: no slot carrying a redeal, no species, or a gate nothing ever evaluated is `untested`, never `gate_holds`", async () => {
+  const sp = { name: "s", cell: "CON·Figure", fill: () => null };
+  const none = await nullArm({ slots: [], species: [sp] });
+  assert.equal(none.verdict, "untested");
+  const mute = await nullArm({ slots: [mkSlot("a", "number"), mkSlot("b", "number")], species: [sp] });
+  assert.equal(mute.tried, 2);
+  assert.equal(mute.verdict, "untested", "tried 2 slots but no species offered a candidate, so the gate was never exercised");
+  assert.equal(mute.gated, 0);
+  assert.equal(mute.unexercised, 2);
+  const live = await nullArm({ slots: [mkSlot("a", "number")], species: [mk("wrong", "CON·Figure", { number: "wrong" })] });
+  assert.equal(live.verdict, "gate_holds", "a candidate was offered and refused: the gate ran");
+  assert.equal(live.gated, 1);
+  const partial = await nullArm({ slots: [mkSlot("a", "number"), mkSlot("b", "string")], species: [mk("wrong", "CON·Figure", { number: "wrong" })] });
+  assert.equal(partial.verdict, "gate_holds_partial", "one slot exercised the gate, one did not — say so");
+  assert.equal(partial.unexercised, 1);
+});
+
+test("THE NULL ARM'S FILLS ARE COUNTED FROM THE ROWS, not from the final map — a species cannot erase a leak", async () => {
+  const slots = [{ id: "k", kind: "number", holds: () => true }, { id: "m", kind: "string", holds: () => false }];
+  let calls = 0;
+  const eraser = { name: "eraser", cell: "CON·Figure", fill: (s, env) => { calls++; if (calls > 300) return null; if (s.id === "k") return { f: () => 1 }; env.filled.delete("k"); return null; } };
+  const r = await nullArm({ slots, species: [eraser] });
+  assert.equal(r.verdict, "gate_leaky");
+  assert.equal(r.falseFills, 1);
+});
+
+test("A redeal that equals the real target is not a false target — `redealt` reports what it dropped, and an identity redeal is excluded, not counted as a leak", async () => {
+  const constant = (id) => { const s = { id, kind: "number", wants: [5, 5, 5], holds: (c) => c.f() === 5 }; s.redeal = (rot) => ({ ...s, id: `${id}~${rot}`, wants: [5, 5, 5] }); return s; };
+  const varied = (id) => { const s = { id, kind: "number", wants: [1, 2, 3], holds: (c) => c.f() === 1 }; s.redeal = (rot) => ({ ...s, id: `${id}~${rot}`, wants: [2, 3, 1] }); return s; };
+  const rep = redealt([constant("c"), varied("v")], [1, 2]);
+  assert.deepEqual(rep.map((s) => s.id), ["v~1", "v~2"], "the constant slot's redeals are the real target again and are not false");
+  assert.deepEqual(rep.report, { requested: 4, produced: 2, identity: 2, dropped: 0 });
+});
+
+test("the result does not alias or leak the caller's trails: nothing deposited returns a COPY, and the species cannot edit what it was handed", async () => {
+  const mine = { "slot|number": [{ head: "slot|number", route: "x", ok: true, ms: 1, at: 0 }] };
+  const r = await colonize({ slots: [], species: [], mode: "learned", trails: mine });
+  assert.notEqual(r.trails, mine);
+  assert.deepEqual(r.trails, mine);
+});
+
+test("selection inside a species is visible: a species that calls the gate itself has its calls counted on the row, so a gate used as a search oracle cannot hide", async () => {
+  const slot = { id: "s", kind: "number", holds: (c) => c.f() === 3 };
+  const searcher = { name: "searcher", cell: "SYN·Figure", fill: (s, env) => { for (const k of [1, 2, 3, 4]) if (env.gate({ f: () => k }) === true) return { f: () => k }; return null; } };
+  const r = await colonize({ slots: [slot], species: [searcher], mode: "declared", clock: clock() });
+  assert.equal(r.filled.size, 1);
+  const row = r.rows.find((x) => x.outcome === "filled");
+  assert.equal(row.gateCalls, 3, "three candidates were tried against the gate inside fill() before the colony's own check");
+  assert.equal(r.selection, 1, "one fill rested on a search over more than one candidate");
+});
+
+test("skipUnchanged: a refused candidate is not re-gated in a later pass unless a fill has landed since its last attempt — the order metric stops counting passes", async () => {
+  // pass 1: late has nothing yet (early is unfilled), dead is refused, early fills. pass 2: late fills (early is there now), dead is
+  // refused again — a fill landed since its last try, so the retry is legitimate. pass 3: nothing landed since dead's pass-2 try.
+  const slots = [
+    { id: "late", kind: "string", holds: (c) => c.f() === "ok" },
+    { id: "dead", kind: "number", holds: () => false },
+    { id: "early", kind: "boolean", holds: (c) => c.f() === true },
+  ];
+  const sp = [
+    { name: "d", cell: "DEF·Figure", fill: (s) => (s.id === "dead" ? { f: () => 0 } : null) },
+    { name: "late", cell: "CON·Figure", fill: (s, env) => (s.id === "late" && env.filled.has("early") ? { f: () => "ok" } : null) },
+    { name: "early", cell: "NUL·Figure", fill: (s) => (s.id === "early" ? { f: () => true } : null) },
+  ];
+  const always = await colonize({ slots, species: sp, mode: "declared", clock: clock() });
+  const skip = await colonize({ slots, species: sp, mode: "declared", clock: clock(), skipUnchanged: true });
+  assert.equal(always.wasted, 3, "the registered behaviour re-gates the dead slot in every pass, including the one where nothing could have changed");
+  assert.equal(skip.wasted, 2, "pass 3 is skipped for it: no fill landed since its pass-2 try");
+  assert.deepEqual([...always.filled.keys()].sort(), [...skip.filled.keys()].sort(), "the same fills");
+  assert.ok(skip.attempts < always.attempts);
+});
+
+test("THE GATE IS `=== true`: a truthy non-true verdict (1, \"yes\", {}, [], a string) is a refusal, not a fill", async () => {
+  for (const verdict of [1, "yes", "true", {}, [], new Boolean(true)]) {
+    const slot = { id: "g", kind: "number", holds: () => verdict };
+    const r = await colonize({ slots: [slot], species: [{ name: "s", cell: "CON·Figure", fill: () => ({ f: () => 1 }) }], mode: "declared", clock: clock() });
+    assert.equal(r.filled.size, 0, `a verdict of ${JSON.stringify(verdict)} must not fill`);
+  }
+});
+
+test("the default order is `declared` — a default that implies a benefit nobody measured would be a claim (slot-colony-RESULTS.md)", async () => {
+  const r = await colonize({ slots: [], species: [] });
+  assert.equal(r.mode, "declared");
+});

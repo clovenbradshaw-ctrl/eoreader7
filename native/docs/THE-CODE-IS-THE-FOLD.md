@@ -136,12 +136,14 @@ objectives. Agentless† (Xia et al., 2024) showed that a fixed
 localize–repair–validate path, with no model deciding the next action, beat
 the open-source agents on its benchmark. Cobbe et al.'s verifiers (2021),
 Wang et al.'s self-consistency (2022) and Koza's genetic programming (1992)
-are the older members of the family. As far as we have found, all of them
-**keep the winner and discard the rest**, select against a score over a
-whole program or a population, and do not keep the losers as a typed record
-with a reason. The joint we add: the unit is a named slot, the losers are
-data, and the artifact is the fold of a log rather than a population or a
-single program.
+are the older members of the family. Several of them keep more than one
+winner — FunSearch's database holds many programs — so "keep the winner and
+discard the rest" is too strong as a description of the whole family. What we
+have not found is a system that selects against a score over a whole program
+or a population **and** keeps the losers, slot by slot, as a typed record with
+a stated reason. The joint we propose: the unit is a named slot, the losers
+are data, and the artifact is the fold of a log rather than a population or a
+single program. (That is a claim about what we found, not a survey.)
 
 **The log as truth.** Event sourcing, and Kleppmann's "turning the database
 inside out" (2015): the log is the record, every view is a projection, and
@@ -291,7 +293,7 @@ informative.
 | the anchor drivers (`drive`, `refold`, `revise-style`, `pathos-repair-loop`, `visual-polish`) | exercised with gemma2:2b; one contract (`escapeHtml`) of four anchors |
 | `coherence-properties.mjs` — behavioral scorers, self-check against tampering | measured: 3/4 wrongly halted legitimate edits before the behavioral rewrite, 5/5 adversarial cases after |
 | `code-loop.js` — K draws, annealing, revert, derived op, executed diagnosis | measured: 0/20 control, 75% single mouth, 95% two mouths; a different artifact model (files, not anchors) |
-| `kernel/stigmergy.js` — deposit, evaporation, learned order | built; used by `structure-swarm`, `hard-read`, the route layer; **not imported by the coding path** |
+| `kernel/stigmergy.js` — deposit, evaporation, learned order | built; used by `structure-swarm`, `hard-read`, the route layer, and (since 2026-10-01) `slot-colony.js` and the fielded swarm's app path (#148); **still not imported by the anchor log or `code-loop.js`** — §11 |
 | `podcast-app-council.mjs` v2 and `podcast-app-ledger.js` — the production council | still the byte-span splice over a whole-file ledger; the anchor log is not wired in |
 | `code-structure.js` — declarations, call edges, a DMD-cut `codeGist` | built; reads code structure; identity from declaration syntax, never casing |
 | SEG and CON on the anchor log | named, not built |
@@ -490,7 +492,42 @@ And the ideas have to stay ideas. The moment a model's proposal is believed
 because it is confident, fluent, or the first to arrive, the log has become
 a transcript and the fold a guess.
 
-## 11. Pending
+## 11. Update 2026-10-01 — the colony and the 27 houses, measured
+
+What was built since the first draft of this document, and what it does and does
+not bear on:
+
+- `organs/slot-colony.js` is the real colony (kernel/stigmergy.js, the
+  structure-swarm's discipline) sent at the slots of a coding unit;
+  `organs/code-habitat.js` gives each filler a house — one of the 27 cells — and
+  a coverage map. The species it was measured with are the fielded swarm's
+  twelve (eoreader7 #148), which are **mechanical fillers, not model ideas**:
+  nothing in that measurement bears on §8 step 1, the plural-ideas experiment,
+  and that experiment is still the one this document waits on.
+- What the measurement settles: the held-out gate refused every wrong
+  candidate it was offered (on 26 redealt and 12 cross-slot slots, 10 refusals
+  in all, every one from one species); the colony reproduces the swarm's own
+  fills exactly; **ordering the species by their houses, by hand, or by learned
+  trail did not measurably beat the others** (the registered tests for it could
+  not be passed — 37% of random orders already waste nothing); the one visible
+  effect of the chain order is that 18 slots change which species fills them,
+  and that depends on how the species were housed. The fills that depend on
+  *which three examples were shown* are the categorical ones (`decide` refilled
+  9 of 36 under other triples; `copy`, `branch`, `argmax` did not move).
+- What it changes here: §3's "all of them keep the winner" was too strong and is
+  softened; §6's stigmergy row is updated (the colony and #148 use it; the
+  anchor log still does not) — with the finding that on these 80 slots every
+  fill landed in pass 1, so the retry-and-environment half of the colony was
+  never exercised;
+  and the houses are a **map, not an oracle** — 21 of 27 are "leads", which
+  cannot say what to build first.
+- The review that preceded this update found the organ unsound against a
+  hostile or merely buggy species (a species could rewrite its own gate, forge
+  a fill, or erase a leak) and the null arm able to pass without exercising the
+  gate. Both are fixed with tests written first; the account is in
+  `eval/the-fold/results/slot-colony-RESULTS.md`.
+
+## 12. Pending
 
 - Step 1 of §8 is the measurement the whole document waits on. Nothing in §1
   about plural ideas is established until it runs.
@@ -499,6 +536,10 @@ a transcript and the fold a guess.
   measured; §8.2 is its test.
 - No pointer to this document has been added to a `CLAUDE.md` yet; that is
   the house practice and is left for a decision.
+- §11's colony result is one run on one species family; the species were
+  fitted on the same task sets, and the held-out runs were written by the person
+  who wrote the tasks. A set written after the species, and a real-model
+  proposer in place of the mechanical ones, are both still to do.
 
 *Standing: nomination. The code wins disagreements; the controls win
 arguments about the code; the log keeps both.*

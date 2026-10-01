@@ -12,13 +12,19 @@
 //   act it performs and checked by the engine's own `cellOf` — never read off a name.
 //
 // WHAT THE HOUSES BUY, in the order they are used by slot-colony.js:
-//   1. A COLD-START ORDER THAT IS DERIVED, NOT HAND-SET. The canonical operator chain (kernel/cube.js OPERATOR_CHAIN —
-//      domain-major: Existence before Structure before Interpretation) orders houses; a species that lives earlier in the
-//      chain is tried first. fielded-swarm.mjs hand-wrote "copy, then compose, then the rest" and called it "the order the
-//      stigmergy would learn"; the chain says it from the cube, and the colony measures whether the two agree.
+//   1. A COLD-START ORDER FROM THE CHAIN. The canonical operator chain (kernel/cube.js OPERATOR_CHAIN — domain-major:
+//      Existence before Structure before Interpretation) ranks houses; a species that lives earlier in the chain is tried first.
+//      CORRECTED 2026-10-01 after review and measurement: the rank is the cube's but its input is the cell a CALLER typed for each
+//      species, so this is one caller-authored order against another, not "derived vs hand-set". Measured against the real species it
+//      did not earn its keep — the real house assignment was no better than random ones, and one defensible re-housing (optional and
+//      coalesce in CON·Figure, beside copy, which is what they are: copy with a fallback) removes the only visible effect. The chain
+//      is a way to SAY an order from the cube; it is not shown to FIND a better one.
 //   2. A COVERAGE MAP. Houses with a resident, houses with none, and the houses a fill actually landed in. An empty house
 //      that the unit's structure makes relevant is a LEAD for the next species — never a verdict that nothing lives there
-//      (THE-27-CELLS: an empty cell is a lead, never a verdict).
+//      (THE-27-CELLS: an empty cell is a lead, never a verdict). It is DESCRIPTIVE and COARSE: on the real units 21 of 27 houses were
+//      "leads" — nearly every house is relevant to nearly every unit, so the list cannot yet say which to build first.
+//      A unit whose structure could not be read is `unmeasured` (relevant: null), never `not-relevant` — absence of a reading is a
+//      fact about the reader.
 //   3. A TYPED ADDRESS for every deposit: a fill lands in a named cell, so a trail names an act, not a function name.
 //
 // What this module is NOT: it fills nothing, calls no model, and settles nothing. A house is `settledBy` something outside
@@ -70,40 +76,73 @@ const ASKS = Object.freeze({
 });
 
 // The houses where a filler can stand are the ones about the PARTICULARS (every Figure cell) and the one about list
-// production (SYN·Pattern). Those are relevant only when the unit has output fields; the rest are about the unit as a whole.
+// production (SYN·Pattern). Those are relevant only when the unit has output fields (SYN·Pattern: a list-valued one); the rest are
+// about the unit as a whole.
+const LIST_HOUSE = "SYN·Pattern";
 const FIELD_LEVEL = new Set([...OPERATOR_CHAIN.map((op) => cellKey(op, "Figure")), cellKey("SYN", "Pattern")]);
 
-/** a unit's STRUCTURE — counts and shapes, never what its words mean. `contract` is `{ name, params, runs: [{ args(), want() }] }`. */
+/**
+ * a unit's STRUCTURE — counts and shapes, never what its words mean. `contract` is `{ name, params, runs: [{ args(), want() }] }`.
+ * A contract it cannot read (a want() that throws or returns a promise, one null among the shown targets, no runs) is `shape: "unknown"`
+ * and carries `unreadable` — a statement about the reader that `housesFor` renders as `unmeasured`, never as `not-relevant`.
+ */
 export function unitOf(contract, { shown = 3 } = {}) {
+  if (!Number.isInteger(shown) || shown < 0) throw new TypeError(`unitOf: shown must be a non-negative integer, got ${JSON.stringify(shown)}`);
   const runs = contract?.runs ?? [];
-  const wants = runs.slice(0, shown).map((r) => r.want());
-  const flat = wants.length > 0 && wants.every((w) => w !== null && typeof w === "object" && !Array.isArray(w));
+  let wants = [], unreadable = null;
+  try {
+    wants = runs.slice(0, shown).map((r) => r.want());
+    if (wants.some((w) => w && typeof w.then === "function")) { unreadable = "a target is a promise"; wants = []; }
+  } catch (e) { unreadable = `want() threw: ${String(e?.message ?? e).slice(0, 60)}`; wants = []; }
+  const isObj = (w) => w !== null && typeof w === "object" && !Array.isArray(w);
+  const flat = wants.length > 0 && wants.every(isObj);
   const allArrays = wants.length > 0 && wants.every(Array.isArray);
-  const shape = flat ? "object" : allArrays ? "list" : wants.length && wants.every((w) => ["string", "number", "boolean"].includes(typeof w) || w === null) ? "scalar" : "unknown";
+  const shape = flat ? "object" : allArrays ? "list" : wants.length && wants.every((w) => ["string", "number", "boolean"].includes(typeof w)) ? "scalar" : "unknown";
+  const keys = flat ? [...new Set(wants.flatMap(Object.keys))] : [];
+  const listKeys = flat ? keys.filter((k) => wants.some((w) => Array.isArray(w[k]))) : [];
   return Object.freeze({
     name: contract?.name ?? null,
     params: Object.freeze([...(contract?.params ?? [])]),
     shown: wants.length,
     held: Math.max(0, runs.length - shown),
     shape,
-    keys: Object.freeze(flat ? [...new Set(wants.flatMap(Object.keys))] : []),
+    keys: Object.freeze(keys),
+    listKeys: Object.freeze(listKeys),
+    unreadable: unreadable ?? (shape === "unknown" ? (wants.length ? "the shown targets are not all one structure" : "no shown targets") : null),
   });
 }
 
+// "OP·Grain" or [op, grain] — exactly two parts, an operator the chain names and a grain the cube names. Anything else is not a house.
+function parseCell(cell) {
+  const parts = Array.isArray(cell) ? cell : typeof cell === "string" ? cell.split("·") : null;
+  if (!parts || parts.length !== 2 || !OPERATOR_CHAIN.includes(parts[0]) || !GRAINS.includes(parts[1])) return null;
+  return parts;
+}
+const notAHouse = (cell, why) => new TypeError(`residentCell: ${JSON.stringify(cell)} is not a house${why ? ` — ${why}` : ""}`);
+
 /** rank of a house in the canonical chain: operator position (domain-major), then grain. Accepts "OP·Grain" or [op, grain]. */
 export function chainRank(cell) {
-  const [op, grain] = Array.isArray(cell) ? cell : String(cell).split("·");
-  const at = OPERATOR_CHAIN.indexOf(op), g = GRAINS.indexOf(grain);
-  if (at < 0 || g < 0) throw new TypeError(`chainRank: no such house ${JSON.stringify(cell)}`);
-  return at * GRAINS.length + g;
+  const p = parseCell(cell);
+  if (!p) throw new TypeError(`chainRank: no such house ${JSON.stringify(cell)}`);
+  return OPERATOR_CHAIN.indexOf(p[0]) * GRAINS.length + GRAINS.indexOf(p[1]);
 }
 
 /** a resident's house, validated by the engine's own cube. Throws a typed error for a cell that is not one of the 27. */
 export function residentCell(cell) {
-  const [op, grain] = Array.isArray(cell) ? cell : String(cell).split("·");
-  const c = cellOf(op, grain);
-  if (c?.gap) throw new TypeError(`residentCell: ${JSON.stringify(cell)} is not a house — ${c.reason ?? c.gap}`);
+  const p = parseCell(cell);
+  if (!p) throw notAHouse(cell);
+  const c = cellOf(p[0], p[1]);
+  if (c?.gap) throw notAHouse(cell, c.reason ?? c.gap);
   return c;
+}
+
+// true / false from the unit's structure, or null when the structure could not be read — never false for "I could not tell".
+function relevanceOf(key, unit) {
+  const field = FIELD_LEVEL.has(key);
+  if (!field) return true;
+  if (unit.shape === "unknown") return null;
+  if (key === LIST_HOUSE) return unit.listKeys.length > 0 || unit.shape === "list";
+  return unit.keys.length > 0;
 }
 
 /**
@@ -118,13 +157,13 @@ export function housesFor(unit, residents = []) {
   const houses = algebraAddresses().map((c) => {
     const key = cellKey(c.op, c.grain);
     if (!ASKS[key]) throw new TypeError(`housesFor: house ${key} has no question — the table is out of step with the cube`);
-    const relevant = FIELD_LEVEL.has(key) ? unit.keys.length > 0 : true;
+    const relevant = relevanceOf(key, unit);
     const here = byCell.get(key) ?? [];
     return Object.freeze({
       cell: key, op: c.op, grain: c.grain, mode: c.mode, domain: c.domain, terrain: c.terrain, stance: c.stance,
       asks: ASKS[key], relevant, residents: Object.freeze(here), occupants: Object.freeze([]),
       settledBy: here.length ? "held-out gate" : key === "EVA·Ground" ? "the contract's own runs" : "unmeasured",
-      status: !relevant ? "not-relevant" : here.length ? "resident" : "empty",
+      status: relevant === false ? "not-relevant" : here.length ? "resident" : relevant === null ? "unmeasured" : "empty",
     });
   });
   return Object.freeze(houses);
@@ -136,12 +175,15 @@ export function occupancy(houses, fills = []) {
   for (const f of fills) { const c = residentCell(f.cell); const k = cellKey(c.op, c.grain); at.set(k, [...(at.get(k) ?? []), `${f.slot}←${f.species}`]); }
   return Object.freeze(houses.map((h) => {
     const occ = at.get(h.cell) ?? [];
-    return Object.freeze({ ...h, occupants: Object.freeze(occ), status: occ.length ? "occupied" : h.status });
+    return Object.freeze({ ...h, occupants: Object.freeze(occ), status: occ.length ? "occupied" : h.status, ...(occ.length && h.relevant === false ? { anomaly: true } : {}) });
   }));
 }
 
 /** relevant houses with nothing living in them — the next species to build, never a verdict that none can live there */
-export const leads = (houses) => houses.filter((h) => h.relevant && h.residents.length === 0 && h.occupants.length === 0);
+export const leads = (houses) => houses.filter((h) => h.relevant === true && h.residents.length === 0 && h.occupants.length === 0);
+
+/** houses whose relevance could not be read — a fact about the reader of the unit, listed apart from the leads */
+export const unmeasured = (houses) => houses.filter((h) => h.relevant === null);
 
 /** a plain-language table of the habitat, for a status line or a results file */
 export function describe(houses) {

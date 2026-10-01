@@ -67,7 +67,9 @@ test("occupancy: a house is `resident` when a species can live there, `occupied`
 });
 
 test("leads move with the registry — the control for the coverage map: with every house housed there are no leads, with one resident there are many", () => {
-  const unit = unitOf(objectUnit());
+  // a unit with a list-valued field makes every house relevant (SYN·Pattern, the list-production house, needs one — a review finding:
+  // it used to be relevant to an object of scalars)
+  const unit = unitOf({ name: "u", params: ["a"], runs: [run([1], { x: 1, xs: [1] }), run([2], { x: 2, xs: [2] }), run([3], { x: 3, xs: [3, 4] }), run([4], { x: 4, xs: [] })] });
   const none = leads(housesFor(unit, [])), one = leads(housesFor(unit, [{ name: "copy", cell: "CON·Figure" }]));
   const all = leads(housesFor(unit, algebraAddresses().map((c) => ({ name: `s-${c.op}-${c.grain}`, cell: cellKey(c.op, c.grain) }))));
   assert.equal(none.length, 27);
@@ -75,6 +77,8 @@ test("leads move with the registry — the control for the coverage map: with ev
   assert.equal(all.length, 0);
   // a lead is relevant by construction: a scalar unit never lists a per-field house as a lead
   assert.ok(leads(housesFor(unitOf(scalarUnit()), [])).every((h) => h.grain !== "Figure" && h.cell !== "SYN·Pattern"));
+  // and an object of scalars has no list-production house to lead anyone to
+  assert.ok(!leads(housesFor(unitOf(objectUnit()), [])).some((h) => h.cell === "SYN·Pattern"));
 });
 
 test("describe: one line per house and a summary a status line can print", () => {
@@ -82,4 +86,67 @@ test("describe: one line per house and a summary a status line can print", () =>
   assert.equal(text.split("\n").length, 28);
   assert.match(text, /of 27 houses/);
   assert.match(text, /CON·Figure\s+Link\s+occupied\s+u\.x←copy/);
+});
+
+// ================================================================ ADVERSARIAL — findings of an independent review (2026-10-01)
+test("a unit whose structure is UNKNOWN is `unmeasured`, never `not-relevant` — one null among the shown targets must not delete ten houses from the leads", () => {
+  const c = { name: "u", params: ["a"], runs: [run([1], { x: 1 }), run([2], null), run([3], { x: 3 }), run([4], { x: 4 })] };
+  const u = unitOf(c);
+  const hs = housesFor(u, []);
+  const fieldHouses = hs.filter((h) => /Figure$/.test(h.cell));
+  assert.ok(fieldHouses.every((h) => h.status === "unmeasured" && h.relevant === null), "unknown structure is a statement about the reader, not about the unit");
+  assert.ok(leads(hs).length >= 10 || hs.filter((h) => h.relevant === null).length >= 9);
+});
+
+test("unitOf does not crash on a contract it cannot read — a throwing want() is an unmeasured unit with the reason", () => {
+  const c = { name: "boom", params: [], runs: [{ args: () => [], want: () => { throw new Error("no"); } }] };
+  const u = unitOf(c);
+  assert.equal(u.shape, "unknown");
+  assert.ok(u.unreadable);
+});
+
+test("unitOf validates `shown`: a non-integer or negative count is a typed refusal", () => {
+  const c = { name: "u", params: [], runs: [run([], { x: 1 })] };
+  for (const bad of [-1, 2.5, NaN, "3"]) assert.throws(() => unitOf(c, { shown: bad }), TypeError);
+});
+
+test("a house question that depends on a LIST field is relevant only when the unit has one", () => {
+  const scalars = unitOf({ name: "s", params: [], runs: [run([], { a: 1, b: "x" }), run([], { a: 2, b: "y" })] });
+  const withList = unitOf({ name: "l", params: [], runs: [run([], { a: 1, xs: [1] }), run([], { a: 2, xs: [2, 3] })] });
+  assert.deepEqual(withList.listKeys, ["xs"]);
+  assert.deepEqual(scalars.listKeys, []);
+  const rel = (u) => housesFor(u, []).find((h) => h.cell === "SYN·Pattern").relevant;
+  assert.equal(rel(scalars), false);
+  assert.equal(rel(withList), true);
+});
+
+test("residentCell refuses inherited property names and malformed cells with the SAME typed refusal as any non-house", () => {
+  for (const bad of ["constructor·Figure", "toString·Ground", "__proto__·Figure", "CON·Figure·garbage", ["CON", "Figure", "x"], "CON", "", null]) {
+    assert.throws(() => residentCell(bad), (e) => e instanceof TypeError && /not a house/.test(e.message), JSON.stringify(bad));
+  }
+});
+
+test("a fill that lands in a house the unit's structure called not-relevant is FLAGGED, not silently called occupied-and-irrelevant", () => {
+  const scalar = unitOf({ name: "s", params: [], runs: [run([], 1), run([], 2), run([], 3), run([], 4)] });
+  const occ = occupancy(housesFor(scalar, []), [{ slot: "s", species: "copy", cell: "CON·Figure" }]);
+  const h = occ.find((x) => x.cell === "CON·Figure");
+  assert.equal(h.status, "occupied");
+  assert.equal(h.anomaly, true);
+});
+
+test("RELEVANCE READS ONLY THE SHOWN STRUCTURE: parameter names, the name, the held-out count and the docstring may change and no house moves", () => {
+  const mk = (name, params, held) => ({ name, doc: name.repeat(9), params, runs: [run([1], { x: 1, xs: [1] }), run([2], { x: 2, xs: [] }), run([3], { x: 3, xs: [3] }), ...Array.from({ length: held }, (_, i) => run([i], { x: i, xs: [i] }))] });
+  const vec = (c) => housesFor(unitOf(c), []).map((h) => `${h.cell}:${h.relevant}`).join("|");
+  const base = vec(mk("a", ["p"], 1));
+  for (const c of [mk("zzzzzzzzzzzzzzzz", ["p"], 1), mk("a", ["a_very_long_parameter_name", "second", "third"], 1), mk("a", ["p"], 0), mk("a", ["p"], 9)]) assert.equal(vec(c), base);
+});
+
+test("each house's question is the one its cell asks — the five that species live in are pinned to the act they name", () => {
+  const ask = (cell) => housesFor(unitOf({ name: "u", params: [], runs: [run([], { x: 1, xs: [1] })] }), []).find((h) => h.cell === cell).asks.toLowerCase();
+  assert.match(ask("CON·Figure"), /copy/);
+  assert.match(ask("SYN·Figure"), /expression/);
+  assert.match(ask("DEF·Figure"), /categor/);
+  assert.match(ask("EVA·Figure"), /pick|rank|compar/);
+  assert.match(ask("SYN·Pattern"), /list/);
+  assert.match(ask("NUL·Figure"), /absent|null|missing/);
 });
