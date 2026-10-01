@@ -26,10 +26,16 @@ witness grammar, the ground. Penelope calls eoreader7 doors; nothing in
 
 ## Done since (2026-10-01)
 
-- Mouth consolidation: penelope's gym draws through Heimdall admission
-  (shared mouth `er7:gemma2:2b`, `x-er7-session: penelope-gym`,
-  `x-er7-priority: batch`; 429/503 honored with bounded backoff).
-  First admitted draw verified live.
+- Mouth consolidation, with one honest split (measured 2026-10-01):
+  chat draws route through Heimdall admission (shared mouth
+  `er7:gemma2:2b`, `x-er7-session: penelope-gym`, `x-er7-priority:
+  batch`; 429/503 honored with bounded backoff) — first admitted draw
+  verified live. **Code draws stay DIRECT to ollama**: the chat doors'
+  hard-meaning auto-route swallows code prompts whole and answers with a
+  swarm verdict, not a draw (logged). Same precedent as code-build.js;
+  disclosed in penelope `gym/server.mjs`, not hidden.
+- E2E (2026-10-01): 18/18 organ selftests, facing/fold/chat/fish2 pages
+  200, USGS + LL2 feeds live, notebook 4/4, rung loop draws→probes→scores.
 
 ## Outstanding (not yet done)
 
