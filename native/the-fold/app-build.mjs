@@ -18,6 +18,9 @@ import { assembleApp } from "./app-assemble.mjs";
 import { driveApp } from "./app-drive.mjs";
 import { seenImages, readSeen, likenessOfApp } from "./app-likeness.mjs";
 import { LEAF_CONTRACTS } from "./app-leaves.mjs";
+import { generateUnits } from "./app-generate.mjs";
+import { speciesHook } from "./app-species.mjs";
+import { makeMouth, openUnitCache, loadTrails, saveTrails } from "./app-units.mjs";
 import { REFERENCE_LEAVES } from "./app-weather-fuel.reference.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -32,6 +35,33 @@ export function accountOf(generated) {
     const species = u.bySpecies ?? {};
     return { leaf: name, ok: !!u.ok, slotsBySpecies: Object.keys(species).length, species, model: u.model ?? null, calls: u.calls ?? 0, rounds: u.rounds ?? 0, whole: !c ? null : Object.keys(species).length === 0 ? (u.ok ? "model" : "failed") : (u.calls === 0 ? "species-only" : "species+model") };
   });
+}
+
+/**
+ * buildApp — the whole build as ONE call, for the app door: leaves drawn species-first then by the LOCAL models only (no stand-in, no larger model), assembled, driven, copy-checked.
+ * -> { ok, stage, gap?, account, out, drive?, likeness? } — a leaf that no local mouth can make pass stops the build as a typed gap; nothing half-built ships.
+ */
+export async function buildApp({ work, out, places = ["London"], mouths = ["qwen2.5-coder:1.5b", "gemma2:2b"], onNote = () => {} } = {}) {
+  fs.mkdirSync(work, { recursive: true });
+  const cache = openUnitCache(path.join(work, "unit-cache")), trailsFile = path.join(work, "trails.json"), ledger = path.join(work, "build-ledger.jsonl");
+  const see = (event, f) => { fs.appendFileSync(ledger, JSON.stringify({ at: new Date().toISOString(), event, ...f }) + "\n"); if (event === "unit" && f.name) onNote({ move: "app_unit", note: `${f.name}: ${f.species ? "species " + f.species : f.ok === false ? "no local model passed it" : "drawn and verified"}` }); };
+  const t0 = Date.now();
+  const gen = await generateUnits({ mouths, trails: loadTrails(trailsFile), cache, see, decompose: "fields", species: speciesHook() });
+  saveTrails(trailsFile, gen.trails);
+  const generated = { ok: gen.ok, gap: gen.gap, whole: gen.whole, leaves: gen.leaves, ms: Date.now() - t0 };
+  fs.writeFileSync(path.join(work, "units.json"), JSON.stringify(generated, null, 1));
+  const account = accountOf(generated);
+  if (!gen.ok) return { ok: false, stage: "generate", gap: gen.gap, account, out: null };
+  const units = Object.fromEntries(Object.entries(gen.leaves).map(([n, u]) => [n, { code: u.code, model: u.model, rounds: u.rounds, calls: u.calls, cached: u.cached, declared: u.declared, resolutions: u.resolutions }]));
+  const prov = JSON.parse(fs.readFileSync(path.join(FIX, "comps", "PROVENANCE.json"), "utf8"));
+  const asm = assembleApp({ outDir: out, weatherSpec: spec("weather-comp-detect.json"), fuelSpec: spec("fuel-comp-detect.json"), units, provenance: { comps: prov, wholeOracle: gen.whole } });
+  if (!asm.ok) return { ok: false, stage: "assemble", gap: asm.gap, account, out: null };
+  const drive = await driveApp({ dir: out, places, shots: path.join(out, "shots") });
+  let likeness = null;
+  try { const seen = []; for (const f of ["weather-seen.jsonl", "fuel-seen.jsonl"]) seen.push(...readSeen(seenImages(path.join(FIX, "research", f), null)).seen); likeness = likenessOfApp({ pageTexts: drive.steps.flatMap((s) => s.texts), screenshot: drive.steps[0]?.shot ?? null, seen }); } catch (e) { likeness = { error: String(e.message).slice(0, 160) }; }
+  const report = { schema: "EOAppBuild@1", at: new Date().toISOString(), account, drive: { ok: drive.ok, errors: drive.errors, steps: drive.steps.map((s) => ({ place: s.place, settled: s.settled, source: s.source, tabs: s.tabs })) }, likeness };
+  fs.writeFileSync(path.join(work, "build-report.json"), JSON.stringify(report, null, 1));
+  return { ok: drive.ok, stage: drive.ok ? "done" : "drive", account, out, drive: report.drive, likeness };
 }
 
 if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {

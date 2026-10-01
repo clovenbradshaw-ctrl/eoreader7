@@ -3,6 +3,7 @@ import path from "node:path";
 import { ingest } from "./native/organs/ingest.js";
 import { analysisDoor, isAnalysis } from "./native/the-fold/surface/notebook-door.mjs";
 import { detectBuildTask, buildCodeTask, makeDraw, describeBuild } from "./native/organs/code-build.js";
+import { detectAppTask, planNeeds, describePlan } from "./native/organs/app-door.js";
 import { fileURLToPath } from "node:url";
 
 import { createCausalTextPerceiver, textEncounters, surfaceIndex, surfacesIn } from "./native/adapters/text/recursive.js";
@@ -4491,6 +4492,25 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       quote,
     };
   };
+  // ── THE APP DOOR (native/organs/app-door.js) ───────────────────────────────
+  // "an app that shows the weather and gas prices": the data the person named is planned from their own words, each need quoted and matched to a PACK that can ground it (the-fold/app-packs.mjs). Covered needs are
+  // BUILT (leaves by the cheap species then the local models only, assembled, driven, copy-checked: the-fold/app-build.mjs buildApp); a need no pack grounds is a typed gap quoted from the task. Never a page of
+  // invented content — the prompt-only run that produced one ("Booking.com…") is what this door exists to prevent. `door: "app"` asks for it; `door: "auto"` lets detectAppTask decide.
+  if (door === "app" || (door === "auto" && detectAppTask(task))) {
+    const { PACKS } = await import("./native/the-fold/app-packs.mjs");
+    const plan = planNeeds(task, PACKS);
+    if (plan.needs.length || plan.gaps.length) {
+      if (onNote) onNote({ move: "app_door", note: describePlan(plan) });
+      if (!plan.covered.length) return earlyResult(describePlan(plan), { answerShape: "app-gap", mechanical: { rung: "app-door", schema: plan.schema, plan, built: false } });
+      const work = path.join(learnedDir(), "apps", new Date().toISOString().replace(/[:.]/g, "-"));
+      const { buildApp } = await import("./native/the-fold/app-build.mjs");
+      const r = await buildApp({ work, out: path.join(work, "app"), places: PACKS.find((p) => p.id === plan.covered[0])?.places ?? ["London"], onNote }).catch((e) => ({ ok: false, stage: "error", gap: { type: "app_build_error", detail: e.message }, account: [], out: null }));
+      const by = (r.account ?? []).map((a) => `${a.leaf}: ${a.whole}`).join("; ");
+      const text = r.ok ? `${describePlan(plan)}\nBuilt and driven in a browser: ${r.out}\nLeaves — ${by}.` : `${describePlan(plan)}\nThe build stopped at ${r.stage}: ${JSON.stringify(r.gap ?? r.drive?.errors ?? "").slice(0, 400)}. Nothing was shipped half-built.\nLeaves — ${by}.`;
+      return earlyResult(text, { answerShape: "app", mechanical: { rung: "app-door", schema: plan.schema, plan, built: !!r.ok, stage: r.stage, out: r.out, account: r.account, likeness: r.likeness?.verdict ?? null } });
+    }
+  }
+
   // ── THE BUILD DOOR (native/organs/code-build.js) ───────────────────────────
   // ONE engine, a few handles: a discrete multi-unit coding task is a door of this turn, not a second API. `door: "build"` asks for it, `door: "auto"` lets the
   // task's own words decide (detectBuildTask — the plain doorway sends "auto"), `door: "chat"` / nothing keeps it a conversation. A build is DRAWN as independent
