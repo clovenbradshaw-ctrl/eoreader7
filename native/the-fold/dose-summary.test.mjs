@@ -13,3 +13,11 @@ test("a rung nobody ran is not summarised, and its comparisons are skipped rathe
   const { per, diffs } = summariseDose([{ D4: cell(true), D5: cell(true) }]);
   assert.ok(!per.D6 && diffs.every((x) => per[x.from] && per[x.to]));
 });
+
+import { simulateWalk } from "./dose-summary.mjs";
+test("the walk stops at the first bound rung and spends only the draws it used; a bound stop that is wrong beyond what it showed is counted; the last rung stands when none binds", () => {
+  const b = (all) => ({ all, held: +all, state: "bound", chars: 1 }), c = { all: false, held: 0, state: "contradicted", chars: 1 };
+  const rows = [{ D3: b(true), D4: b(true), D5: b(true) }, { D3: c, D4: b(true), D5: b(true) }, { D3: c, D4: c, D5: c }, { D3: b(false), D4: b(true), D5: b(true) }];
+  const w = simulateWalk(rows, ["D3", "D4", "D5"]);
+  assert.equal(w.pass, 2); assert.equal(w.draws, 1 + 2 + 3 + 1); assert.equal(w.falseBound, 1); assert.equal(w.stoppedEarly, 3);
+});

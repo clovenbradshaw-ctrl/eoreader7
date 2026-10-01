@@ -20,11 +20,24 @@ export function summariseDose(rows, { boot = 4000, seed = 11 } = {}) {
   });
   return { per, diffs };
 }
+/** the escalation controller, simulated from the ladder's own draws (no model call): walk `order`, one draw per rung, stop at the first rung whose draw is BOUND (it reproduced every example that rung showed);
+ *  if none is, the last rung's draw stands. Cost is draws spent (R1 is a second draw); `falseBound` is a stop that was wrong beyond what its rung showed. */
+export function simulateWalk(rows, order) {
+  let pass = 0, draws = 0, falseBound = 0, stoppedEarly = 0;
+  for (const r of rows) {
+    let final = null;
+    for (const k of order) { const c = r[k]; if (!c) continue; draws += c.draws ?? 1; final = c; if (c.state === "bound") { if (k !== order.at(-1)) stoppedEarly++; if (!c.all) falseBound++; break; } }
+    pass += +!!final?.all;
+  }
+  return { order: order.join("→"), pass, tasks: rows.length, draws, meanDraws: draws / rows.length, falseBound, stoppedEarly };
+}
 if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
   const rows = process.argv.slice(2).filter((a) => !a.startsWith("--")).flatMap((f) => fs.readFileSync(f, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)));
   const { per, diffs } = summariseDose(rows), p = (x) => (Number.isFinite(x) ? x.toFixed(2) : "  - ");
   console.log("rung  full  held  bound contra  beyond  falseBound  chars  draws");
   for (const [k, v] of Object.entries(per)) console.log(`${k.padEnd(5)} ${String(v.full).padStart(2)}/${v.n}  ${p(v.held)}  ${String(v.bound).padStart(4)} ${String(v.contradicted).padStart(6)} ${String(v.beyond).padStart(7)} ${String(v.falseBound).padStart(10)}  ${String(v.chars || "-").padStart(5)}  ${v.draws}`);
   console.log("\npaired change in full-pass indicator, per task (gain = tasks that went fail→pass, loss = pass→fail)");
+  console.log("\nescalation controller, simulated from the same draws (stop at the first rung that reproduces every example it showed)");
+  for (const order of [["D5"], ["D3", "D4", "D5"], ["D3", "D4", "D5", "R1"], ["D4", "D5", "R1"], ["D5", "R1"]]) { const w = simulateWalk(rows, order); console.log(`${w.order.padEnd(14)} full pass ${w.pass}/${w.tasks}  draws ${w.draws} (mean ${w.meanDraws.toFixed(2)})  stopped early ${w.stoppedEarly}  false-bound ${w.falseBound}`); }
   for (const d of diffs) console.log(`${d.from}→${d.to}  ${d.mean >= 0 ? "+" : ""}${p(d.mean)}  [95% ${p(d.lo)}, ${p(d.hi)}]  +${d.gain} −${d.loss} over ${d.tasks} tasks`);
 }
