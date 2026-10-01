@@ -105,10 +105,21 @@ export function modelFor(p, env = process.env) {
 export function makeOnlineRegistry({ providers = PROVIDERS, env = process.env, now = Date.now, keys = null } = {}) {
   const state = new Map(providers.map((p) => [p.name, { exhaustedUntil: 0, downUntil: 0, calls: 0, fails: 0, meanMs: null, model: modelFor(p, env), lastError: null, discovered: false }]));
   const keyed = (p) => p.keyless || !!keyFor(p, env, keys);
+  // THE ROTATE CURSOR (2026-10-01): within the measured-equal set of a level,
+  // the next pick starts from a different provider — a burst spreads over
+  // their rate windows instead of eating one provider's window first while
+  // measured-equal providers idle (the request-level round robin).
+  let rotate = 0;
   return {
     providers,
     /** The first usable provider in level order — keyed, not exhausted, not
-     *  down — the lowest measured latency inside a level; unmeasured tried. */
+     *  down — the lowest measured latency inside a level; unmeasured tried.
+     *  ROUND-ROBIN WITHIN THE MEASURED-EQUAL: providers whose measured
+     *  latency sits within one EWMA smoothing step (0.3 × the best) of the
+     *  best are indistinguishable — the measurement cannot resolve finer
+     *  than its own alpha — and rotate across them, least-tried first. A
+     *  clearly-faster provider still wins every call: efficiency is never
+     *  traded for spread. */
     pick({ exclude = [] } = {}) {
       const t = now();
       const skip = new Set(exclude);
@@ -121,8 +132,27 @@ export function makeOnlineRegistry({ providers = PROVIDERS, env = process.env, n
       const typical = measured.length ? measured.reduce((a, b) => a + b, 0) / measured.length : 0;
       const lat = (p) => { const v = state.get(p.name).meanMs; return Number.isFinite(v) && v > 0 ? v : typical; };
       cands.sort((a, b) => a.level - b.level || (a.keyless ? 1 : 0) - (b.keyless ? 1 : 0) || lat(a) - lat(b) || providers.indexOf(a) - providers.indexOf(b));
-      const p = cands[0];
-      return p ? { provider: p, model: state.get(p.name).model, key: p.keyless ? (keyFor(p, env, keys) ?? null) : keyFor(p, env, keys) } : null;
+      const best = cands[0];
+      if (!best) return null;
+      // Measured-equal set: within one smoothing step of the best latency —
+      // the EWMA alpha is the measurement's own resolution, never a bound on
+      // the providers. MEASURED PROVIDERS ONLY (2026-10-01): an unmeasured
+      // provider scores at the level mean by convention — a guess, never a
+      // measurement — so it is never rotated as if it were equal to anything;
+      // it is tried only when it IS the best (nothing better measured).
+      // Rotate across the measured-equal set (least-recently-tried first), so
+      // the level's free windows are shared, never burned one at a time.
+      const eps = measured.length ? Math.round(0.3 * lat(best)) : 0;
+      const near = measured.length
+        ? cands.filter((c) => { const v = state.get(c.name).meanMs; return Number.isFinite(v) && v > 0 && lat(c) - lat(best) <= eps; })
+        : [best];
+      if (near.length > 1) {
+        const idx = rotate++ % near.length;
+        const p = near[idx];
+        return { provider: p, model: state.get(p.name).model, key: keyFor(p, env, keys) };
+      }
+      const p = best;
+      return { provider: p, model: state.get(p.name).model, key: p.keyless ? (keyFor(p, env, keys) ?? null) : keyFor(p, env, keys) };
     },
     /** An answer landed. */
     observe(name, { ms, ok }) {

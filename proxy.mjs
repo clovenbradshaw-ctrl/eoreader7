@@ -8,6 +8,8 @@ import * as ProxyRunner from "./proxy-runner.mjs";
 // and /v1/reason (claude-code-doorway.mjs). Namespace-imported for the same
 // reason as ProxyRunner below.
 import * as ClaudeCodeDoorway from "./claude-code-doorway.mjs";
+// The territory door (territory-door.mjs): a whole folder made sense of almost instantly, then the part you open goes to the reader.
+import * as TerritoryDoor from "./territory-door.mjs";
 // Namespace-imported and destructured so a sibling editing proxy-runner.mjs
 // can never take this process down by removing one export: a missing name is
 // undefined (and defaulted below), never a fatal static-import error.
@@ -413,6 +415,7 @@ async function handleRequest(req, res) {
   }
 
   if (await ClaudeCodeDoorway.route?.(req, res, { log })) return;
+  if (await TerritoryDoor.route?.(req, res, { log })) return;
 
   // GET / — the self-describing front door. Any app pointed at this base
   // URL with no other knowledge learns every way in, in one request: the
@@ -455,6 +458,12 @@ async function handleRequest(req, res) {
         description: "Structure Search: the named search-term registry and the unified target resolver (exact, regex, near-miss, and four named shape kinds — company, order, reach, rhythm), the same capability every surface reaches through this one route.",
         terms: "GET /v1/search",
         resolve: "POST /v1/search  { target, candidates: [...], pattern?: {source, flags?}, shape?: {kind, args}, allowNearMiss?: bool }",
+      },
+      territory: {
+        description: "Make sense of a whole folder almost instantly: an index read in parallel, a map of territories (a split is made only where it shortens the description, each carrying its price), and questions answered from the index. The reader is the deep tier, for what you open.",
+        open: "POST /v1/territory  { root?, k? }  (root defaults to x-er7-workspace)",
+        ask: "POST /v1/territory  { id, q }",
+        deeper: "POST /v1/territory  { id, territory }  -> { documents: [{ name, text }] }, which POST /v1/documents takes as it is",
       },
       documents: { start: "POST /v1/documents  { task, model?, workspace? | documents?: [{ name, text }], sessionId?, holonLevel?, webConsent? }", poll: "GET /v1/documents/:id", ledger: "GET /v1/documents/:id_1.jsonl" },
       sessions: { list: "GET /v1/sessions", description: "Every live reader fold on this proxy, newest first. Reuse a sessionId (x-er7-session header or body field) to keep one accumulating fold; list them here." },
@@ -1334,7 +1343,7 @@ async function handleRequest(req, res) {
             if (typeof chunk === "string" && chunk) { noteSurfaceActivity(surface, "chars", { chars: chunk.length }); emitLive({ act: "token", surface, model, sessionId, text: chunk }); }
           }));
           markServable(model); // it answered — Heimdall keeps it servable
-          recordTurnMs(Date.now() - turnT0);
+          recordTurnMs(Date.now() - turnT0, String(req.headers["x-er7-kind"] || "").trim().toLowerCase() || undefined);
           endTurn(_tid); // E1: one row per turn — draws · load · prompt · gen
           _inflight--;
           noteSurfaceActivity(surface, "end");

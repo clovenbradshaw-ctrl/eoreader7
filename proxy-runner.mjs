@@ -267,9 +267,23 @@ export const MODEL_GIVER = (model) => {
 const DEFAULT_POS_PRIOR = path.join(HERE, "cli/priors/pos-prior-en.json");
 
 // The daemon's PRIVATE address (native/kernel/model-server.js): the runner's
-// own draws go straight to it — the door already admitted them — never back
-// through the channel on the conventional port.
+// own draws used to go straight to it — the door already admitted them, never
+// back through the channel on the conventional port. Since 2026-10-01 that is
+// the FALLBACK: with ER7_GENERATION_DOOR set (default: Penelope's door — the
+// operator's directive "all generation related to eoreader7 runs through
+// Penelope"), every local draw is asked of Penelope first; her door draws
+// through Heimdall's channel (the same gate, the same host picker), and this
+// direct path is what a draw falls back to only when the door is unreachable
+// — a finding, never a silent bypass (see streamOllamaChat).
 export const OLLAMA = MODEL_SERVER_URL;
+
+// THE GENERATION DOOR (2026-10-01, "all generation related to eoreader7 runs
+// through Penelope"): the URL of Penelope's draw door. Every local model draw
+// in streamOllamaChat is asked there first; the door checks the box (organs),
+// draws the residue through Heimdall's channel with Penelope's one identity +
+// the draw's kind, and records every draw on her swatch. Set to "off" to
+// return to direct draws.
+export const GENERATION_DOOR = String(process.env.ER7_GENERATION_DOOR ?? "http://127.0.0.1:8137/api/generate").trim() === "off" ? null : String(process.env.ER7_GENERATION_DOOR ?? "http://127.0.0.1:8137/api/generate").trim();
 
 // Model warmth: Ollama unloads a model after its keep_alive window (default
 // 5m), so an idle gap between turns pays a multi-GB cold-load on the next
@@ -3137,7 +3151,7 @@ const RESOLUTIONS_LEVEL = (() => { const raw = process.env.ER7_RESOLUTIONS; if (
 // creativity may hold tension, never a silent pick. ER7_KELSEN_MODALITY.
 const KELSEN_MODALITY = (() => { const v = Number(process.env.ER7_KELSEN_MODALITY ?? ""); return [0, 0.5, 1].includes(v) ? v : 1; })();
 
-export async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal, stop } = {}) {
+export async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal, stop, kind = "chat", priority = "interactive" } = {}) {
   // ANTIStrauss — the safety-and-ethics gate (native/the-fold/antistrauss.mjs).
   // THIS is the choke point every real model call in the proxy passes
   // through (draw() → runProxyTurn → here). The gate settles a physics
@@ -3351,6 +3365,84 @@ export async function* streamOllamaChat(model, messages, { maxTokens, json, onNo
       signal.addEventListener("abort", onAbort, { once: true });
     }
     const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
+    // THE GENERATION DOOR (2026-10-01, "all generation related to eoreader7
+    // runs through Penelope"): the local draw is asked of Penelope's door
+    // FIRST, not of a host directly. The door checks the box (organs), draws
+    // the residue through Heimdall's channel — the SAME gate that ran above,
+    // the same host picker, admission re-entered as hop 1 so the draw never
+    // re-queues (the queue decided at the doorway) — and records every draw
+    // on her swatch. The output guard still holds the door's text like every
+    // other mouth's bytes. A door that is UNREACHABLE is a finding, never a
+    // silent bypass: the note names it and this attempt falls through to the
+    // direct host path so the box stays alive; a door that is UP but refuses
+    // is the truth of the box — a typed throw, never a retry storm.
+    if (GENERATION_DOOR) {
+      let doorServed = null;
+      try {
+        const up = await fetch(GENERATION_DOOR, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            prompt: messages.map((m) => String(m?.content ?? "")).filter(Boolean).join("\n"),
+            model,
+            kind,
+            maxTokens: maxTokens ?? CALL_MAX_TOKENS,
+            temperature: 0.1 + (1 - (kelsen ?? DEFAULT_KELSEN)) * 0.8,
+            priority,
+            hop: 1,
+            keepAliveS: Math.max(OLLAMA_KEEP_ALIVE_S, 1200),
+          }),
+          signal: ctrl.signal,
+        });
+        const j = await up.json().catch(() => null);
+        if (up.ok && j?.ok && typeof j?.text === "string" && j.text.trim()) doorServed = j;
+        else {
+          clearTimeout(timer);
+          finishReview(false);
+          throw Object.assign(new Error(`generation door refused the draw: ${String(j?.error ?? `HTTP ${up.status}`).slice(0, 300)}`), {
+            code: "ERR_DRAW_DOOR_REFUSED", retryable: false, doorStatus: up.status,
+          });
+        }
+      } catch (err) {
+        if (err?.code === "ERR_DRAW_DOOR_REFUSED" || err?.code === "ERR_ANTISTRAUSS_BLOCKED") throw err;
+        if (signal?.aborted && err?.name === "AbortError") { clearTimeout(timer); if (attempt === CALL_RETRIES - 1) { finishReview(false); throw new Error("cancelled"); } }
+        // Unreachable is a FINDING: fall through to the direct host path for
+        // this attempt — the box stays alive, the note names the door down.
+        // The shared ctrl/timer/abort-listener stay armed for the host path.
+        if (onNote) { try { onNote({ move: "draw_door_unreachable", error: err?.cause?.code ?? err?.message, attempt: attempt + 1 }); } catch { /* notes never break a turn */ } }
+      }
+      if (doorServed) {
+        if (onNote) { try { onNote({ move: "draw_door", winner: doorServed.winner ?? "mouth", servedBy: doorServed.model ?? model, kind }); } catch { /* notes never break a turn */ } }
+        emitted.push(doorServed.text);
+        {
+          const g = guardAccept(doorServed.text);
+          if (g.emit) yield g.emit;
+          if (g.blocked) {
+            yield refusalFor(outBlocked);
+            yield { done: true, outputBlocked: true, truncated: false, prompt_eval_count: 0, eval_count: doorServed.text.length };
+            clearTimeout(timer);
+            if (signal) signal.removeEventListener("abort", onAbort);
+            finishReview(true);
+            return;
+          }
+        }
+        {
+          const fin = guardFinish();
+          if (fin.blocked) yield fin.refusal;
+          else if (fin.emit) yield fin.emit;
+        }
+        import("./heimdall.mjs").then((h) => h.observeCall({
+          model: doorServed.model ?? model, host: doorServed.host ?? null,
+          promptTokens: doorServed.promptTokens ?? 0, promptMs: 0,
+          genTokens: doorServed.evalTokens ?? 0, genMs: doorServed.ms ?? 0, loadMs: 0,
+        })).catch(() => {});
+        yield { done: true, truncated: false, outputBlocked: false, prompt_eval_count: doorServed.promptTokens ?? 0, eval_count: doorServed.evalTokens ?? 0, door: true, winner: doorServed.winner ?? "mouth", servedBy: doorServed.model ?? null };
+        clearTimeout(timer);
+        if (signal) signal.removeEventListener("abort", onAbort);
+        finishReview(true);
+        return;
+      }
+    }
     // WHICH SERVER (2026-09-21): heimdall picks the host — sticky per session,
     // resident first, shortest measured wait, rotate ties (heimdall.mjs
     // "INFERENCE HOSTS"). One local daemon is the default, so this is the
