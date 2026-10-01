@@ -1,6 +1,6 @@
 // ═══ LOVELACE · TEACH IT TO FISH ═══ The falsification run: the same small mouths, the same tasks, each mechanism switched on in turn.
 //
-//   node native/the-fold/diverse-falsify.mjs [--arms base,keys,cards,all,fold,carry] [--set diverse|all] [--tasks busTimes,...] [--out results.jsonl] [--mouths a,b]
+//   node native/the-fold/diverse-falsify.mjs [--arms base,keys,cards,all,fold,carry] [--set diverse|all|heldout] [--tasks busTimes,...] [--out results.jsonl] [--mouths a,b]
 //
 // Arms (cumulative): base = a plain draw and the oracle's failures (what the pipeline did before today); keys = + the key-referent layer;
 // cards = + the verified operations in the prompt and the wall; all = + the repair hints. One row per (task, arm). Temperature is 0 and
@@ -8,6 +8,7 @@
 // controls (tasks with no relevant card) say whether a mechanism carries a COST.
 import fs from "node:fs";
 import { DIVERSE } from "./diverse-tasks.mjs";
+import { HELDOUT } from "./diverse-heldout.mjs";
 import { LEAF_CONTRACTS } from "./app-leaves.mjs";
 import { makeUnit, makeMouth, failedRuns } from "./app-units.mjs";
 import { DEFAULT_MOUTHS } from "./app-generate.mjs";
@@ -30,7 +31,8 @@ if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).
   const arms = arg("arms", "base,all").split(","), only = arg("tasks", null)?.split(",") ?? null, mouths = arg("mouths", DEFAULT_MOUTHS.join(",")).split(",");
   const out = arg("out", null), mouth = makeMouth();
   // --set all: the weather/fuel leaves too (their `units` selector is where the meaning failures are)
-  const set = arg("set", "diverse") === "all" ? [...DIVERSE, ...LEAF_CONTRACTS.map((contract) => ({ contract, role: "weather" }))] : DIVERSE;
+  const which = arg("set", "diverse");
+  const set = which === "all" ? [...DIVERSE, ...LEAF_CONTRACTS.map((contract) => ({ contract, role: "weather" }))] : which === "heldout" ? HELDOUT : DIVERSE;
   for (const d of set) {
     if (only && !only.includes(d.contract.name)) continue;
     for (const arm of arms) {
