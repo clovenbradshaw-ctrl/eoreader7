@@ -1,0 +1,27 @@
+11f5c5f14d67e3e5df2e3fdf4bec48766cee8098
+ M native/organs/capacities.js
+ M native/organs/code-build.js
+ M native/organs/code-build.test.mjs
+ M native/organs/cultivating.js
+ M native/organs/stances.test.mjs
+ M native/the-fold/find-samples.mjs
+ M native/the-fold/sample-contract.mjs
+ M proxy-runner.mjs
+?? native/organs/sample-ground.js
+?? native/organs/sample-ground.test.mjs
+?? native/the-fold/app-generic.mjs
+?? native/the-fold/app-generic.test.mjs
+?? native/the-fold/results/net-new-ask-generic-20261001T043418Z/
+?? native/the-fold/results/net-new-generic2-20261001T044711Z/
+?? native/the-fold/results/net-new-generic3-20261001T044941Z/
+?? native/the-fold/results/net-new-generic4-20261001T045202Z/
+32c5fbf361d78704 proxy-runner.mjs
+194fcef458bde977 native/organs/app-door.js
+db1752727434cba3 native/organs/code-build.js
+20049210014039b4 native/organs/sample-ground.js
+8d18ed5f7b620373 native/the-fold/app-generic.mjs
+d7c9665dfc5d9b32 native/the-fold/find-samples.mjs
+e927310036072011 native/the-fold/sample-contract.mjs
+6efb840e9a100dd2 native/organs/tracing.js
+4baad3908eb143f2 native/organs/cultivating.js
+0ed83f3ad80eb19c native/organs/unraveling.js

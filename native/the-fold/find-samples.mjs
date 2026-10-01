@@ -12,7 +12,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { cultivate, licensedCheck } from "../organs/cultivating.js";
 import { traceSample, licensed, leavesOf, redeal } from "../organs/tracing.js";
-import { parseSearchResults, extractUrls, WEB_UA } from "../organs/web.js";
+import { parseSearchResults, extractUrls, decodeEntities, WEB_UA } from "../organs/web.js";
 import { tokenize } from "../organs/source.js";
 import { makeFetcher, openSeenLedger } from "./comp-research.mjs";
 
@@ -34,15 +34,23 @@ const looksLikeCall = (u) => /\/(api|v\d)\b|api[.-]|\.json(\?|$)|[?&][a-z_]+=/i.
 /** the shown sample: a kept document with long arrays cut to `n` items — a view of real bytes, never a rewrite */
 export function trimmed(doc, n = 2) { if (Array.isArray(doc)) return doc.slice(0, n).map((x) => trimmed(x, n)); if (doc && typeof doc === "object") return Object.fromEntries(Object.entries(doc).map(([k, v]) => [k, trimmed(v, n)])); return doc; }
 
-export async function findSamples({ need, queries, out, needCount = 2, budget = 8, maxPages = 6, fetcher = makeFetcher(), searcher = makeFetcher({ ua: WEB_UA }), log = () => {} } = {}) {
+/** how long to wait before the one retry when the search face answers with its anomaly page after a burst; set by hand 2026-10-01 (a second search seconds after a first was blocked, 2026-10-01) */
+export const SEARCH_BACKOFF_MS = 25_000;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+export async function findSamples({ need, queries, out, needCount = 2, budget = 8, maxPages = 6, minNumbers = 1, fetcher = makeFetcher(), searcher = makeFetcher({ ua: WEB_UA }), log = () => {} } = {}) {
   const L = openSeenLedger(out), needWords = [...new Set(tokenize(need).filter((w) => w.length >= 3))];
   const qs = queries ?? [`${need} free API JSON no key`, `${need} API example response`];
   L.see("find-begin", { need, queries: qs, needWords, declared: { needCount, budget, maxPages } });
   const pages = [], urls = new Map();
   for (const q of qs) {
-    const r = await searcher(`https://lite.duckduckgo.com/lite/?q=${encodeURIComponent(q)}`, { accept: "text/html" });
+    let r, parsed;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      r = await searcher(`https://lite.duckduckgo.com/lite/?q=${encodeURIComponent(q)}`, { accept: "text/html" });
+      parsed = r.ok ? parseSearchResults(r.text) : { results: [], blocked: false };
+      if (r.ok && !parsed.blocked && parsed.results.length) break;
+      if (attempt === 0) { L.see("search-backoff", { q, why: !r.ok ? `status ${r.status}` : parsed.blocked ? "anomaly page" : "no results parsed", waitMs: SEARCH_BACKOFF_MS }); await sleep(SEARCH_BACKOFF_MS); }
+    }
     if (!r.ok) { L.see("search-failed", { q, status: r.status, why: r.refused ?? r.error ?? "" }); continue; }
-    const parsed = parseSearchResults(r.text);
     if (parsed.blocked || !parsed.results.length) { L.see("search-blocked", { q, why: parsed.blocked ? "anomaly page" : "no results parsed", bytes: r.bytes }); continue; }
     L.see("search", { q, results: parsed.results.map((x) => ({ title: x.title, url: x.url })) });
     for (const x of parsed.results) { if (pages.length < maxPages && !pages.some((p) => p.url === x.url)) pages.push(x); for (const u of extractUrls(`${x.title} ${x.snippet ?? ""}`)) urls.set(u, x.url); }
@@ -51,12 +59,12 @@ export async function findSamples({ need, queries, out, needCount = 2, budget = 
     const r = await fetcher(p.url, { accept: "text/html,*/*" });
     L.see("page", { url: p.url, status: r.status, bytes: r.bytes ?? 0, why: r.refused ?? null });
     if (!r.ok) continue;
-    for (const u of extractUrls(r.text.replace(/&amp;/g, "&"))) if (!urls.has(u)) urls.set(u, p.url);
+    for (const u of extractUrls(decodeEntities(r.text).replace(/\\u0026/g, "&").replace(/\\u002F/gi, "/").replace(/\\+(?=["'\s<])/g, ""))) if (!urls.has(u)) urls.set(u, p.url);
   }
   const score = (u) => needWords.filter((w) => u.toLowerCase().includes(w)).length;
   const ranked = [...urls.keys()].filter((u) => concrete(u) && looksLikeCall(u)).sort((a, b) => score(b) - score(a)).filter((u, i, a) => a.indexOf(u) === i);
   L.see("candidates", { total: urls.size, concrete: ranked.length, top: ranked.slice(0, 20).map((u) => ({ url: u, score: score(u), shownOn: urls.get(u) })) });
-  const check = sampleCheck(needWords);
+  const check = sampleCheck(needWords, 6, minNumbers);
   const candidates = ranked.map((u) => ({ id: u, url: u, get: async () => { const r = await fetcher(u, { accept: "application/json,*/*" }); L.see("fetch", { url: u, status: r.status, bytes: r.bytes ?? 0, contentType: r.contentType ?? "", why: r.refused ?? null }); if (!r.ok) throw new Error(`status ${r.status} ${r.refused ?? ""}`); return r.text; } }));
   const got = await cultivate({ candidates, check, need: needCount, budget });
   fs.mkdirSync(path.join(out, "samples"), { recursive: true });

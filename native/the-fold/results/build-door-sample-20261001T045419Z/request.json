@@ -1,0 +1,1 @@
+{"task":"Write a JavaScript file with functions: pm10Of(json), pm25Of(json) that read the JSON response from the Open-Meteo air quality API and return the current pm10 and pm2_5 numbers.","sessionId":"integ-build-2","model":"qwen2.5-coder:1.5b","webConsent":true,"door":"build"}

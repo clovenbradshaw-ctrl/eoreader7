@@ -16,6 +16,7 @@
 // them; a check that admits the redeal admits anything, and cultivating with it would be harvesting noise.
 
 export const CULTIVATING_SCHEMA = "EOCultivating@1";
+const sameBytes = (a, b) => a === b;
 
 /**
  * cultivate({ candidates, check, need, budget }) -> { status, kept:[{id, bytes, evidence}], losers:[{id, why}], spent, budget, need }
@@ -34,6 +35,8 @@ export async function cultivate({ candidates, check, need = 1, budget = 8 } = {}
     try { bytes = await c.get(); } catch (e) { losers.push({ id: c.id, why: `get failed: ${String(e?.message ?? e).slice(0, 120)}` }); continue; }
     let r;
     try { r = await check(bytes, c); } catch (e) { losers.push({ id: c.id, why: `check threw: ${String(e?.message ?? e).slice(0, 120)}` }); continue; }
+    const twin = r?.ok ? kept.find((k) => sameBytes(k.bytes, bytes)) : null;
+    if (twin) { losers.push({ id: c.id, why: `same bytes as ${twin.id}: a second copy is not a second ground` }); continue; }
     if (r?.ok) kept.push({ id: c.id, bytes, evidence: r.evidence ?? null }); else losers.push({ id: c.id, why: r?.why ?? "failed the check", evidence: r?.evidence ?? null });
   }
   const left = candidates.length - spent - losers.filter((l) => l.why.startsWith("not tried")).length;

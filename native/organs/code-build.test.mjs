@@ -7,7 +7,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import vm from "node:vm";
-import { buildCodeTask, taskLanguage, unitPrompt, planUnits, extractUnit, clauseOf, describeBuild } from "./code-build.js";
+import { buildCodeTask, taskLanguage, unitPrompt, unitCoupling, planUnits, extractUnit, clauseOf, describeBuild } from "./code-build.js";
 import { readAnchorLog, settledContent } from "../adapters/build/code-anchor-log.js";
 
 const TASK = "Write a JavaScript module with these functions: describeTemp(celsius) returns the temperature in Fahrenheit rounded to one decimal, like 72.5F; tally(numbers) returns the sum of an array of numbers.";
@@ -184,4 +184,28 @@ test("a card a unit uses as a CALLBACK is carried into the file: .map(parseMoney
   assert.deepEqual(r.canonical.cards, ["parseMoney"]);
   assert.equal(run(r.code, "total([\"$1,234.50\", \"5\"])"), 1239.5);
   fs.rmSync(out, { force: true });
+});
+
+// ── the stances in the build door: a real sample shown, a copied value named, the plan cut at its seams ──
+const SAMPLE = [{ id: "https://x/api", bytes: JSON.stringify({ current: { pm10: 20.1, pm2_5: 9.3, time: "2026-10-01T04:00" }, units: { pm10: "ug/m3" } }) }];
+test("a unit prompt shows the REAL sample when one was fetched, and nothing when none was", () => {
+  assert.match(unitPrompt("t", "pm10Of", [], { text: '{"current":{"pm10":20.1}}' }), /fetched just now[\s\S]*20\.1/);
+  assert.doesNotMatch(unitPrompt("t", "pm10Of", []), /fetched just now/);
+});
+test("plan coupling: units that name each other are one part, independent units are cut at no seam", () => {
+  const u = (...n) => n.map((name) => ({ name }));
+  const task = "write functions: mean(xs), variance(xs) that calls mean(xs), label(x) formats a string";
+  const r = unitCoupling(task, u("mean", "variance", "label"));
+  assert.equal(r.status, "split"); assert.ok(r.parts.some((p) => p.includes("mean") && p.includes("variance") || p.length === 1));
+  assert.equal(unitCoupling("write functions: a(x), b(x)", u("a", "b")).seams.length, 0);
+});
+test("a build that was shown a sample names a unit that hard-codes its value, and does not name one that reads it", async () => {
+  const drawFn = async (_m, prompt) => ({ text: /named `pm10Of`/.test(prompt) ? "function pm10Of(d) { return 20.1; }" : "function pm25Of(d) { return d.current.pm2_5; }", tokens: 1 });
+  const b = await buildCodeTask({ task: "write functions: pm10Of(d), pm25Of(d) that read the JSON response from the API", model: "x", drawFn, samples: SAMPLE, read: true });
+  assert.ok(b.canonical.unresolved.some((u) => u.kind === "hardcoded_sample_value" && u.unit === "pm10Of"));
+  assert.ok(!b.canonical.unresolved.some((u) => u.kind === "hardcoded_sample_value" && u.unit === "pm25Of"));
+  assert.ok(b.sample && b.unraveled);
+  assert.match(describeBuild(b), /Run on a real response[\s\S]*pm25Of returned 9\.3 — found in the response at current\.pm2_5/);
+  assert.match(describeBuild(b), /pm10Of: the unit writes 20\.1/);
+  assert.equal(b.sample.ran.find((r) => r.unit === "pm25Of").from, "current.pm2_5", "run on the real sample, the unit returned a value of it and the address is recorded");
 });

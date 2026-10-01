@@ -1,0 +1,59 @@
+{
+ "title": "Air Quality · Sunrise",
+ "defaultPlace": "London",
+ "sources": [
+  {
+   "id": "s0",
+   "url": "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=52.52&longitude=13.41&current=pm10,pm2_5",
+   "latParam": "latitude",
+   "lonParam": "longitude",
+   "fields": [
+    {
+     "label": "pm10",
+     "path": "current.pm10",
+     "unitPath": "current_units.pm10"
+    },
+    {
+     "label": "pm2_5",
+     "path": "current.pm2_5",
+     "unitPath": "current_units.pm2_5"
+    }
+   ]
+  },
+  {
+   "id": "s1",
+   "url": "https://api.sunrisesunset.io/json?lat=38.9&lng=-77",
+   "latParam": "lat",
+   "lonParam": "lng",
+   "fields": [
+    {
+     "label": "sunrise",
+     "path": "results.sunrise",
+     "unitPath": null
+    },
+    {
+     "label": "sunrise_azimuth",
+     "path": "results.sunrise_azimuth",
+     "unitPath": null
+    },
+    {
+     "label": "sunset",
+     "path": "results.sunset",
+     "unitPath": null
+    },
+    {
+     "label": "sunset_azimuth",
+     "path": "results.sunset_azimuth",
+     "unitPath": null
+    }
+   ]
+  }
+ ],
+ "place": {
+  "url": "https://geocoding-api.open-meteo.com/v1/search?name=Lahore&count=1",
+  "nameParam": "name",
+  "latitude": "results[0].latitude",
+  "longitude": "results[0].longitude",
+  "nameField": "results[0].name"
+ }
+}

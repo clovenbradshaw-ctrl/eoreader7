@@ -33,7 +33,7 @@ test("Tracing: licensed only when it grounds the real sample and refuses its red
 });
 
 test("Cultivating: settles when `need` candidates pass, keeping the losers as typed data", async () => {
-  const good = (id) => ({ id, get: async () => REAL }), junk = (id) => ({ id, get: async () => "<html>nope</html>" }), boom = { id: "boom", get: async () => { throw new Error("503"); } };
+  const good = (id) => ({ id, get: async () => REAL.replace("-0.12", "51." + id.length + id.charCodeAt(1)) }), junk = (id) => ({ id, get: async () => "<html>nope</html>" }), boom = { id: "boom", get: async () => { throw new Error("503"); } };
   const check = async (bytes) => { const r = traceSample(SHOWN, [{ id: "x", bytes }]); return { ok: r.verdict === "grounded", why: r.verdict }; };
   const r = await cultivate({ candidates: [junk("j1"), boom, good("g1"), good("g2"), good("g3")], check, need: 2, budget: 8 });
   assert.equal(r.status, "settled"); assert.deepEqual(r.kept.map((k) => k.id), ["g1", "g2"]);
@@ -45,6 +45,11 @@ test("Cultivating control: all junk is unsettled — what passed is never called
   const r = await cultivate({ candidates: [1, 2, 3, 4, 5].map((i) => junk("j" + i)), check, need: 1, budget: 3 });
   assert.equal(r.status, "unsettled"); assert.equal(r.kept.length, 0); assert.equal(r.spent, 3);
   assert.equal(r.losers.filter((l) => l.why.startsWith("not tried")).length, 2);
+});
+test("Cultivating: identical bytes from a second address are one ground, not two", async () => {
+  const twin = (id) => ({ id, get: async () => REAL });
+  const r = await cultivate({ candidates: [twin("a"), twin("b")], check: async () => ({ ok: true }), need: 2, budget: 4 });
+  assert.equal(r.status, "unsettled"); assert.equal(r.kept.length, 1); assert.match(r.losers[0].why, /same bytes/);
 });
 test("Cultivating refuses to run with no check, and a budget below 1", async () => {
   await assert.rejects(cultivate({ candidates: [] }), /needs a check/);

@@ -4,6 +4,7 @@ import { ingest } from "./native/organs/ingest.js";
 import { analysisDoor, isAnalysis } from "./native/the-fold/surface/notebook-door.mjs";
 import { detectBuildTask, buildCodeTask, makeDraw, describeBuild } from "./native/organs/code-build.js";
 import { detectAppTask, planNeeds, describePlan } from "./native/organs/app-door.js";
+import { needsSample, needOf, traceShown } from "./native/organs/sample-ground.js";
 import { fileURLToPath } from "node:url";
 
 import { createCausalTextPerceiver, textEncounters, surfaceIndex, surfacesIn } from "./native/adapters/text/recursive.js";
@@ -4278,7 +4279,39 @@ export function openProblemOf(task) {
   return null;
 }
 
-export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null, testCommand = "", drawOnly = false, door = null }, onToken, onNote = null, onThinking = null) {
+/**
+ * THE ONE ENTRY every generation door goes through (chat, the build door, the app door). The stances are applied here, once, for all of them:
+ *   CULTIVATING  a task that reads an outside service's data and quotes no sample of it gets a REAL one found and fetched first (find-samples.mjs, a declared budget), when the web is open.
+ *                The bytes are kept content-addressed with the seen-ledger; they ground the turn (admitted as an attachment) and the build door's unit prompts.
+ *   TRACING      every JSON block the answer SHOWS is traced to those bytes (organs/sample-ground.js): grounded, invented, or unpaired. Only DISCLOSED on the result (`mechanical.sampleGround`) —
+ *                the mouth's words are never edited (P186).
+ * No web, no sample need, or a sample already attached: this is the old entry, unchanged.
+ */
+export async function runProxyTurn(args, onToken, onNote = null, onThinking = null) {
+  const { task, door = null, webConsent = false, attachments = [] } = args ?? {};
+  let ground = null;
+  const hasJson = (Array.isArray(attachments) ? attachments : []).some((a) => /^\s*[\[{]/.test(String(a?.text ?? "")));
+  if ((webConsent || WEB_SEARCH_ON) && door !== "chat" && door !== "app" && !(door === "auto" && detectAppTask(task)) && !hasJson && needsSample(task)) {
+    try {
+      const { findSamples } = await import("./native/the-fold/find-samples.mjs");
+      const out = path.join(learnedDir(), "samples", new Date().toISOString().replace(/[:.]/g, "-"));
+      if (onNote) onNote({ move: "sample_ground", note: `this reads an outside service's data and shows no sample of it: going to find a real one (${needOf(task)})` });
+      const f = await findSamples({ need: needOf(task), out, needCount: 1, budget: 6, minNumbers: 1 });
+      if (f.kept.length) ground = { out, kept: f.kept.map((k) => ({ id: k.url, name: path.basename(k.file), sha256: k.sha256, bytes: fs.readFileSync(path.join(out, k.file), "utf8") })), ledger: f.ledger, trace: f.trace };
+      if (onNote) onNote({ move: "sample_ground", note: f.kept.length ? `kept a real sample: ${f.kept[0].url}` : `no sample could be kept (${f.losers.length} refused, ${f.spent} fetched) — nothing will be shown as one` });
+    } catch (e) { if (onNote) onNote({ move: "sample_ground", note: `sample search failed: ${String(e.message).slice(0, 120)}` }); }
+  }
+  const next = ground ? { ...args, groundSamples: ground.kept.map((k) => ({ id: k.id, bytes: k.bytes })), attachments: [...(Array.isArray(attachments) ? attachments : []), ...ground.kept.map((k) => ({ name: `sample-${k.sha256.slice(0, 8)}.json`, text: k.bytes }))] } : args;
+  const result = await runProxyTurnCore(next, onToken, onNote, onThinking);
+  if (result && typeof result === "object" && (ground || needsSample(task))) {
+    const shown = ground ? traceShown(String(result.text ?? ""), ground.kept.map((k) => ({ id: k.id, bytes: k.bytes }))) : [];
+    result.mechanical = { ...(result.mechanical ?? {}), sampleGround: { asked: needsSample(task), found: !!ground, source: ground?.kept?.[0]?.id ?? null, sha256: ground?.kept?.[0]?.sha256 ?? null, ledger: ground?.ledger ?? null, shown: shown.map((x) => ({ verdict: x.verdict, leaves: x.leaves, failures: x.failures.slice(0, 5) })), invented: shown.filter((x) => x.verdict !== "grounded").length } };
+    if (!ground && needsSample(task)) result.disclosed = { ...(result.disclosed ?? {}), sample: "this task reads an outside service's data and no real sample of it was in hand; any example response shown was not fetched" };
+  }
+  return result;
+}
+
+async function runProxyTurnCore({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null, testCommand = "", drawOnly = false, door = null, groundSamples = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   // ── ETHOS FIRST (the ground) ──────────────────────────────────────────────
   // The constitution (Charter/Grotius + the spec gate/Brandeis) produces a
@@ -4501,6 +4534,16 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     const plan = planNeeds(task, PACKS);
     if (plan.needs.length || plan.gaps.length) {
       if (onNote) onNote({ move: "app_door", note: describePlan(plan) });
+      if (!plan.covered.length && (webConsent || WEB_SEARCH_ON) && plan.gaps.length) {
+        // NO PACK, and the person has opened the web: the generic builder goes and finds real sources (Cultivating), traces every field to their bytes (Tracing), cuts the request at its seams (Unraveling),
+        // assembles and drives the result (the-fold/app-generic.mjs). Without the web door it refuses below, as before — a find is an egress and is never taken silently.
+        const work = path.join(learnedDir(), "apps", new Date().toISOString().replace(/[:.]/g, "-"));
+        const { buildGenericApp } = await import("./native/the-fold/app-generic.mjs");
+        const g = await buildGenericApp({ task, out: work, log: (m) => onNote && onNote({ move: "app_generic", note: m }) }).catch((e) => ({ ok: false, gap: { type: "generic_build_error", detail: e.message } }));
+        const fields = (g.cfg?.sources ?? []).flatMap((x) => x.fields).map((f) => `${f.label} (${f.path})`).join(", "), notBuilt = (g.notBuilt ?? []).map((n) => `${n.need} (${n.why})`).join("; "), rows = (g.drive?.rows ?? []).map((r) => `${r.place}: ${r.ok ? "matches an independent re-fetch" : r.why ?? "mismatch"}`).join("; ");
+        const text = g.ok ? `No pack covered this, so I found sources instead.\nBuilt and driven: ${g.dir}\nFields, each traced to a fetched response: ${fields}.\nChecked: ${rows}.${notBuilt ? `\nAsked for and not built, named rather than invented: ${notBuilt}.` : ""}\nEvery search, page, fetch and refusal is on file: ${g.ledger}` : `No pack covered this, and the generic build stopped: ${g.gap?.type ?? "the drive did not pass"} — ${g.gap?.detail ?? rows}. Nothing is shown that was not fetched.\n${g.ledger ? `On file: ${g.ledger}` : ""}`;
+        return earlyResult(text, { answerShape: g.ok ? "app" : "app-gap", mechanical: { rung: "app-door", schema: plan.schema, plan, built: !!g.ok, generic: true, out: g.dir ?? null, gap: g.gap ?? null, drive: g.drive ?? null } });
+      }
       if (!plan.covered.length) return earlyResult(describePlan(plan), { answerShape: "app-gap", mechanical: { rung: "app-door", schema: plan.schema, plan, built: false } });
       const work = path.join(learnedDir(), "apps", new Date().toISOString().replace(/[:.]/g, "-"));
       const { buildApp } = await import("./native/the-fold/app-build.mjs");
@@ -4520,11 +4563,11 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     let parallelism = 2;
     try { parallelism = (await import("./heimdall.mjs")).currentParallelism?.() ?? 2; } catch { /* no Heimdall: the conservative default */ }
     if (onNote) onNote({ move: "build_door", note: "a discrete coding task: units drawn independently, each draw read against the operations that exist, then assembled" });
-    const b = await buildCodeTask({ task, model, testCommand: testCommand || null, parallelism, drawFn: makeDraw(OLLAMA), anchorDir: path.join(learnedDir(), "builds") }).catch((e) => ({ ok: false, error: e.message }));
+    const b = await buildCodeTask({ task, model, testCommand: testCommand || null, parallelism, drawFn: makeDraw(OLLAMA), anchorDir: path.join(learnedDir(), "builds"), samples: groundSamples }).catch((e) => ({ ok: false, error: e.message }));
     if (b.ok) {
       session.lastBuild = { units: b.units, out: b.out, verified: b.verified, at: new Date().toISOString(), turn: session.turnCount + 1 };
       usage.completionTokens += b.tokens;
-      return earlyResult(describeBuild(b), { answerShape: "build", mechanical: { rung: "code-build", kind: b.kind, units: b.units, draws: b.draws, tokens: b.tokens, wallMs: b.wallMs, out: b.out, verified: b.verified, verifyError: b.verifyError, canonical: b.canonical, code: b.code, disclosure: b.disclosure } });
+      return earlyResult(describeBuild(b), { answerShape: "build", mechanical: { rung: "code-build", unraveled: b.unraveled ?? null, sample: b.sample ?? null, kind: b.kind, units: b.units, draws: b.draws, tokens: b.tokens, wallMs: b.wallMs, out: b.out, verified: b.verified, verifyError: b.verifyError, canonical: b.canonical, code: b.code, disclosure: b.disclosure } });
     }
     if (door === "build") return earlyResult(`That is not a build I can split into independent units: ${b.error}. Name the functions in the request as name(args), e.g. "write a JavaScript file with functions: area(w, h), perimeter(w, h)".`, { answerShape: "build", mechanical: { rung: "code-build", gap: "no_units", basis: b.error } });
     // door "auto" and not a discrete build after all: it is an ordinary turn
