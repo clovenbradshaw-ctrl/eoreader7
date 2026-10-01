@@ -18,7 +18,7 @@ import vm from "node:vm";
 import { execSync } from "node:child_process";
 import { validatePython, validateHtml } from "../../postprocess.mjs";
 import { CARD_NAMES, cardsFor, cardsDoc, cardSource } from "./cards.js";
-import { canonicalize, adoptIf } from "./code-canonical.js";
+import { canonicalize, adoptIf, jsUnitEnd } from "./code-canonical.js";
 import { proposeCanonical, readAnchorLog, appendAnchorLog } from "../adapters/build/code-anchor-log.js";
 
 const OLLAMA = process.env.ER7_OLLAMA_URL ?? "http://localhost:11434";
@@ -115,20 +115,6 @@ const clean = (txt) => {
 // JavaScript, indentation for Python — never "the next line that starts with const": a body is full of lines that do, and splitting there shipped
 // every JavaScript unit with a local variable cut off at its first one (measured 2026-10-01: windLabel and legMiles came back as a bare signature).
 const indentOf = (line) => line.match(/^[ \t]*/)[0].replace(/\t/g, "    ").length;
-/** the index just past the statement that starts at `from`: the `}` that closes its first `{`, or the end of an arrow-expression body; strings, template literals and comments are skipped */
-function jsUnitEnd(src, from) {
-  let depth = 0, seen = false;
-  for (let i = from; i < src.length; i++) {
-    const c = src[i], n = src[i + 1];
-    if (c === "/" && n === "/") { while (i < src.length && src[i] !== "\n") i++; i--; continue; }
-    if (c === "/" && n === "*") { const e = src.indexOf("*/", i + 2); i = e < 0 ? src.length : e + 1; continue; }
-    if (c === "'" || c === '"' || c === "`") { for (i++; i < src.length && src[i] !== c; i++) if (src[i] === "\\") i++; continue; }
-    if (c === "{" || c === "(" || c === "[") { depth++; if (c === "{") seen = true; continue; }
-    if (c === "}" || c === ")" || c === "]") { depth--; if (depth <= 0 && c === "}" && seen) return src[i + 1] === ";" ? i + 2 : i + 1; continue; }
-    if (depth === 0 && !seen && (c === ";" || (c === "\n" && /=>\s*[^\s=]/.test(src.slice(from, i)) && !/[=>,+\-*/&|?:(]\s*$/.test(src.slice(from, i))))) return c === ";" ? i + 1 : i;
-  }
-  return src.length;
-}
 export function extractUnit(text, name) {
   const t = String(text ?? "").replace(/```[a-z]*/gi, "");
   const esc = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -174,7 +160,7 @@ export async function buildCodeTask({ task, model, testCommand = null, out = nul
   const parts = draws.map((d, i) => {
     const raw = extractUnit(d?.text || "", units[i].name);
     if (!read || !raw || !looksJs(raw)) return raw; // read:false is the control arm — the draw is shipped as said, which is what this door did before it read anything
-    const can = canonicalize(raw, { cardNames: cardPool, declared: unitNames.filter((n) => n !== units[i].name) });
+    const can = canonicalize(raw, { cardNames: cardPool, declared: unitNames.filter((n) => n !== units[i].name), offered: offeredFor(i) });
     const adopted = can.changed && adoptIf(parses(raw) ? 1 : 0, parses(can.code) ? 1 : 0);
     const code = adopted ? can.code : raw;
     if (adopted) for (const t of can.transformations) transformations.push({ unit: units[i].name, ...t });

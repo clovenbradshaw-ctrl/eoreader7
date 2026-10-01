@@ -217,3 +217,9 @@ test("a tag that is an ordinary word does not offer a card on its own: `day` is 
   assert.ok(names("Make a label from the name and region joined with a comma, leaving out any part that is missing.").includes("joinPresent"), "two of its tags: it is offered");
   assert.equal(CARDS.joinPresent.min, 2);
 });
+
+test("the examples in a card's doc are true: they are run against the card itself", () => {
+  const v = (n) => CARDS[n].fn;
+  near(v("celsiusToFahrenheit")(100), 212); near(v("fahrenheitToCelsius")(212), 100); near(v("kmToMiles")(16.09344), 10, 1e-9); near(v("milesToKm")(10), 16.09344, 1e-9);
+  assert.equal(v("daysBetween")("2026-10-01", "2026-10-08"), 7); assert.equal(v("daysBetween")("2026-10-08", "2026-10-01"), -7);
+});

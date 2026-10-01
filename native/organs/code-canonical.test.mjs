@@ -3,7 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import vm from "node:vm";
-import { canonicalize, constReassigned, rewriteKey, adoptIf, redeclaredToAssignment, CANONICAL_SCHEMA } from "./code-canonical.js";
+import { canonicalize, constReassigned, rewriteKey, adoptIf, redeclaredToAssignment, dropShadowedCards, jsUnitEnd, CANONICAL_SCHEMA } from "./code-canonical.js";
 import { cardSource } from "./cards.js";
 
 const run = (code, fn, ...args) => { const ctx = vm.createContext(Object.create(null)); vm.runInContext(`${cardSource()}\n${code}\nglobalThis.__f = ${fn};`, ctx); return JSON.parse(JSON.stringify(ctx.__f(...args))); };
@@ -87,4 +87,26 @@ test("redeclared_to_assignment is verified by re-compiling: a name declared in a
   assert.equal(new Function(`return (${redeclaredToAssignment(param).code.replace(/^function f/, "function f")})`)()(1), 2);
   assert.deepEqual(redeclaredToAssignment(param).names, ["x"]);
   assert.deepEqual(redeclaredToAssignment(`function g() { return 1; }`), { code: `function g() { return 1; }`, names: [] });
+});
+
+test("card_shadow_dropped: an operation the unit was GIVEN and then declared again (an arrow const, or a function after its use) is dropped, so the verified one is the one that runs", () => {
+  const raw = `function orderTotal(order) {\n  const parseMoney = x => parseFloat(x.replace(/,/g, ''));\n  return order.items.reduce((s, i) => s + parseMoney(i.price) * Number(i.qty), 0);\n}\n\nfunction roundTo(x, places) {\n  const factor = Math.pow(10, places);\n  return Math.round(x * factor) / factor;\n}`;
+  const c = canonicalize(raw, { offered: ["parseMoney", "roundTo"] });
+  assert.deepEqual(c.transformations.filter((t) => t.kind === "card_shadow_dropped").map((t) => t.name).sort(), ["parseMoney", "roundTo"]);
+  assert.doesNotMatch(c.code, /x\.replace|Math\.pow/); assert.match(c.code, /parseMoney\(i\.price\)/);
+  assert.equal(run(c.code, "orderTotal", { items: [{ price: "$1,234.50", qty: "2" }, { price: 5, qty: 1 }] }), 2474, "the card reads '$1,234.50' and a plain number; the hand-written one read neither");
+});
+
+test("card_shadow_dropped is for the names the prompt GAVE: a card the unit was not offered, and a helper of its own, are left exactly as written", () => {
+  const raw = `function f(x) {\n  const roundTo = (v) => Math.round(v);\n  const helper = (v) => v + 1;\n  return roundTo(helper(x));\n}`;
+  assert.equal(dropShadowedCards(raw, []).code, raw, "not offered, not dropped");
+  const c = dropShadowedCards(raw, ["roundTo", "parseMoney"]);
+  assert.deepEqual(c.names, ["roundTo"]); assert.match(c.code, /const helper/); assert.doesNotMatch(c.code, /const roundTo/);
+});
+
+test("a statement end is found past braces, strings, template literals, comments and an arrow's own expression", () => {
+  const src = "const a = (x) => x + 1; const b = 2;";
+  assert.equal(src.slice(0, jsUnitEnd(src, 0)), "const a = (x) => x + 1;");
+  const blk = "function f() { const s = \"}\"; /* } */ return `{${1}}`; }\nconst c = 3;";
+  assert.equal(blk.slice(0, jsUnitEnd(blk, 0)), "function f() { const s = \"}\"; /* } */ return `{${1}}`; }");
 });

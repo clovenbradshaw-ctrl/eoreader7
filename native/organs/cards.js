@@ -64,14 +64,14 @@ function toNumber(x) { const n = typeof x === "number" || (typeof x === "string"
 
 /** name -> { fn, doc, tags }: the library, in the order the prompt shows it. `tags` are the few words that name what a card is FOR, declared by whoever makes the card: they (not the doc prose) are what a task's own words are matched against */
 export const CARDS = Object.freeze({
-  celsiusToFahrenheit: { fn: celsiusToFahrenheit, doc: "degrees Celsius -> degrees Fahrenheit (a number, not rounded)", tags: "celsius fahrenheit temperature degrees", converts: "celsius fahrenheit" },
-  fahrenheitToCelsius: { fn: fahrenheitToCelsius, doc: "degrees Fahrenheit -> degrees Celsius (a number, not rounded)", tags: "fahrenheit celsius temperature degrees", converts: "fahrenheit celsius" },
+  celsiusToFahrenheit: { fn: celsiusToFahrenheit, doc: "degrees Celsius -> degrees Fahrenheit (a number, not rounded): celsiusToFahrenheit(100) is 212", tags: "celsius fahrenheit temperature degrees", converts: "celsius fahrenheit" },
+  fahrenheitToCelsius: { fn: fahrenheitToCelsius, doc: "degrees Fahrenheit -> degrees Celsius (a number, not rounded): fahrenheitToCelsius(212) is 100", tags: "fahrenheit celsius temperature degrees", converts: "fahrenheit celsius" },
   msToKmh: { fn: msToKmh, doc: "metres per second -> kilometres per hour", tags: "metres second kilometres hour speed wind kmh", converts: "metres kilometres" },
   msToMph: { fn: msToMph, doc: "metres per second -> miles per hour", tags: "metres second miles hour speed wind mph", converts: "metres miles" },
   kmhToMph: { fn: kmhToMph, doc: "kilometres per hour -> miles per hour", tags: "kilometres hour miles speed kmh mph", converts: "kilometres miles" },
   mphToKmh: { fn: mphToKmh, doc: "miles per hour -> kilometres per hour", tags: "miles hour kilometres speed mph kmh", converts: "miles kilometres" },
-  kmToMiles: { fn: kmToMiles, doc: "a distance in kilometres -> the same distance in statute miles (divides by 1.609344; a number, not rounded)", tags: "kilometres miles distance statute length", converts: "kilometres miles" },
-  milesToKm: { fn: milesToKm, doc: "a distance in statute miles -> the same distance in kilometres (multiplies by 1.609344; a number, not rounded)", tags: "miles kilometres distance statute length", converts: "miles kilometres" },
+  kmToMiles: { fn: kmToMiles, doc: "a distance in kilometres -> the same distance in statute miles (a number, not rounded): kmToMiles(16.09344) is 10 — miles are the SMALLER number", tags: "kilometres miles distance statute length", converts: "kilometres miles" },
+  milesToKm: { fn: milesToKm, doc: "a distance in statute miles -> the same distance in kilometres (a number, not rounded): milesToKm(10) is 16.09344 — kilometres are the LARGER number", tags: "miles kilometres distance statute length", converts: "miles kilometres" },
   degreesToRadians: { fn: degreesToRadians, doc: "an angle in degrees -> the same angle in radians (what Math.sin, Math.cos and Math.atan2 take)", tags: "degrees radians angle trigonometry latitude", aliases: "radians toRadians toRad degToRad deg2rad degtorad", aliasGiver: "Python math.radians, numpy.radians/deg2rad, Java Math.toRadians", converts: "degrees radians" },
   radiansToDegrees: { fn: radiansToDegrees, doc: "an angle in radians -> the same angle in degrees (what Math.atan2 and Math.acos hand back)", tags: "radians degrees angle trigonometry bearing", aliases: "degrees toDegrees toDeg radToDeg rad2deg radtodeg", aliasGiver: "Python math.degrees, numpy.degrees/rad2deg, Java Math.toDegrees", converts: "radians degrees" },
   compass16: { fn: compass16, doc: "a bearing in degrees -> its 16-point compass name (\"N\", \"NNE\", ... \"NNW\")", tags: "compass bearing direction degrees cardinal" },
@@ -80,7 +80,7 @@ export const CARDS = Object.freeze({
   haversineKm: { fn: haversineKm, doc: "haversineKm(lat1, lon1, lat2, lon2): great-circle distance in kilometres (not rounded)", tags: "haversine great-circle distance latitude longitude kilometres" },
   roundTo: { fn: roundTo, doc: "roundTo(x, places): x rounded to that many decimal places (0 for a whole number)", tags: "decimal decimals place places" },
   parseMoney: { fn: parseMoney, doc: "a money amount, a number or text like \"$1,234.50\" or \"12.5\" -> the number; null if it is not an amount (US formatting: dot for decimals, comma for thousands)", tags: "money price prices currency dollars" },
-  daysBetween: { fn: daysBetween, doc: "daysBetween(from, to): whole calendar days from the first ISO date \"YYYY-MM-DD\" to the second (month lengths and leap years counted; negative when the second is earlier; NaN if either is not a date)", tags: "calendar overdue elapsed" },
+  daysBetween: { fn: daysBetween, doc: "daysBetween(from, to): whole calendar days from the first ISO date \"YYYY-MM-DD\" to the second — daysBetween(\"2026-10-01\", \"2026-10-08\") is 7 and daysBetween(\"2026-10-08\", \"2026-10-01\") is -7 (month lengths and leap years counted; NaN if either is not a date)", tags: "calendar overdue elapsed" },
   splitWords: { fn: splitWords, doc: "text -> its words in order, case as written: runs of letters, digits and apostrophes (punctuation and hyphens separate words); [] for none", tags: "words word tokenize tokens" },
   toNumber: { fn: toNumber, doc: "a number or numeric string -> the number; null for anything else (blank, text, missing)", tags: "numeric nan blank coerce" },
 });

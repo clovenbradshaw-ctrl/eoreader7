@@ -30,7 +30,41 @@ export const CANONICAL_SCHEMA = "EOCanonicalCode@1";
 /** the engine's own message for source that does not compile, or null; `Function` compiles without running, in a browser as in node */
 const syntaxError = (src) => { try { new Function(String(src).replace(/^\s*export\s+(?:default\s+)?/gm, "")); return null; } catch (e) { return e instanceof SyntaxError ? e.message : null; } };
 
+/** the index just past the statement that starts at `from`: the `}` that closes its first `{`, or the end of an arrow-expression body; strings, template literals and comments are skipped */
+export function jsUnitEnd(src, from) {
+  let depth = 0, seen = false;
+  for (let i = from; i < src.length; i++) {
+    const c = src[i], n = src[i + 1];
+    if (c === "/" && n === "/") { while (i < src.length && src[i] !== "\n") i++; i--; continue; }
+    if (c === "/" && n === "*") { const e = src.indexOf("*/", i + 2); i = e < 0 ? src.length : e + 1; continue; }
+    if (c === "'" || c === '"' || c === "`") { for (i++; i < src.length && src[i] !== c; i++) if (src[i] === "\\") i++; continue; }
+    if (c === "{" || c === "(" || c === "[") { depth++; if (c === "{") seen = true; continue; }
+    if (c === "}" || c === ")" || c === "]") { depth--; if (depth <= 0 && c === "}" && seen) return src[i + 1] === ";" ? i + 2 : i + 1; continue; }
+    if (depth === 0 && !seen && (c === ";" || (c === "\n" && /=>\s*[^\s=]/.test(src.slice(from, i)) && !/[=>,+\-*/&|?:(]\s*$/.test(src.slice(from, i))))) return c === ";" ? i + 1 : i;
+  }
+  return src.length;
+}
+export 
 const esc = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * The operations a unit was GIVEN (named in its prompt) and then declared again itself — `const parseMoney = x => parseFloat(...)` — are dropped: the model named the operation
+ * it meant, and its own version is the re-implementation the card exists to replace (measured: a hand-written `parseMoney` that could not read "$1,234.50"). A removal is kept only
+ * if the rest still compiles.
+ */
+export function dropShadowedCards(code, offered = []) {
+  let out = String(code ?? ""); const names = [];
+  for (const n of offered) {
+    const head = new RegExp(`(^|\\n)([ \\t]*)((?:async[ \\t]+)?function[ \\t]*\\*?[ \\t]*${esc(n)}[ \\t]*\\(|(?:const|let|var)[ \\t]+${esc(n)}[ \\t]*=)`);
+    let m, guard = 0;
+    while ((m = head.exec(out)) && guard++ < 4) {
+      const start = m.index + m[1].length, end = jsUnitEnd(out, start + m[2].length), candidate = (out.slice(0, start) + out.slice(end).replace(/^[ \t]*\n?/, "")).replace(/\n{3,}/g, "\n\n");
+      if (syntaxError(out) === null && syntaxError(candidate) !== null) break; // dropping it would break a program that compiled
+      out = candidate; if (!names.includes(n)) names.push(n);
+    }
+  }
+  return { code: out, names };
+}
 
 /**
  * Names the ENGINE says are declared twice in one scope, and the code with each later declaration read as an assignment. The engine names the identifier; the rewrite is
@@ -95,13 +129,18 @@ export function rewriteKey(code, asked, real) {
 /**
  * canonicalize(suggestion, { resolutions, cardNames, declared }) -> { schema, code, changed, transformations, findings }
  *   resolutions  what the wall recorded when it READ the suggestion against the received object ({ asked, real, basis, tier }); key-referents.js
+ *   offered      the operations the prompt gave the model: a unit that declares one of them again has its own version dropped (dropShadowedCards)
  *   declared     names declared OUTSIDE this suggestion that it may call (the other units of the same file): a call to one is never a free call, so it is neither resolved to a card nor a finding
  * Nothing is deleted from the suggestion that the transformations do not name.
  */
-export function canonicalize(suggestion, { resolutions = [], cardNames = CARD_NAMES, declared: elsewhere = [] } = {}) {
+export function canonicalize(suggestion, { resolutions = [], cardNames = CARD_NAMES, declared: elsewhere = [], offered = [] } = {}) {
   const input = String(suggestion ?? "");
   let code = input;
   const transformations = [], findings = [];
+
+  const sh = dropShadowedCards(code, offered);
+  for (const name of sh.names) transformations.push({ kind: "card_shadow_dropped", name, basis: `the unit declared its own \`${name}\`, an operation it was given; the given one is written and checked once` });
+  code = sh.code;
 
   const re = redeclaredToAssignment(code);
   for (const name of re.names) transformations.push({ kind: "redeclared_to_assignment", name, basis: "declared twice in one scope, which does not compile; the later declaration is read as the assignment it was meant to be" });

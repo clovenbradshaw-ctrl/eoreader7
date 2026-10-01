@@ -387,7 +387,7 @@ export function readSuggestion(suggestion, contract) {
     return { res, code, canonical: { ...canonical, findings: [...(canonical.findings ?? []), ...(sem?.findings ?? [])], claims: sem?.claims ?? [] }, semantics: sem };
   };
   if (contract.canonical === false) return withMeaning(raw, suggestion, { code: suggestion, transformations: [], findings: [] });
-  const reading = canonicalize(suggestion, { resolutions: raw.resolutions ?? [] });
+  const reading = canonicalize(suggestion, { resolutions: raw.resolutions ?? [], offered: cardsShown(contract) });
   if (!reading.changed) return withMeaning(raw, suggestion, { ...reading, code: suggestion, transformations: [] });
   const can = testUnit(reading.code, { ...contract, resolve: false, cards: contract.cards === false ? false : "exact" });
   if (adoptIf(-failedRuns(contract, raw.failures), -failedRuns(contract, can.failures))) return withMeaning({ ...can, resolutions: raw.resolutions, declared: raw.declared }, reading.code, reading);
