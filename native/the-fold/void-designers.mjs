@@ -56,9 +56,21 @@ export const VOIDS = Object.freeze([
     ledger: 5, limit: "the example's OUTPUT is the oracle's answer: the model is handed the answer key's first line; a copy field could be read off the sample, a transform field cannot", evidence: "TEACH-IT-TO-FISH §3 row 5 (S)" },
   { id: "fields", path: "app", asks: "what each field of a unit's answer IS, when the answer is a flat object", designer: "the cheap species (copy, compose, decide, template, map, argmax, topk) in fielded-swarm.mjs, checked by the examples and then the runs they were not shown", kind: "mechanical", basis: "measured", at: "the-fold/fielded-swarm.mjs#cheapFill",
     limit: "needs the three worked examples (a bare prompt has none, row 5); cannot fill a conditional that answers with an input value, a substring, the best or mean of a list of numbers, a clamp, or a list-valued result",
-    evidence: "measured 2026-10-01 with no model: set A (fitted) 23/23 slots, 7/7 units; set C (written after the last edit, never edited for) 14/20 slots, 4/6 units; redealt-target control 0 solved of 40+ (species.test.mjs)" },
+    evidence: "measured 2026-10-01 with no model: set A (fitted) 23/23 slots, 7/7 units; set C (written after the last edit, never edited for) 14/20 slots, 4/6 units; redealt-target control 0 solved of 40+ (species.test.mjs); on the APP's own nine leaves (app-species.mjs): 16 of 39 object slots, 0 of 9 leaves whole" },
   { id: "wide-leaf", path: "app", asks: "when one leaf is too wide to draw at once", designer: "fieldsOf / fieldPlan (the-fold/app-units.mjs)", kind: "mechanical", basis: "measured", at: "the-fold/app-units.mjs#fieldsOf",
     limit: "reads the keys off the contract's worked example, so it inherits that example's author", evidence: "measured 2026-09-30: 1 of 9 leaves needed it" },
+
+  // the app's other hole classes (2026-10-01, "are these every math shaped holes?" — no: the species fill values computed from a row; the rest of the app is not that)
+  { id: "layout", path: "app", asks: "where each thing sits on the page, in what colours and sizes", designer: "layoutOf / themeOf (the-fold/app-render.mjs), computed from the comp's measured zones", kind: "mechanical", basis: "measured", at: "the-fold/app-render.mjs#layoutOf",
+    limit: "reads the comp spec; a label that is stacked or a column header is still unread (ledger row 3)", evidence: "unmeasured" },
+  { id: "bindings", path: "app", asks: "which comp label is which data field", designer: "app-bindings.mjs tables, hand-written", kind: "person", basis: "supplied", at: "the-fold/app-bindings.mjs#",
+    ledger: 6, limit: "the referent layer binds KEYS, not comp fields", evidence: "TEACH-IT-TO-FISH §3 row 6 (B)" },
+  { id: "sources", path: "app", asks: "where the weather, the places and the prices come from", designer: "an agent's choice, recorded in fixtures/weather-fuel/SOURCES.md", kind: "person", basis: "supplied", at: "the-fold/fixtures/weather-fuel/SOURCES.md#",
+    ledger: 4, limit: "a person picked the five providers and recorded real responses; the system discovers none", evidence: "TEACH-IT-TO-FISH §3 row 4 (S)" },
+  { id: "units-conditional", path: "app", asks: "which input field a slot reads when a PARAMETER's value picks it (metric or imperial)", designer: "the model — no species picks a field by an input value", kind: "mouth", basis: "asked", at: "the-fold/app-leaves.mjs#wttrNowContract",
+    limit: "the named species gap `input-valued conditional`; the units rule is in the contract's notes as words", evidence: "measured 2026-10-01 (app-species.mjs): wttrNow temp, feels, windSpeed and wttrHour at, temp, condition, windSpeed are filled by no species" },
+  { id: "scrape", path: "app", asks: "the value to read out of a page of text (a week's date, a row's price)", designer: "the model — the species read fields of an object, not text", kind: "mouth", basis: "asked", at: "the-fold/app-leaves.mjs#priceAfterContract",
+    limit: "newestWeek and priceAfter return a string and a number, not an object of fields", evidence: "measured 2026-10-01 (app-species.mjs): 0 of the 2 scrape leaves are field-shaped, so no species applies" },
 
   // ── a whole program: organs/code-form.js — the design on the record, then a body per function ──
   { id: "design", path: "program", asks: "modules, functions, signatures and what each says", designer: "the person's stipulation (witness: request), or the mouth's when a talk build made it", kind: "mouth", basis: "asked", at: "organs/code-form.js#makeCodeForm",

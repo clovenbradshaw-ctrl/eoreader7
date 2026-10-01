@@ -6,6 +6,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { LEAF_CONTRACTS } from "./app-leaves.mjs";
 import { REFERENCE_LEAVES } from "./app-weather-fuel.reference.mjs";
+import { speciesHook } from "./app-species.mjs";
 import { fieldsOf, fieldPlan, fieldContract, composeFieldCode, makeFieldedUnit, makeUnit, testUnit, testFunction, loadUnit, unitPrompt, openUnitCache, constReassigned, ABSENT } from "./app-units.mjs";
 import fs from "node:fs";
 import os from "node:os";
@@ -256,4 +257,31 @@ test("a field's oracle keeps the failures that point INTO the field (`longest.le
   assert.ok(longest.runs[0].check(["a", "b", "c", "d"]).length > 0, "a four-item list where three are expected fails the longest field");
   assert.deepEqual(longest.runs[0].check(rt.runs[0].want().longest), [], "the right list passes");
   assert.deepEqual(words.runs[0].check(rt.runs[0].want().words), [], "a sibling's failure is not this field's");
+});
+
+// ---- the cheapest filler first: opts.species ----
+test("species-first: a slot a species fills costs ZERO model draws and is held to the same field oracle; the model is asked only for the rest", async () => {
+  const c = LEAF_CONTRACTS.find((x) => x.name === "parsePlace");
+  const ref = REFERENCE_LEAVES.parsePlace.replace(/^function parsePlace/, "function");
+  const hook = speciesHook(), filled = fieldsOf(c).filter((k) => hook(c, k));
+  assert.ok(filled.length >= 3, "the copy species fill the straight-through fields of the place");
+  const events = [], f = fakeMouth(ref);
+  const r = await makeFieldedUnit(c, { mouths: ["small"], mouth: f.mouth, cache: null, rng: () => 0.99, explore: 0, species: hook, see: (e, x) => events.push([e, x]) });
+  assert.equal(r.ok, true, r.failures.join("\n"));
+  assert.equal(f.calls.length, fieldsOf(c).length - filled.length, "one draw per field the species could NOT fill");
+  assert.deepEqual(Object.keys(r.bySpecies).sort(), [...filled].sort());
+  assert.ok(events.some(([e, x]) => e === "unit" && x.species === "copy" && x.calls === 0));
+  assert.equal(testUnit(r.code, c).ok, true, "the composed leaf passes the whole oracle");
+});
+
+test("CONTROL built to fail: a species fill the field's oracle refuses is NOT used — the model draws that field instead", async () => {
+  const c = LEAF_CONTRACTS.find((x) => x.name === "parsePlace");
+  const ref = REFERENCE_LEAVES.parsePlace.replace(/^function parsePlace/, "function");
+  const liar = (cc, key) => (key === "name" ? { species: "copy", js: "result.country" } : null); // plausible, wrong: reads another field
+  const f = fakeMouth(ref), events = [];
+  const r = await makeFieldedUnit(c, { mouths: ["small"], mouth: f.mouth, cache: null, rng: () => 0.99, explore: 0, species: liar, see: (e, x) => events.push([e, x]) });
+  assert.equal(r.ok, true, r.failures.join("\n"));
+  assert.equal(f.calls.length, fieldsOf(c).length, "the refused species fill cost a draw like any field");
+  assert.deepEqual(r.bySpecies, {}, "nothing was credited to a species that the oracle refused");
+  assert.ok(events.some(([e, x]) => e === "unit" && x.species === "copy" && x.ok === false && /oracle refused/.test(x.gap ?? "")));
 });

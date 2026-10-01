@@ -361,8 +361,15 @@ export async function makeFieldedUnit(contract, opts = {}) {
     if (again.ok) { see("unit", { name: contract.name, hash, cached: true, model: hit.model, calls: 0, ms: Date.now() - t0 }); return { ok: true, code: hit.code, model: hit.model, rounds: 0, calls: 0, ms: Date.now() - t0, cached: true, failures: [], declared: again.declared ?? {}, resolutions: again.resolutions ?? [], fields: keys, trails: opts.trails ?? {} }; }
   }
   let trails = opts.trails ?? {}, calls = 0;
-  const codes = {}, models = new Set(), declared = {}, resolutions = [], failedFields = [];
+  const codes = {}, models = new Set(), declared = {}, resolutions = [], failedFields = [], bySpecies = {};
   for (const key of keys) {
+    // THE CHEAPEST FILLER FIRST (opts.species, a caller's hook): a slot a species can fill with no model is filled, then held to the SAME oracle as a drawn field — it counts only if it passes
+    const cheap = key === ABSENT ? null : opts.species?.(contract, key);
+    if (cheap?.js) {
+      const fc = fieldContract(contract, key), code = `function ${key}Of(${contract.params.join(", ")}) { return ${cheap.js}; }`, t = testUnit(code, fc);
+      see("unit", { name: fc.name, species: cheap.species, ok: t.ok, calls: 0, ...(t.ok ? {} : { gap: "a species filled the slot but the field's oracle refused it", failures: t.failures.slice(0, 2) }) });
+      if (t.ok) { codes[key] = code; bySpecies[key] = cheap.species; models.add(`species:${cheap.species}`); continue; }
+    }
     const r = await makeUnit(fieldContract(contract, key), { ...opts, trails });
     trails = r.trails ?? trails; calls += r.calls;
     if (r.ok) { codes[key] = r.code; if (r.model) models.add(r.model); resolutions.push(...(r.resolutions ?? [])); Object.assign(declared, r.declared ?? {}); }
@@ -374,9 +381,9 @@ export async function makeFieldedUnit(contract, opts = {}) {
   }
   const code = composeFieldCode(contract, keys, codes);
   const res = testUnit(code, contract);
-  see("unit", { name: contract.name, ok: res.ok, composedFrom: keys, calls, ms: Date.now() - t0, ...(res.ok ? {} : { gap: "the fields each passed but the composed leaf failed the whole oracle", failures: res.failures.slice(0, 4) }) });
+  see("unit", { name: contract.name, ok: res.ok, composedFrom: keys, bySpecies, calls, ms: Date.now() - t0, ...(res.ok ? {} : { gap: "the fields each passed but the composed leaf failed the whole oracle", failures: res.failures.slice(0, 4) }) });
   if (res.ok) cache?.put(hash, { name: contract.name, model: [...models].join("+"), code, hash, declared: res.declared ?? declared, resolutions: res.resolutions ?? [], fields: keys, verifiedAt: new Date().toISOString() });
-  return { ok: res.ok, code: res.ok ? code : null, model: [...models].join("+"), rounds: 0, calls, ms: Date.now() - t0, cached: false, failures: res.ok ? [] : res.failures, declared: res.declared ?? declared, resolutions: [...resolutions, ...(res.resolutions ?? [])], fields: keys, trails };
+  return { ok: res.ok, code: res.ok ? code : null, model: [...models].join("+"), rounds: 0, calls, ms: Date.now() - t0, cached: false, failures: res.ok ? [] : res.failures, declared: res.declared ?? declared, resolutions: [...resolutions, ...(res.resolutions ?? [])], fields: keys, bySpecies, trails };
 }
 
 /** How many of a contract's runs fail: a failure line starts with its run's label (`testFunction`). Hint lines have no label and are not counted. */
