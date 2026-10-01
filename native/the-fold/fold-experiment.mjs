@@ -61,13 +61,14 @@ export async function runTask(d, { model, k, temp, corpusRows, log = () => {} })
   const A = aRows.map((r) => score(runResults(readSuggestion(r.offeredCode, offC).code, c)));
   const b0 = await make(0);
   const ideas = []; for (let i = 0; i < k; i++) ideas.push(await make(temp));
-  const chosen = foldIdeas(ideas), mean = (xs) => xs.reduce((a, b) => a + b, 0) / (xs.length || 1);
+  const chosen = ideas.length ? foldIdeas(ideas) : null, mean = (xs) => xs.reduce((a, b) => a + b, 0) / (xs.length || 1);
   const row = { task: c.name, role: d.role, model, k, temp, offered: cardsFor(c).map((x) => x.name),
     A_all: mean(A.map((s) => +s.all)), A_held: mean(A.map((s) => s.heldout)), nA: A.length,
     B0_all: +b0.evidence.all, B0_held: b0.evidence.heldout,
-    B8_all: +chosen.evidence.all, B8_held: chosen.evidence.heldout, B8_shown: chosen.evidence.shown,
-    pass_at_k: ideas.some((x) => x.evidence.all) ? 1 : 0, distinct: new Set(ideas.map((x) => x.code.replace(/\s+/g, ""))).size, anyShownAll: ideas.some((x) => x.evidence.shown === SHOWN) ? 1 : 0,
-    chosenCode: chosen.code.slice(0, 1500) };
+    B0_shown: b0.evidence.shown, B0_code: b0.code.slice(0, 1500),
+    ...(chosen ? { B8_all: +chosen.evidence.all, B8_held: chosen.evidence.heldout, B8_shown: chosen.evidence.shown,
+      pass_at_k: ideas.some((x) => x.evidence.all) ? 1 : 0, distinct: new Set(ideas.map((x) => x.code.replace(/\s+/g, ""))).size, anyShownAll: ideas.some((x) => x.evidence.shown === SHOWN) ? 1 : 0,
+      chosenCode: chosen.code.slice(0, 1500) } : {}) };
   log(row); return row;
 }
 
