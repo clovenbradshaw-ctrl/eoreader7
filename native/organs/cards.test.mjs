@@ -136,6 +136,7 @@ test("cardsFor is ranked and explained: each offered card says which words of th
 });
 
 test("every card declares its tags, and a card's own purpose words offer it", () => {
+  for (const n of CARD_NAMES.filter((n) => CARDS[n].aliases)) assert.ok(CARDS[n].aliasGiver, `${n}: an alias is a claim about other libraries, so it names whose`);
   for (const n of CARD_NAMES) assert.ok(CARDS[n].tags && CARDS[n].tags.split(/\s+/).length >= 3, `${n} declares what it is for`);
   assert.deepEqual(cardsFor(task("convert the bearing in degrees to a compass direction")).map((c) => c.name), ["compass16"]);
   assert.deepEqual(cardsFor(task("pad the unpadded clock time as hh:mm")).map((c) => c.name), ["padTime"]);
@@ -149,5 +150,7 @@ test("angles: 180 degrees is pi radians and back; the pair inverts", () => {
 test("a name a model INVENTS for an operation resolves to the one card it means: toRadians, deg2rad, c2f, km2mi (a 2 between words is the shorthand for `to`) — and `rad2deg` is not `deg2rad`", () => {
   const want = { toRadians: "degreesToRadians", degToRad: "degreesToRadians", deg2rad: "degreesToRadians", rad2deg: "radiansToDegrees", toDegrees: "radiansToDegrees", c2f: "celsiusToFahrenheit", f2c: "fahrenheitToCelsius", km2mi: "kmToMiles", mph2kmh: "mphToKmh", toFahrenheit: "celsiusToFahrenheit" };
   for (const [asked, real] of Object.entries(want)) assert.equal(resolveCard(asked).real, real, asked);
-  assert.equal(resolveCard("radians").ambiguous, true, "a bare `radians` could be either direction: it names none");
+  assert.equal(resolveCard("radians").real, "degreesToRadians", "Python's and numpy's `radians(x)` takes degrees: a declared alias, with its giver, settles what the word rules could not");
+  assert.equal(resolveCard("degrees").real, "radiansToDegrees"); assert.match(resolveCard("radians").basis, /Python math\.radians/); assert.equal(resolveCard("radians").tier, 0);
+  assert.equal(resolveCard("angle").resolved, false, "a name no library gives to one of them stays unresolved");
 });

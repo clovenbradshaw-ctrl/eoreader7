@@ -62,8 +62,8 @@ export const CARDS = Object.freeze({
   mphToKmh: { fn: mphToKmh, doc: "miles per hour -> kilometres per hour", tags: "miles hour kilometres speed mph kmh" },
   kmToMiles: { fn: kmToMiles, doc: "a distance in kilometres -> the same distance in statute miles (divides by 1.609344; a number, not rounded)", tags: "kilometres miles distance statute length" },
   milesToKm: { fn: milesToKm, doc: "a distance in statute miles -> the same distance in kilometres (multiplies by 1.609344; a number, not rounded)", tags: "miles kilometres distance statute length" },
-  degreesToRadians: { fn: degreesToRadians, doc: "an angle in degrees -> the same angle in radians (what Math.sin, Math.cos and Math.atan2 take)", tags: "degrees radians angle trigonometry latitude" },
-  radiansToDegrees: { fn: radiansToDegrees, doc: "an angle in radians -> the same angle in degrees (what Math.atan2 and Math.acos hand back)", tags: "radians degrees angle trigonometry bearing" },
+  degreesToRadians: { fn: degreesToRadians, doc: "an angle in degrees -> the same angle in radians (what Math.sin, Math.cos and Math.atan2 take)", tags: "degrees radians angle trigonometry latitude", aliases: "radians toRadians toRad degToRad deg2rad degtorad", aliasGiver: "Python math.radians, numpy.radians/deg2rad, Java Math.toRadians" },
+  radiansToDegrees: { fn: radiansToDegrees, doc: "an angle in radians -> the same angle in degrees (what Math.atan2 and Math.acos hand back)", tags: "radians degrees angle trigonometry bearing", aliases: "degrees toDegrees toDeg radToDeg rad2deg radtodeg", aliasGiver: "Python math.degrees, numpy.degrees/rad2deg, Java Math.toDegrees" },
   compass16: { fn: compass16, doc: "a bearing in degrees -> its 16-point compass name (\"N\", \"NNE\", ... \"NNW\")", tags: "compass bearing direction degrees cardinal" },
   padTime: { fn: padTime, doc: "a clock time written without padding (0, \"300\", \"1200\") -> \"HH:MM\"; null if it is not a time", tags: "pad padding padded unpadded clock hhmm" },
   joinPresent: { fn: joinPresent, doc: "joinPresent([a, b, c], \", \") joins the parts that are present (not null, undefined or empty); the separator defaults to \", \"", tags: "join joined separator present missing label" },
@@ -137,6 +137,10 @@ function wordsInOrder(asked, real) {
  * decides it, and an unbound name stays a ReferenceError the model is shown.
  */
 export function resolveCard(asked, names = CARD_NAMES) {
+  // the names OTHER libraries give an operation, declared by the card with their giver: `radians(x)` is Python's and numpy's degrees-to-radians. A bare `radians` is
+  // ambiguous to the rules below (it is half of both angle cards' names); to a reader who knows the libraries it is one operation.
+  const asFolded = String(asked).toLowerCase(), declared = names.filter((n) => (CARDS[n].aliases ?? "").toLowerCase().split(/\s+/).includes(asFolded));
+  if (declared.length === 1) return { resolved: true, real: declared[0], tier: 0, basis: `a name other libraries give this operation (${CARDS[declared[0]].aliasGiver})` };
   const r = resolveKey(asked, names);
   if (r.resolved || r.ambiguous) return r;
   const hit = names.filter((n) => wordsInOrder(asked, n));
