@@ -14,10 +14,11 @@
 // What is not claimed: that the consensus is a good layout, only that it is what recurs in the comps that were found, with the control that says it is not an accident of a
 // small harvest. Every number it outputs says how many comps it rests on. With fewer than FLOOR usable comps it refuses (`too_few_comps`) rather than echo one.
 export const CONSENSUS_SCHEMA = "EOCompConsensus@1";
-/** a pattern needs at least two instances: the structural minimum recurrence floor already used by emergence/binding.js and the kind-standing organ, not a tuned number */
+/** a pattern needs at least two instances: a structural minimum by construction (one instance has no recurrence to test) — the same 2 as emergence/binding.js's arrivals floor and the kind-standing recurrence floor (P4: declared, never tuned) */
 export const FLOOR = 2;
-/** the redeal null: draws and the alpha a kind must beat — this repo's standing null-arm numbers (200 draws; alpha 0.05, network-standing.js), reused, not tuned */
+/** draws of the redeal null: 200 is the standing null-arm number this repo declared for its other nulls (the kinds arm, 2026-08-16), reused here and never tuned against a result */
 export const NULL_DRAWS = 200;
+/** the alpha a kind must beat: 0.05, network-standing.js's convention (set by hand there, 2026-08-16), reused here and then divided by the number of kinds tried */
 export const NULL_ALPHA = 0.05;
 
 const median = (xs) => { const s = [...xs].sort((a, b) => a - b); if (!s.length) return null; const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
