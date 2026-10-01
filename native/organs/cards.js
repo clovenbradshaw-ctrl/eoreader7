@@ -54,16 +54,16 @@ function toNumber(x) { const n = typeof x === "number" || (typeof x === "string"
 
 /** name -> { fn, doc, tags }: the library, in the order the prompt shows it. `tags` are the few words that name what a card is FOR, declared by whoever makes the card: they (not the doc prose) are what a task's own words are matched against */
 export const CARDS = Object.freeze({
-  celsiusToFahrenheit: { fn: celsiusToFahrenheit, doc: "degrees Celsius -> degrees Fahrenheit (a number, not rounded)", tags: "celsius fahrenheit temperature degrees" },
-  fahrenheitToCelsius: { fn: fahrenheitToCelsius, doc: "degrees Fahrenheit -> degrees Celsius (a number, not rounded)", tags: "fahrenheit celsius temperature degrees" },
-  msToKmh: { fn: msToKmh, doc: "metres per second -> kilometres per hour", tags: "metres second kilometres hour speed wind kmh" },
-  msToMph: { fn: msToMph, doc: "metres per second -> miles per hour", tags: "metres second miles hour speed wind mph" },
-  kmhToMph: { fn: kmhToMph, doc: "kilometres per hour -> miles per hour", tags: "kilometres hour miles speed kmh mph" },
-  mphToKmh: { fn: mphToKmh, doc: "miles per hour -> kilometres per hour", tags: "miles hour kilometres speed mph kmh" },
-  kmToMiles: { fn: kmToMiles, doc: "a distance in kilometres -> the same distance in statute miles (divides by 1.609344; a number, not rounded)", tags: "kilometres miles distance statute length" },
-  milesToKm: { fn: milesToKm, doc: "a distance in statute miles -> the same distance in kilometres (multiplies by 1.609344; a number, not rounded)", tags: "miles kilometres distance statute length" },
-  degreesToRadians: { fn: degreesToRadians, doc: "an angle in degrees -> the same angle in radians (what Math.sin, Math.cos and Math.atan2 take)", tags: "degrees radians angle trigonometry latitude", aliases: "radians toRadians toRad degToRad deg2rad degtorad", aliasGiver: "Python math.radians, numpy.radians/deg2rad, Java Math.toRadians" },
-  radiansToDegrees: { fn: radiansToDegrees, doc: "an angle in radians -> the same angle in degrees (what Math.atan2 and Math.acos hand back)", tags: "radians degrees angle trigonometry bearing", aliases: "degrees toDegrees toDeg radToDeg rad2deg radtodeg", aliasGiver: "Python math.degrees, numpy.degrees/rad2deg, Java Math.toDegrees" },
+  celsiusToFahrenheit: { fn: celsiusToFahrenheit, doc: "degrees Celsius -> degrees Fahrenheit (a number, not rounded)", tags: "celsius fahrenheit temperature degrees", converts: "celsius fahrenheit" },
+  fahrenheitToCelsius: { fn: fahrenheitToCelsius, doc: "degrees Fahrenheit -> degrees Celsius (a number, not rounded)", tags: "fahrenheit celsius temperature degrees", converts: "fahrenheit celsius" },
+  msToKmh: { fn: msToKmh, doc: "metres per second -> kilometres per hour", tags: "metres second kilometres hour speed wind kmh", converts: "metres kilometres" },
+  msToMph: { fn: msToMph, doc: "metres per second -> miles per hour", tags: "metres second miles hour speed wind mph", converts: "metres miles" },
+  kmhToMph: { fn: kmhToMph, doc: "kilometres per hour -> miles per hour", tags: "kilometres hour miles speed kmh mph", converts: "kilometres miles" },
+  mphToKmh: { fn: mphToKmh, doc: "miles per hour -> kilometres per hour", tags: "miles hour kilometres speed mph kmh", converts: "miles kilometres" },
+  kmToMiles: { fn: kmToMiles, doc: "a distance in kilometres -> the same distance in statute miles (divides by 1.609344; a number, not rounded)", tags: "kilometres miles distance statute length", converts: "kilometres miles" },
+  milesToKm: { fn: milesToKm, doc: "a distance in statute miles -> the same distance in kilometres (multiplies by 1.609344; a number, not rounded)", tags: "miles kilometres distance statute length", converts: "miles kilometres" },
+  degreesToRadians: { fn: degreesToRadians, doc: "an angle in degrees -> the same angle in radians (what Math.sin, Math.cos and Math.atan2 take)", tags: "degrees radians angle trigonometry latitude", aliases: "radians toRadians toRad degToRad deg2rad degtorad", aliasGiver: "Python math.radians, numpy.radians/deg2rad, Java Math.toRadians", converts: "degrees radians" },
+  radiansToDegrees: { fn: radiansToDegrees, doc: "an angle in radians -> the same angle in degrees (what Math.atan2 and Math.acos hand back)", tags: "radians degrees angle trigonometry bearing", aliases: "degrees toDegrees toDeg radToDeg rad2deg radtodeg", aliasGiver: "Python math.degrees, numpy.degrees/rad2deg, Java Math.toDegrees", converts: "radians degrees" },
   compass16: { fn: compass16, doc: "a bearing in degrees -> its 16-point compass name (\"N\", \"NNE\", ... \"NNW\")", tags: "compass bearing direction degrees cardinal" },
   padTime: { fn: padTime, doc: "a clock time written without padding (0, \"300\", \"1200\") -> \"HH:MM\"; null if it is not a time", tags: "pad padding padded unpadded clock hhmm" },
   joinPresent: { fn: joinPresent, doc: "joinPresent([a, b, c], \", \") joins the parts that are present (not null, undefined or empty); the separator defaults to \", \"", tags: "join joined separator present missing label" },
@@ -164,12 +164,31 @@ export const CARD_RELEVANCE_FLOOR = 1;
 const stem = (w) => w.replace(/(ing|ed|es|s)$/, "");
 const wordsOf = (s) => new Set((String(s).toLowerCase().replace(/hh:mm/g, "hhmm").match(/[a-z][a-z-]+/g) ?? []).map((w) => stem(w.replace(/-/g, "-"))));
 
+// A conversion card declares the two things it converts (`converts: "from to"`) and the pair of cards that invert each other share every tag, so the words alone offer both:
+// measured 2026-10-01 (gemma2:2b, a unit whose clause says "Celsius to Fahrenheit"): shown both directions it wrote fahrenheitToCelsius(celsiusToFahrenheit(x)). The task usually
+// says which way it goes — "A to B", "from A to B", "A into B", "A -> B" — within a few words of its connector and without crossing a clause break. When it does, the card
+// that converts the other way is not offered. When it does not say (or says both), both stay.
+const CONNECTORS = new Set(["to", "into"]);
+const DIRECTION_WINDOW = 3; // words either side of the connector: "metres per second to kilometres per hour", "degrees Celsius to degrees Fahrenheit"
+function directionsIn(text) {
+  const tokens = (String(text).toLowerCase().replace(/->|=>|→/g, " to ").match(/[a-z][a-z-]*|[,;.:=\n()]/g) ?? []).map((w) => (/^[a-z]/.test(w) ? stem(w) : w));
+  const near = (i, step, word) => { for (let k = 1; k <= DIRECTION_WINDOW; k++) { const t = tokens[i + step * k]; if (t === undefined || !/^[a-z]/.test(t)) return false; if (t === word) return true; } return false; };
+  return (from, to) => {
+    let forward = false, backward = false;
+    tokens.forEach((t, i) => { if (!CONNECTORS.has(t)) return; if (near(i, -1, from) && near(i, 1, to)) forward = true; if (near(i, -1, to) && near(i, 1, from)) backward = true; });
+    return { forward, backward };
+  };
+}
+
 /** the cards a task's own words name: -> [{ name, score, words }] best first; [] when the task names no operation */
 export function cardsFor(contract, names = CARD_NAMES) {
-  const task = wordsOf([contract.doc, contract.returns, contract.notes].filter(Boolean).join(" "));
+  const text = [contract.doc, contract.returns, contract.notes].filter(Boolean).join(" ");
+  const task = wordsOf(text), directed = directionsIn(text);
   const tagged = names.map((n) => ({ n, t: [...new Set((CARDS[n].tags ?? "").split(/\s+/).filter(Boolean).map(stem))] }));
   const df = new Map();
   for (const d of tagged) for (const w of d.t) df.set(w, (df.get(w) ?? 0) + 1);
   return tagged.map((d) => { const shared = d.t.filter((w) => task.has(w)); return { name: d.n, score: shared.reduce((a, w) => a + 1 / df.get(w), 0), words: shared }; })
-    .filter((c) => c.score >= CARD_RELEVANCE_FLOOR).sort((a, b) => b.score - a.score);
+    .filter((c) => c.score >= CARD_RELEVANCE_FLOOR)
+    .filter((c) => { const [from, to] = (CARDS[c.name].converts ?? "").split(" ").map(stem); if (!to) return true; const d = directed(from, to); return !(d.backward && !d.forward); })
+    .sort((a, b) => b.score - a.score);
 }

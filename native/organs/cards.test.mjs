@@ -154,3 +154,25 @@ test("a name a model INVENTS for an operation resolves to the one card it means:
   assert.equal(resolveCard("degrees").real, "radiansToDegrees"); assert.match(resolveCard("radians").basis, /Python math\.radians/); assert.equal(resolveCard("radians").tier, 0);
   assert.equal(resolveCard("angle").resolved, false, "a name no library gives to one of them stays unresolved");
 });
+
+test("a conversion the task DIRECTS is offered one way: 'Celsius to Fahrenheit' offers celsiusToFahrenheit, not its inverse (shown both, a small model composed both); an undirected or two-way task keeps both", () => {
+  const names = (t) => cardsFor(task(t)).map((c) => c.name);
+  assert.deepEqual(names("Converts degrees Celsius to degrees Fahrenheit."), ["celsiusToFahrenheit"]);
+  assert.deepEqual(names("Converts degrees Fahrenheit to degrees Celsius."), ["fahrenheitToCelsius"]);
+  assert.deepEqual(names("Turn a Celsius reading into Fahrenheit."), ["celsiusToFahrenheit"]);
+  assert.deepEqual(names("temperature: celsius -> fahrenheit"), ["celsiusToFahrenheit"]);
+  assert.deepEqual(names("convert the temperature from Fahrenheit to Celsius").sort(), ["fahrenheitToCelsius"]);
+  assert.deepEqual(names("the temperature in Celsius and Fahrenheit").sort(), ["celsiusToFahrenheit", "fahrenheitToCelsius"], "no connector: the task does not say which way");
+  assert.deepEqual(names("convert Celsius to Fahrenheit and Fahrenheit to Celsius").sort(), ["celsiusToFahrenheit", "fahrenheitToCelsius"], "both ways named: both offered");
+  assert.ok(names("convert a bearing: degrees to radians, for the trigonometry").includes("degreesToRadians") && !names("convert a bearing: degrees to radians, for the trigonometry").includes("radiansToDegrees"));
+});
+
+test("a direction is read inside one clause: `rounded to one decimal, miles = ...` is not 'kilometres to miles' (a comma ends the window), so flightLeg still offers both distance directions", () => {
+  const leg = task("Turn two airports into one flight leg.", "km = the great-circle distance in kilometres rounded to one decimal, miles = that same distance in statute miles rounded to one decimal");
+  const got = cardsFor(leg).map((c) => c.name);
+  assert.ok(got.includes("kmToMiles") && got.includes("milesToKm"), got.join());
+});
+
+test("every card that declares what it converts names two words, and each is one of its own tags", () => {
+  for (const n of CARD_NAMES.filter((n) => CARDS[n].converts)) { const [a, b] = CARDS[n].converts.split(" "), tags = CARDS[n].tags.split(/\s+/); assert.ok(a && b && tags.includes(a) && tags.includes(b), n); }
+});
