@@ -1,0 +1,15 @@
+11f5c5f14d67e3e5df2e3fdf4bec48766cee8098
+ M native/organs/cultivating.js
+ M native/organs/stances.test.mjs
+ M native/the-fold/find-samples.mjs
+ M native/the-fold/sample-contract.mjs
+ M proxy-runner.mjs
+3a8960098a60102f proxy-runner.mjs
+194fcef458bde977 native/organs/app-door.js
+d48e9131008fe075 native/the-fold/app-generic.mjs
+11ad3c5f17152e38 native/the-fold/find-samples.mjs
+4c5db42905fbdc48 native/the-fold/sample-contract.mjs
+6efb840e9a100dd2 native/organs/tracing.js
+4baad3908eb143f2 native/organs/cultivating.js
+0ed83f3ad80eb19c native/organs/unraveling.js
+3a4c3fddb05b6ad0 native/the-fold/app-packs.mjs

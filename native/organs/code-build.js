@@ -14,8 +14,15 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import vm from "node:vm";
 import { execSync } from "node:child_process";
 import { validatePython, validateHtml } from "../../postprocess.mjs";
+import { CARD_NAMES, cardsFor, cardsDoc, cardSource, mentions } from "./cards.js";
+import { canonicalize, adoptIf, jsUnitEnd } from "./code-canonical.js";
+import { proposeCanonical, readAnchorLog, appendAnchorLog } from "../adapters/build/code-anchor-log.js";
+import { unravel } from "./unraveling.js";
+import { sampleBlock, hardcodedFrom } from "./sample-ground.js";
+import { leavesOf } from "./tracing.js";
 
 const OLLAMA = process.env.ER7_OLLAMA_URL ?? "http://localhost:11434";
 
@@ -62,47 +69,149 @@ async function pool(items, limit, fn) {
   return out;
 }
 
-async function draw(model, prompt, { maxTokens = 220, timeoutMs = 90000 } = {}) {
-  const r = await fetch(`${OLLAMA}/api/generate`, {
+/** What the task's own words say the language is: "js", "py", or null when it does not say. The cards are JavaScript, so they are only offered to a task that asks for it. */
+export function taskLanguage(task) {
+  const t = String(task ?? "");
+  const js = /\b(javascript|typescript|node(?:\.?js)?|ecmascript|js)\b|\.m?js\b|=>/i.test(t);
+  const py = /\b(python|py|pytest)\b|\.py\b|\bdef\s+\w+\s*\(/i.test(t);
+  return js && !py ? "js" : py && !js ? "py" : null;
+}
+
+const looksJs = (code) => /\b(function|=>|const |let |require\(|export )/.test(code) && !/^\s*def |^\s*import |^\s*from /m.test(code);
+const parses = (code) => { try { new vm.Script(String(code).replace(/^\s*export\s+(?:default\s+)?/, "")); return true; } catch { return false; } };
+
+/** Calls the host environment provides, so a call to one is not "a name nothing declares" (cards.js GLOBALS holds the language's own; these are the platform's). */
+const ENVIRONMENT_CALLS = new Set(["require", "fetch", "setTimeout", "setInterval", "clearTimeout", "clearInterval", "queueMicrotask", "structuredClone", "Buffer", "URL", "URLSearchParams", "TextEncoder", "TextDecoder", "AbortController", "atob", "btoa", "alert", "prompt", "confirm", "readFileSync", "writeFileSync", "test", "describe", "it", "expect", "assert"]);
+
+/** The part of the task that describes ONE unit: from where its name is called out to where the next unit's is (or the end). A unit is offered the operations ITS words name, not the whole file's. */
+export function clauseOf(task, units, i) {
+  const t = String(task ?? ""), at = t.indexOf(`${units[i].name}(`);
+  if (at < 0) return t;
+  const ends = units.map((u) => t.indexOf(`${u.name}(`)).filter((j) => j > at);
+  return t.slice(at, ends.length ? Math.min(...ends) : t.length);
+}
+
+/** The one-unit prompt. A JavaScript task is shown the operations its own words name (cards.js cardsFor): the model CALLS them instead of re-deriving them. */
+export function unitPrompt(task, name, offered = [], sample = null) {
+  const base = `Write ONLY raw code (no prose, no markdown fences) for EXACTLY ONE function, named \`${name}\` — do NOT output any other function. It is one unit of this file: ${task}\nOutput only the single function \`${name}\`. Assume each function takes a string argument.`;
+  const withCards = offered.length ? `${base}\nThese functions already exist — call them, do not write them yourself, and do not declare them:\n${cardsDoc(offered)}` : base;
+  // a REAL response, fetched by Cultivating and traced by Tracing (organs/sample-ground.js): shown so the unit reads the keys that exist, never written by the model or by a person
+  return sample ? `${withCards}\nA real response from the service, fetched just now (read it by its keys; do not copy its values into the code):\n${sample.text}` : withCards;
+}
+
+/** run one JS unit on the real sample in an empty context: -> { returned, from } (the sample address its value sits at, or null when computed) | { threw } */
+export function runOnSample(code, name, sample) {
+  let doc; try { doc = JSON.parse(sample.bytes); } catch { return { skipped: "the sample is not JSON" }; }
+  try {
+    const ctx = vm.createContext({}); vm.runInContext(`${code}\n;globalThis.__out = typeof ${name} === "function" ? ${name}(JSON.parse(__doc)) : undefined;`, Object.assign(ctx, { __doc: JSON.stringify(doc) }), { timeout: 1000 });
+    const returned = ctx.__out, hit = returned === undefined ? null : leavesOf(doc).find((l) => l.value === returned && returned !== null);
+    return { returned: typeof returned === "object" ? "[object]" : returned, from: hit?.path ?? null };
+  } catch (e) { return { threw: String(e.message).slice(0, 120) }; }
+}
+
+/** which units a unit's own clause names: the dependency graph of the plan, cut at its seams (Unraveling). Units that name each other are one part; the rest are independent. Disclosure, never a deferral — canonicalize already allows a unit to call its siblings. */
+export function unitCoupling(task, units) {
+  const names = units.map((u) => u.name), edges = [];
+  units.forEach((u, i) => { const clause = clauseOf(task, units, i); names.forEach((n, j) => { if (j > i && new RegExp(`\\b${n}\\b`).test(clause.slice(u.name.length))) edges.push([u.name, n]); if (j < i && new RegExp(`\\b${n}\\b`).test(clause.slice(u.name.length))) edges.push([n, u.name]); }); });
+  const uniq = edges.filter((e, i) => edges.findIndex((x) => x[0] === e[0] && x[1] === e[1]) === i);
+  return unravel(names, uniq);
+}
+
+/** a draw against one model server: the runner's own door passes its private daemon address, a bare caller gets the conventional one */
+export const makeDraw = (base = OLLAMA) => async function draw(model, prompt, { maxTokens = 220, timeoutMs = 90000 } = {}) {
+  const r = await fetch(`${base}/api/generate`, {
     method: "POST", headers: { "content-type": "application/json" },
     body: JSON.stringify({ model, prompt, stream: false, options: { num_predict: maxTokens, temperature: 0 } /* no num_ctx: the server owns the one window (2026-09-21 post-mortem) */ }),
     signal: AbortSignal.timeout(timeoutMs),
   });
   const j = await r.json();
-  return { text: j.response ?? "", tokens: (j.prompt_eval_count ?? 0) + (j.eval_count ?? 0) };
-}
+  return { text: j.response ?? "", tokens: (j.prompt_eval_count ?? 0) + (j.eval_count ?? 0), truncated: j.done_reason === "length" };
+};
+const draw = makeDraw();
 
 const clean = (txt) => {
   const t = String(txt ?? "").replace(/```[a-z]*/gi, "");
   const m = /(?:def |function |const |class )[\s\S]*/.exec(t);
   return (m ? m[0] : t).trim();
 };
-// Keep EXACTLY the unit named — split on definition boundaries and take the
-// chunk whose own name matches (the model often emits every function it sees).
-function extractUnit(text, name) {
+// Keep EXACTLY the unit named (the model often emits every function it sees). The END of a unit is where its own body ends — braces for
+// JavaScript, indentation for Python — never "the next line that starts with const": a body is full of lines that do, and splitting there shipped
+// every JavaScript unit with a local variable cut off at its first one (measured 2026-10-01: windLabel and legMiles came back as a bare signature).
+const indentOf = (line) => line.match(/^[ \t]*/)[0].replace(/\t/g, "    ").length;
+export function extractUnit(text, name) {
   const t = String(text ?? "").replace(/```[a-z]*/gi, "");
   const esc = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const chunks = t.split(/\n(?=[ \t]*(?:def|async def|function|const|let|var|class)[ \t])/);
-  const head = new RegExp(`^[ \\t]*(?:async[ \\t]+)?def[ \\t]+${esc}[ \\t]*\\(`);
-  const jshead = new RegExp(`^[ \\t]*(?:function[ \\t]+${esc}[ \\t]*\\(|(?:const|let|var)[ \\t]+${esc}[ \\t]*=)`);
-  const hit = chunks.find((c) => head.test(c) || jshead.test(c));
-  return (hit || "").trim();
+  const pyHead = new RegExp(`^[ \\t]*(?:async[ \\t]+)?def[ \\t]+${esc}[ \\t]*\\(`);
+  const jsHead = new RegExp(`^[ \\t]*(?:(?:export[ \\t]+)?(?:async[ \\t]+)?function[ \\t]*\\*?[ \\t]*${esc}[ \\t]*\\(|(?:export[ \\t]+)?(?:const|let|var)[ \\t]+${esc}[ \\t]*=)`);
+  const lines = t.split("\n");
+  const at = lines.findIndex((l) => pyHead.test(l) || jsHead.test(l));
+  if (at < 0) return "";
+  if (pyHead.test(lines[at])) {
+    const base = indentOf(lines[at]);
+    let end = at + 1;
+    while (end < lines.length && (lines[end].trim() === "" || indentOf(lines[end]) > base)) end++;
+    return lines.slice(at, end).join("\n").trim();
+  }
+  const from = lines.slice(0, at).reduce((n, l) => n + l.length + 1, 0);
+  return t.slice(from, jsUnitEnd(t, from)).trim();
 }
 
 /** Build the file the NL task named: decompose → concurrent draws → assemble →
  *  validate. `testCommand` (optional) is the gate; without it the assembled
- *  file is written and disclosed as UNVERIFIED (never dressed as tested). */
-export async function buildCodeTask({ task, model, testCommand = null, out = null, parallelism = 2 } = {}) {
+ *  file is written and disclosed as UNVERIFIED (never dressed as tested).
+ *  `read: false` is the falsification control: no operations offered, no canonical stage. */
+export async function buildCodeTask({ task, model, testCommand = null, out = null, parallelism = 2, drawFn = draw, anchorDir = null, read = true, samples = null } = {}) {
   const started = Date.now();
   const units = planUnits(task);
   if (!units.length) return { ok: false, error: "no independent units found in the task — not a discrete build (defer to the normal turn)" };
-  const draws = await pool(units, parallelism, (u) =>
-    draw(model, `Write ONLY raw code (no prose, no markdown fences) for EXACTLY ONE function, named \`${u.name}\` — do NOT output any other function. It is one unit of this file: ${task}\nOutput only the single function \`${u.name}\`. Assume each function takes a string argument.`));
-  const parts = draws.map((d, i) => extractUnit(d?.text || "", units[i].name)).filter(Boolean);
-  const code = parts.join("\n\n") + "\n";
-  const looksJs = /\b(function|=>|const |let |require\(|export )/.test(code) && !/^\s*def |^\s*import |^\s*from /m.test(code);
+  const unitNames = units.map((u) => u.name);
+  const sample = samples?.length ? sampleBlock(samples) : null, coupling = unitCoupling(task, units);
+  // the operations the task's own words name (JavaScript tasks only), never one the file itself is asked to define
+  const js = read && taskLanguage(task) === "js";
+  const offeredFor = (i) => (js ? cardsFor({ doc: clauseOf(task, units, i) }).map((c) => c.name).filter((n) => !unitNames.includes(n)) : []);
+  const offered = [...new Set(units.flatMap((_, i) => offeredFor(i)))];
+  // A draw the server cut off at its token cap is not a different answer, it is half of one: that unit is asked again ONCE with twice the room (and named if it is cut again).
+  const ask = async (u, i) => {
+    let d = await drawFn(model, unitPrompt(task, u.name, offeredFor(i), sample));
+    if (d?.truncated) { const again = await drawFn(model, unitPrompt(task, u.name, offeredFor(i), sample), { maxTokens: 440 }); d = { ...again, tokens: (d.tokens || 0) + (again?.tokens || 0), retried: true }; }
+    return d;
+  };
+  const draws = await pool(units, parallelism, ask);
+  // A draw is a SUGGESTION. What it means is read, resolved against what really exists (the card library; the file's own units), and the
+  // reading is recorded as typed transformations (code-canonical.js). Adopted only where the code still parses: a rewrite that breaks it is refused.
+  const cardPool = CARD_NAMES.filter((n) => !unitNames.includes(n));
+  const transformations = [], unresolved = [], ambiguous = [], sampleRuns = [];
+  const parts = draws.map((d, i) => {
+    const raw = extractUnit(d?.text || "", units[i].name);
+    if (!read || !raw || !looksJs(raw)) return raw; // read:false is the control arm — the draw is shipped as said, which is what this door did before it read anything
+    const can = canonicalize(raw, { cardNames: cardPool, declared: unitNames.filter((n) => n !== units[i].name), offered: offeredFor(i) });
+    const adopted = can.changed && adoptIf(parses(raw) ? 1 : 0, parses(can.code) ? 1 : 0);
+    const code = adopted ? can.code : raw;
+    if (adopted) for (const t of can.transformations) transformations.push({ unit: units[i].name, ...t });
+    if (samples?.length && looksJs(code)) { // the unit is RUN on the real sample: its answer must not throw, and where it returns a value of the sample, the address it came from is recorded (Tracing)
+      const r = runOnSample(code, units[i].name, samples[0]);
+      sampleRuns.push({ unit: units[i].name, ...r });
+      if (r.threw) unresolved.push({ unit: units[i].name, kind: "threw_on_sample", name: `run on the fetched sample it threw: ${r.threw}` });
+    }
+    if (samples?.length) for (const h of hardcodedFrom(code, samples)) unresolved.push({ unit: units[i].name, kind: "hardcoded_sample_value", name: `the unit writes ${JSON.stringify(h.literal)}, a value found in the fetched sample at ${h.path}: it should read it, not carry it` });
+    if (draws[i]?.truncated) unresolved.push({ unit: units[i].name, kind: "truncated", name: "the draw was cut off at the token cap, twice" });
+    else if (!parses(code)) unresolved.push({ unit: units[i].name, kind: "does_not_parse", name: "the unit does not parse" });
+    for (const f of can.findings) {
+      if (f.kind === "unresolved_call" && ENVIRONMENT_CALLS.has(f.name)) continue;
+      (f.kind === "ambiguous_call" ? ambiguous : unresolved).push({ unit: units[i].name, ...f });
+    }
+    if (anchorDir) { // the record outlives the run: what was suggested, what was read of it, what stands
+      const file = path.join(anchorDir, `${units[i].name}.jsonl`), log = readAnchorLog(file), before = log.entries.length;
+      appendAnchorLog(file, proposeCanonical(log, { anchor: units[i].name, round: before, writer: model, suggestion: raw, canonical: { ...can, code } }), before);
+    }
+    return code;
+  }).filter(Boolean);
+  // the file carries the operations it calls, verbatim, once: a unit that names a card is whole without asking the reader for a library
+  const used = CARD_NAMES.filter((n) => !unitNames.includes(n) && parts.some((p) => mentions(p, n)));
+  const code = (used.length ? `// the operations below are written and checked once (organs/cards.js); the units call them\n${cardSource(used)}\n\n` : "") + parts.join("\n\n") + "\n";
+  const looksJsFile = /\b(function|=>|const |let |require\(|export )/.test(code) && !/^\s*def |^\s*import |^\s*from /m.test(code);
   const looksPy = /^\s*(def |import |from |class )/m.test(code);
-  const ext = looksJs ? "js" : "py";
+  const ext = looksJsFile ? "js" : "py";
   const target = out || path.join(os.tmpdir(), `er7-build-${Date.now()}.${ext}`);
   let written = null, verified = null, verifyError = null;
   try { fs.writeFileSync(target, code); written = target; } catch (e) { verifyError = e.message; }
@@ -136,9 +245,29 @@ export async function buildCodeTask({ task, model, testCommand = null, out = nul
     ok: true, kind: "mechanical-code-build", units: units.map((u) => u.name),
     draws: parts.length, tokens, wallMs: Date.now() - started, out: written,
     verified, verifyError, code,
+    // what the suggestion was read as: the operations offered and called, the typed rewrites made, and what nothing in the file declares
+    canonical: { offered, cards: used, transformations, unresolved, ambiguous },
+    unraveled: { status: coupling.status, parts: coupling.parts, seams: coupling.seams }, sample: sample ? { id: sample.id, shown: sample.text.length, ran: sampleRuns } : null,
     disclosure: {
       giver: "heimdall", standing: "disclosed",
       rule: "a discrete multi-unit coding task is DECOMPOSED into independent units, each drawn from the model CONCURRENTLY (bounded by parallelism), then ASSEMBLED and VALIDATED mechanically — the structure is computed, only the units are generated, and the test (not the prose) decides. No testCommand ⇒ written and disclosed as UNVERIFIED.",
     },
   };
+}
+
+/** What a finished build says, in plain words: how it was built, whether anything checked it, what the reading of the drafts did, and what is still unsettled. Pure. */
+export function describeBuild(b) {
+  const checked = b.verified === true ? "the test you gave passed"
+    : typeof b.verified === "string" && b.verified.startsWith("validated") ? b.verified
+    : b.verified === "syntax_only" ? "it parses; no test was given, so nothing has run it"
+    : `verification failed${b.verifyError ? `: ${b.verifyError}` : ""}`;
+  const lines = [`Built ${b.units.length} unit(s) — ${b.units.join(", ")} — drawn independently (${b.tokens} tokens, ${Math.round(b.wallMs / 1000)}s); ${checked}.`];
+  const c = b.canonical ?? {};
+  for (const t of c.transformations ?? []) lines.push(`Read ${t.unit}: ${t.kind === "const_to_let" ? `\`${t.name}\` is assigned again, so it is a \`let\`` : t.kind === "redeclared_to_assignment" || t.kind === "card_shadow_dropped" ? `${t.basis}` : `\`${t.from}\` is \`${t.to}\` (${t.basis})`}.`);
+  if ((c.cards ?? []).length) lines.push(`The file carries ${c.cards.join(", ")}, written and checked once, because the units call them.`);
+  for (const f of c.unresolved ?? []) lines.push(f.kind === "truncated" || f.kind === "does_not_parse" || f.kind === "hardcoded_sample_value" || f.kind === "threw_on_sample" ? `${f.unit}: ${f.name}.` : f.kind === "unresolved_name" ? `${f.unit} returns \`${f.name}\`, which nothing in the unit declares.` : `${f.unit} calls \`${f.name}\`, which nothing in the file declares.`);
+  if (b.sample?.ran?.length) lines.push(`Run on a real response fetched for this (${b.sample.id.split("?")[0]}): ${b.sample.ran.map((r) => r.threw ? `${r.unit} threw (${r.threw})` : r.skipped ? `${r.unit} skipped (${r.skipped})` : `${r.unit} returned ${JSON.stringify(r.returned)}${r.from ? ` — found in the response at ${r.from}` : " — computed, not found in it"}`).join("; ")}.`);
+  for (const f of c.ambiguous ?? []) lines.push(`${f.unit} calls \`${f.name}\`, which could be ${f.candidates.join(" or ")} — left as written.`);
+  const lang = /^\s*(def |import |from )/m.test(b.code) ? "python" : "js";
+  return `${lines.join("\n")}\n\n\`\`\`${lang}\n${b.code.trimEnd()}\n\`\`\``;
 }

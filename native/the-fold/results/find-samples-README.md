@@ -1,0 +1,5 @@
+# "It has to go find samples" — three prompt-only asks (2026-10-01)
+Same request each time ("find an open no-key air-quality API, fetch one real sample, show the real fields"), to the system's own door, nothing else supplied. Each directory holds request, response, send/receive times and before/after sha256 of the code the door runs (identical every time — nothing was changed during any ask).
+1. `find-samples-ask-*` (web off): answered "no material was provided"; no search.
+2. `find-samples-ask-web-*` (`webConsent: true` on the request): same; no search was attempted.
+3. `find-samples-ask-websearch-*` (proxy restarted with `ER7_WEB_SEARCH=1`, a config switch): it searched, then answered with a documentation URL and a JSON "sample" of round numbers (pm2_5 10, pm10 15, ozone 50…). `attachments.admitted` is 0: no page was fetched or admitted, so the sample is the model's invention shown as a real response. That is the failure to fix: finding a source is not the same as fetching real bytes from it, and nothing checked the shown fields against any fetched bytes.

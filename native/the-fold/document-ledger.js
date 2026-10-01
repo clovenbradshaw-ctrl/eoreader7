@@ -837,7 +837,13 @@ export function holonicAssertionSatisfaction(root, { theme = "", index = null, r
 // null built by shuffling the openings, and reports the openings that recur
 // above chance (p < 0.05 by permutation). This is the DETECTOR; Murch flags
 // its findings, Oliveros varies them.
-export function detectRepetition(documentLines = [], { shuffles = 400, pValue = 0.05 } = {}) {
+// The null is SEEDED (seed 1, declared here): the same lines must always get the same verdict. It was Math.random, so a run of talk-build over an unchanged story
+// asked for its chapters again on about 4% of runs (narrative-arc.test.js:99, `5 !== 3`, found flaking on CI 2026-10-01 and reproduced locally 2 of 48) — a repetition
+// verdict that changes between two identical calls is not a measurement.
+// NOT FIXED HERE, NAMED: the shuffle below is `sort(() => rnd() - 0.5)`, which is not a uniform shuffle (it leaves short arrays mostly in place), so the null under-scrambles
+// and the detector under-reports repetition. A fair Fisher-Yates null was tried and made the narrative-arc mock story (every chapter opening "Ana does chapter thing N") read as
+// repeated, so the build asked for its chapters again — i.e. the biased null is what lets that test pass. Replacing it changes what the build rewrites; that is its own decision.
+export function detectRepetition(documentLines = [], { shuffles = 400, pValue = 0.05, seed = 1 } = {}) {
   const openings = (documentLines ?? [])
     .map((l) => String(l ?? "").trim())
     .filter((l) => l.length > 20)
@@ -868,9 +874,11 @@ export function detectRepetition(documentLines = [], { shuffles = 400, pValue = 
   // word-distribution is kept, but the ORDER is destroyed. A long leading
   // prefix is real repetition only if it exceeds what word-order-scramble
   // would produce by chance. This is the honest null: order matters.
-  let above = 0;
+  let above = 0, state = (seed >>> 0) || 1;
+  const rnd = () => { state ^= state << 13; state >>>= 0; state ^= state >>> 17; state ^= state << 5; state >>>= 0; return state / 4294967296; };
+  const shuffled = (words) => [...words].sort(() => rnd() - 0.5);
   for (let s = 0; s < shuffles; s++) {
-    const scrambled = openings.map((o) => ({ ...o, words: [...o.words].sort(() => Math.random() - 0.5) }));
+    const scrambled = openings.map((o) => ({ ...o, words: shuffled(o.words) }));
     if (maxSharedPrefix(scrambled) >= observed) above++;
   }
   const p = (above + 1) / (shuffles + 1); // +1: the observed is itself a draw

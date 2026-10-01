@@ -22,7 +22,7 @@ let _inflight = 0; // turns currently running — the model watchdog never fires
 // The mechanical code build (2026-09-21): a discrete multi-unit coding task is
 // decomposed, the units drawn CONCURRENTLY, then assembled and validated —
 // triggered by a REGULAR NL PROMPT, not a hand-built harness.
-import { detectBuildTask, buildCodeTask } from "./native/organs/code-build.js";
+import { buildCodeTask } from "./native/organs/code-build.js";
 
 // Structure Search: the plain-language search-term registry and the unified
 // target-resolution modalities (Exact, Pattern/regex, Near-Miss, and four
@@ -68,7 +68,7 @@ import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-
 // and surface-watching run inside this process — one process, no separate
 // steer port, no second checkout to drift. When imported, heimdall.mjs
 // exports its machinery and does not listen or loop on its own.
-import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, contentLog, restartSurface, sampleVitalsNow, backgroundTasks, killTask, warmPressureTest, warmPressureReason, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism, getSurfaces, refreshOllamaModels, surfaceByPort, noteSurfaceActivity, turnScope, servedDisclosure } from "./heimdall.mjs";
+import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, concedeDerivedRule, derivedRuleStore, releaseClaim, isServable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, contentLog, restartSurface, sampleVitalsNow, backgroundTasks, killTask, warmPressureTest, warmPressureReason, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism, getSurfaces, refreshOllamaModels, surfaceByPort, noteSurfaceActivity, turnScope, servedDisclosure } from "./heimdall.mjs";
 import { heldKey, findHeld, holdTurn, heldById, heldReceipt, awaitHeld } from "./held-turns.mjs";
 import { resolveServerKey, channelObserve, channelRefused, pickHost, hostBegin, hostEnd, reconcileModelServers, ledgerEva, ledgerRec, setChannelBound, liveReapIfDue, holdWindow, hopOf, messagesOf, streamAccounting, hostOwnedByPid, slaWaitMs, waiterTtlMs, serveTiersFor, mouthFor, warmSmallMouth, hostByName, onlineMouths, onlineEnabled } from "./heimdall.mjs";
 import { toOpenAIBody, fromOpenAIResponse, sseChunkToOllama, splitSse } from "./native/kernel/online-mouths.js";
@@ -615,6 +615,27 @@ async function handleRequest(req, res) {
     const r = await evictModel(name).catch((err) => ({ ok: false, error: err.message }));
     res.writeHead(r.ok ? 200 : 400, { "content-type": "application/json" });
     res.end(JSON.stringify(r));
+    return;
+  }
+
+  // POST /heimdall/rules/:key/concede — I-retire: concede one derived rule
+  // NOW, with a stated reason. The proteasome's hand-operated lever; mirrors
+  // /heimdall/models/evict above. The rule stays on the record (append-only);
+  // its standing becomes "conceded", and the next recurrence re-derives it
+  // with a fresh clock. The key is "class:probe" (a probe holds a colon).
+  if (req.method === "POST" && req.url.startsWith("/heimdall/rules/") && req.url.endsWith("/concede")) {
+    const inner = req.url.slice("/heimdall/rules/".length, -"/concede".length);
+    let key = "";
+    try { key = decodeURIComponent(inner); } catch { key = inner; }
+    if (!key) { res.writeHead(400, { "content-type": "application/json" }); res.end(JSON.stringify({ ok: false, error: "rule key required" })); return; }
+    let raw = "";
+    for await (const chunk of req) raw += chunk;
+    let parsed = {};
+    try { parsed = JSON.parse(raw || "{}"); } catch { /* malformed */ }
+    const r = concedeDerivedRule(key, { reason: String(parsed.reason || "retired by operator") });
+    if (!r) { res.writeHead(404, { "content-type": "application/json" }); res.end(JSON.stringify({ ok: false, error: `no such derived rule: ${key}` })); return; }
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({ ok: true, key, standing: r.standing, concededAt: r.concededAt, reason: r.concededReason }));
     return;
   }
 
@@ -1174,27 +1195,6 @@ const job = await startDocumentJob({
         return;
       }
 
-      // A REGULAR NL PROMPT that names a discrete multi-unit coding task is
-      // recognized as a mechanical BUILD: compute the structure, draw only the
-      // independent units (concurrently), assemble and validate. Not the model
-      // turn — this shape is code.
-      if (detectBuildTask(task)) {
-        const b = await buildCodeTask({
-          task, model: String(parsed?.model ?? "").trim() || "qwen2.5-coder:1.5b",
-          testCommand: parsed?.testCommand ?? null, out: parsed?.out ?? null, parallelism: currentParallelism(),
-        }).catch((e) => ({ ok: false, error: e.message }));
-        if (b.ok) {
-          log(`ask → BUILD units=${b.units.length} tokens=${b.tokens} wallMs=${b.wallMs} verified=${b.verified}`);
-          res.writeHead(200, { "content-type": "application/json" });
-          res.end(JSON.stringify({
-            answer: `Recognized a discrete build: computed the structure, drew ${b.draws} independent unit(s) concurrently (${b.units.join(", ")}) — ${b.tokens} tokens, ${b.wallMs}ms; ${b.verified === true ? "the test passed" : b.verified === "syntax_only" ? "syntax-checked (no test given)" : "VERIFICATION FAILED"}.`,
-            kind: b.kind, units: b.units, draws: b.draws, tokens: b.tokens, wallMs: b.wallMs, verified: b.verified, verifyError: b.verifyError,
-            code: b.code, disclosure: b.disclosure,
-          }));
-          return;
-        }
-        // not a discrete build after all → fall through to the normal turn
-      }
       // Same default the /v1/documents job uses — one literal, not a second
       // magic constant for the same choice.
       const model = String(parsed?.model ?? "").trim() || pickDefaultModel();
@@ -1308,6 +1308,8 @@ const job = await startDocumentJob({
             caller: callerFromRequest(req, "ask", parsed),
             webConsent: parsed?.webConsent === true || parsed?.webConsent === "true",
             seed: parsed?.seed != null ? String(parsed.seed) : null,
+            // the build is a door of THIS turn (proxy-runner.mjs): the plain doorway lets the task's own words decide; { door: "build" } asks for it, { door: "chat" } declines it
+            door: parsed?.door === "build" || parsed?.door === "chat" ? parsed.door : "auto",
           }, (chunk) => {
             // every generated chunk rides the live sink so the watch surface can
             // show the actual text as it is written (monitor-only; never stored).
@@ -2484,7 +2486,7 @@ function releaseDriverLock() {
 // Every call is measured per server. Read-only management routes pass to the
 // local daemon. Nothing else is served — the same default-deny as the proxy.
 const CHANNEL_ANSWER_ROUTES = new Set(["/api/chat", "/api/generate", "/api/embed", "/api/embeddings", "/v1/chat/completions", "/v1/completions", "/v1/embeddings"]);
-const CHANNEL_READ_ROUTES = new Set(["/api/tags", "/api/ps", "/api/version", "/api/show", "/v1/models"]);
+const CHANNEL_READ_ROUTES = new Set(["/", "/api/tags", "/api/ps", "/api/version", "/api/show", "/v1/models"]);
 const CHANNEL_ID = `heimdall:${CHANNEL_PORT}`;
 const channelServers = [];
 function channelJson(res, status, obj, extra = {}) {
@@ -2642,7 +2644,7 @@ async function handleChannel(req, res) {
   }
   if (req.method === "OPTIONS") {
     if (pageOrigin) {
-      res.setHeader("access-control-allow-methods", "GET, POST, OPTIONS");
+      res.setHeader("access-control-allow-methods", "GET, HEAD, POST, OPTIONS");
       res.setHeader("access-control-allow-headers", String(req.headers["access-control-request-headers"] || "content-type"));
     }
     res.writeHead(204);
@@ -2659,12 +2661,16 @@ async function handleChannel(req, res) {
     return channelJson(res, 200, revisionReceipt(e));
   }
   const isAnswer = req.method === "POST" && CHANNEL_ANSWER_ROUTES.has(pathname);
-  const isRead = CHANNEL_READ_ROUTES.has(pathname) && (req.method === "GET" || req.method === "POST");
+  // HEAD rides the read routes (2026-09-29): the ollama client's liveness
+  // probe is HEAD / — the channel used to default-deny it and the standard
+  // `ollama run` died before its first /api/chat. An answer route is never
+  // HEAD-able; the probe that touches it is refused, not answered.
+  const isRead = CHANNEL_READ_ROUTES.has(pathname) && (req.method === "GET" || req.method === "POST" || req.method === "HEAD");
   if (!isAnswer && !isRead) return channelJson(res, 404, { error: `no such route on the channel: ${req.method} ${pathname}`, type: "unserved_path", path: pathname, method: req.method });
   const raw = await channelReadBody(req).catch(() => Buffer.alloc(0));
   if (isRead) {
     try {
-      const up = await fetch(`${MODEL_SERVER_URL}${req.url}`, { method: req.method, headers: { "content-type": req.headers["content-type"] || "application/json" }, body: req.method === "GET" ? undefined : raw, signal: AbortSignal.timeout(10000) });
+      const up = await fetch(`${MODEL_SERVER_URL}${req.url}`, { method: req.method, headers: { "content-type": req.headers["content-type"] || "application/json" }, body: req.method === "GET" || req.method === "HEAD" ? undefined : raw, signal: AbortSignal.timeout(10000) });
       res.writeHead(up.status, { "content-type": up.headers.get("content-type") || "application/json", "x-heimdall-channel": CHANNEL_ID });
       if (!up.body) return res.end();
       for await (const chunk of up.body) res.write(chunk);
@@ -2839,7 +2845,40 @@ async function handleChannel(req, res) {
     // fetch's body yields Uint8Arrays, whose toString() is "104,101,…" — decode
     // through a Buffer or the tail is digits and the accounting reads zero
     // (measured 22:56: the body carried prompt_eval_count 36, the ledger 0).
-    if (up.body) for await (const chunk of up.body) { res.write(chunk); tail = (tail + Buffer.from(chunk).toString("utf8")).slice(-4096); }
+    if (up.body && !served) {
+      for await (const chunk of up.body) { res.write(chunk); tail = (tail + Buffer.from(chunk).toString("utf8")).slice(-4096); }
+    } else if (up.body && served) {
+      // A SUBSTITUTE TURN IS STAMPED IN THE BODY, NOT ONLY THE HEADERS
+      // (2026-09-29): the ladder's stand-in used to be a quiet wrong-model
+      // answer — the wire body said `"model":"gemma2:2b"` while the caller
+      // had asked for something else, and the disclosure lived in headers
+      // the average ollama client never reads. Buffered (a provisional
+      // answer is a placeholder by definition; first-token latency is not
+      // the promise it makes) and the stream's LAST object carries the
+      // truth. Non-JSON bodies (SSE, plain) pass through untouched.
+      const buf = [];
+      for await (const chunk of up.body) buf.push(Buffer.from(chunk));
+      let text = Buffer.concat(buf).toString("utf8");
+      const lines = text.split("\n");
+      for (let i = lines.length - 1; i >= 0; i--) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        try {
+          const obj = JSON.parse(line);
+          if (obj && typeof obj === "object") {
+            obj.provisional = true;
+            obj.served_by = served.model;
+            obj.revisable_by = model;
+            if (out["x-heimdall-revision-id"]) obj.revision_id = out["x-heimdall-revision-id"];
+            lines[i] = JSON.stringify(obj);
+            text = lines.join("\n");
+          }
+        } catch { /* not a JSON line — pass the body through untouched */ }
+        break;
+      }
+      res.write(text);
+      tail = text.slice(-4096);
+    }
     res.end();
     ok = up.ok;
   } catch (e) {

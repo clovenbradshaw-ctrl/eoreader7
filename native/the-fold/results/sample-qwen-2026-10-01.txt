@@ -1,0 +1,18 @@
+task           role     n  offered                              pass(base/raw/read)   failed-fraction(base/raw/read)   paired read-raw
+busTimes       cards    6  padTime                              0.00 0.00 0.17            0.75 0.75 0.63            0.13 (1 rewritten)
+flightLeg      cards+keys6  joinPresent,kmToMiles,milesToKm,haversineKm,roundTo0.00 0.00 0.00            1.00 1.00 1.00            0.00 (0 rewritten)
+bedReport      keys     6  - (same prompt)                      0.00 0.00 0.00            1.00 1.00 1.00            0.00 (0 rewritten)
+orderTotal     cards    6  roundTo,parseMoney                   0.00 0.50 1.00            0.70 0.40 0.00            0.40 (6 rewritten)
+topAuthors     control  6  - (same prompt)                      1.00 1.00 1.00            0.00 0.00 0.00            0.00 (0 rewritten)
+dueSoon        cards    6  daysBetween                          0.00 0.00 0.00            0.80 0.40 0.40            0.00 (0 rewritten)
+wordStats      cards    6  roundTo,splitWords                   0.00 0.00 0.00            0.80 1.00 1.00            0.00 (6 rewritten)
+cartTotal      cards    6  parseMoney,roundTo                   0.00 0.00 0.00            1.00 0.70 0.70            0.00 (0 rewritten)
+overdueReport  cards    6  daysBetween                          0.00 0.00 0.00            0.80 0.80 0.80            0.00 (0 rewritten)
+readingTime    cards    6  splitWords                           0.00 0.00 0.00            1.00 1.00 1.00            0.00 (0 rewritten)
+groupTags      control  6  - (same prompt)                      0.17 0.00 0.00            0.17 0.20 0.20            0.00 (0 rewritten)
+flattenTree    control  6  - (same prompt)                      0.00 0.00 0.00            1.00 1.00 1.00            0.00 (0 rewritten)
+
+offered prompt+wall vs base (pass rate)                            0.03  [95% -0.04, 0.13] over 12 tasks
+offered prompt+wall vs base (failed fraction, lower is better)     0.06  [95% -0.03, 0.16] over 12 tasks
+canonical reading vs raw, SAME draws (failed fraction)             0.04  [95% 0.00, 0.12] over 12 tasks
+everything (read) vs base (pass rate)                              0.08  [95% -0.03, 0.26] over 12 tasks

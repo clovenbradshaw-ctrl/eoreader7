@@ -437,6 +437,21 @@ export function looksLikeShell(text = "") {
   return /(?:couldn'?t\s+load|required part of this site|disable (?:any )?ad blockers|enable javascript|checking your browser|content not available|something went wrong|an error occurred|enable js|browser settings)/i.test(t);
 }
 
+/**
+ * THE ONE DESCRIPTION OF HOW TO ASK DUCKDUCKGO, in the order to try. Measured 2026-10-01 from the sandbox: the GET faces (html and lite) answered a burst with the
+ * bot-challenge page on every try that connected (7 of 7, two user-agents); a POST to lite returned ten parsed results on every try that connected. So the default is
+ * lite by POST and the GETs are the fall-through. Pure: returns what to send, never sends it. -> { id, url, init:{method, headers, body?} }
+ */
+export const SEARCH_FACES = Object.freeze(["lite-post", "html-get", "lite-get"]);
+export function searchRequest(query, face = "lite-post", { userAgent = WEB_UA } = {}) {
+  const q = encodeURIComponent(String(query ?? ""));
+  const base = { "user-agent": userAgent, accept: "text/html,application/xhtml+xml" };
+  if (face === "lite-post") return { id: face, url: "https://lite.duckduckgo.com/lite/", init: { method: "POST", headers: { ...base, "content-type": "application/x-www-form-urlencoded" }, body: `q=${q}` } };
+  if (face === "html-get") return { id: face, url: `https://html.duckduckgo.com/html/?q=${q}`, init: { method: "GET", headers: base } };
+  if (face === "lite-get") return { id: face, url: `https://lite.duckduckgo.com/lite/?q=${q}`, init: { method: "GET", headers: base } };
+  throw new RangeError(`no such search face: ${face}`);
+}
+
 // ── search-result parsing ───────────────────────────────────────────────────
 // DuckDuckGo's two no-key HTML faces (html.duckduckgo.com/html and
 // lite.duckduckgo.com/lite). Both wrap result links in a redirect

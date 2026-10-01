@@ -2,6 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { ingest } from "./native/organs/ingest.js";
 import { analysisDoor, isAnalysis } from "./native/the-fold/surface/notebook-door.mjs";
+import { detectBuildTask, buildCodeTask, makeDraw, describeBuild } from "./native/organs/code-build.js";
+import { detectAppTask, planNeeds, describePlan } from "./native/organs/app-door.js";
+import { needsSample, needOf, traceShown } from "./native/organs/sample-ground.js";
 import { fileURLToPath } from "node:url";
 
 import { createCausalTextPerceiver, textEncounters, surfaceIndex, surfacesIn } from "./native/adapters/text/recursive.js";
@@ -56,6 +59,7 @@ import { answerRecord } from "./native/the-fold/answer-record.js";
 import { groundGate, draftGate, foldGate, tightenGate, arriveGate, chainStrain, measuredInflation, lastSentence as lastSentenceOmni } from "./native/the-fold/spiral-contract.js";
 import { deposit as depositAdmitted, admit as admitCandidate, measureVariance, measureBondNull, claimCore as claimCoreOmni, segmentSentences as segmentSentencesOmni, wordTokens as wordTokensOmni, nameGate as referentNameGate, bond as bondOf } from "./native/the-fold/admission.js";
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, relevantSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy, detectTrajectoryBoredom, holonicSatisfaction, holonTreeFromText, holonicTreeSatisfaction, holonAssertionTree, holonicAssertionSatisfaction, holonLeaves } from "./native/the-fold/document-ledger.js";
+import { createRewriteGate } from "./native/kernel/rewrite-gate.js";
 import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
 import { inventedNameRuns as verifyInventedNameRuns, isMetaSentence as verifyIsMetaSentence } from "./native/the-fold/referent-verify.js";
 import { houdiniExclusivity } from "./native/the-fold/archon-rules.js";
@@ -89,7 +93,7 @@ import { findClaimCycle } from "./native/organs/reasoning-lint.js";
 // Web organ: the pure half of search and page ingestion (extractReadable,
 // parseSearchResults, extractUrls, normalizeUrl). The network egress lives
 // inline below — the proxy is the one sanctioned crossing (P13).
-import { extractReadable, parseSearchResults, extractUrls, normalizeUrl, WEB_SEARCH_MAX_RESULTS, looksLikeShell } from "./native/organs/web.js";
+import { extractReadable, parseSearchResults, extractUrls, normalizeUrl, WEB_SEARCH_MAX_RESULTS, looksLikeShell, searchRequest } from "./native/organs/web.js";
 // The look organ (native/organs/look.js): the native "looking" capacity,
 // ported from the fold's browser-side /visual machinery. CV (OpenCV boxes +
 // per-region OCR) and OCR, a vision-model read, judge + escalation on
@@ -109,7 +113,7 @@ import { matchArchons, archonOf } from "./native/organs/archon-compendium.js";
 import { naturalSizeRuleForTask, authorCorrectionRule } from "./native/organs/correction-rule.js";
 import { voidHolarchy } from "./native/organs/void-holarchy.js";
 import { createShapeRegister, reconsiderShape, repairStaleComposition } from "./native/organs/essay-shape-register.js";
-import { buildClarify, recordRound, foldAnswersFromTask, SCHEMA as CLARIFY_SCHEMA, MAX_ROUNDS as CLARIFY_MAX_ROUNDS } from "./native/organs/build-clarify.js";
+import { buildClarify, recordRound, foldAnswersFromTask, restoreTask, SCHEMA as CLARIFY_SCHEMA, MAX_ROUNDS as CLARIFY_MAX_ROUNDS } from "./native/organs/build-clarify.js";
 // The Charter organ (native/organs/charter.js, Handle: Grotius): governs
 // generation against the Universal Declaration of Human Rights. The gate is
 // ALWAYS armed — the full 516-language UN corpus when it is beside the
@@ -487,20 +491,14 @@ async function voidWebSearchFallback(task, { force = false } = {}) {
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 12000);
-    const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
-    const res = await fetch(searchUrl, { signal: ctrl.signal, headers: { "user-agent": "eoreader7-proxy" } });
+    const sreq = searchRequest(query);
+    const res = await fetch(sreq.url, { ...sreq.init, signal: ctrl.signal, headers: { ...sreq.init.headers, "user-agent": "eoreader7-proxy" } });
     clearTimeout(t);
     if (!res.ok) return null;
     const html = await res.text();
 
-    // Extract result snippets — the short descriptive text DDG shows under each title.
-    const snippets = [];
-    const snippetRe = /<a[^>]*class="[^"]*result__snippet[^"]*"[^>]*>([\s\S]*?)<\/a>/gi;
-    let m;
-    while ((m = snippetRe.exec(html)) && snippets.length < 3) {
-      const s = m[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
-      if (s.length > 20) snippets.push(s);
-    }
+    // Extract result snippets — the short descriptive text DDG shows under each title (read by the organ's parser, which knows both faces).
+    const snippets = parseSearchResults(html).results.map((x) => String(x.snippet ?? "").replace(/\s+/g, " ").trim()).filter((s) => s.length > 20).slice(0, 3);
     // No snippets found — the web itself has nothing on this entity.
     // Return a typed void rather than null so the call site can express it.
     if (!snippets.length) return { found: false, query };
@@ -980,12 +978,12 @@ class T(HTMLParser):
 async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "gather", maxPages = WEB_MAX_PAGES, webConsent = false } = {}) {
   if ((!WEB_SEARCH_ON && !webConsent) || !query.trim()) return { searched: false, pages: 0, chars: 0 };
   const started = Date.now();
-  const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+  const sreq = searchRequest(query);
   let searchHtml;
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 20000);
-    const res = await fetch(searchUrl, { signal: ctrl.signal, headers: { "user-agent": "the-fold-explore/0.1 (local research instrument; one page per explicit request)" } });
+    const res = await fetch(sreq.url, { ...sreq.init, signal: ctrl.signal });
     clearTimeout(t);
     if (!res.ok) throw new Error(`search ${res.status}`);
     searchHtml = await res.text();
@@ -993,21 +991,11 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
     if (onNote) onNote({ move: "web_error", detail: err.message });
     return { searched: true, pages: 0, chars: 0, error: err.message };
   }
-  // Minimal search result parsing: extract links and snippets from DDG HTML.
-  const results = [];
-  const seen = new Set();
-  const re = /<a[^>]*class="[^"]*result__a[^"]*"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
-  let m;
-  while ((m = re.exec(searchHtml)) && results.length < 12) {
-    let href = m[1];
-    if (/[?&]uddg=([^&]+)/.test(href)) {
-      try { href = decodeURIComponent(href.match(/[?&]uddg=([^&]+)/)[1]); } catch { continue; }
-    }
-    if (!/^https?:\/\//i.test(href) || /duckduckgo\.com\//.test(href)) continue;
-    if (seen.has(href)) continue;
-    seen.add(href);
-    results.push({ url: href, title: m[2].replace(/<[^>]+>/g, "").trim() });
-  }
+  // The results are read by the web organ's own parser (organs/web.js parseSearchResults), which knows BOTH of DuckDuckGo's faces. This used to be a regex keyed to the html face's
+  // `result__a` class, so moving the search to the lite face (POST) read every results page as empty — `web_no_results`, found live 2026-10-01.
+  const parsedSearch = parseSearchResults(searchHtml);
+  const results = parsedSearch.blocked ? [] : parsedSearch.results.filter((x) => /^https?:\/\//i.test(x.url) && !/duckduckgo\.com\//.test(x.url)).slice(0, 12).map((x) => ({ url: x.url, title: x.title, snippet: x.snippet ?? "" }));
+  if (parsedSearch.blocked && onNote) onNote({ move: "web_blocked", detail: "the search face answered with its bot-challenge page" });
   if (!results.length) {
     if (onNote) onNote({ move: "web_no_results" });
     return { searched: true, pages: 0, chars: 0 };
@@ -1855,6 +1843,38 @@ export function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfaced
   ];
   if (VERDICT_RES.some((re) => re.test(t))) {
     return { shape: "verdict", maxTokens: VERDICT_MAX_TOKENS, modality: "brief" };
+  }
+  // DESCRIPTION ASKS OUTRANK THE ARTIFACT (2026-09-29, falsified by the
+  // podcast proof): a task that LEADS with a description verb names the ask
+  // — a READING of material, never a deliverable. Artifact words in the
+  // object name the material, not the output: "Read the podcast app … and
+  // describe … one concrete weakness you can see in the code" was shaped
+  // composition because the trailing noun "code" matched the produce-verb
+  // list AND the register resolved it to instrument — two collisions, one
+  // fix: the leading verb is the true sign, and the register is never
+  // consulted for a description ask. "Write an essay describing X" leads
+  // with "write" and stays composition; "read the spec then build the app"
+  // is a reading-shaped answer by its own first verb — a build leads with
+  // the build verb. The basis rides the shape: provenance of the decision.
+  const DESCRIPTION_RES = /^(?:read|describe|explain|summarize|outline|walk me through|tell me about|show me)\b/i;
+  // A prepositional lead-in ("In the podcast app workspace, describe: …")
+  // is the same ask one clause later — the description verb still names a
+  // reading. The produce-verb guard keeps the artifact asks out: "Write an
+  // essay that describes X" leads with the produce verb and stays
+  // composition; the description verb never outranks a verb that came
+  // FIRST.
+  // The prep-led list carries the SAME verbs as the direct list (2026-09-29:
+  // "in the code, walk me through X" is the same ask one clause later — the
+  // asymmetry that omitted the three phrasal verbs is fixed, not documented).
+  const PREP_LEAD_DESCRIPTION = /^(?:in|for|on|about|regarding|within)\b[\s\S]{0,100}\b(?:read|describe|explain|summarize|outline|walk me through|tell me about|show me)\b/i;
+  const PRODUCE_FIRST = /^\s*(?:please\s+)?(?:write|compose|draft|prepare|generate|produce|make|tell|build|create|implement)\b/i;
+  if (DESCRIPTION_RES.test(t) || (PREP_LEAD_DESCRIPTION.test(t) && !PRODUCE_FIRST.test(t))) {
+    return {
+      shape: hasWorkspace || hasWeb ? "research" : "open",
+      maxTokens: hasWorkspace || hasWeb ? CALL_MAX_TOKENS : 1024,
+      modality: hasWorkspace || hasWeb ? "grounded" : "concise",
+      basis: "description ask outranks the artifact: a leading (or prepositionally-led) read/describe/explain verb names a reading of the material, never a deliverable — the register is not consulted for it",
+    };
   }
   // THE REGISTER (Halliday) — no hardcoded "essay mode". ANY named genre the
   // person asks us to produce enters the staged-artifact pipeline: a story,
@@ -3127,7 +3147,38 @@ const RESOLUTIONS_LEVEL = (() => { const raw = process.env.ER7_RESOLUTIONS; if (
 // creativity may hold tension, never a silent pick. ER7_KELSEN_MODALITY.
 const KELSEN_MODALITY = (() => { const v = Number(process.env.ER7_KELSEN_MODALITY ?? ""); return [0, 0.5, 1].includes(v) ? v : 1; })();
 
-export async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal, stop } = {}) {
+// I-single-grain (2026-09-29): no model call receives material from more
+// than one grain. The audit reads grain declarations — the caller's
+// declared `grain` plus any [grain:X] tags in the prompt bytes — and
+// reports the distinct grains. MEASURE mode (default) notes, never throws:
+// the sequential pipeline is the total-collapse form and would fail a
+// throwing gate on every turn; ER7_GRAIN_AUDIT=enforce throws the typed gap
+// once the pipeline is actually single-grain (Phase 2). The audit never
+// guesses content grains from prose — a heuristic is not a measurement.
+const GRAIN_AUDIT_MODE = (process.env.ER7_GRAIN_AUDIT ?? "measure").toLowerCase() === "enforce" ? "enforce" : "measure";
+const GRAIN_NAMES = ["sentence", "paragraph", "section", "whole"];
+const GRAIN_TAG_RE = /\[grain:(sentence|paragraph|section|whole)\]/gi;
+export function auditSingleGrain(messages = [], { declared = null } = {}) {
+  const grains = [];
+  const take = (g) => { const n = String(g ?? "").toLowerCase(); if (GRAIN_NAMES.includes(n) && !grains.includes(n)) grains.push(n); };
+  take(declared);
+  for (const m of messages ?? []) {
+    const text = typeof m === "string" ? m : m?.content ?? "";
+    if (typeof text !== "string") continue;
+    GRAIN_TAG_RE.lastIndex = 0;
+    let hit;
+    while ((hit = GRAIN_TAG_RE.exec(text)) !== null) take(hit[1]);
+  }
+  return { grains, multi: grains.length > 1 };
+}
+export function grainGate({ grains = [], mode = GRAIN_AUDIT_MODE } = {}) {
+  if (grains.length > 1 && mode === "enforce") {
+    return { ok: false, error: Object.assign(new Error(`multi-grain payload: one model call received material from ${grains.join(" + ")} — I-single-grain allows one grain per call`), { code: "ERR_MULTI_GRAIN", grains: [...grains] }) };
+  }
+  return { ok: true };
+}
+
+export async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal, stop, grain = null } = {}) {
   // ANTIStrauss — the safety-and-ethics gate (native/the-fold/antistrauss.mjs).
   // THIS is the choke point every real model call in the proxy passes
   // through (draw() → runProxyTurn → here). The gate settles a physics
@@ -3140,6 +3191,13 @@ export async function* streamOllamaChat(model, messages, { maxTokens, json, onNo
   if (!gate.allow) {
     throw Object.assign(new Error(gate.reason), { code: "ERR_ANTISTRAUSS_BLOCKED", antistrauss: gate.verdict });
   }
+  // I-single-grain audit — the collapse-distribution backstop, beside the
+  // AntiStrauss gate. Declared grains are noted (the measurement record);
+  // a multi-grain payload throws only in enforce mode, never by default.
+  const grainAudit = auditSingleGrain(messages, { declared: grain });
+  if (grainAudit.grains.length && onNote) { try { onNote({ move: "grain_audit", grains: grainAudit.grains, multi: grainAudit.multi, mode: GRAIN_AUDIT_MODE }); } catch { /* notes never break a turn */ } }
+  const gg = grainGate({ grains: grainAudit.grains });
+  if (!gg.ok) throw gg.error;
   // ── ANTIStrauss OUTPUT GUARD (streaming) ───────────────────────────────
   // Model output is re-scanned BEFORE it reaches the caller: reviewBlock()
   // re-runs the same law classes over what the model actually emitted.
@@ -3815,7 +3873,18 @@ export function notesFromEdges(graphEntries = [], { disputeLog = null } = {}) {
     if (!subject) continue;
     const object = end(parts.length > 1 ? parts[parts.length - 1] : null) ?? "?";
     const disputedBy = disputes?.get(notesLedgerNoteId(subject, e.relation, object))?.map((d) => d.source) ?? [];
-    notes.push({ subject, verb: e.relation, object, end1: subject, end2: object, label: e.relation, witnesses: e.witness ? [e.witness] : [], sources: 1, ...(disputedBy.length ? { disputedBy } : {}) });
+    // THE BYTE ADDRESS RIDES HERE (2026-09-29, the provenance wiring): a full
+    // EOHyperedge@1 carries its absolute byte offset in scope.byteOffset and
+    // its source name in meta.source. The witness is a content hash — edge
+    // identity, never provenance — and scope.offset is sentence-relative,
+    // never a byte address. The legacy `span`/hash paths are fallbacks for
+    // the reduced shape only; when no true address exists the note carries
+    // no span and the holograph renders the typed gap, never a guessed
+    // address.
+    const edgeByte = e?.scope?.byteOffset;
+    const edgeSpan = Number.isFinite(edgeByte) ? { start: edgeByte } : (e.span ?? null);
+    const edgeSource = (typeof e?.meta?.source === "string" && e.meta.source.trim()) ? e.meta.source.trim() : null;
+    notes.push({ subject, verb: e.relation, object, end1: subject, end2: object, label: e.relation, witnesses: e.witness ? [e.witness] : [], sources: 1, ...(disputedBy.length ? { disputedBy } : {}), ...(edgeSpan ? { span: edgeSpan } : {}), ...(edgeSource ? { source: edgeSource } : e.witness ? { source: e.witness } : {}) });
   }
   return notes;
 }
@@ -4194,7 +4263,39 @@ export function openProblemOf(task) {
   return null;
 }
 
-export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null, testCommand = "", drawOnly = false }, onToken, onNote = null, onThinking = null) {
+/**
+ * THE ONE ENTRY every generation door goes through (chat, the build door, the app door). The stances are applied here, once, for all of them:
+ *   CULTIVATING  a task that reads an outside service's data and quotes no sample of it gets a REAL one found and fetched first (find-samples.mjs, a declared budget), when the web is open.
+ *                The bytes are kept content-addressed with the seen-ledger; they ground the turn (admitted as an attachment) and the build door's unit prompts.
+ *   TRACING      every JSON block the answer SHOWS is traced to those bytes (organs/sample-ground.js): grounded, invented, or unpaired. Only DISCLOSED on the result (`mechanical.sampleGround`) —
+ *                the mouth's words are never edited (P186).
+ * No web, no sample need, or a sample already attached: this is the old entry, unchanged.
+ */
+export async function runProxyTurn(args, onToken, onNote = null, onThinking = null) {
+  const { task, door = null, webConsent = false, attachments = [] } = args ?? {};
+  let ground = null;
+  const hasJson = (Array.isArray(attachments) ? attachments : []).some((a) => /^\s*[\[{]/.test(String(a?.text ?? "")));
+  if ((webConsent || WEB_SEARCH_ON) && door !== "chat" && door !== "app" && !(door === "auto" && detectAppTask(task)) && !hasJson && needsSample(task)) {
+    try {
+      const { findSamples } = await import("./native/the-fold/find-samples.mjs");
+      const out = path.join(learnedDir(), "samples", new Date().toISOString().replace(/[:.]/g, "-"));
+      if (onNote) onNote({ move: "sample_ground", note: `this reads an outside service's data and shows no sample of it: going to find a real one (${needOf(task)})` });
+      const f = await findSamples({ need: needOf(task), out, needCount: 1, budget: 6, minNumbers: 1 });
+      if (f.kept.length) ground = { out, kept: f.kept.map((k) => ({ id: k.url, name: path.basename(k.file), sha256: k.sha256, bytes: fs.readFileSync(path.join(out, k.file), "utf8") })), ledger: f.ledger, trace: f.trace };
+      if (onNote) onNote({ move: "sample_ground", note: f.kept.length ? `kept a real sample: ${f.kept[0].url}` : `no sample could be kept (${f.losers.length} refused, ${f.spent} fetched) — nothing will be shown as one` });
+    } catch (e) { if (onNote) onNote({ move: "sample_ground", note: `sample search failed: ${String(e.message).slice(0, 120)}` }); }
+  }
+  const next = ground ? { ...args, groundSamples: ground.kept.map((k) => ({ id: k.id, bytes: k.bytes })), attachments: [...(Array.isArray(attachments) ? attachments : []), ...ground.kept.map((k) => ({ name: `sample-${k.sha256.slice(0, 8)}.json`, text: k.bytes }))] } : args;
+  const result = await runProxyTurnCore(next, onToken, onNote, onThinking);
+  if (result && typeof result === "object" && (ground || needsSample(task))) {
+    const shown = ground ? traceShown(String(result.text ?? ""), ground.kept.map((k) => ({ id: k.id, bytes: k.bytes }))) : [];
+    result.mechanical = { ...(result.mechanical ?? {}), sampleGround: { asked: needsSample(task), found: !!ground, source: ground?.kept?.[0]?.id ?? null, sha256: ground?.kept?.[0]?.sha256 ?? null, ledger: ground?.ledger ?? null, shown: shown.map((x) => ({ verdict: x.verdict, leaves: x.leaves, failures: x.failures.slice(0, 5) })), invented: shown.filter((x) => x.verdict !== "grounded").length } };
+    if (!ground && needsSample(task)) result.disclosed = { ...(result.disclosed ?? {}), sample: "this task reads an outside service's data and no real sample of it was in hand; any example response shown was not fetched" };
+  }
+  return result;
+}
+
+async function runProxyTurnCore({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null, testCommand = "", drawOnly = false, door = null, groundSamples = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   // ── ETHOS FIRST (the ground) ──────────────────────────────────────────────
   // The constitution (Charter/Grotius + the spec gate/Brandeis) produces a
@@ -4408,6 +4509,54 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       quote,
     };
   };
+  // ── THE APP DOOR (native/organs/app-door.js) ───────────────────────────────
+  // "an app that shows the weather and gas prices": the data the person named is planned from their own words, each need quoted and matched to a PACK that can ground it (the-fold/app-packs.mjs). Covered needs are
+  // BUILT (leaves by the cheap species then the local models only, assembled, driven, copy-checked: the-fold/app-build.mjs buildApp); a need no pack grounds is a typed gap quoted from the task. Never a page of
+  // invented content — the prompt-only run that produced one ("Booking.com…") is what this door exists to prevent. `door: "app"` asks for it; `door: "auto"` lets detectAppTask decide.
+  if (door === "app" || (door === "auto" && detectAppTask(task))) {
+    const { PACKS } = await import("./native/the-fold/app-packs.mjs");
+    const plan = planNeeds(task, PACKS);
+    if (plan.needs.length || plan.gaps.length) {
+      if (onNote) onNote({ move: "app_door", note: describePlan(plan) });
+      if (!plan.covered.length && (webConsent || WEB_SEARCH_ON) && plan.gaps.length) {
+        // NO PACK, and the person has opened the web: the generic builder goes and finds real sources (Cultivating), traces every field to their bytes (Tracing), cuts the request at its seams (Unraveling),
+        // assembles and drives the result (the-fold/app-generic.mjs). Without the web door it refuses below, as before — a find is an egress and is never taken silently.
+        const work = path.join(learnedDir(), "apps", new Date().toISOString().replace(/[:.]/g, "-"));
+        const { buildGenericApp } = await import("./native/the-fold/app-generic.mjs");
+        const g = await buildGenericApp({ task, out: work, log: (m) => onNote && onNote({ move: "app_generic", note: m }) }).catch((e) => ({ ok: false, gap: { type: "generic_build_error", detail: e.message } }));
+        const fields = (g.cfg?.sources ?? []).flatMap((x) => x.fields).map((f) => `${f.label} (${f.path})`).join(", "), notBuilt = (g.notBuilt ?? []).map((n) => `${n.need} (${n.why})`).join("; "), rows = (g.drive?.rows ?? []).map((r) => `${r.place}: ${r.ok ? "matches an independent re-fetch" : r.why ?? "mismatch"}`).join("; ");
+        const text = g.ok ? `No pack covered this, so I found sources instead.\nBuilt and driven: ${g.dir}\nFields, each traced to a fetched response: ${fields}.\nChecked: ${rows}.${notBuilt ? `\nAsked for and not built, named rather than invented: ${notBuilt}.` : ""}\nEvery search, page, fetch and refusal is on file: ${g.ledger}` : `No pack covered this, and the generic build stopped: ${g.gap?.type ?? "the drive did not pass"} — ${g.gap?.detail ?? rows}. Nothing is shown that was not fetched.\n${g.ledger ? `On file: ${g.ledger}` : ""}`;
+        return earlyResult(text, { answerShape: g.ok ? "app" : "app-gap", mechanical: { rung: "app-door", schema: plan.schema, plan, built: !!g.ok, generic: true, out: g.dir ?? null, gap: g.gap ?? null, drive: g.drive ?? null } });
+      }
+      if (!plan.covered.length) return earlyResult(describePlan(plan), { answerShape: "app-gap", mechanical: { rung: "app-door", schema: plan.schema, plan, built: false } });
+      const work = path.join(learnedDir(), "apps", new Date().toISOString().replace(/[:.]/g, "-"));
+      const { buildApp } = await import("./native/the-fold/app-build.mjs");
+      const r = await buildApp({ work, out: path.join(work, "app"), places: PACKS.find((p) => p.id === plan.covered[0])?.places ?? ["London"], onNote, plan }).catch((e) => ({ ok: false, stage: "error", gap: { type: "app_build_error", detail: e.message }, account: [], out: null }));
+      const by = (r.account ?? []).map((a) => `${a.leaf}: ${a.whole}`).join("; ");
+      const text = r.ok ? `${describePlan(plan)}\nBuilt and driven in a browser: ${r.out}\nThe fold (watch it: node native/the-fold/app-view.mjs --work ${work}): ${path.join(work, "fold.jsonl")}\nLeaves — ${by}.` : `${describePlan(plan)}\nThe build stopped at ${r.stage}: ${JSON.stringify(r.gap ?? r.drive?.errors ?? "").slice(0, 400)}. Nothing was shipped half-built.\nLeaves — ${by}.`;
+      return earlyResult(text, { answerShape: "app", mechanical: { rung: "app-door", schema: plan.schema, plan, built: !!r.ok, stage: r.stage, out: r.out, account: r.account, likeness: r.likeness?.verdict ?? null } });
+    }
+  }
+
+  // ── THE BUILD DOOR (native/organs/code-build.js) ───────────────────────────
+  // ONE engine, a few handles: a discrete multi-unit coding task is a door of this turn, not a second API. `door: "build"` asks for it, `door: "auto"` lets the
+  // task's own words decide (detectBuildTask — the plain doorway sends "auto"), `door: "chat"` / nothing keeps it a conversation. A build is DRAWN as independent
+  // units (the model suggests), each draw is READ against what exists (the card library, the file's own units) and recorded, and the file is assembled — the same
+  // turn pipeline's admission, session and record apply, and the next message in this session can name what was built (session.lastBuild).
+  if (door === "build" || (door === "auto" && detectBuildTask(task))) {
+    let parallelism = 2;
+    try { parallelism = (await import("./heimdall.mjs")).currentParallelism?.() ?? 2; } catch { /* no Heimdall: the conservative default */ }
+    if (onNote) onNote({ move: "build_door", note: "a discrete coding task: units drawn independently, each draw read against the operations that exist, then assembled" });
+    const b = await buildCodeTask({ task, model, testCommand: testCommand || null, parallelism, drawFn: makeDraw(OLLAMA), anchorDir: path.join(learnedDir(), "builds"), samples: groundSamples }).catch((e) => ({ ok: false, error: e.message }));
+    if (b.ok) {
+      session.lastBuild = { units: b.units, out: b.out, verified: b.verified, at: new Date().toISOString(), turn: session.turnCount + 1 };
+      usage.completionTokens += b.tokens;
+      return earlyResult(describeBuild(b), { answerShape: "build", mechanical: { rung: "code-build", unraveled: b.unraveled ?? null, sample: b.sample ?? null, kind: b.kind, units: b.units, draws: b.draws, tokens: b.tokens, wallMs: b.wallMs, out: b.out, verified: b.verified, verifyError: b.verifyError, canonical: b.canonical, code: b.code, disclosure: b.disclosure } });
+    }
+    if (door === "build") return earlyResult(`That is not a build I can split into independent units: ${b.error}. Name the functions in the request as name(args), e.g. "write a JavaScript file with functions: area(w, h), perimeter(w, h)".`, { answerShape: "build", mechanical: { rung: "code-build", gap: "no_units", basis: b.error } });
+    // door "auto" and not a discrete build after all: it is an ordinary turn
+  }
+
   // ── THE ANALYSIS DOOR (the-fold/surface/notebook-door.mjs) ──────────────────
   // "/analyze <question>" or "/explore" with a table attached: learned methods, or an ant colony when none exists and no model is
   // set. A mechanical door — no model drafts the reply; it is what the checks found, with the methods named so each can be switched
@@ -4985,6 +5134,8 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         : { kind: "ground_unmoved", basis: "no cell filled this round — no altitude change" },
       budget: CLARIFY_MAX_ROUNDS,
     });
+    // the FIRST ask is the task; a later reply is only an answer (ledger row 1, TEACH-IT-TO-FISH.md)
+    if (!roundCount) session.buildTask = buildTask;
     const landed = recordRound(session.buildRounds ?? (session.buildRounds = []), clarify);
     session.buildRounds = landed;
     session.buildDeclared = accumulatedDeclared;
@@ -5022,6 +5173,12 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // licensed: generation may begin — the void is declared, the build falls
     // through to the normal code pipeline below with the declared shape.
     if (onNote) onNote({ move: "clarify_licensed", round: clarify.round, cells: (clarify.fills ?? []).map((f) => f.cell) });
+    // A build continued by plain reply goes on with the task that was ASKED, not with the reply.
+    if (roundCount > 0 && session.buildTask && task !== session.buildTask) {
+      const restored = restoreTask(session.buildTask, answers);
+      if (onNote) onNote({ move: "task_restored", basis: "the reply answered the ask-back; the build's task is the one first asked" });
+      task = restored;
+    }
     // A REPLY turn licensed the build: the reply's own shape read "chat", but
     // the build is the session's — re-enter code mode from the declared
     // shape so the model writes the artifact, not prose about it.
@@ -5536,6 +5693,17 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // answer on every surface: the answer carries why the claim won or lost.
     resultKelsen?.resolutions?.length
       ? `\n\nSome claims in the material conflict. They were resolved by the fixed norm hierarchy (${precedenceOrderPhrase()}):\n${resultKelsen.resolutions.slice(0, 5).map((r) => `- “${r.a}” vs “${r.b}” → ${r.winner ? (r.winner === "a" ? r.a : r.b) : "tied"} (${r.why ?? r.reason})`).join("\n")}${resultKelsen.resolutions.length > 5 ? `\n… ${resultKelsen.resolutions.length - 5} more.` : ""}\nSpeak with that standing: name the conflict and the resolution, do not silently pick.`
+      : null,
+    // THE RECORD'S CLAIMS, BYTE-ADDRESSED (2026-09-29, the podcast wiring):
+    // the Ranke lesson applied to every surface — when the surf produced
+    // relations from the workspace/corpus, their propositions ride the
+    // prompt WITH their addresses, so the answer can carry them and the
+    // holograph can type the carrying sentences MATERIAL with their refs.
+    // What the record says is handed over, named by its witness; the
+    // answer's standing is then measured, never hoped. Bounded (12 claims),
+    // and the projection path already carries its own briefs.
+    rawEntries?.length && runMode !== "projection"
+      ? `\n\nThe material's own claims (what the record says — carry them in your answer, name the address when you use one):\n${notesFromEdges(rawEntries).slice(0, 12).map((p) => `- [${p.source ?? "material"}${p.span?.start != null ? `#${p.span.start}` : ""}] ${p.end1 ?? ""} ${p.label} ${p.end2 ?? ""}`).join("\n")}`
       : null,
   ].filter(Boolean).join("\n");
 
@@ -6317,7 +6485,10 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     if (onNote) onNote({ move: "mayeroff_unrealizable", reason: mayeroffJudgment.reason });
   } else {
   await withSlot(model, async () => {
-    const draw = async (msgs, maxTokens, { capture = false, kelsen = null, stop = null } = {}) => {
+    // The draw declares the grain its prompt carries (I-single-grain) — a
+    // declaration channel, never prompt bytes: the model's input is
+    // byte-identical with or without it; only the choke-point audit reads it.
+    const draw = async (msgs, maxTokens, { capture = false, kelsen = null, stop = null, grain = null } = {}) => {
       let buf = "";
       let stopped = false;
       let tokenTruncated = false;
@@ -6331,7 +6502,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       let leftoverChars = null;
       let leftoverTail = null;
       let tailParsedAs = null;
-      for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, kelsen, signal, stop })) {
+      for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, kelsen, signal, stop, grain })) {
         if (typeof chunk === "string") {
           if (fullText.length >= MAX_OUTPUT_CHARS) { truncated = true; stopped = true; break; }
           if (!capture) {
@@ -7250,7 +7421,26 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       // Bounded: each section rewritten at most MAX_REWRITE_ROUNDS across the
       // pass; a section that still fails becomes a declared gap, never churned.
       const rankeAttempts = new Map(); // sectionIndex -> rewrite count, persists across rounds
-      for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated; round++) {
+      // THE MEASURED STOP (2026-09-29, THE-STIGMERGIC-PIPELINE §5 Phase A):
+      // the per-section budget is the FLOOR, never the mechanism — a
+      // section is rewritten at most MAX_REWRITE_ROUNDS times, whatever
+      // the round count. The gate reads the round trajectory's dominant
+      // mode (causal streaming DMD — nothing from the future) and fires
+      // when the material has settled — decayed (converged with residual;
+      // the residual stands and is disclosed by the satisfaction check) or
+      // oscillating (the material cycles — the rewrite is a loop, not a
+      // convergence). The gate decides BETWEEN rounds, over the rounds
+      // completed; the round's own work is never interrupted by it.
+      // THE HORIZON, MADE LIVE: the gate needs pairs ≥ 2 (three pushed
+      // rounds; first possible fire at the top of round 3), so the ROUND
+      // loop runs to its own horizon — RANKE_ROUND_HORIZON (default
+      // MAX_REWRITE_ROUNDS + 2 = 4) — while the per-section budget stays 2.
+      // Rounds past the budget spend no draws (the gap path skips the
+      // model); they exist to give the trajectory the gate can read.
+      const RANKE_ROUND_HORIZON = Math.max(Number(process.env.ER7_RANKE_ROUND_HORIZON ?? 0) || MAX_REWRITE_ROUNDS + 2, MAX_REWRITE_ROUNDS + 2);
+      const rankeGate = createRewriteGate({ dims: 2, rank: 2 });
+      const rankeGapDeclared = new Set(); // a declared gap is declared once, not once per round
+      for (let round = 0; round < RANKE_ROUND_HORIZON && !truncated; round++) {
         const rankeFindings = [];
         // RANKE FOLDS THE ESSAY AT THE MATERIAL'S OWN POINTS. The material was
         // folded through the reader into a referent index; Ranke folds each
@@ -7322,6 +7512,20 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           break;
         }
         if (onNote) onNote({ move: "ranke", round: round + 1, ungrounded: rankeFindings.map((f) => f.sectionIndex) });
+        // THE GATE DECIDES HERE, BETWEEN ROUNDS — over the rounds completed,
+        // never over the round being worked. A fired stop ends the loop: the
+        // residual findings stand as written, and their ungrounded standing
+        // is disclosed by the satisfaction check — no budget is spent in the
+        // stopped round, and nothing is declared a gap that the material
+        // never actually settled.
+        if (round > 0) {
+          const g = rankeGate.decide();
+          if (g.fire) {
+            if (onNote) onNote({ move: "ranke_dmd_stop", round: round + 1, reason: g.reason, magnitude: g.magnitude ?? null, period: g.period ?? null, basis: "the rewrite trajectory's dominant mode — the measured stop replaces the cap as the mechanism; the cap remains the floor" });
+            break;
+          }
+        }
+        let nonMovesThisRound = 0;
         // CONVERGENCE GUARD: a section that stays ungrounded after the rewrite
         // budget becomes a DECLARED GAP — typed and disclosed, never silently
         // dropped, and never churned forever. Ranke is bounded per section,
@@ -7333,7 +7537,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           if (!sectionText) continue;
           const tried = (rankeAttempts.get(i) ?? 0);
           if (tried >= MAX_REWRITE_ROUNDS) {
-            if (onNote) onNote({ move: "ranke_gap", sectionIndex: i, theme: plannedSections[i] ?? "", detail: f.detail });
+            if (!rankeGapDeclared.has(i)) { rankeGapDeclared.add(i); if (onNote) onNote({ move: "ranke_gap", sectionIndex: i, theme: plannedSections[i] ?? "", detail: f.detail }); }
             continue; // declared gap — Ranke has done its budget
           }
           rankeAttempts.set(i, tried + 1);
@@ -7348,7 +7552,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           const rewrite = await draw(
             [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: rankeMsg }],
             SECTION_MAX_TOKENS,
-            { kelsen: Math.max(compositionKelsen, 0.9) }, // Ranke is literal, never impressionistic
+            { kelsen: Math.max(compositionKelsen, 0.9), grain: "section" }, // Ranke is literal, never impressionistic
           );
           if (rewrite.stopped) { truncated = true; break; }
           let fixText = rewrite.buf.trim();
@@ -7367,6 +7571,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           const identical = sectionBefore === fixText;
           const collapseRatio = identical ? 1 : 1 - (similarity(sectionBefore, fixText));
           if (identical || collapseRatio >= NON_MOVING_EDIT_RATIO) {
+            nonMovesThisRound += 1;
             if (onNote) onNote({ move: "ranke_nonmove", sectionIndex: i, identical, similarity: (1 - collapseRatio), detail: "the rewrite did not move the section — a non-moving edit is not a fix; budget consumed, loop terminates" });
             continue;
           }
@@ -7391,6 +7596,10 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           documentLines[i] = fixText;
           if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `ranke: ungrounded @ ${i + 1}`, text: fixText, giver: model, supersedes: null, basis: `RANKE: ${f.detail}` }, { dir: ESSAY_LEDGER_DIR });
         }
+        // THE ROUND'S STATE, PUSHED ONLY WHEN THE ROUND COMPLETED A FULL
+        // PASS: findings this round, non-moves this round — the trajectory
+        // the gate reads. A round that broke on truncation is not a round.
+        if (!truncated) rankeGate.push([rankeFindings.length, nonMovesThisRound]);
       }
 
       // ── MURCH EDITS: EVA the whole, then REC the shape ────────────────────────
@@ -7415,7 +7624,19 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         if (onNote) onNote({ move: "murch", round: 0, findings: [], basis: "no ground — editorial pass skipped, standing disclosed by satisfaction" });
       }
       const editorIndex = sessionReferentIndex(session, onNote);
-      for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated && hasGrounding; round++) {
+      // MURCH'S STOP, MEASURED (Phase B, 2026-09-29): the same DMD gate as
+      // Ranke's, over the edit trajectory — [fixable findings this round,
+      // edits that landed]. Decay fires only on a settling trajectory with
+      // residual; oscillation fires with its measured period (a
+      // fix→reintroduce churn is an edit loop, not a convergence). Clean
+      // convergence (!fixable.length, the recheck ok) breaks before the gate,
+      // like Ranke's zero-findings break. The loop runs to its own horizon
+      // while the budget stays the floor; rounds past the budget run the
+      // mechanical checks only and spend no draws — they exist to give the
+      // trajectory the gate can read.
+      const MURCH_ROUND_HORIZON = Math.max(Number(process.env.ER7_MURCH_ROUND_HORIZON ?? 0) || MAX_REWRITE_ROUNDS + 2, MAX_REWRITE_ROUNDS + 2);
+      const murchGate = createRewriteGate({ dims: 2, rank: 2 });
+      for (let round = 0; round < MURCH_ROUND_HORIZON && !truncated && hasGrounding; round++) {
         // Aggregate EVERY finding across the whole essay — Murch's brief.
         // Murch is a STYLISTIC editor: his findings are the shape of the prose —
         // repetition, meta-commentary, thin sections, and the whole-essay
@@ -7521,15 +7742,30 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         const fixable = findings.filter((f) => f.kind !== "ungrounded");
         if (!fixable.length) break;
         if (onNote) onNote({ move: "murch", round: round + 1, findings: fixable.map((f) => `${f.kind}${f.sectionIndex != null ? `@${f.sectionIndex}` : ""}`) });
+        // THE GATE DECIDES HERE, BETWEEN ROUNDS — over the rounds completed,
+        // never over the round being worked. A fired stop ends the loop: the
+        // residual findings stand as written, and the shape recheck below has
+        // already had the last mechanical word — no budget is spent in the
+        // stopped round.
+        if (round > 0) {
+          const g = murchGate.decide();
+          if (g.fire) {
+            if (onNote) onNote({ move: "murch_dmd_stop", round: round + 1, reason: g.reason, magnitude: g.magnitude ?? null, period: g.period ?? null, basis: "the edit trajectory's dominant mode — the measured stop replaces the cap as the mechanism; the cap remains the floor" });
+            break;
+          }
+        }
         const editorStanding = essayResolutions({ sections: plannedSections, documentLines, index: editorIndex, rawEntries, onNote });
         const brief = fixable.map((f, idx) => `${idx + 1}. [${f.kind}${f.sectionIndex != null ? `, section ${f.sectionIndex + 1}` : " the piece as a whole"}] ${f.detail}`).join("\n");
-        if (onThinking) onThinking(`\n### Murch, pass ${round + 1}\n${brief}\n\n`);
+        if (onThinking && round < MAX_REWRITE_ROUNDS) onThinking(`\n### Murch, pass ${round + 1}\n${brief}\n\n`);
         // Murch fixes ONE finding per draw — the reliable grain for a 2B
         // mouth (the voice design: one proposition per call). Each draw is
         // small, targeted, and replaces the specific section it names; the
         // whole-essay context is the resolutions fold, never the raw bytes.
         let applied = 0;
-        for (let fi = 0; fi < fixable.length && !truncated; fi++) {
+        // PAST THE BUDGET, THE ROUND IS OBSERVATION ONLY (the horizon): the
+        // mechanical checks ran above; no draw is spent; applied stays 0 and
+        // the round exists to give the trajectory the gate can read.
+        for (let fi = 0; fi < fixable.length && !truncated && round < MAX_REWRITE_ROUNDS; fi++) {
           const f = fixable[fi];
           const targetSection = f.sectionIndex != null ? documentLines[f.sectionIndex] : null;
           if (f.kind === "body") {
@@ -7538,7 +7774,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
             const body = await draw(
               [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: bodyMsg }],
               SECTION_MAX_TOKENS,
-              { kelsen: Math.max(compositionKelsen, 0.9) },
+              { kelsen: Math.max(compositionKelsen, 0.9), grain: "section" },
             );
             if (body.stopped) { truncated = true; break; }
             // A MURCH BODY IS A DRAFT, AND FACES THE SAME ADMISSION (2026-09-21).
@@ -7608,12 +7844,13 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
                   maxTokens: SECTION_MAX_TOKENS,
                   blockedOpenings: blocked,
                   synonyms: synonymPool,
+                  grain: "section",
                   onReject: (r) => { if (onNote) onNote({ move: "rejected_draw", ...r }); },
                 })
             : await draw(
                 [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: fixMsg }],
                 SECTION_MAX_TOKENS,
-                { kelsen: Math.max(compositionKelsen, 0.9) }, // Murch is literal, never impressionistic
+                { kelsen: Math.max(compositionKelsen, 0.9), grain: "section" }, // Murch is literal, never impressionistic
               );
             if (fix.stopped) { truncated = true; break; }
             fixText = fix.buf.trim();
@@ -7653,8 +7890,13 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           }, { dir: ESSAY_LEDGER_DIR });
           applied++;
         }
-        if (onNote) onNote({ move: "murch_applied", round: round + 1, applied });
-        if (!applied) break; // nothing landed — stop, don't loop forever
+        if (onNote) onNote({ move: "murch_applied", round: round + 1, applied, budget: round < MAX_REWRITE_ROUNDS ? "draws" : "observation-only" });
+        if (round < MAX_REWRITE_ROUNDS && !applied) break; // nothing landed — stop, don't loop forever
+        // THE ROUND'S STATE, PUSHED ONLY WHEN THE ROUND COMPLETED A FULL
+        // PASS: fixable findings this round, edits that landed — the
+        // trajectory the gate reads. A round that broke on truncation is
+        // not a round.
+        if (!truncated) murchGate.push([fixable.length, applied]);
         const rechecked = checkEssayShape(documentLines.join("\n\n"), { parts: plannedSections.length, themes: plannedSections, subject: topic });
         if (onNote) onNote({ move: "shape_recheck", ok: rechecked.ok, failures: rechecked.failures.map((f) => f.detail) });
         shapeCheck.ok = rechecked.ok;
@@ -7697,7 +7939,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
                 { role: "user", content: `The piece on ${topic} has a section on "${section}". The research since it was written turned up more. Rewrite that section, deepened by the new material.` },
               ],
               SECTION_MAX_TOKENS,
-              { kelsen: Math.max(compositionKelsen, 0.9) },
+              { kelsen: Math.max(compositionKelsen, 0.9), grain: "section" },
             );
             if (!revise.stopped && revise.buf.trim()) {
               const revisedText = revise.buf.trim();
@@ -8139,9 +8381,45 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         codeValidation = await runValidator(fullText);
         if (onNote) onNote({ move: "code_validate", ok: codeValidation.ok, findings: (codeValidation.findings ?? []).map((f) => `${f.kind}: ${f.detail}`), smoke: codeValidation.smoke });
         let round = 0;
+        // CODE'S STOP, MEASURED (Phase B, 2026-09-29): the same DMD gate as
+        // Ranke's and Murch's, over the validation trajectory — [findings
+        // after this round's validation, non-moving rewrites this round]. A
+        // rewrite that returns the file byte-identical is a NO-OP, not a
+        // fix — counted, never landed twice, budget consumed like any other
+        // failed attempt (the Ranke non-move cut, applied to the whole
+        // file). Decay fires only on a settling trajectory with residual;
+        // a clean validation exits before the gate ever decides. The loop
+        // runs to its own horizon while the budget stays the floor; rounds
+        // past the budget re-run the validator on the unchanged text and
+        // spend no draws — observation only, so the trajectory is measured,
+        // never assumed.
+        const CODE_VALIDATE_HORIZON = Math.max(Number(process.env.ER7_CODE_VALIDATE_HORIZON ?? 0) || MAX_REWRITE_ROUNDS + 2, MAX_REWRITE_ROUNDS + 2);
+        const codeGate = createRewriteGate({ dims: 2, rank: 2 });
         // a talk page is never redrawn whole by the mouth: its gaps were asked
         // one at a time, and what the validator says stays on the record
-        while (!talkPage && !codeValidation.ok && round < MAX_REWRITE_ROUNDS && !truncated) {
+        while (!talkPage && !codeValidation.ok && round < CODE_VALIDATE_HORIZON && !truncated) {
+          // THE GATE DECIDES HERE, BETWEEN ROUNDS — over the rounds
+          // completed, never over the round being worked. A fired stop ends
+          // the loop with the residual disclosed: the artifact line below
+          // carries validated/validation-failed either way.
+          if (round > 0) {
+            const g = codeGate.decide();
+            if (g.fire) {
+              if (onNote) onNote({ move: "code_dmd_stop", round: round + 1, reason: g.reason, magnitude: g.magnitude ?? null, period: g.period ?? null, basis: "the validation trajectory's dominant mode — the measured stop replaces the cap as the mechanism; the cap remains the floor" });
+              break;
+            }
+          }
+          let codeNonMovesThisRound = 0;
+          if (round >= MAX_REWRITE_ROUNDS) {
+            // PAST THE BUDGET, THE ROUND IS OBSERVATION ONLY (the horizon):
+            // no draw is spent; the validator re-runs on the unchanged text
+            // so the trajectory is measured, never assumed.
+            codeValidation = await runValidator(fullText);
+            if (onNote) onNote({ move: "code_validate", round: round + 1, ok: codeValidation.ok, findings: (codeValidation.findings ?? []).map((f) => `${f.kind}: ${f.detail}`), gap: true, basis: "past the draw budget — observation only; the trajectory, not a redraw" });
+            if (!truncated) codeGate.push([(codeValidation.findings ?? []).length, 0]);
+            round++;
+            continue;
+          }
           const findings = (codeValidation.findings ?? []).slice(0, 6).map((f) => `- [${f.kind}] ${f.detail}`).join("\n");
           if (onThinking) onThinking(`\n### Code check failed (round ${round + 1})\n${findings}\n\n`);
           const fixMsg = codeLanguage === "html"
@@ -8150,17 +8428,30 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           const fix = await draw(
             [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: fixMsg }],
             SECTION_MAX_TOKENS,
-            { kelsen: Math.max(compositionKelsen, 0.9) },
+            { kelsen: Math.max(compositionKelsen, 0.9), grain: "whole" },
           );
           if (fix.stopped) { truncated = true; break; }
           const fixText = stripCodeFences(fix.buf, codeLanguage);
           if (!fixText) break;
-          documentLines.length = 0;
-          documentLines.push(fixText);
-          fullText = assembleCode();
-          if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `logos: validation round ${round + 1}`, text: fullText, giver: model, supersedes: null, basis: `REC: the validator failed — ${findings.slice(0, 200)}` }, { dir: ESSAY_LEDGER_DIR });
+          if (fixText === fullText) {
+            // THE NON-MOVING REWRITE: the mouth returned the file unchanged —
+            // a NO-OP, not a fix. Counted for the trajectory, never landed
+            // twice; the budget is consumed like any other failed attempt.
+            codeNonMovesThisRound += 1;
+            if (onNote) onNote({ move: "code_nonmove", round: round + 1, detail: "the rewrite returned the file byte-identical — a non-moving edit is not a fix; budget consumed, loop terminates" });
+          } else {
+            documentLines.length = 0;
+            documentLines.push(fixText);
+            fullText = assembleCode();
+            if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `logos: validation round ${round + 1}`, text: fullText, giver: model, supersedes: null, basis: `REC: the validator failed — ${findings.slice(0, 200)}` }, { dir: ESSAY_LEDGER_DIR });
+          }
           codeValidation = await runValidator(fullText);
           if (onNote) onNote({ move: "code_validate", round: round + 1, ok: codeValidation.ok, findings: (codeValidation.findings ?? []).map((f) => `${f.kind}: ${f.detail}`) });
+          // THE ROUND'S STATE, PUSHED ONLY WHEN THE ROUND COMPLETED A FULL
+          // PASS: findings after this round's validation, non-moves this
+          // round — the trajectory the gate reads. A round that broke on
+          // truncation or an empty fix is not a round.
+          if (!truncated) codeGate.push([(codeValidation.findings ?? []).length, codeNonMovesThisRound]);
           round++;
         }
       }

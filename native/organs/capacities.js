@@ -320,6 +320,22 @@ export const CAPACITIES = Object.freeze([
     what: "does this figure clear its ground — P22's own named next integration, built: presence re-gated by establishment (P38's distinction, mechanized), the material's own derived recurrence floor, ambiguity withheld with candidates, and a pronoun rung that runs only under declared numbers (typed skip otherwise — P41). Cell stamped in the organ's own CELL export (NUL·Figure).",
   }),
   Object.freeze({
+    id: "trace",
+    terrain: "Paradigm",
+    op: "EVA",
+    module: "tracing.js",
+    fn: "traceSample",
+    what: "following a claimed thing back to the bytes it says it came from — domain-blind: a claim is {path, value}; the stance reports where the PAIRING is found, or refuses by name (invented / unpaired / same-kind / value-only). Its control is built to fail (II.23): the sample with its values REDEALT across its own addresses holds every value and every address and must be refused, or the tracer is a presence check. Typing: Relate·Pattern, the Tracing stance (SIG·P, CON·P, EVA·P); registered at EVA·Paradigm because it judges a claim against a ground. Live use: the sample the pipeline once SHOWED with nothing fetched is refused; every field of a generated app is a traced path; a unit that hard-codes a value found only in the sample is named.",
+  }),
+  Object.freeze({
+    id: "cultivate",
+    terrain: "Void",
+    op: "INS",
+    module: "cultivating.js",
+    fn: "cultivate",
+    what: "growing the ground a thing will stand on — a ranked candidate list, a DECLARED budget of fetches, a caller's check, and the loop's own verdict: settled, or unsettled (never 'enough' when the budget ran out). Losers are kept as typed data; a second copy of the same bytes is not a second ground; licensedCheck refuses a check that admits a redeal of good bytes. Typing: Generate·Ground, the Cultivating stance (INS·G, SYN·G, REC·G). The crossing is native/the-fold/find-samples.mjs (search, read, rank, fetch under a budget, keep content-addressed).",
+  }),
+  Object.freeze({
     id: "unravel",
     terrain: "Network",
     op: "SEG",

@@ -550,3 +550,14 @@ test("the declared numbers carry their duty", () => {
 });
 
 // ── the browser seam: the page still loads nothing remote ──────────────────
+
+// ── how to ask DuckDuckGo: lite by POST first, the GET faces as fall-through ──
+import { searchRequest, SEARCH_FACES } from "./web.js";
+test("the default search face is lite by POST with the query in the body; the GETs follow and carry it in the address", () => {
+  assert.deepEqual([...SEARCH_FACES], ["lite-post", "html-get", "lite-get"]);
+  const d = searchRequest("air quality & pm2.5");
+  assert.equal(d.init.method, "POST"); assert.equal(d.url, "https://lite.duckduckgo.com/lite/");
+  assert.equal(d.init.body, "q=air%20quality%20%26%20pm2.5"); assert.equal(d.init.headers["content-type"], "application/x-www-form-urlencoded");
+  assert.match(searchRequest("x", "html-get").url, /^https:\/\/html\.duckduckgo\.com\/html\/\?q=x$/); assert.equal(searchRequest("x", "html-get").init.method, "GET");
+  assert.throws(() => searchRequest("x", "bing"), RangeError);
+});

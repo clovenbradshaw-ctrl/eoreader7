@@ -192,3 +192,14 @@ test("foldAnswersFromTask maps a reply onto the open cells by POSITION and claus
   assert.equal(foldAnswersFromTask("", qs).length, 0);
   assert.equal(foldAnswersFromTask("   ", qs).length, 0);
 });
+
+test("restoreTask: a reply answers the ask-back; it is never the task (ledger row 1, TEACH-IT-TO-FISH.md)", async () => {
+  const { restoreTask } = await import("./build-clarify.js");
+  const asked = "Generate an app that shows the weather and gas prices anywhere.";
+  const t = restoreTask(asked, [{ cell: "anchor", value: "For anyone who travels" }, { cell: "cardinality", value: "One app" }]);
+  assert.match(t, /^Generate an app that shows the weather and gas prices anywhere\./);
+  assert.match(t, /For anyone who travels; One app/);
+  assert.equal(restoreTask(asked, []), asked, "no answers: the task as asked");
+  assert.equal(restoreTask("", [{ value: "x" }]), "", "no original: nothing is invented");
+  assert.ok(!t.startsWith("For anyone"), "the reply is not the task");
+});

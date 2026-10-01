@@ -3375,7 +3375,10 @@ export async function sampleVitalsNow() {
 // turn then stalls to its deadline. This is the lever + the watchdog that ends
 // that class: restart `ollama serve` directly with the tuned, non-wedging env
 // (concurrency 2, window 4096, one resident model, CPU-only), never the app.
-const OLLAMA_BIN = process.env.ER7_OLLAMA_BIN ?? "/Applications/Ollama.app/Contents/Resources/ollama";
+const MAC_OLLAMA_BIN = "/Applications/Ollama.app/Contents/Resources/ollama";
+// the macOS app's binary when it is there, else whatever `ollama` the PATH finds (Linux, a container): a hard-coded app path
+// that does not exist is a spawn error on the first boot of the daemon, which killed the whole proxy (measured 2026-09-30).
+const OLLAMA_BIN = process.env.ER7_OLLAMA_BIN ?? (fs.existsSync(MAC_OLLAMA_BIN) ? MAC_OLLAMA_BIN : "ollama");
 const MODEL_RESTART_WINDOW_MS = Number(process.env.ER7_MODEL_RESTART_WINDOW ?? 10 * 60 * 1000);
 // The last model-server restart is PERSISTED (2026-09-21), never just in
 // memory: the proxy is re-forged by the fleet when it wedges, and an
@@ -3418,6 +3421,8 @@ async function daemonPortHolders() {
 function spawnModelServer() {
   const { bin, env } = modelServerConfig();
   const child = spawn(bin, ["serve"], { env: { ...process.env, ...env }, detached: true, stdio: "ignore" });
+  // spawn reports a missing binary as an ASYNC 'error' event; with no listener that is an uncaught exception that takes the proxy down
+  child.on("error", (e) => appendLog({ act: "eva", finding: "model_server_spawn_error", bin, error: String(e?.message ?? e).slice(0, 200), giver: "heimdall", standing: "disclosed" }));
   child.unref();
   return { child, env };
 }

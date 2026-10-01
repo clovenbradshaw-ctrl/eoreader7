@@ -1,0 +1,11 @@
+{"seq":0,"at":"2026-10-01T04:27:34.395Z","event":"contract-begin","url":"https://air-quality-api.open-meteo.com/v1/air-quality?latitude=52.52&longitude=13.41&hourly=pm10,pm2_5","fields":["pm2.5","pm10"],"model":"qwen2.5-coder:1.5b","candidates":7,"offsets":[[10,20],[-15,-40],[30,100],[-33,150]]}
+{"seq":1,"at":"2026-10-01T04:27:44.908Z","event":"variant-fetch","url":"https://air-quality-api.open-meteo.com/v1/air-quality?latitude=62.52&longitude=33.41&hourly=pm10%2Cpm2_5","status":0,"bytes":0}
+{"seq":2,"at":"2026-10-01T04:27:45.632Z","event":"variant-fetch","url":"https://air-quality-api.open-meteo.com/v1/air-quality?latitude=37.52&longitude=-26.59&hourly=pm10%2Cpm2_5","status":200,"bytes":3644}
+{"seq":3,"at":"2026-10-01T04:27:47.548Z","event":"variant-fetch","url":"https://air-quality-api.open-meteo.com/v1/air-quality?latitude=80&longitude=113.41&hourly=pm10%2Cpm2_5","status":200,"bytes":3587}
+{"seq":4,"at":"2026-10-01T04:27:50.045Z","event":"variant-fetch","url":"https://air-quality-api.open-meteo.com/v1/air-quality?latitude=19.52&longitude=163.41&hourly=pm10%2Cpm2_5","status":200,"bytes":3671}
+{"seq":5,"at":"2026-10-01T04:27:50.045Z","event":"variants","wanted":4,"kept":3,"losers":[{"id":"https://air-quality-api.open-meteo.com/v1/air-quality?latitude=62.52&longitude=33.41&hourly=pm10%2Cpm2_5","why":"get failed: status 0"}]}
+{"seq":6,"at":"2026-10-01T04:27:50.726Z","event":"field","field":"pm2.5","pointed":"hourly.pm2_5[0]","evidence":true,"traced":true,"status":"bound"}
+{"seq":7,"at":"2026-10-01T04:27:51.347Z","event":"field","field":"pm10","pointed":"hourly.pm10[0]","evidence":true,"traced":true,"status":"bound"}
+{"seq":8,"at":"2026-10-01T04:27:51.513Z","event":"species","field":"pm2.5","species":"copy","js":"doc.hourly.pm2_5[0]","agrees":true}
+{"seq":9,"at":"2026-10-01T04:27:51.514Z","event":"species","field":"pm10","species":"copy","js":"doc.hourly.pm10[0]","agrees":true}
+{"seq":10,"at":"2026-10-01T04:27:51.514Z","event":"control","redealt":[{"field":"pm2.5","pointed":"hourly.pm10[0]"},{"field":"pm10","pointed":"hourly.pm2_5[0]"}],"refused":true}

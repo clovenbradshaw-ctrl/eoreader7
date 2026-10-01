@@ -126,14 +126,16 @@ test("with no maxTotalMs override, the default SURF_MAX_TOTAL_MS still applies (
 
 test("liveWeb wraps organs/web.js: a DDG HTML page parses to results, an HTTP 403 is blocked, a page body extracts to text", async () => {
   const ddg = `<html>duckduckgo<a class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fpoets.example%2Fsonnet">Sonnet</a><a class="result__snippet">fourteen lines</a></html>`;
-  const fetchImpl = async (url) => {
-    if (/duckduckgo\.com\/html/.test(url)) return { status: 200, text: async () => ddg };
+  let searchInit = null;
+  const fetchImpl = async (url, init) => {
+    if (/lite\.duckduckgo\.com\/lite/.test(url)) { searchInit = init; return { status: 200, text: async () => ddg }; }
     if (/forbidden/.test(url)) return { status: 403, text: async () => "" };
     return { status: 200, text: async () => "<html><head><title>Sonnet 18</title></head><body><p>Shall I compare thee to a summer's day?</p></body></html>" };
   };
   const web = liveWeb({ fetchImpl });
   const r = await web.search("sonnet");
   assert.equal(r.results[0].url, "https://poets.example/sonnet");
+  assert.equal(searchInit.method, "POST", "the search asks DuckDuckGo's lite face by POST, the face that is not answered with a bot challenge"); assert.equal(searchInit.body, "q=sonnet");
   const page = await web.fetch("https://poets.example/sonnet");
   assert.match(page.text, /compare thee/);
   await assert.rejects(web.fetch("https://forbidden.example/"), /HTTP 403/);

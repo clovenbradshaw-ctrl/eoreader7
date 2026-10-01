@@ -204,6 +204,22 @@ export function foldAnswersFromTask(reply, questions = []) {
 }
 
 /**
+ * restoreTask(original, answers) — the TASK of a build that was continued by plain reply.
+ *
+ * The person's reply ("for anyone who travels. one app.") answers the questions; it is not the task. Measured
+ * 2026-09-30 (TEACH-IT-TO-FISH.md, ledger row 1): the ask-back licensed a build on the reply turn and the pipeline went
+ * on with the REPLY as its task, so the page it wrote was titled with the answer and held none of what was asked for.
+ * The task stays what was first asked; the answers ride beside it as the person's own words, never re-parsed as a
+ * second task. With no original (a fresh ask) the task is returned as it came.
+ */
+export function restoreTask(original, answers = []) {
+  const o = String(original ?? "").trim();
+  if (!o) return "";
+  const said = (answers ?? []).map((a) => String(a?.value ?? "").trim()).filter(Boolean);
+  return said.length ? `${o} (${said.join("; ")})` : o;
+}
+
+/**
  * buildClarify({ task, level, modality, fieldsByLevel, answers, round,
  * standing, clear, lint, reGround, log, budget }) → the round's verdict.
  *

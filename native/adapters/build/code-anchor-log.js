@@ -189,6 +189,38 @@ export function proposeAnchor(log, { anchor, content = null, pointsTo = null, ro
   return log;
 }
 
+/**
+ * proposeCanonical — the MODEL SUGGESTS, the reading pipeline makes it coherent, and what lands on the log is the CANONICAL form.
+ *
+ * "The model is giving ideas, the system is making them coherent." (the operator, 2026-09-30.) A writer's draw is not an entry; it is evidence:
+ *   1. SIG·Ground   the raw suggestion, exactly as said (LAVAR.md §3's mistake corpus — nothing the model said is deleted)
+ *   2. CON·Figure   one entry per transformation the reading made (code-canonical.js): a mention bound to the referent it names, with its tier and
+ *                   basis; a scoping slip read as the program the model meant. The transformation IS the operation, on the record, replayable
+ *   3. INS / SYN    the canonical content — what the fold projects from. Replaying the fold never re-reads the model.
+ * `canonical` is code-canonical.js's return ({ code, transformations, findings }); findings (an unresolved or ambiguous call) ride the SIG entry,
+ * because they are what the reading could NOT make coherent, and a later reader (or a card someone makes out) picks them up from there.
+ */
+export function proposeCanonical(log, { anchor, round, writer, suggestion, canonical, prompt = null }) {
+  if (!canonical || typeof canonical.code !== "string") throw new TypeError("proposeCanonical: a canonical reading is required (code-canonical.js canonicalize)");
+  const taskId = anchorTaskId(anchor);
+  log = append(log, {
+    kind: kindForOperator("SIG"), task_id: `suggestion:${taskId}:${round}:${writer}:${log.nextSeq}`, operator: "SIG", operator_basis: OPERATOR_BASIS.PRODUCED, grain: "Ground",
+    ...cellFields("SIG", "Ground"),
+    description: `${writer}'s suggestion for anchor "${anchor}", round ${round}, exactly as said`,
+    anchor, round, writer, suggestion, prompt, findings: canonical.findings ?? [],
+    claims: canonical.claims ?? [], // EOGfpClaims from the semantic reading (code-semantics.js): what the function was OBSERVED to read, and what the contract said it should
+  });
+  for (const t of canonical.transformations ?? []) {
+    log = append(log, {
+      kind: kindForOperator("CON"), task_id: taskId, operator: "CON", operator_basis: OPERATOR_BASIS.PRODUCED, grain: "Figure",
+      ...cellFields("CON", "Figure"),
+      description: `anchor "${anchor}", round ${round}: ${t.kind} ${t.name ?? `${t.from} -> ${t.to}`}`,
+      anchor, round, writer, transformation: t,
+    });
+  }
+  return proposeAnchor(log, { anchor, content: canonical.code, round, writer });
+}
+
 /** landCritique — a reader's own finding, naming which anchor it
  * concerns and why, grounded in a structural property (never a citation
  * handed to a writer — see coherence-properties.mjs's own header for why).
