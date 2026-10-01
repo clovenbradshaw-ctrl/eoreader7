@@ -17,6 +17,7 @@ import path from "node:path";
 import { execSync } from "node:child_process";
 import { validatePython, validateHtml } from "../../postprocess.mjs";
 import { MOUTH_URL, MOUTH_IDENTITY } from "../kernel/mouth.js";
+import { mechanicalUnitBody } from "./mechanical-units.js";
 
 // The mouth (Penelope) is the only draw entry — never ollama, never the
 // channel, past her. code-build's draws go through her /api/generate wire.
@@ -166,20 +167,46 @@ export async function buildCodeTask({ task, model, testCommand = null, out = nul
   // any other function" prompt measured 0 extracted units from both resident
   // mouths, GL-WV-08). The extractor keeps exactly the named unit; the
   // testCommand decides; never a steering instruction.
-  const draws = await pool(units, parallelism, (u) =>
-    // The completion anchor holds the small mouth in the target language: a
-    // bare "function name(" let both resident mouths answer the TASK as prose
-    // and drift to Python ("Certainly! Below is a Python module..."), measured
-    // 2026-10-01 on gemma2:2b and qwen2.5-coder:1.5b. The fenced JS head is
-    // the anchor the small model completes — the extractor strips the fence
-    // and keeps exactly the named unit (GL-BD-09, the small-model law).
-    draw(model, `${task}\n\n\`\`\`javascript\nfunction ${u.name}(`, { maxTokens: 512 }));
-  const parts = draws.map((d, i) => extractUnit(d?.text || "", units[i].name)).filter(Boolean);
+// The categories come first (Kant, GL-BD-12): a unit whose name legislates an
+  // a priori shape is COMPUTED by the box, 0 draws — logic is the understanding's,
+  // never the mouth's (the toCamelCase/toSnakeCase draw failed 4/10 golden pairs
+  // at 2026-10-01; the same shape now computes). Only the residue — a unit no
+  // category owns — is drawn, concurrently, with the fenced JS completion anchor
+  // (GL-BD-09: a bare "function name(" let both resident mouths answer the TASK
+  // as prose-Python; the fence is the anchor the small mouth completes). The
+  // extractor strips the fence and keeps exactly the named unit; the testCommand
+  // decides; never a steering instruction.
+  const computed = units.map((u) => mechanicalUnitBody(u.name));
+  const mouthUnits = units.filter((_, i) => !computed[i].ok);
+  const mouthDraws = mouthUnits.length
+    ? await pool(mouthUnits, parallelism, (u) => draw(model, `${task}\n\n\`\`\`javascript\nfunction ${u.name}(`, { maxTokens: 512 }))
+    : [];
+  const parts = [];
+  const provenance = [];
+  const drawErrors = [];
+  let mi = 0;
+  for (let i = 0; i < units.length; i += 1) {
+    const u = units[i];
+    if (computed[i].ok) {
+      parts.push(computed[i].body);
+      provenance.push({ unit: u.name, source: "box", shape: computed[i].shape, bytes: computed[i].body.length });
+      continue;
+    }
+    const d = mouthDraws[mi++];
+    const part = extractUnit(d?.text || "", u.name);
+    if (part) {
+      parts.push(part);
+      provenance.push({ unit: u.name, source: "mouth", bytes: part.length });
+    } else if (d?.error) drawErrors.push(d.error);
+  }
   const code = parts.join("\n\n") + "\n";
+  const boxUnits = provenance.filter((p) => p.source === "box");
+  const mouthCount = provenance.filter((p) => p.source === "mouth").length;
   if (!parts.length) {
-    // the mouth produced nothing extractable — a typed refusal, never an empty
-    // file the gate then blames (GL-WV-08)
-    const errors = [...new Set(draws.map((d) => d?.error).filter(Boolean))];
+    // nothing assembled — a typed refusal, never an empty file the gate blames
+    // (GL-WV-08). Box-computed units cannot empty the file; a refusal here means
+    // every unit was the residue and the mouth produced nothing extractable.
+    const errors = [...new Set(drawErrors)];
     return { ok: false, error: errors.length ? `draw failed: ${errors.join("; ")}` : "no units drawn — the mouth returned nothing extractable (named gap)" };
   }
   const looksJs = /\b(function|=>|const |let |require\(|export )/.test(code) && !/^\s*def |^\s*import |^\s*from /m.test(code);
@@ -213,14 +240,16 @@ export async function buildCodeTask({ task, model, testCommand = null, out = nul
       catch (e) { verified = false; verifyError = String(e.stderr || e.message).slice(0, 220); }
     }
   }
-  const tokens = draws.reduce((a, d) => a + (d?.tokens || 0), 0);
+  const tokens = mouthDraws.reduce((a, d) => a + (d?.tokens || 0), 0);
+  const boxBytes = boxUnits.reduce((a, p) => a + (p.bytes || 0), 0);
+  const mouthBytes = provenance.filter((p) => p.source === "mouth").reduce((a, p) => a + (p.bytes || 0), 0);
   return {
     ok: true, kind: "mechanical-code-build", units: units.map((u) => u.name),
-    draws: parts.length, tokens, wallMs: Date.now() - started, out: written,
-    verified, verifyError, code,
+    draws: mouthCount, tokens, wallMs: Date.now() - started, out: written,
+    verified, verifyError, code, provenance, boxUnits: boxUnits.map((p) => p.unit), boxBytes, mouthBytes,
     disclosure: {
       giver: "heimdall", standing: "disclosed",
-      rule: "a discrete multi-unit coding task is DECOMPOSED into independent units, each drawn from the model CONCURRENTLY (bounded by parallelism), then ASSEMBLED and VALIDATED mechanically — the structure is computed, only the units are generated, and the test (not the prose) decides. No testCommand ⇒ written and disclosed as UNVERIFIED.",
+      rule: "a discrete multi-unit coding task is DECOMPOSED into independent units — an a priori unit (a category the box legislates) is COMPUTED, never drawn; only the irreducible residue is drawn from the mouth CONCURRENTLY (bounded by parallelism); then ASSEMBLED and VALIDATED mechanically — the structure and the logic are the understanding's, the matter is the mouth's, and the test (not the prose) decides (GL-BD-12). No testCommand ⇒ written and disclosed as UNVERIFIED.",
     },
   };
 }

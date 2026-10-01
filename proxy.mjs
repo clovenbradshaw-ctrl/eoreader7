@@ -1220,6 +1220,7 @@ async function handleRequest(req, res) {
             answer: `Recognized a discrete build: computed the structure, drew ${b.draws} independent unit(s) concurrently (${b.units.join(", ")}) — ${b.tokens} tokens, ${b.wallMs}ms; ${b.verified === true ? "the test passed" : b.verified === "syntax_only" ? "syntax-checked (no test given)" : "VERIFICATION FAILED"}.`,
             kind: b.kind, units: b.units, draws: b.draws, tokens: b.tokens, wallMs: b.wallMs, verified: b.verified, verifyError: b.verifyError,
             code: b.code, disclosure: b.disclosure,
+            provenance: b.provenance ?? null, boxUnits: b.boxUnits ?? [], boxBytes: b.boxBytes ?? 0, mouthBytes: b.mouthBytes ?? 0,
           }));
           return;
         }
