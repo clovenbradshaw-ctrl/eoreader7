@@ -139,7 +139,7 @@ function wordsInOrder(asked, real) {
 export function resolveCard(asked, names = CARD_NAMES) {
   // the names OTHER libraries give an operation, declared by the card with their giver: `radians(x)` is Python's and numpy's degrees-to-radians. A bare `radians` is
   // ambiguous to the rules below (it is half of both angle cards' names); to a reader who knows the libraries it is one operation.
-  const asFolded = String(asked).toLowerCase(), declared = names.filter((n) => (CARDS[n].aliases ?? "").toLowerCase().split(/\s+/).includes(asFolded));
+  const asFolded = String(asked).toLowerCase(), declared = names.filter((n) => (CARDS[n]?.aliases ?? "").toLowerCase().split(/\s+/).includes(asFolded));
   if (declared.length === 1) return { resolved: true, real: declared[0], tier: 0, basis: `a name other libraries give this operation (${CARDS[declared[0]].aliasGiver})` };
   const r = resolveKey(asked, names);
   if (r.resolved || r.ambiguous) return r;
