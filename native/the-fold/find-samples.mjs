@@ -12,9 +12,10 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { cultivate, licensedCheck } from "../organs/cultivating.js";
 import { traceSample, licensed, leavesOf, redeal } from "../organs/tracing.js";
-import { parseSearchResults, extractUrls, decodeEntities, searchRequest, WEB_UA } from "../organs/web.js";
+import { extractUrls, decodeEntities, WEB_UA } from "../organs/web.js";
 import { tokenize } from "../organs/source.js";
 import { makeFetcher, openSeenLedger } from "./comp-research.mjs";
+import { searchWeb } from "./search-web.mjs";
 
 /** a response worth keeping as a sample: JSON, real numbers in it, and the need's own words in its keys or its address */
 export function sampleCheck(needWords, minLeaves = 6, minNumbers = 3) {
@@ -34,24 +35,15 @@ const looksLikeCall = (u) => /\/(api|v\d)\b|api[.-]|\.json(\?|$)|[?&][a-z_]+=/i.
 /** the shown sample: a kept document with long arrays cut to `n` items — a view of real bytes, never a rewrite */
 export function trimmed(doc, n = 2) { if (Array.isArray(doc)) return doc.slice(0, n).map((x) => trimmed(x, n)); if (doc && typeof doc === "object") return Object.fromEntries(Object.entries(doc).map(([k, v]) => [k, trimmed(v, n)])); return doc; }
 
-/** how long to wait before the one retry when the search face answers with its anomaly page after a burst; set by hand 2026-10-01 (a second search seconds after a first was blocked, 2026-10-01) */
-export const SEARCH_BACKOFF_MS = 25_000;
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 export async function findSamples({ need, queries, out, needCount = 2, budget = 8, maxPages = 6, minNumbers = 1, fetcher = makeFetcher(), searcher = makeFetcher({ ua: WEB_UA }), log = () => {} } = {}) {
   const L = openSeenLedger(out), needWords = [...new Set(tokenize(need).filter((w) => w.length >= 3))];
   const qs = queries ?? [`${need} free API JSON no key`, `${need} API example response`];
   L.see("find-begin", { need, queries: qs, needWords, declared: { needCount, budget, maxPages } });
   const pages = [], urls = new Map();
   for (const q of qs) {
-    let r, parsed;
-    for (let attempt = 0; attempt < 2; attempt++) {
-      const sreq = searchRequest(q); r = await searcher(sreq.url, { accept: "text/html", method: sreq.init.method, body: sreq.init.body, headers: sreq.init.headers });
-      parsed = r.ok ? parseSearchResults(r.text) : { results: [], blocked: false };
-      if (r.ok && !parsed.blocked && parsed.results.length) break;
-      if (attempt === 0) { L.see("search-backoff", { q, why: !r.ok ? `status ${r.status}` : parsed.blocked ? "anomaly page" : "no results parsed", waitMs: SEARCH_BACKOFF_MS }); await sleep(SEARCH_BACKOFF_MS); }
-    }
-    if (!r.ok) { L.see("search-failed", { q, status: r.status, why: r.refused ?? r.error ?? "" }); continue; }
-    if (parsed.blocked || !parsed.results.length) { L.see("search-blocked", { q, why: parsed.blocked ? "anomaly page" : "no results parsed", bytes: r.bytes }); continue; }
+    const s = await searchWeb(searcher, q, { see: (e, x) => L.see(e, x) });
+    if (s.gap) { L.see("search-blocked", { q, why: s.gap.detail, gap: s.gap.type, tries: s.tries }); continue; }
+    const parsed = { results: s.results };
     L.see("search", { q, results: parsed.results.map((x) => ({ title: x.title, url: x.url })) });
     for (const x of parsed.results) { if (pages.length < maxPages && !pages.some((p) => p.url === x.url)) pages.push(x); for (const u of extractUrls(`${x.title} ${x.snippet ?? ""}`)) urls.set(u, x.url); }
   }
