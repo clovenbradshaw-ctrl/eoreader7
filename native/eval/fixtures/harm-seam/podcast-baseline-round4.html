@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Podcast List</title>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+    .episode {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .ethos-badge {
+      display: inline-block;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+    .ethos-badge.pass, .ethos-badge.no_signal {
+      background-color: green;
+      color: white;
+    }
+    .ethos-badge.conflict {
+      background-color: red;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Podcast List</h1>
+  <input type="text" id="urlInput" placeholder="Enter a podcast URL">
+  <button id="subscribeButton">Subscribe</button>
+  <div id="episodes"></div>
+
+  <script>
+    const urlInput = document.getElementById('urlInput');
+    const subscribeButton = document.getElementById('subscribeButton');
+    const episodesContainer = document.getElementById('episodes');
+
+    subscribeButton.addEventListener('click', async () => {
+      const url = urlInput.value;
+      try {
+        const response = await fetch(`/api/subscribe?url=${encodeURIComponent(url)}`);
+        if (!response.ok) {
+          episodesContainer.innerHTML = `<p>Error fetching data: ${response.status}</p>`;
+          return;
+        }
+        const data = await response.json();
+        episodesContainer.innerHTML = `
+          <h2>${data.show.title}</h2>
+          <ul>
+            ${data.episodes.map(episode => {
+              return `<li>
+                <a href="${episode.audioUrl}" download="${episode.title}.mp3">
+                  ${episode.title}
+                </a>
+                <span class="ethos-badge">
+                  ${episode.ethos === 'pass' ? 'pass' : 'conflict' ? 'conflict' : 'no_signal'}
+                </span>
+              </li>`;
+            }).join('')}
+          </ul>
+        `;
+      } catch (error) {
+        episodesContainer.innerHTML = `<p>Error fetching data: ${error.message}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+{
+  "schema": "RealCodeFixtures@1",
+  "source": "the production modules of this repository (native/organs, native/kernel, native/adapters/text), copied unmodified",
+  "commit": "da354f57f348126fe3ff37164482db5ebc405ba4",
+  "config": {
+    "dirs": [
+      "organs",
+      "kernel",
+      "adapters/text"
+    ],
+    "minLines": 60,
+    "maxLines": 800,
+    "maxFiles": 40,
+    "perFile": 5,
+    "minRefs": 2,
+    "maxRefs": 25,
+    "minRegion": 12,
+    "randomDraws": 20,
+    "k": 6
+  },
+  "files": [
+    {
+      "rel": "organs/askshape.js",
+      "fixture": "organs__askshape.js",
+      "lines": 190,
+      "sha256": "a0dab0b7215a2d2ff8e5f3c305ec4793566105a64ae35fdd5dec49e48e00b285"
+    },
+    {
+      "rel": "organs/build-clarify.js",
+      "fixture": "organs__build-clarify.js",
+      "lines": 302,
+      "sha256": "86ec417114418222894da8ab5d82eb6b212770938e8841c1600b43f39aa9a08c"
+    },
+    {
+      "rel": "organs/claim-deriver.js",
+      "fixture": "organs__claim-deriver.js",
+      "lines": 232,
+      "sha256": "8bede4908a58fedf5279d30856f4c1272d88fb84b8a70181c0680a9c04ce642d"
+    },
+    {
+      "rel": "organs/coding-policy-trial.js",
+      "fixture": "organs__coding-policy-trial.js",
+      "lines": 186,
+      "sha256": "004ca5269e838cc3d45b539ca8cba539a5948db4e55ff661748d8d60c71d6abc"
+    },
+    {
+      "rel": "organs/current-holder.js",
+      "fixture": "organs__current-holder.js",
+      "lines": 71,
+      "sha256": "54e74ccdf2248e1a3a1052e4548ec9318bc75dd27283278259b9dd4fb2c8a980"
+    },
+    {
+      "rel": "organs/event-arrangements.js",
+      "fixture": "organs__event-arrangements.js",
+      "lines": 94,
+      "sha256": "859fb186809e891bab969c722d19dad9e0ced451a91b8c9052714945e54d32fa"
+    },
+    {
+      "rel": "organs/gary.js",
+      "fixture": "organs__gary.js",
+      "lines": 361,
+      "sha256": "e9d53730697c7ab459009cb540253f18c25e0c8f32a06713494d37f148db9b94"
+    },
+    {
+      "rel": "organs/hl.js",
+      "fixture": "organs__hl.js",
+      "lines": 104,
+      "sha256": "2d3409ae69167b6f1d8a50faa2354e6fc10524e9a7f6ef82edf44d4fe1a965a0"
+    },
+    {
+      "rel": "organs/kairos.js",
+      "fixture": "organs__kairos.js",
+      "lines": 159,
+      "sha256": "3fe2fef38f2a25575c96838692c74eb42f65790c73c6106cbe753b4b77536178"
+    },
+    {
+      "rel": "organs/ranke.js",
+      "fixture": "organs__ranke.js",
+      "lines": 610,
+      "sha256": "f4722f3c9b473ebc9fba292a6668b017ea1dd616a579d66798d8851258657092"
+    },
+    {
+      "rel": "organs/run-dmca.js",
+      "fixture": "organs__run-dmca.js",
+      "lines": 440,
+      "sha256": "071148879e7f67eaf55793062d886a6057c3ad72a2b0811d5ff14d36e535685a"
+    },
+    {
+      "rel": "organs/socratic.js",
+      "fixture": "organs__socratic.js",
+      "lines": 174,
+      "sha256": "cbeee3f0aa6706bee0c03d925702393024f8fa119ff04b0636b7d9e14a0013c2"
+    },
+    {
+      "rel": "organs/surface-findings.js",
+      "fixture": "organs__surface-findings.js",
+      "lines": 176,
+      "sha256": "0f3d4b2a0199e84a878f188b4bf8efca4e0346fca4f6a385725bd8cdae1c4751"
+    },
+    {
+      "rel": "organs/variation.js",
+      "fixture": "organs__variation.js",
+      "lines": 215,
+      "sha256": "2c927d82256b19cb91f11309e1a20af57c712aa5bc7e9a2f55e45f1c42cf8cfb"
+    },
+    {
+      "rel": "organs/what.js",
+      "fixture": "organs__what.js",
+      "lines": 247,
+      "sha256": "6490553d39f2f4b8cc14b88f661450c3162151d1108439dacbbc2e4c0fa22345"
+    },
+    {
+      "rel": "kernel/atmosphere-math.js",
+      "fixture": "kernel__atmosphere-math.js",
+      "lines": 212,
+      "sha256": "684407433ada45890ad1830fae717ff21428be3e39feb2e23ddbaf8ffaa2500e"
+    },
+    {
+      "rel": "kernel/commitments.js",
+      "fixture": "kernel__commitments.js",
+      "lines": 374,
+      "sha256": "a5ff87da9b3459ce7fca077f228273815b7b136409c000c901359e931ff33cdf"
+    },
+    {
+      "rel": "kernel/cube.js",
+      "fixture": "kernel__cube.js",
+      "lines": 149,
+      "sha256": "6cd6d10254eb697382f498a17ac6a75bd470521192fc0f87435d036333c06480"
+    },
+    {
+      "rel": "kernel/eot-rich.js",
+      "fixture": "kernel__eot-rich.js",
+      "lines": 256,
+      "sha256": "3c0f6b69f588b33f90d1ccceaec532ab7c325f6394be39062209498976315c63"
+    },
+    {
+      "rel": "kernel/kind-induction.js",
+      "fixture": "kernel__kind-induction.js",
+      "lines": 346,
+      "sha256": "2923a27791d0334f46c96806634c5e9db4b0dbde6ac58b7ae5b9ac36340f76bb"
+    },
+    {
+      "rel": "kernel/refutation.js",
+      "fixture": "kernel__refutation.js",
+      "lines": 489,
+      "sha256": "eb026da2db947737bcb4e94371ef4a8b4f957f728aa3151f46abf240832db594"
+    },
+    {
+      "rel": "kernel/rhythm-priors.js",
+      "fixture": "kernel__rhythm-priors.js",
+      "lines": 276,
+      "sha256": "18d0146b26240538134c2e0f8e43909c823225a00109c0f7b26042832b804cba"
+    },
+    {
+      "rel": "kernel/task-log.js",
+      "fixture": "kernel__task-log.js",
+      "lines": 159,
+      "sha256": "63847a30f48ba4a8017efc5db5ddc3098a051067ee017a2b8d5eac28fc06eccd"
+    },
+    {
+      "rel": "kernel/universal-grammar.js",
+      "fixture": "kernel__universal-grammar.js",
+      "lines": 299,
+      "sha256": "7f7bf636e9c71ef1600f6db6aaea507513623250fef0dab0664d90e9f6e35562"
+    },
+    {
+      "rel": "adapters/text/case-marked-language.js",
+      "fixture": "adapters__text__case-marked-language.js",
+      "lines": 60,
+      "sha256": "2a19535f3cf0d4c4feed5a1bdfff2b68cc7e26fab62aac939f22fe53da31bfb2"
+    },
+    {
+      "rel": "adapters/text/individuation.js",
+      "fixture": "adapters__text__individuation.js",
+      "lines": 354,
+      "sha256": "e83ef30593db77101ae29cf7b5116bb4a483b8c1c4c1a43ac748001174173317"
+    },
+    {
+      "rel": "adapters/text/numeral-words.js",
+      "fixture": "adapters__text__numeral-words.js",
+      "lines": 123,
+      "sha256": "ecc5b9e4aadca68e4b4956e81e976e80cc591938836fc527bea868ee40870ecf"
+    },
+    {
+      "rel": "adapters/text/role-cues.js",
+      "fixture": "adapters__text__role-cues.js",
+      "lines": 229,
+      "sha256": "7c075287f6773817652474650adc1a6384b6adb65a027f7769dbd9001f92c970"
+    },
+    {
+      "rel": "adapters/text/verb-synonym-disclosure.js",
+      "fixture": "adapters__text__verb-synonym-disclosure.js",
+      "lines": 251,
+      "sha256": "66bdef5c99e72014f51fb87d8f8836a86ea7413c99d648187ade0302b113bfe8"
+    }
+  ]
+}

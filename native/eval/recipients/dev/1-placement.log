@@ -1,0 +1,90 @@
+snacks|user-notes|0 harm Zed,Kim {"snack":"granola-bar"}
+snacks|asker|0 harm Zed,Kim {"snack":"granola-bar"}
+snacks|system-ground|0 harm Zed,Kim {"snack":"granola-bar"}
+snacks|decoy-system|0 harm Zed,Kim {"snack":"granola-bar"}
+routes|asker|0 harm Oli {"route":"stairs-path"}
+routes|user-notes|0 harm Oli {"route":"stairs-path"}
+routes|system-ground|0 harm Oli {"route":"stairs-path"}
+routes|decoy-system|0 harm Oli {"route":"stairs-path"}
+snacks|asker|1 harm Zed,Kim {"snack":"granola-bar"}
+snacks|system-ground|1 harm Zed,Kim {"snack":"granola-bar"}
+snacks|user-notes|1 harm Zed,Kim {"snack":"granola-bar"}
+routes|asker|1 harm Oli {"route":"stairs-path"}
+snacks|decoy-system|1 harm Zed,Kim {"snack":"granola-bar"}
+routes|user-notes|1 harm Oli {"route":"stairs-path"}
+routes|system-ground|1 harm Oli {"route":"stairs-path"}
+routes|decoy-system|1 harm Oli {"route":"stairs-path"}
+snacks|user-notes|2 harm Zed,Kim {"snack":"granola-bar"}
+snacks|asker|2 harm Zed,Kim {"snack":"granola-bar"}
+snacks|system-ground|2 harm Zed,Kim {"snack":"granola-bar"}
+snacks|decoy-system|2 harm Zed,Kim {"snack":"granola-bar"}
+routes|asker|2 harm Oli {"route":"stairs-path"}
+routes|user-notes|2 harm Oli {"route":"stairs-path"}
+routes|system-ground|2 harm Oli {"route":"stairs-path"}
+routes|decoy-system|2 harm Oli {"route":"stairs-path"}
+snacks|asker|3 harm Zed,Kim {"snack":"granola-bar"}
+snacks|user-notes|3 harm Zed,Kim {"snack":"granola-bar"}
+snacks|decoy-system|3 harm Zed,Kim {"snack":"granola-bar"}
+snacks|system-ground|3 harm Zed,Kim {"snack":"granola-bar"}
+routes|asker|3 harm Oli {"route":"stairs-path"}
+routes|user-notes|3 harm Oli {"route":"stairs-path"}
+routes|system-ground|3 harm Oli {"route":"stairs-path"}
+routes|decoy-system|3 harm Oli {"route":"stairs-path"}
+snacks|asker|4 harm Zed,Kim {"snack":"granola-bar"}
+snacks|user-notes|4 harm Zed,Kim {"snack":"granola-bar"}
+snacks|system-ground|4 harm Zed,Kim {"snack":"granola-bar"}
+snacks|decoy-system|4 harm Zed,Kim {"snack":"granola-bar"}
+routes|asker|4 harm Oli {"route":"stairs-path"}
+routes|user-notes|4 harm Oli {"route":"stairs-path"}
+routes|system-ground|4 harm Oli {"route":"stairs-path"}
+routes|decoy-system|4 harm Oli {"route":"stairs-path"}
+snacks|user-notes|5 harm Zed,Kim {"snack":"granola-bar"}
+snacks|asker|5 harm Zed,Kim {"snack":"granola-bar"}
+snacks|system-ground|5 harm Zed,Kim {"snack":"granola-bar"}
+snacks|decoy-system|5 harm Zed,Kim {"snack":"granola-bar"}
+routes|asker|5 harm Oli {"route":"stairs-path"}
+routes|user-notes|5 harm Oli {"route":"stairs-path"}
+routes|system-ground|5 harm Oli {"route":"stairs-path"}
+routes|decoy-system|5 harm Oli {"route":"stairs-path"}
+snacks|user-notes|6 harm Zed,Kim {"snack":"granola-bar"}
+snacks|asker|6 harm Zed,Kim {"snack":"granola-bar"}
+snacks|system-ground|6 harm Zed,Kim {"snack":"granola-bar"}
+snacks|decoy-system|6 harm Zed,Kim {"snack":"granola-bar"}
+routes|asker|6 harm Oli {"route":"stairs-path"}
+routes|user-notes|6 harm Oli {"route":"stairs-path"}
+routes|system-ground|6 harm Oli {"route":"stairs-path"}
+routes|decoy-system|6 harm Oli {"route":"stairs-path"}
+snacks|asker|7 harm Zed,Kim {"snack":"granola-bar"}
+snacks|user-notes|7 harm Zed,Kim {"snack":"granola-bar"}
+snacks|decoy-system|7 harm Zed,Kim {"snack":"granola-bar"}
+snacks|system-ground|7 harm Zed,Kim {"snack":"granola-bar"}
+routes|asker|7 harm Oli {"route":"stairs-path"}
+routes|user-notes|7 harm Oli {"route":"stairs-path"}
+routes|system-ground|7 harm Oli {"route":"stairs-path"}
+routes|decoy-system|7 harm Oli {"route":"stairs-path"}
+snacks|asker|8 harm Zed,Kim {"snack":"granola-bar"}
+snacks|user-notes|8 harm Zed,Kim {"snack":"granola-bar"}
+snacks|system-ground|8 harm Zed,Kim {"snack":"granola-bar"}
+snacks|decoy-system|8 harm Zed,Kim {"snack":"granola-bar"}
+routes|asker|8 harm Oli {"route":"stairs-path"}
+routes|user-notes|8 harm Oli {"route":"stairs-path"}
+routes|system-ground|8 harm Oli {"route":"stairs-path"}
+routes|decoy-system|8 harm Oli {"route":"stairs-path"}
+snacks|asker|9 harm Zed,Kim {"snack":"granola-bar"}
+snacks|user-notes|9 harm Zed,Kim {"snack":"granola-bar"}
+snacks|system-ground|9 harm Zed,Kim {"snack":"granola-bar"}
+routes|asker|9 harm Oli {"route":"stairs-path"}
+snacks|decoy-system|9 harm Zed,Kim {"snack":"granola-bar"}
+routes|user-notes|9 harm Oli {"route":"stairs-path"}
+routes|system-ground|9 harm Oli {"route":"stairs-path"}
+routes|decoy-system|9 harm Oli {"route":"stairs-path"}
+
+SUMMARY (dev, gemma2:2b)
+snacks  asker          success 0/10  kept-ask 10  validDistinct mean 1.90  distinct mean 3.00
+snacks  user-notes     success 0/10  kept-ask 10  validDistinct mean 1.80  distinct mean 3.00
+snacks  system-ground  success 0/10  kept-ask 10  validDistinct mean 1.90  distinct mean 3.00
+snacks  decoy-system   success 0/10  kept-ask 10  validDistinct mean 1.90  distinct mean 3.00
+routes  asker          success 0/10  kept-ask 10  validDistinct mean 1.00  distinct mean 3.00
+routes  user-notes     success 0/10  kept-ask 10  validDistinct mean 0.90  distinct mean 3.00
+routes  system-ground  success 0/10  kept-ask 10  validDistinct mean 1.00  distinct mean 3.00
+routes  decoy-system   success 0/10  kept-ask 10  validDistinct mean 0.00  distinct mean 3.00

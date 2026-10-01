@@ -72,8 +72,11 @@ export { EVIDENCE_FLOOR, scanFunctionalCandidates, acquireCandidates, recheckCan
 export * as hlAcquire from "./hl-acquire.js";
 // hl.js also RE-EXPORTS the engine's own HL API (verdicts, stage builders) — names the seam generator's export scan missed, added when void-hl broke on BEYOND_REACH.
 export { BOUND, CONTRADICTED, CONTESTED, UNBOUND, BEYOND_REACH, UNREFUTED, UNDETERMINED, flip, createStage, addAnchor, addEdge, declareFunctional, declareTransitive, declareComplete, extendStage, atomic, read, attach } from "./hl.js";
-export { ALIAS_REFUSALS, aliasIndex, declaredAliases, shapesFrom } from "./aliases.js";
+export { ALIAS_REFUSALS, aliasIndex, declaredAliases, licenseAliases, shapesFrom } from "./aliases.js";
 export * as aliases from "./aliases.js";
+// The routes by which two written forms are one referent, each a declared prior for a declared language (Chomsky, Sullivan).
+export { ENCLITIC_PRIORS, ENCLITIC_REFUSALS, MIN_STRIPPED_TOKEN, lastTokenFold, learnedNameFold, terminalEncliticFold } from "./identity-routes.js";
+export * as identityRoutes from "./identity-routes.js";
 export { witnessSentences, endsFor, settledBy, rowFor, WITNESS_VERDICTS } from "./witness-sentences.js";
 export * as witnessSentencesOrgan from "./witness-sentences.js";
 // floor 6 — a corroborated note as a premise (derivation.js)
@@ -226,8 +229,12 @@ export { makePassageComparison } from "./passage-comparison.js";
 export * as passageComparison from "./passage-comparison.js";
 export { bindActivationRetrieval } from "./activation-retrieval.js";
 export * as activationRetrieval from "./activation-retrieval.js";
-export { solonLogPath, KEEPER_MARKER, auditEnforcementMap, classifyResultsDoc, referencedBy, auditResults, diffFailures, readTail, scanResultsDir, runSuite, rootFiles, foldTestBodies, auditRecordDir, runLiveSweep, createKeeper, startServer } from "./solon.js";
-export * as solon from "./solon.js";
+// solon.js (Solon, the integrity keeper) is deliberately NOT re-exported here, exactly as look.js is not: it imports node:http, node:fs, node:os,
+// node:path and node:child_process at module load (the keeper's server, the suite runner, the record reader), so it cannot LOAD in a browser — and
+// this index is the page's own seam, so a static re-export drags node built-ins into every page import and kills the whole module graph. It came
+// back with the 2026-09-28 move down from the-fold and went unseen because no node test loads the page. Its consumers (solon-run.mjs, the keeper
+// server, its own tests) import it by path, server-side only, as the split law requires: pure organs in the seam, I/O organs at their caller.
+// conformance/seam-browser-safe.test.mjs walks this file's static closure, so the next one fails a test instead of a browser.
 
 // ---- which fold, for whom (2026-09-28)
 export { planFold, INTERPRETIVE } from "./fold-plan.js";
@@ -236,8 +243,9 @@ export { MEASUREMENT_GAP, hasMeasurementGap, placeFromRegistries, profileOfTerra
 export * as capacityPlace from "./capacity-place.js";
 
 // ---- from main: hard-read, silence, quantities, ingest
-export { HARDREAD_SCHEMA, RULE_FLOOR, MAX_ANTS, MAX_REGIONS, autoHardRead, concedeRule, emptyRules, expressionOf, hardReadSource, hardSignals, learnRules, learnedDir, loadLearned, readingFromText, saveLearned, senses, skeleton, swarmRegion } from "./hard-read.js";
-export * as hardRead from "./hard-read.js";
+// hard-read.js and ingest.js are in the same split as solon.js above, for the same reason: hard-read.js imports node:child_process, node:fs,
+// node:os, node:path and node:url (it shells out to the learned-rule store and the visual detector), ingest.js node:zlib, node:fs, node:os,
+// node:path and node:child_process (it unzips and converts what it is handed). Neither can load in a browser; both are imported by path by the
+// er7 proxy and by native/the-fold/surface/, their server-side callers. silence.js and quantities.js, their pure neighbours, stay.
 export { unreadMentions } from "./silence.js";
 export { ANCHOR_GENERIC, readQuantities } from "./quantities.js";
-export { ingest, readZip, parseDelimited, INGEST_SCHEMA } from "./ingest.js";

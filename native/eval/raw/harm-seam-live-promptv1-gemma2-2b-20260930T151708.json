@@ -1,0 +1,186 @@
+{
+  "model": "gemma2:2b",
+  "url": "http://127.0.0.1:11434",
+  "report": {
+    "undeclared": {
+      "n": 10,
+      "seam_holds": 0,
+      "silent_seam_break": 10,
+      "structure_broken": 0,
+      "writer_failed": 0,
+      "splice_refused": 0,
+      "runs": [
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.pass, .ethos-badge.no_signal {\n      background-color: green;\n      color: white;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge verdict-{episode.ethos}\">"
+          },
+          "detail": "pass: renders unstyled (wanted green; badge classes: ethos-badge verdict-{episode.ethos}); conflict: renders unstyled (wanted red; badge classes: ethos-badge verdict-{episode.ethos}); no_signal: renders unstyled (wanted gray; badge classes: ethos-badge verdict-{episode.ethos})"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.pass, .ethos-badge.no_signal {\n      background-color: green;\n      color: white;\n    }\n.ethos-badge.no_signal {\n      background-color: gray;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge verdict-badge\">"
+          },
+          "detail": "pass: renders unstyled (wanted green; badge classes: ethos-badge verdict-badge); conflict: renders unstyled (wanted red; badge classes: ethos-badge verdict-badge); no_signal: renders unstyled (wanted gray; badge classes: ethos-badge verdict-badge)"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.no_signal {\n      background-color: gray;\n      color: white;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge\">\n  <span class=\"ethos-badge-verdict\">\n    \n  </span>\n</span>"
+          },
+          "detail": "pass: renders unstyled (wanted green; badge classes: ethos-badge); conflict: renders unstyled (wanted red; badge classes: ethos-badge); no_signal: renders unstyled (wanted gray; badge classes: ethos-badge)"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.pass, .ethos-badge.no_signal {\n      background-color: green;\n      color: white;\n    }\n.ethos-badge.no_signal {\n      background-color: gray;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge\">\n  <span class=\"ethos-badge-verdict\">\n    \n  </span>\n</span>"
+          },
+          "detail": "pass: renders unstyled (wanted green; badge classes: ethos-badge); conflict: renders unstyled (wanted red; badge classes: ethos-badge); no_signal: renders unstyled (wanted gray; badge classes: ethos-badge)"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.pass, .ethos-badge.no_signal {\n      background-color: green;\n      color: white;\n    }\n.ethos-badge.no_signal {\n      background-color: gray;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge\">\n  <span class=\"ethos-badge-verdict\">\n    </span>\n</span>"
+          },
+          "detail": "pass: renders unstyled (wanted green; badge classes: ethos-badge); conflict: renders unstyled (wanted red; badge classes: ethos-badge); no_signal: renders unstyled (wanted gray; badge classes: ethos-badge)"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.pass, .ethos-badge.no_signal {\n      background-color: green;\n      color: white;\n    }\n.ethos-badge.no_signal {\n      background-color: gray;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge verdict-<%= episode.ethos %>\">"
+          },
+          "detail": "pass: no badge; conflict: no badge; no_signal: no badge"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.no_signal {\n      background-color: gray;\n      color: white;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge verdict-{episode.ethos}\">"
+          },
+          "detail": "pass: renders unstyled (wanted green; badge classes: ethos-badge verdict-{episode.ethos}); conflict: renders unstyled (wanted red; badge classes: ethos-badge verdict-{episode.ethos}); no_signal: renders unstyled (wanted gray; badge classes: ethos-badge verdict-{episode.ethos})"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.no_signal {\n      background-color: gray;\n      color: white;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge verdict-badge\">"
+          },
+          "detail": "pass: renders unstyled (wanted green; badge classes: ethos-badge verdict-badge); conflict: renders unstyled (wanted red; badge classes: ethos-badge verdict-badge); no_signal: renders unstyled (wanted gray; badge classes: ethos-badge verdict-badge)"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.pass, .ethos-badge.no_signal {\n      background-color: green;\n      color: white;\n    }\n.ethos-badge.no_signal {\n      background-color: gray;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge verdict-<%= episode.ethos %>\">"
+          },
+          "detail": "pass: no badge; conflict: no badge; no_signal: no badge"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.pass, .ethos-badge.no_signal {\n      background-color: green;\n      color: white;\n    }\n.ethos-badge.no_signal {\n      background-color: gray;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge verdict-<%= episode.ethos %>\">"
+          },
+          "detail": "pass: no badge; conflict: no badge; no_signal: no badge"
+        }
+      ]
+    },
+    "declared": {
+      "n": 10,
+      "seam_holds": 0,
+      "silent_seam_break": 10,
+      "structure_broken": 0,
+      "writer_failed": 0,
+      "splice_refused": 0,
+      "runs": [
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.pass, .ethos-badge.no_signal {\n      background-color: green;\n      color: white;\n    }\n.ethos-badge.no_signal {\n      background-color: gray;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge verdict-{episode.ethos}\">"
+          },
+          "detail": "pass: renders unstyled (wanted green; badge classes: ethos-badge verdict-{episode.ethos}); conflict: renders unstyled (wanted red; badge classes: ethos-badge verdict-{episode.ethos}); no_signal: renders unstyled (wanted gray; badge classes: ethos-badge verdict-{episode.ethos})"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.pass, .ethos-badge.no_signal {\n      background-color: green;\n      color: white;\n    }\n.ethos-badge.no_signal {\n      background-color: gray;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge verdict-{episode.ethos}\">"
+          },
+          "detail": "pass: renders unstyled (wanted green; badge classes: ethos-badge verdict-{episode.ethos}); conflict: renders unstyled (wanted red; badge classes: ethos-badge verdict-{episode.ethos}); no_signal: renders unstyled (wanted gray; badge classes: ethos-badge verdict-{episode.ethos})"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.pass, .ethos-badge.no_signal {\n      background-color: green;\n      color: white;\n    }\n.ethos-badge.no_signal {\n      background-color: gray;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge verdict-{episode.ethos}\">"
+          },
+          "detail": "pass: renders unstyled (wanted green; badge classes: ethos-badge verdict-{episode.ethos}); conflict: renders unstyled (wanted red; badge classes: ethos-badge verdict-{episode.ethos}); no_signal: renders unstyled (wanted gray; badge classes: ethos-badge verdict-{episode.ethos})"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.pass, .ethos-badge.no_signal {\n      background-color: green;\n      color: white;\n    }\n.ethos-badge.no_signal {\n      background-color: gray;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge verdict-{episode.ethos}\">"
+          },
+          "detail": "pass: renders unstyled (wanted green; badge classes: ethos-badge verdict-{episode.ethos}); conflict: renders unstyled (wanted red; badge classes: ethos-badge verdict-{episode.ethos}); no_signal: renders unstyled (wanted gray; badge classes: ethos-badge verdict-{episode.ethos})"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.pass, .ethos-badge.no_signal {\n      background-color: green;\n      color: white;\n    }\n.ethos-badge.no_signal {\n      background-color: gray;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge verdict-{episode.ethos}\">"
+          },
+          "detail": "pass: renders unstyled (wanted green; badge classes: ethos-badge verdict-{episode.ethos}); conflict: renders unstyled (wanted red; badge classes: ethos-badge verdict-{episode.ethos}); no_signal: renders unstyled (wanted gray; badge classes: ethos-badge verdict-{episode.ethos})"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.pass, .ethos-badge.no_signal {\n      background-color: green;\n      color: white;\n    }\n.ethos-badge.no_signal {\n      background-color: gray;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge verdict-pass\">"
+          },
+          "detail": "pass: renders unstyled (wanted green; badge classes: ethos-badge verdict-pass); conflict: renders unstyled (wanted red; badge classes: ethos-badge verdict-pass); no_signal: renders unstyled (wanted gray; badge classes: ethos-badge verdict-pass)"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.pass, .ethos-badge.no_signal {\n      background-color: green;\n      color: white;\n    }\n.ethos-badge.no_signal {\n      background-color: gray;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge verdict-{episode.ethos}\">"
+          },
+          "detail": "pass: renders unstyled (wanted green; badge classes: ethos-badge verdict-{episode.ethos}); conflict: renders unstyled (wanted red; badge classes: ethos-badge verdict-{episode.ethos}); no_signal: renders unstyled (wanted gray; badge classes: ethos-badge verdict-{episode.ethos})"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.pass, .ethos-badge.no_signal {\n      background-color: green;\n      color: white;\n    }\n.ethos-badge.no_signal {\n      background-color: gray;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge\">\n  <span class=\"ethos-badge-verdict\">pass</span>\n</span>"
+          },
+          "detail": "pass: renders unstyled (wanted green; badge classes: ethos-badge); conflict: renders unstyled (wanted red; badge classes: ethos-badge); no_signal: renders unstyled (wanted gray; badge classes: ethos-badge)"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.pass, .ethos-badge.no_signal {\n      background-color: green;\n      color: white;\n    }\n.ethos-badge.no_signal {\n      background-color: gray;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge verdict-pass\" />"
+          },
+          "detail": "pass: renders unstyled (wanted green; badge classes: ethos-badge verdict-pass); conflict: renders unstyled (wanted red; badge classes: ethos-badge verdict-pass); no_signal: renders unstyled (wanted gray; badge classes: ethos-badge verdict-pass)"
+        },
+        {
+          "outcome": "silent_seam_break",
+          "fragments": {
+            "cssRule": ".ethos-badge.pass, .ethos-badge.no_signal {\n      background-color: green;\n      color: white;\n    }\n.ethos-badge.no_signal {\n      background-color: gray;\n    }",
+            "badgeOpen": "<span class=\"ethos-badge verdict-{episode.ethos}\">"
+          },
+          "detail": "pass: renders unstyled (wanted green; badge classes: ethos-badge verdict-{episode.ethos}); conflict: renders unstyled (wanted red; badge classes: ethos-badge verdict-{episode.ethos}); no_signal: renders unstyled (wanted gray; badge classes: ethos-badge verdict-{episode.ethos})"
+        }
+      ]
+    }
+  }
+}

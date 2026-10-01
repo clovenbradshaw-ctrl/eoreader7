@@ -24,8 +24,19 @@ node_modules/
 # ~5.7 MB already on main.
 native/eval/the-fold/fixtures/primary-faces/
 native/eval/the-fold/results/*.json
+# …except the records a results-reader test regenerates its document from. The rule above rests on "no test reads it"; these five are the
+# exceptions that make that sentence false on purpose (the-fold POLICIES.md P94: a number in a results document is enforced only while the
+# record it was computed from is committed beside it). possessive-audit-results.test.js, possessive-audit-learned-results.test.js and
+# alias-precision-results.test.js read them.
+!native/eval/the-fold/results/possessive-audit.raw.json
+!native/eval/the-fold/results/possessive-audit-learned.raw.json
+!native/eval/the-fold/results/possessive-audit-labels.json
+!native/eval/the-fold/results/alias-precision.raw.json
+!native/eval/the-fold/results/alias-precision-labels.json
 native/eval/results/*.json
 native/eval/lavar/results/*-test.json
+# the ten UD treebanks sullivan-names.mjs reads (1-25 MB each, fetched by fetch-ud-name-treebanks.sh, hashes recorded in results/sullivan-names.json)
+native/eval/lavar/ud-names/
 native/eval/the-fold/results/longform-multi-type-*/
 native/eval/the-fold/results/longform-code-*/
 

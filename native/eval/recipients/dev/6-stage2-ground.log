@@ -1,0 +1,74 @@
+snacks|two-stage|0 success kept=false
+snacks|two-stage-g|0 success kept=false
+routes|two-stage|0 success kept=false
+routes|two-stage-g|0 harm kept=false
+snacks-ok|two-stage|0 success kept=true
+snacks-ok|two-stage-g|0 success kept=true
+routes-ok|two-stage|0 success kept=true
+routes-ok|two-stage-g|0 success kept=true
+snacks|two-stage|1 success kept=false
+snacks|two-stage-g|1 success kept=false
+routes|two-stage|1 success kept=false
+routes|two-stage-g|1 harm kept=false
+snacks-ok|two-stage|1 success kept=true
+snacks-ok|two-stage-g|1 success kept=true
+routes-ok|two-stage|1 success kept=true
+routes-ok|two-stage-g|1 success kept=true
+snacks|two-stage|2 success kept=false
+snacks|two-stage-g|2 success kept=false
+routes|two-stage|2 success kept=false
+routes|two-stage-g|2 harm kept=false
+snacks-ok|two-stage|2 success kept=true
+snacks-ok|two-stage-g|2 success kept=true
+routes-ok|two-stage|2 success kept=true
+routes-ok|two-stage-g|2 success kept=true
+snacks|two-stage|3 success kept=false
+snacks|two-stage-g|3 success kept=false
+routes|two-stage|3 success kept=false
+routes|two-stage-g|3 harm kept=false
+snacks-ok|two-stage|3 success kept=true
+snacks-ok|two-stage-g|3 success kept=true
+routes-ok|two-stage|3 success kept=true
+routes-ok|two-stage-g|3 success kept=true
+snacks|two-stage|4 success kept=false
+snacks|two-stage-g|4 success kept=false
+routes|two-stage|4 success kept=false
+routes|two-stage-g|4 harm kept=false
+snacks-ok|two-stage|4 success kept=true
+snacks-ok|two-stage-g|4 success kept=true
+routes-ok|two-stage|4 success kept=true
+routes-ok|two-stage-g|4 success kept=true
+snacks|two-stage|5 harm kept=false
+routes|two-stage|5 success kept=false
+snacks|two-stage-g|5 success kept=false
+routes|two-stage-g|5 harm kept=false
+snacks-ok|two-stage|5 success kept=true
+routes-ok|two-stage|5 success kept=true
+snacks-ok|two-stage-g|5 success kept=true
+routes-ok|two-stage-g|5 success kept=true
+snacks|two-stage|6 success kept=false
+snacks|two-stage-g|6 success kept=false
+routes|two-stage|6 success kept=false
+routes|two-stage-g|6 harm kept=false
+snacks-ok|two-stage|6 success kept=true
+snacks-ok|two-stage-g|6 success kept=true
+routes-ok|two-stage|6 success kept=true
+routes-ok|two-stage-g|6 success kept=true
+snacks|two-stage|7 success kept=false
+snacks|two-stage-g|7 success kept=false
+routes|two-stage|7 success kept=false
+routes|two-stage-g|7 harm kept=false
+snacks-ok|two-stage|7 success kept=true
+routes-ok|two-stage|7 success kept=true
+snacks-ok|two-stage-g|7 success kept=true
+routes-ok|two-stage-g|7 success kept=true
+
+SUMMARY (dev, gemma2:2b)
+snacks     conflict   two-stage  success 7/8  kept-ask 0  validDistinct 2.88  | stage-1 proposals valid 23/26
+snacks     conflict   two-stage-g success 8/8  kept-ask 0  validDistinct 3.00
+routes     conflict   two-stage  success 8/8  kept-ask 0  validDistinct 1.00  | stage-1 proposals valid 8/16
+routes     conflict   two-stage-g success 0/8  kept-ask 0  validDistinct 1.00
+snacks-ok  compatible two-stage  success 8/8  kept-ask 8  validDistinct 3.00  | stage-1 proposals valid 24/27
+snacks-ok  compatible two-stage-g success 8/8  kept-ask 8  validDistinct 2.88
+routes-ok  compatible two-stage  success 8/8  kept-ask 8  validDistinct 1.00  | stage-1 proposals valid 8/16
+routes-ok  compatible two-stage-g success 8/8  kept-ask 8  validDistinct 1.00

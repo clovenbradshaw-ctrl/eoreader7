@@ -405,6 +405,108 @@
                 "native/adapters/build/podcast-app-ledger.js"
             ],
             "basis": "falsification that the four structural properties hold with zero scripture in the writer's own prompt (citations moved to a convergent-validation record) — UI-codegen organ, no registered row; recorded as a typed gap"
+        },
+        "harm-seam-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/harm-seam.mjs"
+            ],
+            "basis": "eval/harm-seam.mjs — a deterministic probe of a splice-and-gate pipeline design over scripted writers and a vm-rendered page; it reads no material through any registered assembly, so what it measured is its own harness (the seam contract, the rendered oracle, the append-only landing), recorded as a typed gap rather than forced under the nearest cut"
+        },
+        "harm-seam-RESULTS.json": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/harm-seam.mjs"
+            ],
+            "basis": "same driver (git-ignored under eval/results/*.json; present after a local run)"
+        },
+        "reach-ceiling-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/reach/battery.mjs",
+                "native/eval/reach/check.mjs"
+            ],
+            "basis": "eval/reach/battery.mjs --ceiling — a deterministic, model-free table of what an ideal writer of the shown text achieves under each prompt arm, scored by executing the result; it reads no material through any registered assembly, so it is recorded as a typed gap"
+        },
+        "reach-real-code-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/reach/real-code.mjs",
+                "native/eval/reach/battery.mjs"
+            ],
+            "basis": "eval/reach/real-code.mjs — a deterministic, model-free comparison of one name-overlap derivation against the TypeScript reference finder on frozen production modules of this repository; it reads no material through any registered assembly, so it is recorded as a typed gap"
+        },
+        "reach-derivation-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/reach/battery.mjs"
+            ],
+            "basis": "eval/reach/battery.mjs --derive — a deterministic, model-free accuracy table of one name-overlap derivation against hand-declared dependents in six media; it reads no material through any registered assembly (its input is its own task set), so it is recorded as a typed gap rather than forced under the nearest cut"
+        },
+        "reach-battery-gemma2-2b-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/reach/battery.mjs",
+                "native/eval/reach/check.mjs",
+                "native/eval/reach/tasks.mjs"
+            ],
+            "basis": "eval/reach/battery.mjs --summarize — the re-summary of committed live records (native/eval/raw/reach-battery-*.jsonl) of a small model editing artifacts under seven prompt arms, scored by executing the result; no registered assembly reads any material here, so it is a typed gap"
+        },
+        "reach-counterfactual-gemma2-2b-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/reach/counterfactual.mjs",
+                "native/eval/reach/battery.mjs",
+                "native/eval/reach/check.mjs"
+            ],
+            "basis": "eval/reach/counterfactual.mjs — the recorded edits of a small model (native/eval/raw/reach-battery-*.jsonl) re-applied, without a model, under other tool semantics (whole-identifier finds, closure over the derived lines, a landing gate) and scored by executing the result; the as-run control must reproduce the recorded outcome row for row. No registered assembly reads any material here, so it is a typed gap"
+        },
+        "reach-revise-gemma2-2b-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/reach/revise.mjs",
+                "native/eval/reach/battery.mjs",
+                "native/eval/reach/check.mjs"
+            ],
+            "basis": "eval/reach/revise.mjs --summarize — the re-summary of committed live records (native/eval/raw/reach-revise-*.jsonl) of a small model given one repair turn on edits that a derived integrity check flagged, scored by executing the result; no registered assembly reads any material here, so it is a typed gap"
+        },
+        "reach-battery-qwen2.5-1.5b-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/reach/battery.mjs",
+                "native/eval/reach/check.mjs",
+                "native/eval/reach/tasks.mjs"
+            ],
+            "basis": "eval/reach/battery.mjs --summarize — the re-summary of committed live records of a second small model editing artifacts under eight prompt arms, scored by executing the result; no registered assembly reads any material here, so it is a typed gap"
+        },
+        "reach-battery-llama3.2-3b-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/reach/battery.mjs",
+                "native/eval/reach/check.mjs",
+                "native/eval/reach/tasks.mjs"
+            ],
+            "basis": "eval/reach/battery.mjs --summarize — the re-summary of committed live records of a third small model editing artifacts under six prompt arms, scored by executing the result; no registered assembly reads any material here, so it is a typed gap"
         }
     }
 }

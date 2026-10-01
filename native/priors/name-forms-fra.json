@@ -1,0 +1,218 @@
+{
+ "schema": "NameFormPrior@1",
+ "language": {
+  "iso": "fra",
+  "bcp47": "fr",
+  "name": "French",
+  "stage": "Present-day French, web and news"
+ },
+ "provenance": {
+  "giver": {
+   "value": "UD_French-GSD (de Marneffe, Guillaume, McDonald, Suhr, Nivre, Grioni, Dickerson, Perrier — README Contributors), converted in 2015 from the content-head version of the universal dependency treebank v2.0 and updated independently since",
+   "basis": "declared from the treebank's documentation"
+  },
+  "period": {
+   "value": "the README states no dates for the texts",
+   "basis": "declared from the treebank's documentation"
+  },
+  "region": {
+   "value": "the README states no region",
+   "basis": "declared from the treebank's documentation"
+  },
+  "register": {
+   "value": "blog, news, reviews, wiki (README genre)",
+   "basis": "declared from the treebank's documentation"
+  },
+  "script": {
+   "value": "Latin (99.9% of the 165944 letters of the name words)",
+   "basis": "measured from the file"
+  },
+  "license": {
+   "value": "CC BY-SA 4.0",
+   "basis": "declared from the treebank's documentation"
+  },
+  "source": {
+   "value": "UD_French-GSD, UD master as fetched 2026-10-01: fr_gsd-train.conllu sha256 4b9a87b1b7e6e7003219df1d3ccca87ffaca0f00a6055b12b1857df5373589d2 (25555018 bytes, 14450 sentences); fr_gsd-dev.conllu sha256 9221e5084cc6a1b1540671cfbd2fc0456efc223b2fe8dd2146c2bad921be02d4 (2573677 bytes, 1476 sentences); fr_gsd-test.conllu sha256 eee5a599b429658b6ee8582fae9993eb07161247fc64bad57d16b2050ed4eb1a (724095 bytes, 416 sentences)",
+   "basis": "measured from the file"
+  },
+  "lemmas": {
+   "value": "Lemmas: automatic with corrections (the README's machine-readable metadata). A name's gold stem is its lemma's, so a stem the lemmatizer got wrong is a miss this prior is charged for.",
+   "basis": "declared from the treebank's documentation"
+  }
+ },
+ "normalisation": {
+  "nfc": true,
+  "lowercase": true,
+  "apostrophes": "U+2019 U+02BC U+2018 U+0060 U+00B4 folded to U+0027"
+ },
+ "classes": {
+  "preserving": [
+   "clitic",
+   "case"
+  ],
+  "reason": "a clitic or a case ending marks a name's role in its clause and leaves the referent where it was; a plural marks a group, so it is never stripped (the treebank's lemma of a plural is its singular, which is why this is declared and not searched)"
+ },
+ "operatingPoint": {
+  "minShare": 0.95,
+  "minCount": 10,
+  "maxK": 3,
+  "minStem": 1,
+  "classes": [
+   "clitic",
+   "case"
+  ],
+  "heldOut": {
+   "dev": {
+    "H": 1,
+    "A": 1,
+    "C": 1,
+    "issued": 141,
+    "correct": 141,
+    "gold": 141,
+    "falseStrips": 0,
+    "wrongStrips": 0,
+    "types": 2060
+   },
+   "test": {
+    "H": 1,
+    "A": 1,
+    "C": 1,
+    "issued": 38,
+    "correct": 38,
+    "gold": 38,
+    "falseStrips": 0,
+    "wrongStrips": 0,
+    "types": 410
+   }
+  },
+  "lineage": {
+   "fitness": "H = 2AC/(A+C) over the DEV types",
+   "space": {
+    "minShare": [
+     0.5,
+     0.6,
+     0.7,
+     0.8,
+     0.9,
+     0.95
+    ],
+    "minCount": [
+     2,
+     3,
+     5,
+     10,
+     20,
+     50
+    ],
+    "maxK": [
+     2,
+     3,
+     4
+    ]
+   },
+   "selector": "exhaustive sweep, then the plateau's least-claim point",
+   "plateau": 48,
+   "arms": {
+    "sweep": {
+     "name": "sweep",
+     "devH": 1,
+     "cfg": {
+      "minShare": 0.95,
+      "minCount": 10,
+      "maxK": 3
+     },
+     "testH": 1,
+     "evaluations": 108
+    },
+    "swarm": {
+     "name": "swarm",
+     "devH": 1,
+     "cfg": {
+      "minShare": 0.95,
+      "minCount": 5,
+      "maxK": 3
+     },
+     "testH": 1,
+     "evaluations": 31,
+     "births": 28,
+     "admitted": 0,
+     "generations": 2,
+     "bar": 2.220446049250313e-16,
+     "dry": true,
+     "gateH": 1,
+     "gateCfg": {
+      "minShare": 0.7,
+      "minCount": 5,
+      "maxK": 3
+     },
+     "stall": {
+      "gains": 0,
+      "gainsAdmitted": 0,
+      "largestGain": null,
+      "largestLoss": -0.0071428571428571175
+     }
+    },
+    "gainsOnly": {
+     "name": "gainsOnly",
+     "devH": 1,
+     "cfg": {
+      "minShare": 0.95,
+      "minCount": 5,
+      "maxK": 3
+     },
+     "testH": 1,
+     "evaluations": 31,
+     "births": 28,
+     "admitted": 0,
+     "generations": 2,
+     "gateH": 1,
+     "gateCfg": {
+      "minShare": 0.7,
+      "minCount": 5,
+      "maxK": 3
+     },
+     "stall": {
+      "gains": 0,
+      "gainsAdmitted": 0,
+      "largestGain": null,
+      "largestLoss": -0.0071428571428571175
+     }
+    }
+   }
+  }
+ },
+ "explains": {
+  "nameWords": 24649,
+  "preservingSuffix": 0,
+  "preservingPrefix": 1517,
+  "number": 1,
+  "other": 12
+ },
+ "suffixRules": [],
+ "prefixRules": [
+  {
+   "ending": "qu'",
+   "kind": "strip",
+   "exponent": "qu'",
+   "class": "clitic",
+   "share": 1,
+   "n": 18
+  },
+  {
+   "ending": "d'",
+   "kind": "strip",
+   "exponent": "d'",
+   "class": "clitic",
+   "share": 0.9909,
+   "n": 772
+  },
+  {
+   "ending": "l'",
+   "kind": "strip",
+   "exponent": "l'",
+   "class": "clitic",
+   "share": 0.9959,
+   "n": 732
+  }
+ ]
+}
