@@ -24,7 +24,7 @@ export function sampleCheck(needWords, minLeaves = 6, minNumbers = 3) {
     if (leaves.length < minLeaves) return { ok: false, why: `only ${leaves.length} leaves (need ${minLeaves})` };
     if (nums < minNumbers) return { ok: false, why: `only ${nums} numeric leaves (need ${minNumbers})` };
     const hay = (leaves.map((l) => l.path).join(" ") + " " + (cand?.url ?? "")).toLowerCase(), hit = needWords.filter((w) => hay.includes(w));
-    if (!hit.length) return { ok: false, why: "no word of the need appears in its keys or its address" };
+    if (needWords.length && !hit.length) return { ok: false, why: "no word of the need appears in its keys or its address" };
     return { ok: true, evidence: { leaves: leaves.length, numbers: nums, needWordsFound: hit } };
   };
 }
