@@ -38,13 +38,13 @@ export function typeShape(values, depth = 0) {
 }
 
 /** the simple prompt: a file that already holds the helpers and three worked examples, ending where the function begins. `typed` adds what the examples already show, said once as types. */
-export function simplePrompt(contract, shown = SHOWN, { typed = false } = {}) {
+export function simplePrompt(contract, shown = SHOWN, { typed = false, helpers = true } = {}) {
   const runs = contract.runs.slice(0, shown);
   const types = typed ? [`// takes: (${contract.params.map((p, i) => `${p}: ${typeShape(runs.map((r) => r.args()[i]))}`).join(", ")})`, `// returns: ${typeShape(runs.map((r) => r.want()))}`] : [];
   const lines = [`// ${contract.doc}`, ...String(contract.returns).split("\n").map((l) => `// ${l.trim()}`), ...(contract.notes ? [`// ${contract.notes}`] : []), ...types, "//", "// Examples:"];
   for (const run of contract.runs.slice(0, shown)) lines.push(`//   ${contract.name}(${run.args().map(json).join(", ")}) -> ${json(run.want())}`);
-  const helpers = cardsFor(contract).map((c) => CARDS[c.name].fn.toString());
-  return `${lines.join("\n")}\n\n${helpers.length ? `${helpers.join("\n")}\n\n` : ""}function ${contract.name}(${contract.params.join(", ")}) {\n`;
+  const offered = helpers ? cardsFor(contract).map((c) => CARDS[c.name].fn.toString()) : [];
+  return `${lines.join("\n")}\n\n${offered.length ? `${offered.join("\n")}\n\n` : ""}function ${contract.name}(${contract.params.join(", ")}) {\n`;
 }
 
 async function complete(model, prompt, { temperature, num_predict = 400 }) {
