@@ -115,11 +115,38 @@ const clean = (txt) => {
 // aware brace walk from the named head to its matching close (GL-EN-09), so a
 // draw that emits several functions yields each complete. The old line-boundary
 // split truncated every unit at the next function's head — measured, GL-WV-09.
-function findName(text, name) {
+function findName(text, name, lang = "js") {
   const esc = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const re = new RegExp(`(?:function\\s+${esc}\\s*\\(|(?:const|let|var)\\s+${esc}\\s*=)`);
+  const re = lang === "python"
+    ? new RegExp(`def\\s+${esc}\\s*\\(`)
+    : new RegExp(`(?:function\\s+${esc}\\s*\\(|(?:const|let|var)\\s+${esc}\\s*=)`);
   const m = re.exec(text);
   return m ? m.index : -1;
+}
+/** The python block's end: the first line after the def's body that returns to
+ *  (or falls below) the body's own indent — indentation, never braces. */
+function pyBlockEnd(src, from) {
+  const n = src.length;
+  let j = (src.indexOf("\n", from) < 0 ? n : src.indexOf("\n", from)) + 1;
+  let bodyIndent = -1;
+  while (j < n) {
+    const e = src.indexOf("\n", j);
+    const line = src.slice(j, e < 0 ? n : e);
+    const trimmed = line.trim();
+    if (!trimmed) { j = (e < 0 ? n : e) + 1; continue; }
+    bodyIndent = line.length - line.trimStart().length;
+    j = (e < 0 ? n : e) + 1;
+    break;
+  }
+  if (bodyIndent < 0) return n;
+  while (j < n) {
+    const e = src.indexOf("\n", j);
+    const line = src.slice(j, e < 0 ? n : e);
+    const trimmed = line.trim();
+    if (trimmed && line.length - line.trimStart().length <= bodyIndent) return j;
+    j = (e < 0 ? n : e) + 1;
+  }
+  return n;
 }
 function walkBraceEnd(src, from) {
   let depth = 0, i = from, seen = false, mode = "code";
@@ -145,11 +172,19 @@ function walkBraceEnd(src, from) {
   }
   return i;
 }
-function extractUnit(text, name) {
+function extractUnit(text, name, lang = "js") {
   const t = String(text ?? "").replace(/```[a-z]*/gi, "");
-  const at = findName(t, name);
+  const at = findName(t, name, lang);
   if (at < 0) return "";
-  return t.slice(at, walkBraceEnd(t, at)).trim();
+  const end = lang === "python" ? pyBlockEnd(t, at) : walkBraceEnd(t, at);
+  return t.slice(at, end).trim();
+}
+
+/** The ask's medium, conservatively: only a task that names python is python;
+ *  everything else is the js default (the current behavior, unchanged). */
+function languageFromTask(task) {
+  const t = String(task ?? "").toLowerCase();
+  return /\bpython\b|\b\.py\b/i.test(t) ? "python" : "js";
 }
 
 /** Build the file the NL task named: decompose → concurrent draws → assemble →
@@ -176,10 +211,11 @@ export async function buildCodeTask({ task, model, testCommand = null, out = nul
   // as prose-Python; the fence is the anchor the small mouth completes). The
   // extractor strips the fence and keeps exactly the named unit; the testCommand
   // decides; never a steering instruction.
-  const computed = units.map((u) => mechanicalUnitBody(u.name));
+  const lang = languageFromTask(task);
+  const computed = units.map((u) => mechanicalUnitBody(u.name, lang));
   const mouthUnits = units.filter((_, i) => !computed[i].ok);
   const mouthDraws = mouthUnits.length
-    ? await pool(mouthUnits, parallelism, (u) => draw(model, `${task}\n\n\`\`\`javascript\nfunction ${u.name}(`, { maxTokens: 512 }))
+    ? await pool(mouthUnits, parallelism, (u) => draw(model, `${task}\n\n\`\`\`${lang === "python" ? "python" : "javascript"}\n${lang === "python" ? "def" : "function"} ${u.name}(`, { maxTokens: 512 }))
     : [];
   const parts = [];
   const provenance = [];
@@ -189,14 +225,14 @@ export async function buildCodeTask({ task, model, testCommand = null, out = nul
     const u = units[i];
     if (computed[i].ok) {
       parts.push(computed[i].body);
-      provenance.push({ unit: u.name, source: "box", shape: computed[i].shape, bytes: computed[i].body.length });
+      provenance.push({ unit: u.name, source: "box", shape: computed[i].shape, lang, bytes: computed[i].body.length });
       continue;
     }
     const d = mouthDraws[mi++];
-    const part = extractUnit(d?.text || "", u.name);
+    const part = extractUnit(d?.text || "", u.name, lang);
     if (part) {
       parts.push(part);
-      provenance.push({ unit: u.name, source: "mouth", bytes: part.length });
+      provenance.push({ unit: u.name, source: "mouth", lang, bytes: part.length });
     } else if (d?.error) drawErrors.push(d.error);
   }
   const code = parts.join("\n\n") + "\n";
