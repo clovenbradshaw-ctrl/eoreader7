@@ -315,7 +315,7 @@ export function fieldContract(contract, key, { style = "narrow" } = {}) {
     example: contract.example && { ...contract.example, output: () => false },
     runs: contract.runs.map((r) => ({ label: r.label, args: r.args, check: (o, sample) => { const want = nullExpected(r, sample); return o === want ? [] : [`${ABSENT} is ${JSON.stringify(o)}, the recorded data says ${want}`]; } })),
   };
-  const only = (m) => new RegExp(`^${key}(?![\\w$]) `).test(m);
+  const only = (m) => new RegExp(`^${key}(?![\\w$])`).test(m); // `longest.length is 4, …` and `times[0] is …` are this key's too; `longestWord …` is not
   return {
     ...contract,
     name: `${key}Of`, kind: "field", parent: contract.name, key,

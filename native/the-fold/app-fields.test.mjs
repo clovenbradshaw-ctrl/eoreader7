@@ -248,3 +248,12 @@ test("anchorDir: the record outlives the run — a later build of the same unit 
   const after = fs.readFileSync(path.join(dir, "now.jsonl"), "utf8").trim().split("\n").map((l) => JSON.parse(l)).map((e) => e.operator);
   assert.deepEqual(after.slice(0, 2), ["SIG", "INS"]); assert.ok(after.length > firstRunEntries, "the later build APPENDED to the same record, it did not start a new one"); assert.ok(after.slice(firstRunEntries).includes("SYN"), "and its suggestion is a SYN over what was settled");
 });
+
+import { HELDOUT as HELDOUT_SET } from "./diverse-heldout.mjs";
+test("a field's oracle keeps the failures that point INTO the field (`longest.length is 4`, `times[0] is`), and only that field's — measured 2026-10-01: a wrong list passed its own field check and was caught only by the whole leaf", () => {
+  const rt = HELDOUT_SET.find((d) => d.contract.name === "readingTime").contract;
+  const longest = fieldContract(rt, "longest"), words = fieldContract(rt, "words");
+  assert.ok(longest.runs[0].check(["a", "b", "c", "d"]).length > 0, "a four-item list where three are expected fails the longest field");
+  assert.deepEqual(longest.runs[0].check(rt.runs[0].want().longest), [], "the right list passes");
+  assert.deepEqual(words.runs[0].check(rt.runs[0].want().words), [], "a sibling's failure is not this field's");
+});
