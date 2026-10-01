@@ -19,6 +19,12 @@
 //   E  A + the clitic stripped off EVERY token through `nameFold` (what the E6 harness did). The control, built to show the failure the
 //      last-token fold exists to avoid.
 //
+// A fifth index exists only when `--learned <iso|file>` is given (READING-SPEC S139):
+//   L  A + the LEARNED route (organs/identity-routes.js::learnedNameFold, a NameFormPrior@1 a treebank taught) as RECOVERY — the route that
+//      replaces R for the page. The query families are generated exactly as for the typed route (the bare form of an F2 query comes from the
+//      typed fold), so both routes answer the SAME queries, and every query the two answer differently is kept in `diffs`. Without the flag
+//      the record is byte-identical to the one S137 committed.
+//
 // Three query families, each against ITS OWN baseline, so what the bare name already reached is never counted as a join the route made:
 //   F1  every established surface, asked as written.                baseline: A.resolve(s)        extra = X.resolve(s) \ A.resolve(s)
 //   F2  the bare form of a surface that ends in the mark.           baseline: A.resolve(bare)     extra = X.resolve(bare) \ A.resolve(bare)
@@ -34,8 +40,8 @@
 // tested on real material rather than asserted.
 //
 // Usage:
-//   node eval/the-fold/possessive-audit.mjs --raw out.json [--root <dir>] [--cats a,b] [--n 8] [--cap 120000] [--seed 31] [--language eng]
-//   node eval/the-fold/possessive-audit.mjs --summarize out.json [--labels labels.json]
+//   node eval/the-fold/possessive-audit.mjs --raw out.json [--root <dir>] [--cats a,b] [--n 8] [--cap 120000] [--seed 31] [--language eng] [--learned eng] [--update-doc results/possessive-audit-learned-RESULTS.md]
+//   node eval/the-fold/possessive-audit.mjs --summarize out.json [--labels labels.json[,more-labels.json]] [--update-doc doc.md]
 //   node eval/the-fold/possessive-audit.mjs --judge out.json [--variant R|T-only|E-only] [--limit 400]      (REL=same-name|partial, CTX=1)
 import fs from "node:fs";
 import path from "node:path";
@@ -49,7 +55,11 @@ const arg = (name, dflt = null) => { const i = argv.indexOf(`--${name}`); return
 const DEFAULT_CATS = "01-literature-books,02-encyclopedic,05-academic-papers,06-government-legal,14-holy-texts,15-western-canon,18-childrens-books";
 const JOIN_VARIANTS = ["R", "T-only", "E-only"];
 
-const summarize = (rawPath, labelsPath) => summarizeAudit(JSON.parse(fs.readFileSync(rawPath, "utf8")), labelsPath && fs.existsSync(labelsPath) ? JSON.parse(fs.readFileSync(labelsPath, "utf8")) : null);
+const readLabels = (labelsPath) => {
+  const files = String(labelsPath ?? "").split(",").filter((f) => f && fs.existsSync(f)).map((f) => JSON.parse(fs.readFileSync(f, "utf8")));
+  return files.length ? { ...files[0], labels: Object.assign({}, ...files.map((f) => f.labels ?? {})) } : null;
+};
+const summarize = (rawPath, labelsPath) => summarizeAudit(JSON.parse(fs.readFileSync(rawPath, "utf8")), readLabels(labelsPath));
 
 function judge(rawPath, variant, limit) {
   const raw = JSON.parse(fs.readFileSync(rawPath, "utf8"));
@@ -64,7 +74,20 @@ function judge(rawPath, variant, limit) {
   return lines.join("\n");
 }
 
-if (arg("summarize")) { console.log(summarize(arg("summarize"), arg("labels"))); process.exit(0); }
+function updateDoc(docFile, md) {
+  // the generated block of a results document is a pure function of the raw record and the labels; the reader test regenerates it
+  const doc = fs.readFileSync(docFile, "utf8");
+  const block = /<!-- audit:begin -->\n[\s\S]*?\n<!-- audit:end -->/;
+  if (!block.test(doc)) throw new Error(`${docFile}: no audit:begin / audit:end block to update`);
+  fs.writeFileSync(docFile, doc.replace(block, () => `<!-- audit:begin -->\n${md}\n<!-- audit:end -->`));
+}
+
+if (arg("summarize")) {
+  const md = summarize(arg("summarize"), arg("labels"));
+  if (arg("update-doc")) updateDoc(arg("update-doc"), md);
+  console.log(md);
+  process.exit(0);
+}
 if (arg("judge")) { console.log(judge(arg("judge"), arg("variant", "R"), Number(arg("limit", 400)))); process.exit(0); }
 
 const root = arg("root", new URL("../../../../live_priors/", import.meta.url).pathname).replace(/\/?$/, "/");
@@ -75,13 +98,20 @@ const rawOut = arg("raw", null);
 
 const S = await import(here("adapters/text/surfaces.js"));
 const { makeReferentIndex } = await import(here("organs/cast.js"));
-const { terminalEncliticFold } = await import(here("organs/identity-routes.js"));
+const { terminalEncliticFold, learnedNameFold } = await import(here("organs/identity-routes.js"));
 const { splitSentences } = await import(here("adapters/text/spans.js"));
 const { blankLabelRows } = await import(here("organs/source.js"));
 const { extractSurfaces, extractLeadingSurfaces, discoverReferents, namesCorefer, diaNorm, opticalReferentForm, isNearMissSpelling, stripPossessive, isRomanNumeral } = S;
 
 const route = terminalEncliticFold({ language, stripEnclitic: stripPossessive, isNumeral: isRomanNumeral });
 if (!route.fold) { console.log(`no route for language "${language}": ${route.gap.type} — ${route.gap.detail}`); process.exit(2); }
+const learnedArg = arg("learned", null);
+let learned = null, learnedFile = null;
+if (learnedArg) {
+  learnedFile = fs.existsSync(String(learnedArg)) ? String(learnedArg) : here(`priors/name-forms-${learnedArg}.json`);
+  learned = learnedNameFold({ language, prior: JSON.parse(fs.readFileSync(learnedFile, "utf8")), isNumeral: isRomanNumeral });
+  if (!learned.fold) { console.log(`no learned route for language "${language}": ${learned.gap.type} — ${learned.gap.detail}`); process.exit(2); }
+}
 const everyToken = (t) => String(t ?? "").split(/\s+/).map(stripPossessive).join(" ");
 const blankFurniture = (text) => blankLabelRows(text, { minRun: 4, maxCell: 60 });
 const mk = (extra) => makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, blankFurniture, leadingSurfaces: extractLeadingSurfaces, nameFold: opticalReferentForm, nameVariant: isNearMissSpelling, ...extra });
@@ -91,6 +121,7 @@ const VARIANTS = {
   R: () => mk({ surfaceFold: route.fold }),
   T: () => mk({ surfaceFold: route.fold, surfaceFoldMode: "always" }),
   E: () => mk({ nameFold: (t, o) => opticalReferentForm(everyToken(t), o) }),
+  ...(learned ? { L: () => mk({ surfaceFold: learned.fold }) } : {}),
 };
 
 const rnd = (seed) => { let s = seed >>> 0; return () => { s += 0x6d2b79f5; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
@@ -110,16 +141,18 @@ const fnv = (s) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h 
 const ctxAround = (text, needle) => { const i = text.indexOf(needle); return i < 0 ? null : text.slice(Math.max(0, i - 90), i + needle.length + 110).replace(/\s+/g, " "); };
 const sameSet = (a, b) => a.size === b.size && [...a].every((x) => b.has(x));
 
-const config = { root, cats, n: N, cap: CAP, seed: SEED, sample3: SAMPLE3, language, route: { fold: "last-token", mode: "recover", giver: route.prior.giver }, variants: Object.keys(VARIANTS) };
+const config = { root, cats, n: N, cap: CAP, seed: SEED, sample3: SAMPLE3, language, route: { fold: "last-token", mode: "recover", giver: route.prior.giver }, variants: Object.keys(VARIANTS),
+  ...(learned ? { learned: { prior: path.relative(NATIVE, learnedFile), giver: learned.prior.provenance.giver, source: learned.prior.provenance.source, operatingPoint: { ...learned.prior.operatingPoint, lineage: undefined } } } : {}) };
 console.error("config:", JSON.stringify(config));
-const result = { config, perCorpus: {}, extras: [], changed: [] };
+const result = { config, perCorpus: {}, extras: [], changed: [], ...(learned ? { diffs: [] } : {}) };
 const t0 = Date.now();
 for (const cat of cats) {
   const files = walk(root + cat).sort();
   const R = rnd(SEED);
   const pick = files.map((f) => [R(), f]).sort((a, b) => a[0] - b[0]).slice(0, N).map((x) => x[1]);
   const acc = { docs: 0, referents: 0, surfaces: 0, markTerminal: 0, markOnlyReferents: 0, changedExactByR: 0, preemptedGuessByR: 0, joins: { R: 0, T: 0, E: 0 },
-    F1: { q: 0 }, F2: { q: 0, recoveredR: 0, alreadyReached: 0 }, F3: { q: 0, gainR: 0, lossR: 0, hadAnswer: 0, hadAnswerDiffers: 0 } };
+    F1: { q: 0 }, F2: { q: 0, recoveredR: 0, alreadyReached: 0 }, F3: { q: 0, gainR: 0, lossR: 0, hadAnswer: 0, hadAnswerDiffers: 0 },
+    ...(learned ? { L: { queries: 0, differsFromR: 0, joins: 0, changedExact: 0, preemptedGuess: 0, F2recovered: 0, F3gain: 0, F3loss: 0 } } : {}) };
   for (const f of pick) {
     let text = ""; try { text = fs.readFileSync(f, "utf8").slice(0, CAP); } catch { continue; }
     const idx = {}; let ok = true;
@@ -187,7 +220,19 @@ for (const cat of cats) {
       const eOnly = xe.filter((id) => !t.has(id));
       if (xe.length) acc.joins.E += 1;
       if (eOnly.length) record(fam, "E-only", q, s, eOnly);
-      return { a, r, t, e };
+      let l = null;
+      if (idx.L) {
+        l = idx.L.resolve(q);
+        acc.L.queries += 1;
+        if (a.size > 0 && !sameSet(a, l)) { if (idx.A0.resolve(q).size > 0) acc.L.changedExact += 1; else acc.L.preemptedGuess += 1; }
+        const xl = [...l].filter((id) => !baseline.has(id) && !owned.has(id));
+        if (xl.length) { acc.L.joins += 1; record(fam, "L", q, s, xl); }
+        if (!sameSet(r, l)) {
+          acc.L.differsFromR += 1;
+          result.diffs.push({ cat, file: rel, fam, q, source: s, baseline: [...a].map(repOf), typed: [...r].map(repOf), learned: [...l].map(repOf) });
+        }
+      }
+      return { a, r, t, e, l };
     };
     // F1 — a surface asked as written
     for (const s of surfaces) { acc.F1.q += 1; probe("F1", s, s, idx.A.resolve(s)); }
@@ -197,8 +242,9 @@ for (const cat of cats) {
       if (q === s || q.length < 3) continue;
       acc.F2.q += 1;
       const owners = ownersOf.get(s);
-      const { a, r } = probe("F2", q, s, idx.A.resolve(q));
+      const { a, r, l } = probe("F2", q, s, idx.A.resolve(q));
       if ([...r].some((id) => owners.has(id)) && ![...a].some((id) => owners.has(id))) acc.F2.recoveredR += 1; else if ([...owners].some((id) => a.has(id))) acc.F2.alreadyReached += 1;
+      if (l && [...l].some((id) => owners.has(id)) && ![...a].some((id) => owners.has(id))) acc.L.F2recovered += 1;
     }
     // F3 — a question's possessive of an established bare surface; the baseline is what the BARE name reaches
     const R2 = rnd(SEED + 1);
@@ -207,14 +253,21 @@ for (const cat of cats) {
       acc.F3.q += 1;
       const q = `${s}'s`;
       const bare = idx.A.resolve(s);
-      const { a, r } = probe("F3", q, s, bare);
+      const { a, r, l } = probe("F3", q, s, bare);
       if (a.size === 0 && r.size > 0) acc.F3.gainR += 1;
       if (a.size > 0 && r.size === 0) acc.F3.lossR += 1;
+      if (l && a.size === 0 && l.size > 0) acc.L.F3gain += 1;
+      if (l && a.size > 0 && l.size === 0) acc.L.F3loss += 1;
       if (a.size > 0) { acc.F3.hadAnswer += 1; if (!sameSet(a, bare)) acc.F3.hadAnswerDiffers += 1; }
     }
   }
   result.perCorpus[cat] = acc;
-  console.error(cat.padEnd(22), ((Date.now() - t0) / 1000).toFixed(0) + "s", JSON.stringify({ docs: acc.docs, changedExactByR: acc.changedExactByR, preemptedGuessByR: acc.preemptedGuessByR, joins: acc.joins, F2: acc.F2, F3: acc.F3 }));
+  console.error(cat.padEnd(22), ((Date.now() - t0) / 1000).toFixed(0) + "s", JSON.stringify({ docs: acc.docs, changedExactByR: acc.changedExactByR, preemptedGuessByR: acc.preemptedGuessByR, joins: acc.joins, F2: acc.F2, F3: acc.F3, ...(acc.L ? { L: acc.L } : {}) }));
 }
 if (!rawOut) console.log(JSON.stringify(result.perCorpus, null, 1));
-else { fs.writeFileSync(rawOut, JSON.stringify(result)); console.log(summarize(rawOut, arg("labels"))); }
+else {
+  fs.writeFileSync(rawOut, JSON.stringify(result));
+  const md = summarize(rawOut, arg("labels"));
+  if (arg("update-doc")) updateDoc(arg("update-doc"), md);
+  console.log(md);
+}

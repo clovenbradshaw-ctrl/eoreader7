@@ -292,8 +292,9 @@ plateau's TEST range is printed (English 0.883–0.897).
 - **Type precision is not page precision.** A strip changes what a name resolves to only where the fold is consulted, and the page consults it in recovery
   mode: only when the name as written resolved to nothing, and only to a referent the material establishes. A false strip that stems to no established
   referent costs nothing. That makes type-level precision a conservative figure for pages, and for the four languages under the bar it is a hypothesis, not
-  a result: nothing here measured it, and no prior is shipped for them. The page-level audit of the shipped English route is a separate document
-  (`eval/the-fold/results/possessive-audit-RESULTS.md`).
+  a result: nothing here measured it, and no prior is shipped for them. The page-level audit of the learned English route is a separate document
+  (`eval/the-fold/results/possessive-audit-learned-RESULTS.md`): on the page's own index, over 55 real documents and 21,886 queries, it answers 21,880 as
+  the typed route did, and the six it does not are one apostrophe the typed rule stripped.
 - **A treebank's agreement is not a reader's world.** The gold's lemmas are the treebank's own — automatic in German and Spanish, per their READMEs — and
   a stem the lemmatizer got wrong is a miss the prior is charged for.
 - **Small TEST splits.** English has 43 gold-changing TEST types and French 38; one type moves H by about 0.01–0.02. There are no intervals, and the

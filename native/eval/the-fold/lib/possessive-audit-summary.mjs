@@ -53,7 +53,47 @@ export function summarizeAudit(raw, labelsFile) {
     out.push(`first ${Math.min(12, guesses.length)} of the pre-empted spelling guesses:`);
     for (const x of guesses.slice(0, 12)) out.push(`  guess [${x.cat.slice(0, 5)}] "${x.q}"  was ${JSON.stringify(x.before)}  now ${JSON.stringify(x.after).slice(0, 160)}`);
   }
+  if (raw.config.learned) out.push(...learnedSection(raw, labels));
   return out.join("\n");
+}
+
+const pairsOf = (raw, variant) => { const seen = new Map(); for (const x of raw.extras) if (x.variant === variant && !seen.has(x.id)) seen.set(x.id, x); return seen; };
+const rateOf = (xs, labels) => {
+  const k = { y: 0, n: 0, u: 0, unlabelled: 0 };
+  for (const x of xs) { const l = labels[x.id]; if (l === "y" || l === "n" || l === "u") k[l] += 1; else k.unlabelled += 1; }
+  return { ...k, total: xs.length, falseRate: k.y + k.n ? k.n / (k.y + k.n) : null };
+};
+const pct = (x) => (x === null ? "·" : `${(100 * x).toFixed(1)}%`);
+
+/** The learned route's own section: what it answers, where it differs from the typed route it replaces, and what it joins. */
+function learnedSection(raw, labels) {
+  const out = [], c = raw.config, L = c.learned;
+  out.push("");
+  out.push(`THE LEARNED ROUTE (L) — prior ${L.prior}, learned from ${L.source.value.split(",")[0]} · operating point share ${L.operatingPoint.minShare}, count ${L.operatingPoint.minCount}, k ${L.operatingPoint.maxK}, stem floor the consumer's · giver: ${L.giver.value.split(" (")[0]}`);
+  out.push("");
+  out.push("| corpus | queries | answered differently from R | exact answers L changed | spelling guesses L pre-empted | F3 gained (L) | F2 recovered (L) | L joins |");
+  out.push("|---|---|---|---|---|---|---|---|");
+  const tot = { q: 0, d: 0, ce: 0, pg: 0, g: 0, f2: 0, j: 0 };
+  for (const [cat, a] of Object.entries(raw.perCorpus)) {
+    const x = a.L;
+    out.push(`| ${cat} | ${x.queries} | ${x.differsFromR} | ${x.changedExact} | ${x.preemptedGuess} | ${x.F3gain} | ${x.F2recovered} | ${x.joins} |`);
+    tot.q += x.queries; tot.d += x.differsFromR; tot.ce += x.changedExact; tot.pg += x.preemptedGuess; tot.g += x.F3gain; tot.f2 += x.F2recovered; tot.j += x.joins;
+  }
+  out.push(`| **all** | ${tot.q} | ${tot.d} | ${tot.ce} | ${tot.pg} | ${tot.g} | ${tot.f2} | ${tot.j} |`);
+  out.push("");
+  const R = pairsOf(raw, "R"), Lp = pairsOf(raw, "L");
+  const onlyL = [...Lp.values()].filter((x) => !R.has(x.id)), onlyR = [...R.values()].filter((x) => !Lp.has(x.id));
+  const all = rateOf([...Lp.values()], labels), onlyLr = rateOf(onlyL, labels), onlyRr = rateOf(onlyR, labels);
+  out.push(`distinct pairs reached by the learned route: ${Lp.size}; by the typed route: ${R.size}; by both: ${[...Lp.keys()].filter((id) => R.has(id)).length}; by L only: ${onlyL.length}; by R only: ${onlyR.length}`);
+  out.push(`L all: ${all.total} · same-being ${all.y} · different ${all.n} · cannot tell ${all.u} · unlabelled ${all.unlabelled}` + (all.falseRate === null ? "" : ` · false-join rate ${pct(all.falseRate)} of ${all.y + all.n} decided`));
+  if (onlyL.length) out.push(`L only: ${onlyLr.total} · same-being ${onlyLr.y} · different ${onlyLr.n} · cannot tell ${onlyLr.u} · unlabelled ${onlyLr.unlabelled}`);
+  if (onlyR.length) out.push(`R only: ${onlyRr.total} · same-being ${onlyRr.y} · different ${onlyRr.n} · cannot tell ${onlyRr.u} · unlabelled ${onlyRr.unlabelled}`);
+  out.push("");
+  const diffs = raw.diffs ?? [];
+  out.push(`queries the two routes answered differently: ${diffs.length} of ${tot.q}`);
+  for (const x of diffs.slice(0, 60)) out.push(`  [${x.cat.slice(0, 5)}] ${x.fam} "${x.q}"  baseline ${JSON.stringify(x.baseline)}  typed ${JSON.stringify(x.typed)}  learned ${JSON.stringify(x.learned)}`);
+  if (diffs.length > 60) out.push(`  … ${diffs.length - 60} more in the raw record`);
+  return out;
 }
 
 /** The figures the route stands on, as data, for a test to assert and a document to quote. */
@@ -73,5 +113,12 @@ export function auditFigures(raw, labelsFile) {
     k.falseRate = k.y + k.n ? k.n / (k.y + k.n) : null;
     byVariant[v] = k;
   }
-  return { ...tot, byVariant };
+  const figures = { ...tot, byVariant };
+  if (raw.config.learned) {
+    const L = { queries: 0, differsFromR: 0, changedExact: 0, preemptedGuess: 0, F3gain: 0, F3loss: 0, F2recovered: 0, joins: 0 };
+    for (const a of Object.values(raw.perCorpus)) for (const k of Object.keys(L)) L[k] += a.L[k];
+    const R = pairsOf(raw, "R"), Lp = pairsOf(raw, "L");
+    figures.learned = { ...L, pairs: rateOf([...Lp.values()], labels), onlyL: [...Lp.values()].filter((x) => !R.has(x.id)), onlyR: [...R.values()].filter((x) => !Lp.has(x.id)), diffs: raw.diffs ?? [] };
+  }
+  return figures;
 }

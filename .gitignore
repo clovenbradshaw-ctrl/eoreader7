@@ -24,10 +24,12 @@ node_modules/
 # ~5.7 MB already on main.
 native/eval/the-fold/fixtures/primary-faces/
 native/eval/the-fold/results/*.json
-# …except the records a results-reader test regenerates its document from. The rule above rests on "no test reads it"; these four are the
+# …except the records a results-reader test regenerates its document from. The rule above rests on "no test reads it"; these five are the
 # exceptions that make that sentence false on purpose (the-fold POLICIES.md P94: a number in a results document is enforced only while the
-# record it was computed from is committed beside it). possessive-audit-results.test.js and alias-precision-results.test.js read them.
+# record it was computed from is committed beside it). possessive-audit-results.test.js, possessive-audit-learned-results.test.js and
+# alias-precision-results.test.js read them.
 !native/eval/the-fold/results/possessive-audit.raw.json
+!native/eval/the-fold/results/possessive-audit-learned.raw.json
 !native/eval/the-fold/results/possessive-audit-labels.json
 !native/eval/the-fold/results/alias-precision.raw.json
 !native/eval/the-fold/results/alias-precision-labels.json
