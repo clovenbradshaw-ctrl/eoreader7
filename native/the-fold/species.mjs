@@ -7,6 +7,8 @@
 //   optional  a path that may be missing: `result.admin1 ?? null` — the straight copy plus the null the words allow
 //   coalesce  the first non-empty of several paths, else a default the words state: `tags.name || tags.brand || "Fuel station"`
 //   joinPresent  the parts that EXIST joined by a separator: `[name, admin1, country].filter(Boolean).join(", ")`, null when none do if the words say null
+//   slice     a fixed stretch of a string path: `entry.time.slice(0, 16)` — the offsets are searched, the examples and the held-out runs decide
+//   normalize a string path (or the first non-empty of two) put through the text operations the words name: trim, lower, underscores to spaces, a stated ending removed (`_day`, `_night`)
 //   argmax    the item of a list with the largest key (the longest word, the priciest line), the first on a tie, `""` for none
 //
 // Nothing here knows what a ward, a flight or a cart is; the leaves are the input's own paths and the operations are the cards the person's words name plus the language's own.
@@ -277,6 +279,41 @@ export function nullConstant(contract, wants) {
   if (!wants.every((w) => w === null)) return null;
   if (!/\bnull\b/i.test([contract.doc, contract.returns, contract.notes].join(" "))) return null;
   return { js: "null", f: () => null };
+}
+
+/** SLICE: a stretch `[a, b)` of one string path, a and b searched from 0 to the longest shown string */
+export function slice(contract, wants, accept = () => true) {
+  if (!wants.every((w) => typeof w === "string")) return null;
+  const args = contract.runs.slice(0, SHOWN).map((r) => r.args()), L = optionalStrings(contract).filter((l) => !l.js.endsWith("?.trim()"));
+  for (const l of L) {
+    const lens = args.map((a) => safe(l.f, a)).map((v) => (typeof v === "string" ? v.length : 0)), max = Math.max(0, ...lens);
+    if (!max) continue;
+    for (let a = 0; a < max; a++) for (let b = a + 1; b <= max; b++) {
+      const f = (x) => { const v = safe(l.f, x); return typeof v === "string" ? v.slice(a, b) : undefined; };
+      if (args.every((x, i) => f(x) === wants[i]) && accept(f)) return { js: `${l.js}.slice(${a}, ${b})`, f };
+    }
+  }
+  return null;
+}
+
+/** the endings the person's words name: every `_word` token in them (`_day`, `_night`, `_polartwilight`) */
+const endingsOf = (contract) => [...new Set(String([contract.doc, contract.returns, contract.notes].join(" ")).match(/_[a-z]+/g) ?? [])];
+/** NORMALIZE: one string path, or the first non-empty of two, then a chain of the named text operations */
+export function normalize(contract, wants, accept = () => true) {
+  if (!wants.every((w) => typeof w === "string")) return null;
+  const args = contract.runs.slice(0, SHOWN).map((r) => r.args()), L = optionalStrings(contract), ends = endingsOf(contract);
+  const strip = ends.length ? new RegExp(`(?:${ends.join("|")})$`) : null, stripJs = ends.length ? `.replace(/(?:${ends.join("|")})$/, "")` : "";
+  const ops = [{ js: "", f: (v) => v }, { js: ".trim()", f: (v) => v.trim() }, { js: ".toLowerCase()", f: (v) => v.toLowerCase() }, { js: '.replace(/_/g, " ")', f: (v) => v.replace(/_/g, " ") }];
+  if (strip) ops.push({ js: stripJs, f: (v) => v.replace(strip, "") });
+  const chains = [];
+  for (const a of ops) { chains.push([a]); for (const b of ops) if (b !== a) { chains.push([a, b]); for (const c of ops) if (c !== a && c !== b) chains.push([a, b, c]); } }
+  const sources = [...L.map((l) => [l]), ...L.flatMap((a) => L.filter((b) => b !== a).map((b) => [a, b]))];
+  for (const src of sources) for (const ch of chains) {
+    if (!ch.some((o) => o.js)) continue; // no operation at all is a copy, not this
+    const f = (x) => { let v; for (const l of src) { v = safe(l.f, x); if (!emptyish(v)) break; } if (typeof v !== "string") return undefined; for (const o of ch) v = o.f(v); return v; };
+    if (args.every((x, i) => f(x) === wants[i]) && accept(f)) return { js: `(${src.map((l) => l.js).join(" || ")})${ch.map((o) => o.js).join("")}`, f };
+  }
+  return null;
 }
 
 void finish; void numericLeaves;

@@ -65,3 +65,28 @@ test("a key that is not a legal dotted name is reached by brackets (OpenStreetMa
   assert.ok(optionalStrings(c).some((l) => /\["addr:housenumber"\]/.test(l.js)));
   void optional; void coalesce;
 });
+
+// ---- slice and normalize (built on the app's metnoHour, tested on invented shapes) ----
+import { slice, normalize } from "./species.mjs";
+const mkc = (returns, notes, data, wantOf) => ({ name: "t", params: ["x"], doc: "d", returns, notes, runs: data.map((d) => ({ args: () => JSON.parse(JSON.stringify([d])), want: () => wantOf(d) })) });
+const holdsOn = (c) => (f) => c.runs.slice(3).every((r) => { try { return JSON.stringify(f(r.args())) === JSON.stringify(r.want()); } catch { return false; } });
+
+test("slice finds a fixed stretch of a string and the held-out runs confirm it; a stretch that only fits the shown ones is refused", () => {
+  const data = [{ ts: "2026-10-01T08:30:15Z" }, { ts: "2027-01-12T21:05:59Z" }, { ts: "2025-06-30T00:00:01Z" }, { ts: "2024-02-29T13:45:00Z" }, { ts: "2030-12-31T23:59:59Z" }];
+  const c = mkc("the date", "", data, (d) => d.ts.slice(0, 10));
+  const r = slice(c, c.runs.slice(0, 3).map((x) => x.want()), holdsOn(c));
+  assert.ok(r && /\.slice\(0, 10\)/.test(r.js), r?.js);
+  const redealt = { ...c, runs: c.runs.map((x, i) => ({ ...x, want: () => c.runs[(i + 1) % 5].want() })) };
+  assert.equal(slice(redealt, redealt.runs.slice(0, 3).map((x) => x.want()), holdsOn(redealt)), null, "control: redealt targets are not a slice of anything");
+});
+
+test("normalize uses only the operations the words name, and a stated ending only if the words say it", () => {
+  const data = [{ code: "clearsky_day" }, { code: "rain_night" }, { code: "partly_cloudy_polartwilight" }, { code: "fog" }, { code: "heavy_snow_day" }];
+  const want = (d) => d.code.replace(/_(day|night|polartwilight)$/, "").replace(/_/g, " ");
+  const withWords = mkc("the symbol, any ending _day, _night or _polartwilight removed, underscores as spaces", "", data, want);
+  const r = normalize(withWords, withWords.runs.slice(0, 3).map((x) => x.want()), holdsOn(withWords));
+  assert.ok(r, "fills when the words name the endings");
+  assert.match(r.js, /_day\|_night\|_polartwilight/);
+  const silent = mkc("the symbol made readable", "", data, want);
+  assert.equal(normalize(silent, silent.runs.slice(0, 3).map((x) => x.want()), holdsOn(silent)), null, "the endings are not in the words, so they are not guessed");
+});

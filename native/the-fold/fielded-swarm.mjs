@@ -12,7 +12,7 @@ import { DIVERSE } from "./diverse-tasks.mjs";
 import { HELDOUT } from "./diverse-heldout.mjs";
 import { readPrefill, heldOutAgreement } from "./prefill.mjs";
 import { solveContract, leaves as numericLeaves } from "./synth-fields.mjs";
-import { decide, template, mapList, argmax, topk, branch, optional, coalesce, joinPresent, nullConstant } from "./species.mjs";
+import { decide, template, mapList, argmax, topk, branch, optional, coalesce, joinPresent, nullConstant, slice, normalize } from "./species.mjs";
 import { fieldContract, composeFieldCode } from "./app-units.mjs";
 import { rungPrompt, RUNGS } from "./context-dose.mjs";
 import { runResults } from "./fold-experiment.mjs";
@@ -29,7 +29,7 @@ const copyJs = (contract, from) => from.replace(/^\[(\d+)\]/, (_, i) => contract
 /** one slot by the non-numeric species, in order; it counts only if it also reproduces every run it was NOT shown. `wants` is what the shown examples say (the control redeals it). -> { species, js } | null */
 export function fillSlot(contract, key, wants, terms) {
   const holds = (f) => contract.runs.slice(3).every((r) => { try { return JSON.stringify(f(r.args())) === JSON.stringify(r.want()[key]); } catch { return false; } });
-  for (const [name, make] of [["decide", () => decide(contract, wants, terms)], ["null", () => nullConstant(contract, wants)], ["optional", () => optional(contract, wants, holds)], ["coalesce", () => coalesce(contract, wants, holds)], ["joinPresent", () => joinPresent(contract, wants, holds)], ["template", () => template(contract, wants)], ["map", () => mapList(contract, wants)], ["argmax", () => argmax(contract, wants)], ["topk", () => topk(contract, wants)]]) {
+  for (const [name, make] of [["decide", () => decide(contract, wants, terms)], ["null", () => nullConstant(contract, wants)], ["optional", () => optional(contract, wants, holds)], ["coalesce", () => coalesce(contract, wants, holds)], ["joinPresent", () => joinPresent(contract, wants, holds)], ["slice", () => slice(contract, wants, holds)], ["normalize", () => normalize(contract, wants, holds)], ["template", () => template(contract, wants)], ["map", () => mapList(contract, wants)], ["argmax", () => argmax(contract, wants)], ["topk", () => topk(contract, wants)]]) {
     let r = null; try { r = make(); } catch { r = null; }
     if (r && holds(r.f)) return { species: name, js: r.js };
   }
