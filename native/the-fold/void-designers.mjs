@@ -42,8 +42,8 @@ export const VOIDS = Object.freeze([
     limit: "tags are a closed class with a giver; an offer the draft does not use costs a longer prompt",
     evidence: "measured 2026-10-01 over 12 tasks: precision 0.53, recall 1.00 (8 of 15 offered were used; none needed was withheld)" },
   { id: "keys", path: "build", asks: "which real name an idea means (`tz` for `timezone`)", designer: "resolveKey (organs/key-referents.js)", kind: "mechanical", basis: "measured", at: "organs/key-referents.js#resolveKey",
-    limit: "resolves on spelling evidence only; a whole first word of a compound key is OFFERED, never bound (`place` must not bind `place_id`)",
-    evidence: "pinned by diverse-tasks.test.mjs; TEACH-IT-TO-FISH §4 row 8" },
+    limit: "resolves on spelling evidence; a read of a key the data does not carry, with exactly ONE real key sharing a word, is bound only after a draw missed its examples (testUnit ghostBind) — two candidates stay a failure, and the examples still decide",
+    evidence: "measured 2026-10-01: frontier bare answers 11/12 -> 12/12 with 0 false binds; small model unchanged (2 of 12 draws read a ghost key); TEACH-IT-TO-FISH §4e" },
   { id: "mouth-order", path: "build", asks: "who fills the unit", designer: "the stigmergy's learned mouth order (kernel/stigmergy.js)", kind: "mechanical", basis: "measured", at: "kernel/stigmergy.js#",
     limit: "orders the mouths already tried; with one model installed it orders nothing", evidence: "unmeasured on this box (one coder installed)" },
 

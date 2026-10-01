@@ -131,6 +131,19 @@ export function testUnit(code, contract) {
   // each mechanism is a per-contract switch so it can be ablated on identical tasks: resolve === false (no key resolution), cards === false (no cards), hints === false (no repair hints)
   try { fn = loadUnit(code, contract.name, { resolve: contract.resolve === false ? null : { declared }, cards: contract.cards === false ? false : contract.cards === "exact" ? "exact" : true }); } catch (e) { return { ok: false, failures: [`does not compile or declare ${contract.name}: ${String(e.message).slice(0, 160)}`] }; }
   const r = testFunction(fn, contract);
+  // A read of a key the data does not carry is a SPELLING slip the system can answer: the real keys are the data. When a draw missed its examples AND the wall logged such a read with exactly one real
+  // key sharing a word with it (`total` -> `total_beds`), that key is bound and the draw is judged again — the examples still decide, so a wrong binding is a failure like any other. A draw that
+  // already passes is never rebound; two or more candidates (`beds`) stay a failure. Ablate with contract.ghostBind === false. (measured 2026-10-01: key-need.mjs)
+  if (!r.ok && contract.ghostBind !== false && contract.resolve !== false) {
+    const ghosts = (fn.resolutions?.() ?? []).filter((x) => x.unresolved && !x.kind && x.near?.length === 1);
+    if (ghosts.length) {
+      const bound = { ...declared, ...Object.fromEntries(ghosts.map((g) => [g.asked, g.near[0]])) };
+      try {
+        const fn2 = loadUnit(code, contract.name, { resolve: { declared: bound }, cards: contract.cards === false ? false : contract.cards === "exact" ? "exact" : true }), r2 = testFunction(fn2, contract);
+        if (r2.ok) return { ...r2, declared: bound, resolutions: [...(fn2.resolutions?.() ?? []), ...ghosts.map((g) => ({ asked: g.asked, real: g.near[0], basis: "the only real key that shares a word with it (the data carries no key by that name)" }))], fn: fn2 };
+      } catch { /* the second reading did not compile: the first verdict stands */ }
+    }
+  }
   if (!r.ok && contract.hints !== false) for (const v of constReassigned(code)) r.failures.unshift(`\`${v}\` is declared with const and assigned again — declare it with let`);
   if (contract.hints !== false && r.constant) r.failures.unshift(`the function returns the identical result for different inputs (${r.constant.runs.map((l) => `"${l}"`).join(", ")}) — compute the result from the input; do not copy the example's answer`);
   if (contract.hints !== false) for (const g of r.ignored ?? []) r.failures.unshift(`the function gives the same result for ${g.param} = ${g.values.map((v) => JSON.stringify(v)).join(" and ")}, but the recorded data differs — the result must depend on \`${g.param}\``);

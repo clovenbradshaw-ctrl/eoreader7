@@ -1,0 +1,105 @@
+// ═══ LOVELACE · TEACH IT TO FISH ═══ IMAGINE THE LLM DOES NOT EXIST. HOW MUCH OF THE ANSWER IS STILL THERE?
+//
+// The operator, 2026-10-01: "imagine the LLM doesn't exist — that makes us put the intelligence outside of it — and really only think about the LLM when it's absolutely needed." So: with NO model, from what
+// is given — the input's real keys, the person's words, three worked examples, and the library of verified operations (organs/cards.js) — which output fields can the system fill by itself? A field is
+// SOLVED when a small expression over the input (leaves, the card operations, + − × ÷, round/ceil, counts and sums over lists) reproduces its value in every shown example; the expression is then CHECKED on the
+// runs it was not shown. Whatever is left is the model's real job, and the list of it is the answer to "when are we absolutely needed". Numbers in the person's own words (`divided by 200`) are constants.
+//   node native/the-fold/synth-fields.mjs
+import { DIVERSE } from "./diverse-tasks.mjs";
+import { HELDOUT } from "./diverse-heldout.mjs";
+import { CARDS, cardsFor } from "../organs/cards.js";
+
+const SHOWN = 3, EPS = 1e-9, MAX_TERMS = 60000;
+const isNum = (v) => typeof v === "number" && Number.isFinite(v);
+const money = (v) => (typeof v === "number" ? v : typeof v === "string" && /^\$?\s*-?[\d,]*\.?\d+$/.test(v.trim()) ? Number(v.replace(/[$,\s]/g, "")) : NaN);
+const get = (v, path) => path.reduce((a, k) => a?.[k], v);
+const same = (a, b) => (isNum(a) && isNum(b) ? Math.abs(a - b) < EPS : Object.is(a, b));
+const roundTo = (x, p) => Math.round(x * 10 ** p) / 10 ** p;
+
+/** numbers the person's own words state: "divided by 200", "85 or more" */
+export const wordConstants = (contract) => [...new Set([...String([contract.doc, contract.returns, contract.notes].join(" ")).matchAll(/(?<![\w.])\d+(?:\.\d+)?(?![\w.])/g)].map((m) => Number(m[0])))];
+
+function leaves(contract) {
+  const out = [], runs = contract.runs.slice(0, SHOWN), a0 = runs.map((r) => r.args());
+  contract.params.forEach((p, i) => {
+    const walk = (vals, path, expr, depth) => {
+      if (vals.every((v) => isNum(v))) { out.push({ expr, f: (args) => get(args[i], path) }); return; }
+      if (vals.every((v) => typeof v === "string" && Number.isFinite(money(v)) && /\d/.test(v)) && depth > 0) out.push({ expr: `parseMoney(${expr})`, f: (args) => money(get(args[i], path)) });
+      if (vals.every((v) => typeof v === "string") && depth === 0) { out.push({ expr: `splitWords(${expr})`, arr: "str", f: (args) => CARDS.splitWords.fn(get(args[i], path)) }); return; }
+      if (vals.every((v) => v && typeof v === "object" && !Array.isArray(v)) && depth < 3) { for (const k of [...new Set(vals.flatMap(Object.keys))]) walk(vals.map((v) => v?.[k]), [...path, k], `${expr}.${k}`, depth + 1); return; }
+      if (vals.every(Array.isArray)) { // a list of objects: counts, sums and sum-products over their numeric keys
+        out.push({ expr: `${expr}.length`, f: (args) => get(args[i], path)?.length });
+        const items = vals.flat().filter((x) => x && typeof x === "object"), keys = [...new Set(items.flatMap(Object.keys))].filter((k) => items.every((x) => Number.isFinite(money(x[k]))));
+        for (const k of keys) out.push({ expr: `sum(${expr}, ${k})`, f: (args) => (get(args[i], path) ?? []).reduce((s, x) => s + money(x[k]), 0) });
+        for (const k1 of keys) for (const k2 of keys) if (k1 < k2) out.push({ expr: `sumProd(${expr}, ${k1}, ${k2})`, f: (args) => (get(args[i], path) ?? []).reduce((s, x) => s + money(x[k1]) * money(x[k2]), 0) });
+      }
+    };
+    walk(a0.map((a) => a[i]), [], p, 0);
+  });
+  return out;
+}
+/** expressions over word lists: count, sum of lengths, distinct count */
+const listOps = (t) => (t.arr === "str" ? [
+  { expr: `${t.expr}.length`, f: (a) => t.f(a).length },
+  { expr: `sumLen(${t.expr})`, f: (a) => t.f(a).reduce((s, w) => s + w.length, 0) },
+  { expr: `distinct(lower(${t.expr}))`, f: (a) => new Set(t.f(a).map((w) => w.toLowerCase())).size },
+] : []);
+
+/** units the person's words name, and the factor each stands for — received usage, not derived (a percentage is a share times a hundred; an hour is sixty minutes). Giver: everyday measurement usage. */
+export const UNIT_FACTORS = Object.freeze({ percent: 100, percentage: 100, minute: 60, minutes: 60, hour: 3600, kilo: 1000 });
+const unitConstants = (contract) => [...new Set(String([contract.doc, contract.returns, contract.notes].join(" ")).toLowerCase().match(/[a-z]+/g)?.map((w) => UNIT_FACTORS[w]).filter(Boolean) ?? [])];
+
+/** search for a numeric expression reproducing `want` (one value per shown run) -> { expr, f } | null. Bottom-up in stages, observational equivalence, bounded: leaves, then the card operations, then rounding, then one and two arithmetic steps (each followed by rounding). */
+export function synthesize(contract, want, extraLeaves = []) {
+  const runs = contract.runs.slice(0, SHOWN), args = runs.map((r) => r.args()), key = (vals) => vals.map((v) => (isNum(v) ? roundTo(v, 9) : String(v))).join("|");
+  const seen = new Set(), pool = []; let found = null;
+  const add = (t) => { if (found || pool.length >= MAX_TERMS) return false; let vals; try { vals = args.map((a) => t.f(a)); } catch { return false; } if (!vals.every(isNum)) return false; const k = key(vals); if (seen.has(k)) return false; seen.add(k); t.vals = vals; pool.push(t); if (vals.every((v, i) => same(v, want[i]))) found = t; return true; };
+  const base = [...leaves(contract), ...extraLeaves]; for (const t of base) for (const o of listOps(t)) base.push(o);
+  for (const c of [...wordConstants(contract), ...unitConstants(contract)]) base.push({ expr: String(c), f: () => c, constant: true });
+  for (const t of base) add(t); if (found) return found;
+  const wrap = (terms) => { for (const t of terms) { if (t.arr || t.constant) continue; for (const p of [0, 1, 2]) add({ expr: `roundTo(${t.expr}, ${p})`, f: (a) => roundTo(t.f(a), p) }); add({ expr: `ceil(${t.expr})`, f: (a) => Math.ceil(t.f(a)) }); if (found) return; } };
+  const numeric = () => pool.filter((t) => !t.arr);
+  const offered = new Set(cardsFor(contract).map((c) => c.name)); // only the operations the person's own words name enter the search
+  const raw = numeric().filter((t) => !t.constant && base.includes(t));
+  if (raw.length <= 10 && offered.has("haversineKm")) for (const a of raw) for (const b of raw) for (const c of raw) for (const d of raw) add({ expr: `haversineKm(${a.expr}, ${b.expr}, ${c.expr}, ${d.expr})`, f: (x) => CARDS.haversineKm.fn(a.f(x), b.f(x), c.f(x), d.f(x)) });
+  for (const name of ["kmToMiles", "milesToKm"]) if (offered.has(name)) for (const t of [...numeric()]) { if (t.constant) continue; add({ expr: `${name}(${t.expr})`, f: (a) => CARDS[name].fn(t.f(a)) }); }
+  if (found) return found; wrap([...pool]); if (found) return found;
+  const binary = (as, bs) => { for (const a of as) for (const b of bs) for (const [sym, fn] of [["+", (x, y) => x + y], ["-", (x, y) => x - y], ["*", (x, y) => x * y], ["/", (x, y) => (y === 0 ? NaN : x / y)]]) { if (a.constant && b.constant) continue; if ((sym === "+" || sym === "*") && a.expr > b.expr) continue; add({ expr: `(${a.expr} ${sym} ${b.expr})`, f: (x) => fn(a.f(x), b.f(x)) }); if (found) return; } };
+  const L = numeric().filter((t) => base.includes(t) || (offered.size && t.expr.startsWith("roundTo(haversineKm"))); let before = pool.length; binary(L, L); if (found) return found; let fresh = pool.slice(before); wrap(fresh); if (found) return found;
+  const consts = pool.filter((t) => t.constant), mid = fresh.filter((t) => !t.arr).slice(0, 3000);
+  before = pool.length; binary(mid, [...L.slice(0, 60), ...consts]); binary([...L.slice(0, 60), ...consts], mid); if (found) return found; wrap(pool.slice(before)); return found;
+}
+
+/** one numeric field: SOLVED only when the expression found on the shown examples also reproduces every run it was not shown; matching the shown examples alone is a COINCIDENCE (three numbers can be hit by a strange expression) */
+export function solveField(contract, key, vals, extra = []) {
+  const runs = contract.runs, t = synthesize(contract, vals, extra);
+  if (!t) return { key, kind: "unsolved" };
+  let held = 0, total = 0; for (const r of runs.slice(SHOWN)) { total++; try { if (same(t.f(r.args()), r.want()[key])) held++; } catch { /* a throw is a miss */ } }
+  return { key, kind: total > 0 && held === total ? "solved" : "coincidence", expr: t.expr, heldOut: `${held}/${total}`, term: t };
+}
+
+/** every numeric output field of a contract: solved (and does it hold on the runs it was not shown?) or left to the model */
+export function solveContract(contract) {
+  const wants = contract.runs.slice(0, SHOWN).map((r) => r.want());
+  if (!wants.every((w) => w && typeof w === "object" && !Array.isArray(w))) return { shape: "not-flat-object", fields: [] };
+  const fields = [], extra = [];
+  for (const k of [...new Set(wants.flatMap(Object.keys))]) {
+    const vals = wants.map((w) => w[k]);
+    if (!vals.every(isNum)) { fields.push({ key: k, kind: "non-numeric" }); continue; }
+    const f = solveField(contract, k, vals, extra);
+    if (f.kind === "solved") extra.push({ expr: k, f: f.term.f });
+    const { term, ...out } = f; fields.push(out);
+  }
+  return { shape: "object", fields };
+}
+
+if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+  let solved = 0, ok = 0, numeric = 0, all = 0, nonNum = 0;
+  for (const d of [...DIVERSE, ...HELDOUT]) {
+    const r = solveContract(d.contract);
+    if (r.shape !== "object") { console.log(d.contract.name.padEnd(14), "(result is not a flat object)"); continue; }
+    console.log(d.contract.name.padEnd(14), r.fields.map((f) => f.kind === "solved" ? `${f.key} = ${f.expr}  [held-out ${f.heldOut}]` : f.kind === "coincidence" ? `${f.key}: matched the examples but not the held-out runs (${f.expr})` : `${f.key}: ${f.kind}`).join("\n".padEnd(16)));
+    for (const f of r.fields) { all++; if (f.kind === "non-numeric") nonNum++; else numeric++; if (f.kind === "solved") { solved++; ok++; } }
+  }
+  console.log(`\n${all} output fields in the flat-object results: ${nonNum} are text (not searched), ${numeric} numeric — ${solved} solved with no model (each also right on every run it was not shown)`);
+}

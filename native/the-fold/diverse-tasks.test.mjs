@@ -49,13 +49,20 @@ test("a key slip on the keyed tasks resolves through the layer where the evidenc
   assert.equal(testUnit(leg, by.flightLeg.contract).ok, true, "lat/lon are truncations of latitude/longitude");
 });
 
-test("LIMIT, pinned: a whole first word of a compound key (`total` for `total_beds`) is OFFERED, not resolved — `place` must never bind `place_id`", () => {
-  const slip = `function bedReport(ward) { const free = ward.total - ward.occupied; return { name: ward.ward_name, free, percentFull: 0, status: "ok" }; }`;
+test("a whole first word of a compound key (`total` for `total_beds`) is not a spelling the resolver may bind on its own, but a ghost read — a key the data does not carry — with exactly ONE real key sharing a word is bound by the wall, and the examples still decide", () => {
+  const slip = `function bedReport(ward) { const free = ward.total - ward.occupied; return { name: ward.ward_name, free, percentFull: Math.round((ward.occupied / ward.total) * 100), status: free === 0 ? "full" : (ward.occupied / ward.total) * 100 >= 85 ? "busy" : "ok" }; }`;
   const r = testUnit(slip, by.bedReport.contract);
-  assert.equal(r.ok, false, "the read stays undefined: a real absence is still a real failure");
-  const t = r.resolutions.find((x) => x.asked === "total");
-  assert.ok(!t || (!t.real && (t.ambiguous || t.unresolved !== false)), JSON.stringify(t));
-  // what the layer does know: the candidate to POINT at. Resolving from it would swallow real absences.
+  assert.equal(r.ok, true, r.failures.join("\n"));
+  const got = Object.fromEntries(r.resolutions.map((x) => [x.asked, x.real]));
+  assert.equal(got.total, "total_beds"); assert.equal(got.occupied, "occupied_beds");
+  // ablated: the same draw is the failure it always was
+  assert.equal(testUnit(slip, { ...by.bedReport.contract, ghostBind: false }).ok, false, "ghostBind === false is the control arm");
+  // two real keys share the word: nothing is chosen, the read stays undefined, the failure stays a failure
+  const both = `function bedReport(ward) { const free = ward.beds; return { name: ward.ward_name, free, percentFull: 0, status: "ok" }; }`;
+  assert.equal(testUnit(both, by.bedReport.contract).ok, false, "`beds` is in total_beds AND occupied_beds");
+  // a draw that already passes is never rebound
+  assert.equal(testUnit(DIVERSE_REFERENCE.bedReport, by.bedReport.contract).resolutions.filter((x) => x.basis?.includes("only real key")).length, 0);
+  // the resolver itself is unchanged: it still only POINTS at the candidate
   return import("../organs/key-referents.js").then(({ resolveKey }) => {
     const x = resolveKey("total", ["ward_name", "total_beds", "occupied_beds", "patients_waiting"]);
     assert.equal(x.resolved, false); assert.deepEqual(x.near, ["total_beds"]);
