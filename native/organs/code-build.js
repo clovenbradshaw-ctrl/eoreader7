@@ -63,12 +63,21 @@ async function pool(items, limit, fn) {
 }
 
 async function draw(model, prompt, { maxTokens = 220, timeoutMs = 90000 } = {}) {
-  const r = await fetch(`${OLLAMA}/api/generate`, {
-    method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ model, prompt, stream: false, options: { num_predict: maxTokens, temperature: 0 } /* no num_ctx: the server owns the one window (2026-09-21 post-mortem) */ }),
-    signal: AbortSignal.timeout(timeoutMs),
-  });
+  let r = null;
+  try {
+    r = await fetch(`${OLLAMA}/api/generate`, {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model, prompt, stream: false, options: { num_predict: maxTokens, temperature: 0 } /* no num_ctx: the server owns the one window (2026-09-21 post-mortem) */ }),
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+  } catch (e) {
+    // a typed refusal, never a silent empty (the house's 429 discipline — a
+    // draw that dies must name the reason; a silent "" became "0 extracted
+    // units" and then an empty file the gate blamed, GL-WV-08)
+    return { text: "", tokens: 0, error: `draw failed: ${String(e.message ?? e).slice(0, 120)}` };
+  }
   const j = await r.json();
+  if (j.error) return { text: "", tokens: 0, error: `model ${model}: ${String(j.error).slice(0, 120)}` };
   return { text: j.response ?? "", tokens: (j.prompt_eval_count ?? 0) + (j.eval_count ?? 0) };
 }
 
@@ -77,16 +86,46 @@ const clean = (txt) => {
   const m = /(?:def |function |const |class )[\s\S]*/.exec(t);
   return (m ? m[0] : t).trim();
 };
-// Keep EXACTLY the unit named — split on definition boundaries and take the
-// chunk whose own name matches (the model often emits every function it sees).
+// Keep EXACTLY the unit named, WHOLE — Kleeneup's law (a thing is found at its
+// byte address, never by a pattern) applied to extraction: a string/comment-
+// aware brace walk from the named head to its matching close (GL-EN-09), so a
+// draw that emits several functions yields each complete. The old line-boundary
+// split truncated every unit at the next function's head — measured, GL-WV-09.
+function findName(text, name) {
+  const esc = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`(?:function\\s+${esc}\\s*\\(|(?:const|let|var)\\s+${esc}\\s*=)`);
+  const m = re.exec(text);
+  return m ? m.index : -1;
+}
+function walkBraceEnd(src, from) {
+  let depth = 0, i = from, seen = false, mode = "code";
+  const n = src.length;
+  while (i < n) {
+    const ch = src[i], nx = src[i + 1];
+    if (mode === "line") { if (ch === "\n") mode = "code"; i++; continue; }
+    if (mode === "block") { if (ch === "*" && nx === "/") { mode = "code"; i += 2; } else i++; continue; }
+    if (mode === "squote" || mode === "dquote" || mode === "tick") {
+      if (ch === "\\") i += 2;
+      else if ((mode === "squote" && ch === "'") || (mode === "dquote" && ch === '"') || (mode === "tick" && ch === "`")) { mode = "code"; i++; }
+      else i++;
+      continue;
+    }
+    if (ch === "/" && nx === "/") { mode = "line"; i += 2; }
+    else if (ch === "/" && nx === "*") { mode = "block"; i += 2; }
+    else if (ch === "'") { mode = "squote"; i++; }
+    else if (ch === '"') { mode = "dquote"; i++; }
+    else if (ch === "`") { mode = "tick"; i++; }
+    else if (ch === "{") { depth++; seen = true; i++; }
+    else if (ch === "}") { depth--; i++; if (seen && depth === 0) break; }
+    else i++;
+  }
+  return i;
+}
 function extractUnit(text, name) {
   const t = String(text ?? "").replace(/```[a-z]*/gi, "");
-  const esc = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const chunks = t.split(/\n(?=[ \t]*(?:def|async def|function|const|let|var|class)[ \t])/);
-  const head = new RegExp(`^[ \\t]*(?:async[ \\t]+)?def[ \\t]+${esc}[ \\t]*\\(`);
-  const jshead = new RegExp(`^[ \\t]*(?:function[ \\t]+${esc}[ \\t]*\\(|(?:const|let|var)[ \\t]+${esc}[ \\t]*=)`);
-  const hit = chunks.find((c) => head.test(c) || jshead.test(c));
-  return (hit || "").trim();
+  const at = findName(t, name);
+  if (at < 0) return "";
+  return t.slice(at, walkBraceEnd(t, at)).trim();
 }
 
 /** Build the file the NL task named: decompose → concurrent draws → assemble →
@@ -96,10 +135,24 @@ export async function buildCodeTask({ task, model, testCommand = null, out = nul
   const started = Date.now();
   const units = planUnits(task);
   if (!units.length) return { ok: false, error: "no independent units found in the task — not a discrete build (defer to the normal turn)" };
+  // Gary-shaped draw (2026-10-01): the task's own words ride last, and the
+  // unit's function head is the completion anchor — the small-model law (the
+  // prompt is a completion anchor, the test decides) plus Gary's
+  // information-not-prohibition (a prohibition aimed at the mouth is how a
+  // small model learns to say it; the old "Write ONLY raw code… do NOT output
+  // any other function" prompt measured 0 extracted units from both resident
+  // mouths, GL-WV-08). The extractor keeps exactly the named unit; the
+  // testCommand decides; never a steering instruction.
   const draws = await pool(units, parallelism, (u) =>
-    draw(model, `Write ONLY raw code (no prose, no markdown fences) for EXACTLY ONE function, named \`${u.name}\` — do NOT output any other function. It is one unit of this file: ${task}\nOutput only the single function \`${u.name}\`. Assume each function takes a string argument.`));
+    draw(model, `${task}\nfunction ${u.name}(`, { maxTokens: 512 }));
   const parts = draws.map((d, i) => extractUnit(d?.text || "", units[i].name)).filter(Boolean);
   const code = parts.join("\n\n") + "\n";
+  if (!parts.length) {
+    // the mouth produced nothing extractable — a typed refusal, never an empty
+    // file the gate then blames (GL-WV-08)
+    const errors = [...new Set(draws.map((d) => d?.error).filter(Boolean))];
+    return { ok: false, error: errors.length ? `draw failed: ${errors.join("; ")}` : "no units drawn — the mouth returned nothing extractable (named gap)" };
+  }
   const looksJs = /\b(function|=>|const |let |require\(|export )/.test(code) && !/^\s*def |^\s*import |^\s*from /m.test(code);
   const looksPy = /^\s*(def |import |from |class )/m.test(code);
   const ext = looksJs ? "js" : "py";
