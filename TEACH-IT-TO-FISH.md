@@ -177,8 +177,8 @@ The held-out set (written after the cards) said, as single rows: none of the thr
 | | effect | 95% interval (tasks resampled) |
 |---|---|---|
 | cards offered (prompt + wall) vs bare, **pass rate** | +0.03 | −0.04 … +0.13 |
-| cards offered vs bare, **fraction of runs failed** (lower is better) | −0.06 | −0.03 … +0.16 |
-| **canonical reading vs the same draws raw** (paired) | −0.04 | 0.00 … +0.12 |
+| cards offered vs bare: **reduction in the fraction of runs failed** | +0.06 | −0.03 … +0.16 |
+| **canonical reading vs the same draws raw** (paired): **reduction in the fraction of runs failed** | +0.04 | 0.00 … +0.12 |
 | everything vs bare, pass rate | +0.08 | −0.03 … +0.26 |
 
 Read plainly: **no mechanism has a detectable effect on this model's first draw at this sample size**, except that the canonical reading never made a draw worse (its interval's lower edge is 0.00) and was decisive where it applied — `orderTotal` went 0% → 50% passing with the cards offered and → **100%** once the reading replaced the model's own `parseMoney` with the verified one (6 of 6 draws rewritten). The prompt-level offers are mixed per task (helped `orderTotal` and `dueSoon`'s partial credit, nothing for `busTimes`, `flightLeg` or the three held-out card tasks, and made `wordStats` worse: failed fraction 0.80 → 1.00). The no-card control `topAuthors` is 6 of 6 in every arm: no cost there.
