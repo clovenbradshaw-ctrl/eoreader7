@@ -11,6 +11,9 @@
 //   const_to_let      a `const` assigned again later. The program throws as written, so the only reading is the one the model meant.
 //   redeclared_to_assignment  a `const`/`let` declared twice in one scope — a SyntaxError the engine itself names ("Identifier 'x' has already been declared"); the later
 //                     declaration is the assignment it was meant to be. Kept only if re-compiling shows that error gone.
+//   shorthand_resolved  `return { unique, longest }` where `unique` and `longest` are declared nowhere and the unit has `uniqueWords` and `longestWord`: the output keys are fixed by the
+//                     contract and each names the ONE local it abbreviates. An undeclared name throws, so there is no real absence to swallow — which is why a near name is enough
+//                     here and is not for a key read off a received object. An ambiguous or unmatched name is a finding.
 //   call_resolved     a call to a name nothing declares, which the referent rules resolve to exactly ONE verified card (cards.js):
 //                     `cToF(` is `celsiusToFahrenheit(`. Ambiguous and unknown names are FINDINGS, never guessed (`mph` starts three).
 //   key_resolved      a read of a key the received object lacks, which the wall resolved to exactly one real key (key-referents.js):
@@ -24,6 +27,7 @@
 // Pure. The scan is a regex over source, not a parser (cards.js `freeCalls`, the same disclosed approximation): it can MISS a
 // transformation (the suggestion stays as written, the honest outcome) and the re-test is what catches a wrong one.
 import { freeCalls, declaredIn, resolveCard, CARD_NAMES } from "./cards.js";
+import { resolveKey } from "./key-referents.js";
 
 export const CANONICAL_SCHEMA = "EOCanonicalCode@1";
 
@@ -65,6 +69,30 @@ export function dropShadowedCards(code, offered = []) {
   }
   return { code: out, names };
 }
+
+const NOT_A_VARIABLE = new Set(["undefined", "null", "NaN", "Infinity", "true", "false", "this", "arguments", "Math", "JSON", "Number", "String", "Boolean", "Array", "Object", "Date", "Infinity"]);
+/**
+ * The bare names in `return { a, b, c }` that nothing declares, each resolved to the one local it abbreviates (the unit's own names, never a card, never a global). Returns the rewritten
+ * code, what was resolved, and what could not be (ambiguous or no candidate).
+ */
+export function resolveShorthand(code) {
+  const src = String(code ?? ""), locals = [...declaredIn(src)].filter((n) => !NOT_A_VARIABLE.has(n));
+  const resolved = [], unresolved = [];
+  const out = src.replace(/(\breturn\s*\(?\s*)\{([^{}]*)\}/g, (all, head, body) => {
+    const parts = body.split(",").map((p) => p.trim()).filter((p) => p !== "");
+    const next = parts.map((p) => {
+      if (!/^[A-Za-z_$][\w$]*$/.test(p) || NOT_A_VARIABLE.has(p) || CARD_NAMES.includes(p) || declaredIn(src).has(p) || mentionsDeclared(src, p)) return p;
+      const r = resolveKey(p, locals.filter((n) => n !== p));
+      const to = r.resolved ? r.real : (r.near ?? []).length === 1 ? r.near[0] : null;
+      if (to) { resolved.push({ from: p, to, tier: r.tier ?? null, basis: r.resolved ? r.basis : "the only local this name abbreviates (a name nothing declares would throw, so there is no real absence to preserve)" }); return `${p}: ${to}`; }
+      unresolved.push({ name: p, near: r.near ?? [] }); return p;
+    });
+    return `${head}{ ${next.join(", ")} }`;
+  });
+  return { code: out, resolved, unresolved };
+}
+/** is `name` declared by a destructuring pattern the loose declaredIn does not read (`const { name } = x`, `const [name] = x`)? */
+function mentionsDeclared(src, name) { return new RegExp(`\\b(?:const|let|var)\\s*[\\{\\[][^=]*\\b${esc(name)}\\b[^=]*[\\}\\]]\\s*=`).test(src); }
 
 /**
  * Names the ENGINE says are declared twice in one scope, and the code with each later declaration read as an assignment. The engine names the identifier; the rewrite is
@@ -152,6 +180,11 @@ export function canonicalize(suggestion, { resolutions = [], cardNames = CARD_NA
   }
 
   const declared = new Set([...declaredIn(code), ...elsewhere]), present = cardNames.filter((n) => !declared.has(n));
+  const sr = resolveShorthand(code);
+  for (const r of sr.resolved) transformations.push({ kind: "shorthand_resolved", from: r.from, to: r.to, tier: r.tier, basis: r.basis });
+  for (const u of sr.unresolved) findings.push({ kind: "unresolved_name", name: u.name, near: u.near });
+  code = sr.code;
+
   for (const asked of freeCalls(code)) {
     if (declared.has(asked)) continue;
     const r = resolveCard(asked, present);

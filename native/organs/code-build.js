@@ -232,9 +232,9 @@ export function describeBuild(b) {
     : `verification failed${b.verifyError ? `: ${b.verifyError}` : ""}`;
   const lines = [`Built ${b.units.length} unit(s) — ${b.units.join(", ")} — drawn independently (${b.tokens} tokens, ${Math.round(b.wallMs / 1000)}s); ${checked}.`];
   const c = b.canonical ?? {};
-  for (const t of c.transformations ?? []) lines.push(`Read ${t.unit}: ${t.kind === "const_to_let" ? `\`${t.name}\` is assigned again, so it is a \`let\`` : `\`${t.from}\` is \`${t.to}\` (${t.basis})`}.`);
+  for (const t of c.transformations ?? []) lines.push(`Read ${t.unit}: ${t.kind === "const_to_let" ? `\`${t.name}\` is assigned again, so it is a \`let\`` : t.kind === "redeclared_to_assignment" || t.kind === "card_shadow_dropped" ? `${t.basis}` : `\`${t.from}\` is \`${t.to}\` (${t.basis})`}.`);
   if ((c.cards ?? []).length) lines.push(`The file carries ${c.cards.join(", ")}, written and checked once, because the units call them.`);
-  for (const f of c.unresolved ?? []) lines.push(f.kind === "truncated" || f.kind === "does_not_parse" ? `${f.unit}: ${f.name}.` : `${f.unit} calls \`${f.name}\`, which nothing in the file declares.`);
+  for (const f of c.unresolved ?? []) lines.push(f.kind === "truncated" || f.kind === "does_not_parse" ? `${f.unit}: ${f.name}.` : f.kind === "unresolved_name" ? `${f.unit} returns \`${f.name}\`, which nothing in the unit declares.` : `${f.unit} calls \`${f.name}\`, which nothing in the file declares.`);
   for (const f of c.ambiguous ?? []) lines.push(`${f.unit} calls \`${f.name}\`, which could be ${f.candidates.join(" or ")} — left as written.`);
   const lang = /^\s*(def |import |from )/m.test(b.code) ? "python" : "js";
   return `${lines.join("\n")}\n\n\`\`\`${lang}\n${b.code.trimEnd()}\n\`\`\``;

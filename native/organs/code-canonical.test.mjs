@@ -3,7 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import vm from "node:vm";
-import { canonicalize, constReassigned, rewriteKey, adoptIf, redeclaredToAssignment, dropShadowedCards, jsUnitEnd, CANONICAL_SCHEMA } from "./code-canonical.js";
+import { canonicalize, constReassigned, rewriteKey, adoptIf, redeclaredToAssignment, dropShadowedCards, resolveShorthand, jsUnitEnd, CANONICAL_SCHEMA } from "./code-canonical.js";
 import { cardSource } from "./cards.js";
 
 const run = (code, fn, ...args) => { const ctx = vm.createContext(Object.create(null)); vm.runInContext(`${cardSource()}\n${code}\nglobalThis.__f = ${fn};`, ctx); return JSON.parse(JSON.stringify(ctx.__f(...args))); };
@@ -109,4 +109,23 @@ test("a statement end is found past braces, strings, template literals, comments
   assert.equal(src.slice(0, jsUnitEnd(src, 0)), "const a = (x) => x + 1;");
   const blk = "function f() { const s = \"}\"; /* } */ return `{${1}}`; }\nconst c = 3;";
   assert.equal(blk.slice(0, jsUnitEnd(blk, 0)), "function f() { const s = \"}\"; /* } */ return `{${1}}`; }");
+});
+
+test("shorthand_resolved: the contract fixes the output keys, so `return { unique, longest }` over `uniqueWords` and `longestWord` means unique: uniqueWords, longest: longestWord", () => {
+  const raw = `function wordStats(text) {\n  const words = text.split(" ");\n  const uniqueWords = new Set(words).size;\n  const longestWord = words.reduce((a, w) => (w.length > a.length ? w : a), "");\n  return { words: words.length, unique, longest };\n}`;
+  assert.throws(() => run(raw, "wordStats", "a bb a"), /unique is not defined/);
+  const c = canonicalize(raw);
+  assert.deepEqual(c.transformations.filter((t) => t.kind === "shorthand_resolved").map((t) => [t.from, t.to]), [["unique", "uniqueWords"], ["longest", "longestWord"]]);
+  assert.deepEqual(run(c.code, "wordStats", "a bb a"), { words: 3, unique: 2, longest: "bb" });
+});
+
+test("shorthand_resolved leaves alone: a name that IS declared, a destructured one, a global, a card; and names two locals both abbreviate it cannot choose between — a finding, not a guess", () => {
+  const ok = `function f(o) { const { a, b } = o; const total = a + b; const n = 1; return { a, b, total, n, undefined }; }`;
+  assert.equal(resolveShorthand(ok).code, ok); assert.deepEqual(resolveShorthand(ok).resolved, []);
+  const amb = `function f(x) { const userCount = x.length; const userNames = x; return { user }; }`;
+  const r = resolveShorthand(amb);
+  assert.deepEqual(r.resolved, []); assert.equal(r.code, amb); assert.deepEqual(r.unresolved.map((u) => u.name), ["user"]);
+  assert.deepEqual(canonicalize(amb).findings.map((f) => f.kind), ["unresolved_name"]);
+  const none = `function f(x) { const total = 1; return { ultraviolet }; }`;
+  assert.deepEqual(resolveShorthand(none).unresolved.map((u) => u.name), ["ultraviolet"]);
 });
