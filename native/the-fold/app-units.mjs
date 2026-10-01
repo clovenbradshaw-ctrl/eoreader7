@@ -452,7 +452,7 @@ export function readSuggestion(suggestion, contract) {
  *   trails   the stigmergy's trails (mutated by returning the new set in .trails)
  *   see      ledger writer: see(event, fields)
  */
-export async function makeUnit(contract, { mouths, mouth, trails = {}, cache = null, see = () => {}, now = Date.now(), rng = Math.random, explore = 0.1, skeleton = false, repair = "edit", carry = false, anchorDir = null } = {}) {
+export async function makeUnit(contract, { mouths, mouth, trails = {}, cache = null, see = () => {}, now = Date.now(), rng = Math.random, explore = 0.1, skeleton = false, repair = "edit", carry = false, anchorDir = null, species = null } = {}) {
   const hash = contractHash(contract);
   const t0 = Date.now();
   const hit = cache?.get(hash);
@@ -461,6 +461,13 @@ export async function makeUnit(contract, { mouths, mouth, trails = {}, cache = n
     const again = testUnit(hit.code, contract);
     if (again.ok) { see("unit", { name: contract.name, hash, cached: true, model: hit.model, calls: 0, ms: Date.now() - t0 }); return { ok: true, code: hit.code, model: hit.model, rounds: 0, calls: 0, ms: Date.now() - t0, cached: true, failures: [], declared: again.declared ?? {}, resolutions: again.resolutions ?? [], trails }; }
     see("unit-cache-stale", { name: contract.name, hash, failures: again.failures.slice(0, 3) });
+  }
+  // THE WHOLE LEAF BY A SPECIES FIRST (a scrape of text): held to the same oracle as a drawn leaf, and the model is asked only if it is refused
+  const whole = species?.(contract, null);
+  if (whole?.body) {
+    const code = `function ${contract.name}(${contract.params.join(", ")}) {\n  ${whole.body}\n}`, t = testUnit(code, contract);
+    see("unit", { name: contract.name, species: whole.species, ok: t.ok, calls: 0, ...(t.ok ? {} : { gap: "a species filled the leaf but the oracle refused it", failures: t.failures.slice(0, 2) }) });
+    if (t.ok) { cache?.put(hash, { name: contract.name, model: `species:${whole.species}`, code, hash, declared: t.declared ?? {}, resolutions: t.resolutions ?? [], verifiedAt: new Date().toISOString() }); return { ok: true, code, model: `species:${whole.species}`, rounds: 0, calls: 0, ms: Date.now() - t0, cached: false, failures: [], declared: t.declared ?? {}, resolutions: t.resolutions ?? [], bySpecies: { "*": whole.species }, trails }; }
   }
   const head = `unit:${contract.kind ?? "parse"}`;
   const order = routeOrderFor(trails, head, { routes: mouths, rng, explore });

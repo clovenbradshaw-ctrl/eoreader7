@@ -103,3 +103,27 @@ test("guard finds the yes/no 'nothing to return' from the words and every run; a
   const redealt = { ...c, runs: c.runs.map((r, i) => ({ ...r, want: () => (i % 2 ? null : { id: i }) })) };
   assert.equal(guard(redealt), null, "CONTROL: nulls assigned by position are not any predicate of the input");
 });
+
+// ---- scrape (a whole leaf read out of a string of HTML text) ----
+import { scrape } from "./species.mjs";
+const page = (rows, extra = "") => `<html><body><h1>Stats</h1><table>${rows.map(([k, v]) => `<tr><td class="k">${k}</td><td class="v">${v}</td></tr>`).join("")}</table><ul>${extra}</ul></body></html>`;
+const mkScrape = (params, data, wantOf) => ({ name: "s", kind: "leaf", params, doc: "d", returns: "r", notes: "", runs: data.map((d) => ({ args: () => [...d], want: () => wantOf(...d) })) });
+
+test("scrape: the value after the cell holding a parameter's text — found from where the example sits, held to every other page", () => {
+  const rows = [[["Oak", 12], ["Pine", 7], ["Elm", 31]], [["Pine", 9], ["Oak", 4], ["Ash", 18]], [["Ash", 2], ["Fir", 66], ["Oak", 5]], [["Elm", 40], ["Oak", 88], ["Fir", 3]], [["Oak", 1], ["Elm", 2]]];
+  const data = rows.flatMap((r) => [[page(r), "Oak"], [page(r), "Elm"], [page(r), "Zzz"]]).slice(0, 12);
+  const want = (h, label) => { const m = new RegExp(`<td class="k">${label}</td><td class="v">(\\d+)</td>`).exec(h); return m ? Number(m[1]) : null; };
+  const c = mkScrape(["html", "label"], data, want);
+  const r = scrape(c);
+  assert.ok(r && /indexOf\(">" \+ label \+ "<"\)/.test(r.body), r?.body);
+  const redealt = { ...c, runs: c.runs.map((x, i) => ({ ...x, want: () => c.runs[(i + 1) % c.runs.length].want() })) };
+  assert.equal(scrape(redealt), null, "CONTROL: redealt answers are not read off any page");
+});
+
+test("scrape: the last (or first) match of the tag before the value; a string that is not markup is not a scrape", () => {
+  const data = ["a", "b", "c", "d"].map((x, i) => [`<div><span class="w">old</span><span class="w">${x}${i}</span></div>`]);
+  const c = mkScrape(["html"], data, (h) => /<span class="w">([^<]*)<\/span><\/div>/.exec(h)[1]);
+  assert.match(scrape(c).body, /m\[m\.length - 1\]\[1\]/);
+  const plain = mkScrape(["text"], [["hello world"], ["foo bar"], ["x y"]], (t) => t.split(" ")[0]);
+  assert.equal(scrape(plain), null);
+});

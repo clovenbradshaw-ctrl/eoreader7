@@ -10,6 +10,7 @@
 //   slice     a fixed stretch of a string path: `entry.time.slice(0, 16)` — the offsets are searched, the examples and the held-out runs decide
 //   normalize a string path (or the first non-empty of two) put through the text operations the words name: trim, lower, underscores to spaces, a stated ending removed (`_day`, `_night`)
 //   guard     the yes/no "is there nothing to return for this input": a predicate over one or two input paths (is missing, is not a number, is not a numeric string), checked on EVERY run
+//   scrape    a value read out of a string of HTML TEXT (a whole leaf, not a field): the tag that stands right before the value in the example is the anchor; the first or last match of it, or the first match after the cell holding a parameter's text; every other run decides
 //   argmax    the item of a list with the largest key (the longest word, the priciest line), the first on a tie, `""` for none
 //
 // Nothing here knows what a ward, a flight or a cart is; the leaves are the input's own paths and the operations are the cards the person's words name plus the language's own.
@@ -353,6 +354,31 @@ export function guard(contract, isNull = (r) => r.want() === null) {
   for (const a of P) for (const b of P) if (a.js < b.js && lastKey(a.js) === lastKey(b.js)) cands.push({ js: `${PREDICATES[0].js(a.js)} && ${PREDICATES[0].js(b.js)}`, f: (x) => PREDICATES[0].f(safe(a.f, x)) && PREDICATES[0].f(safe(b.f, x)), score: 2 * named(a.js) + kindBonus[0], size: 2 });
   cands.sort((x, y) => y.score - x.score || x.size - y.size); // the best-evidenced reason first (the words name the path and the kind of test), then the simplest
   for (const c of cands) if (runs.every((r, i) => { try { return Boolean(c.f(r.args())) === truth[i]; } catch { return false; } })) return { species: "guard", js: c.js, f: c.f };
+  return null;
+}
+
+const reEsc = (t) => t.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&");
+/** SCRAPE (a whole leaf): -> { js, body, f } | null. The HTML is the first parameter whose first-run value is a string of markup; a value is a string or a number or null (no such row). */
+export function scrape(contract) {
+  const runs = contract.runs, a0 = runs[0].args(), hi = a0.findIndex((v) => typeof v === "string" && /^\s*<(?:!doctype|html|\w+[\s>])/i.test(v));
+  if (hi < 0) return null;
+  const wants = runs.map((r) => r.want()), shown = wants[0];
+  if (!(typeof shown === "string" || typeof shown === "number") || !wants.every((w) => w === null || typeof w === typeof shown)) return null;
+  const numeric = typeof shown === "number", text = String(shown), html0 = a0[hi], anchors = new Set();
+  for (let at = html0.indexOf(text), n = 0; at >= 0 && n < 8; at = html0.indexOf(text, at + 1), n++) {
+    const before = html0.slice(0, at), lt = before.lastIndexOf("<");
+    if (lt >= 0 && /^<[^<>]+>\s*$/.test(before.slice(lt))) anchors.add(before.slice(lt).trim());
+  }
+  const conv = (v) => (v == null ? null : numeric ? (Number.isFinite(Number(v)) ? Number(v) : null) : v), val = numeric ? "Number" : "String";
+  const strParams = contract.params.map((p, i) => ({ p, i })).filter((x) => x.i !== hi && typeof a0[x.i] === "string");
+  const cands = [];
+  for (const anchor of anchors) {
+    const re = new RegExp(`${reEsc(anchor)}\\s*([^<]*?)\\s*<`, "g"), src = `${reEsc(anchor)}\\s*([^<]*?)\\s*<`;
+    for (const which of ["first", "last"]) cands.push({ body: `const m = [...${contract.params[hi]}.matchAll(/${src}/g)];\n  return m.length ? ${numeric ? "(Number.isFinite(Number(m[" + (which === "first" ? "0" : "m.length - 1") + "][1])) ? Number(m[" + (which === "first" ? "0" : "m.length - 1") + "][1]) : null)" : "m[" + (which === "first" ? "0" : "m.length - 1") + "][1]"} : null;`, f: (a) => { const m = [...String(a[hi]).matchAll(re)]; return m.length ? conv(m[which === "first" ? 0 : m.length - 1][1]) : null; } });
+    for (const { p, i } of strParams) cands.push({ body: `const j = ${contract.params[hi]}.indexOf(">" + ${p} + "<");\n  if (j < 0) return null;\n  const m = /${src}/.exec(${contract.params[hi]}.slice(j));\n  return m ? ${numeric ? "(Number.isFinite(Number(m[1])) ? Number(m[1]) : null)" : "m[1]"} : null;`, f: (a) => { const j = String(a[hi]).indexOf(">" + a[i] + "<"); if (j < 0) return null; const m = new RegExp(src).exec(String(a[hi]).slice(j)); return m ? conv(m[1]) : null; } });
+  }
+  void val;
+  for (const c of cands) if (runs.every((r, i) => { try { return same(c.f(r.args()), wants[i]); } catch { return false; } })) return { species: "scrape", body: c.body, js: null, f: c.f };
   return null;
 }
 
