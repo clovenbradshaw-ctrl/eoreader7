@@ -16,8 +16,11 @@ import os from "node:os";
 import path from "node:path";
 import { execSync } from "node:child_process";
 import { validatePython, validateHtml } from "../../postprocess.mjs";
+import { MOUTH_URL, MOUTH_IDENTITY } from "../kernel/mouth.js";
 
-const OLLAMA = process.env.ER7_OLLAMA_URL ?? "http://localhost:11434";
+// The mouth (Penelope) is the only draw entry — never ollama, never the
+// channel, past her. code-build's draws go through her /api/generate wire.
+const OLLAMA = MOUTH_URL;
 
 /** A discrete multi-unit coding task, from plain language: an ask to WRITE a
  *  file/module/script that (names|lists) MORE THAN ONE function/unit. */
@@ -26,7 +29,15 @@ export function detectBuildTask(task) {
   if (t.length < 12) return false;
   const makesFile = /\b(write|make|create|build|generate|implement|scaffold)\b[\s\S]{0,60}\b(file|module|script|library|utils?|helpers?|functions?|methods?|class)\b/i.test(t);
   if (!makesFile) return false;
-  const listed = (t.match(/,/g) || []).length >= 2 || /\b(functions?|methods?|each|following)\b/i.test(t);
+  // listed must be a NAMED list, never a bare mention of "functions" — prose
+  // like "a paper about the functions of memory" must not open the build door
+  // (a false positive would refuse a turn with a build gap).
+  const listed =
+    (t.match(/,/g) || []).length >= 2
+    || /\b(?:functions?|methods?|helpers?)\s*[:：]/i.test(t)
+    || /\b(?:functions?|methods?|helpers?)\s+[a-z_][a-zA-Z0-9_]+\s*\(/i.test(t)
+    || /\b(?:functions?|methods?|helpers?)\s+[a-z_][a-zA-Z0-9_]+\s+and\s+[a-z_][a-zA-Z0-9_]+/i.test(t)
+    || /\b(?:each|following|named)\b/i.test(t);
   return listed;
 }
 
@@ -47,6 +58,18 @@ export function planUnits(task) {
   // also accept "named: a, b, c" / "functions: a, b, c"
   const list = /\b(?:named|functions?|methods?)\s*[:：]\s*([a-zA-Z_][a-zA-Z0-9_]+(?:\s*,\s*[a-zA-Z_][a-zA-Z0-9_]+)+)/i.exec(t);
   if (list) for (const n of list[1].split(/\s*,\s*/)) if (!names.includes(n)) names.push(n);
+  // also accept an and-separated list: "two functions clamp and lerp",
+  // "functions, isOdd and isEven". Gated by a plural unit-noun and a
+  // stop-word check so prose ("the functions of memory and thought") never
+  // parses as units.
+  const STOP = new Set(["and", "or", "the", "each", "with", "from", "for", "use", "of", "to", "in", "on", "a", "an", "that", "which", "this", "is", "are", "was"]);
+  const andList = /\b(?:named|functions?|methods?|helpers?)\s*[:：,]?\s*([a-z_][a-zA-Z0-9_]+)(?:\s+and\s+([a-z_][a-zA-Z0-9_]+))+/i.exec(t);
+  if (andList) {
+    for (let k = 1; k < andList.length; k += 1) {
+      const n = andList[k];
+      if (!STOP.has(n) && !names.includes(n)) names.push(n);
+    }
+  }
   return names.slice(0, 12).map((name) => ({ name, spec: t }));
 }
 
@@ -66,7 +89,7 @@ async function draw(model, prompt, { maxTokens = 220, timeoutMs = 90000 } = {}) 
   let r = null;
   try {
     r = await fetch(`${OLLAMA}/api/generate`, {
-      method: "POST", headers: { "content-type": "application/json" },
+      method: "POST", headers: { "content-type": "application/json", ...MOUTH_IDENTITY, "x-er7-kind": "code" },
       body: JSON.stringify({ model, prompt, stream: false, options: { num_predict: maxTokens, temperature: 0 } /* no num_ctx: the server owns the one window (2026-09-21 post-mortem) */ }),
       signal: AbortSignal.timeout(timeoutMs),
     });
@@ -144,7 +167,13 @@ export async function buildCodeTask({ task, model, testCommand = null, out = nul
   // mouths, GL-WV-08). The extractor keeps exactly the named unit; the
   // testCommand decides; never a steering instruction.
   const draws = await pool(units, parallelism, (u) =>
-    draw(model, `${task}\nfunction ${u.name}(`, { maxTokens: 512 }));
+    // The completion anchor holds the small mouth in the target language: a
+    // bare "function name(" let both resident mouths answer the TASK as prose
+    // and drift to Python ("Certainly! Below is a Python module..."), measured
+    // 2026-10-01 on gemma2:2b and qwen2.5-coder:1.5b. The fenced JS head is
+    // the anchor the small model completes — the extractor strips the fence
+    // and keeps exactly the named unit (GL-BD-09, the small-model law).
+    draw(model, `${task}\n\n\`\`\`javascript\nfunction ${u.name}(`, { maxTokens: 512 }));
   const parts = draws.map((d, i) => extractUnit(d?.text || "", units[i].name)).filter(Boolean);
   const code = parts.join("\n\n") + "\n";
   if (!parts.length) {

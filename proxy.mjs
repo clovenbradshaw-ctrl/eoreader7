@@ -58,6 +58,7 @@ import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
 import { writeJobWorkspace, JobWorkspaceError, safeName } from "./job-workspace.mjs";
 import { runCodeLoop } from "./native/the-fold/code-loop.js";
+import { openFolder } from "./native/adapters/sources/folder-index.js";
 import { getCodeDrawMonitor, shipCodeDrawResult } from "./native/kernel/code-draw-monitor.js";
 import { runSwarmTurn } from "./swarm-server.mjs";
 import { contentRulesStore, contentRulesCount, CONTENT_RULES_FILE } from "./content-rules.mjs";
@@ -1222,7 +1223,17 @@ async function handleRequest(req, res) {
           }));
           return;
         }
-        // not a discrete build after all → fall through to the normal turn
+        // A build-shaped ask whose build could not run is a TYPED REFUSAL,
+        // never a silent fall-through to the chat turn — the mouth must not
+        // answer a build ask with prose (the turned clamp/lerp ask drew
+        // Python at 2026-10-01; GL-BD-09). The gap is named, the turn is not.
+        log(`ask → BUILD refused: ${String(b.error ?? "build failed").slice(0, 140)}`);
+        res.writeHead(400, { "content-type": "application/json" });
+        res.end(JSON.stringify({
+          ok: false, kind: "mechanical-code-build-refused", error: b.error ?? "build failed",
+          disclosure: { giver: "heimdall", standing: "disclosed", rule: "a task the build detector matched but buildCodeTask could not build is a named gap, never a model turn (GL-BD-09)" },
+        }));
+        return;
       }
       // Same default the /v1/documents job uses — one literal, not a second
       // magic constant for the same choice.
@@ -1444,6 +1455,21 @@ async function handleRequest(req, res) {
       }
       const model = String(parsed?.model ?? "").trim() || pickDefaultModel();
       const maxRounds = Number.isFinite(Number(parsed?.maxRounds)) ? Math.max(1, Math.min(10, Number(parsed.maxRounds))) : 3;
+      // Ground the whole workspace BEFORE the loop (opt-in `ground: true`):
+      // folder-index ingests every real file into the territory index — the
+      // pre-model SEG — so round 1 aims the model at the files the task's own
+      // words resolve to, instead of asking a small mouth to guess paths.
+      // Fail-open: any ingestion error falls back to the ungrounded loop.
+      const ground = Boolean(parsed?.ground);
+      let territory = null;
+      if (ground) {
+        try {
+          territory = await openFolder(workspace, { cacheDir: path.join(path.dirname(fileURLToPath(import.meta.url)), "state", "territory-cache"), workers: 2, limit: 60000 });
+          log(`code ground → whole-workspace territory indexed: ${territory.files.found} files in ${(territory.timings.crawl + territory.timings.stat + territory.timings.index + territory.timings.assemble).toLocaleString()} ms`);
+        } catch (e) {
+          log(`code ground → territory ingest failed (fail-open): ${e.message}`);
+        }
+      }
 
       const admit = admitChatRequest({ model }, req.headers);
       if (!admit.allowed) {
@@ -1469,7 +1495,7 @@ async function handleRequest(req, res) {
         // one mouth, disclosed: the loop's draws run in a turn scope, so the
         // mouth Heimdall serves them from is sticky and named on the result
         const scope = { sessionId, tier: turnTierAsk(req) };
-        const result = await turnScope.run(scope, () => runCodeLoop({ sessionId, userId, model, task, workspace, testCommand, maxRounds, caller: callerFromRequest(req, "code", parsed), signal: loopAbort.signal }));
+        const result = await turnScope.run(scope, () => runCodeLoop({ sessionId, userId, model, task, workspace, testCommand, maxRounds, caller: callerFromRequest(req, "code", parsed), signal: loopAbort.signal, territory }));
         clearTimeout(loopDeadline);
         res.removeListener("close", onDisconnect);
         // metacognition standing check (native/kernel/code-draw-standing.js,
