@@ -41,7 +41,8 @@ export function accountOf(generated) {
  * buildApp — the whole build as ONE call, for the app door: leaves drawn species-first then by the LOCAL models only (no stand-in, no larger model), assembled, driven, copy-checked.
  * -> { ok, stage, gap?, account, out, drive?, likeness? } — a leaf that no local mouth can make pass stops the build as a typed gap; nothing half-built ships.
  */
-export async function buildApp({ work, out, places = ["London"], mouths = ["qwen2.5-coder:1.5b", "gemma2:2b"], onNote = () => {} } = {}) {
+export async function buildApp({ work, out, places = ["London"], mouths = ["qwen2.5-coder:1.5b", "gemma2:2b"], onNote: onNoteIn = null } = {}) {
+  const onNote = typeof onNoteIn === "function" ? onNoteIn : () => {};
   fs.mkdirSync(work, { recursive: true });
   const cache = openUnitCache(path.join(work, "unit-cache")), trailsFile = path.join(work, "trails.json"), ledger = path.join(work, "build-ledger.jsonl");
   const see = (event, f) => { fs.appendFileSync(ledger, JSON.stringify({ at: new Date().toISOString(), event, ...f }) + "\n"); if (event === "unit" && f.name) onNote({ move: "app_unit", note: `${f.name}: ${f.species ? "species " + f.species : f.ok === false ? "no local model passed it" : "drawn and verified"}` }); };
