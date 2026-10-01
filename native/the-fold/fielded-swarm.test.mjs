@@ -10,10 +10,10 @@ import { runResults } from "./fold-experiment.mjs";
 const by = Object.fromEntries([...DIVERSE, ...HELDOUT].map((d) => [d.contract.name, d.contract]));
 const species = (n) => Object.fromEntries(Object.entries(cheapFill(by[n])).map(([k, v]) => [k, v.species]));
 
-test("a copy is tried before a composition: a value that sits at one input path is a copy, a value computed from several is composed, and a guard or a conditional is neither", () => {
-  assert.deepEqual(species("bedReport"), { name: "copy", free: "compose", percentFull: "compose" }, "`status` is a conditional: left to the model");
-  assert.deepEqual(species("busTimes"), { stop: "copy", route: "copy" }, "`times` is a list mapped through a helper: left to the model");
-  assert.equal(species("wordStats").avgLen, undefined, "a mean that is 0 for no words is a guard");
+test("a copy is tried before a composition, a composition before the non-numeric species: a value at one input path is a copy, one computed from several is composed, a conditional is decided, a list mapped through a helper is mapped", () => {
+  assert.deepEqual(species("bedReport"), { name: "copy", free: "compose", percentFull: "compose", status: "decide" });
+  assert.deepEqual(species("busTimes"), { stop: "copy", route: "copy", times: "map" });
+  assert.equal(species("wordStats").avgLen, "compose", "a mean that is 0 for no words is a guard, read off the example");
 });
 
 test("a unit every slot of which a cheap species fills is whole with no model call: orderTotal composes and passes the parent's whole oracle, held-out runs included", () => {

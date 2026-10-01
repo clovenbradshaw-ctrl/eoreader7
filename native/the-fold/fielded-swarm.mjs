@@ -11,7 +11,8 @@ import fs from "node:fs";
 import { DIVERSE } from "./diverse-tasks.mjs";
 import { HELDOUT } from "./diverse-heldout.mjs";
 import { readPrefill, heldOutAgreement } from "./prefill.mjs";
-import { solveContract } from "./synth-fields.mjs";
+import { solveContract, leaves as numericLeaves } from "./synth-fields.mjs";
+import { decide, template, mapList, argmax, topk } from "./species.mjs";
 import { fieldContract, composeFieldCode } from "./app-units.mjs";
 import { rungPrompt, RUNGS } from "./context-dose.mjs";
 import { runResults } from "./fold-experiment.mjs";
@@ -25,16 +26,32 @@ async function complete(model, prompt, stop = ["\n}"]) {
 /** `[0].stop_name` -> `stop.stop_name`: a copy path names the parameter by position */
 const copyJs = (contract, from) => from.replace(/^\[(\d+)\]/, (_, i) => contract.params[Number(i)]).replace(/^(?=[A-Za-z_])/, "");
 
-/** the cheap species: slots filled with no model -> { key: { species, js } } for a flat-object contract */
+/** one slot by the non-numeric species, in order; it counts only if it also reproduces every run it was NOT shown. `wants` is what the shown examples say (the control redeals it). -> { species, js } | null */
+export function fillSlot(contract, key, wants, terms) {
+  const holds = (f) => contract.runs.slice(3).every((r) => { try { return JSON.stringify(f(r.args())) === JSON.stringify(r.want()[key]); } catch { return false; } });
+  for (const [name, make] of [["decide", () => decide(contract, wants, terms)], ["template", () => template(contract, wants)], ["map", () => mapList(contract, wants)], ["argmax", () => argmax(contract, wants)], ["topk", () => topk(contract, wants)]]) {
+    let r = null; try { r = make(); } catch { r = null; }
+    if (r && holds(r.f)) return { species: name, js: r.js };
+  }
+  return null;
+}
+
+/** the cheap species: slots filled with no model -> { key: { species, js } } for a flat-object contract. A slot counts only if the species reproduces every run it was NOT shown. */
 export function cheapFill(contract) {
   const out = {}, pre = readPrefill(contract, 3, { strict: false });
   if (pre.shape !== "object") return out;
-  const agree = heldOutAgreement(contract, pre.fields);
+  const holds = (key, f) => contract.runs.slice(3).every((r) => { try { return JSON.stringify(f(r.args())) === JSON.stringify(r.want()[key]); } catch { return false; } });
   for (const f of pre.fields.filter((x) => x.kind === "copy")) {
     const one = heldOutAgreement(contract, [f]); if (one.total && one.right === one.total) out[f.key] = { species: "copy", js: copyJs(contract, f.from) };
   }
-  for (const f of solveContract(contract).fields) if (f.kind === "solved" && !out[f.key]) out[f.key] = { species: "compose", js: f.js };
-  void agree; return out;
+  const solved = solveContract(contract), terms = numericLeaves(contract).filter((t) => !t.arr && !t.constant).map((t) => ({ name: t.js.split(".").pop().replace(/[^\w]/g, " "), js: t.js, f: t.f }));
+  for (const f of solved.fields) if (f.kind === "solved" && !out[f.key]) { out[f.key] = { species: "compose", js: f.js }; terms.push({ name: f.key, js: `(${f.js})`, f: f.term.f }); }
+  for (const k of Object.keys(contract.runs[0].want())) {
+    if (out[k]) continue;
+    const r = fillSlot(contract, k, contract.runs.slice(0, 3).map((x) => x.want()[k]), terms);
+    if (r) out[k] = r;
+  }
+  return out;
 }
 
 /** SLOT mode: the model is shown the whole unit with every field the cheap species filled WRITTEN IN, and the file ends at the one blank — it completes an expression, in the register of the lines above it. */

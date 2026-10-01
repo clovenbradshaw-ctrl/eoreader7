@@ -17,9 +17,11 @@ const same = (a, b) => (isNum(a) && isNum(b) ? Math.abs(a - b) < EPS : Object.is
 const roundTo = (x, p) => Math.round(x * 10 ** p) / 10 ** p;
 
 /** numbers the person's own words state: "divided by 200", "85 or more" */
-export const wordConstants = (contract) => [...new Set([...String([contract.doc, contract.returns, contract.notes].join(" ")).matchAll(/(?<![\w.])\d+(?:\.\d+)?(?![\w.])/g)].map((m) => Number(m[0])))];
+/** English numerals, zero to twelve — the closed class a person's `the three longest` is written in (the same class widget.js keeps as SPELLED_NUMBERS) */
+export const NUMBER_WORDS = Object.freeze({ zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12 });
+export const wordConstants = (contract) => { const text = String([contract.doc, contract.returns, contract.notes].join(" ")); return [...new Set([...[...text.matchAll(/(?<![\w.])\d+(?:\.\d+)?(?![\w.])/g)].map((m) => Number(m[0])), ...(text.toLowerCase().match(/[a-z]+/g) ?? []).map((w) => NUMBER_WORDS[w]).filter((n) => n !== undefined)])]; };
 
-function leaves(contract) {
+export function leaves(contract) {
   const out = [], runs = contract.runs.slice(0, SHOWN), a0 = runs.map((r) => r.args());
   contract.params.forEach((p, i) => {
     const walk = (vals, path, expr, depth) => {
@@ -53,19 +55,23 @@ const unitConstants = (contract) => [...new Set(String([contract.doc, contract.r
 export function synthesize(contract, want, extraLeaves = []) {
   const runs = contract.runs.slice(0, SHOWN), args = runs.map((r) => r.args()), key = (vals) => vals.map((v) => (isNum(v) ? roundTo(v, 9) : String(v))).join("|");
   const seen = new Set(), pool = []; let found = null;
-  const add = (t) => { if (found || pool.length >= MAX_TERMS) return false; let vals; try { vals = args.map((a) => t.f(a)); } catch { return false; } if (!vals.every(isNum)) return false; const k = key(vals); if (seen.has(k)) return false; seen.add(k); t.vals = vals; pool.push(t); if (vals.every((v, i) => same(v, want[i]))) found = t; return true; };
+  const add = (t) => { if (found || pool.length >= MAX_TERMS) return false; let vals; try { vals = args.map((a) => t.f(a)); } catch { return false; }
+    if (!vals.every(isNum)) { // the guard: where the expression has no value (a mean of nothing) and the example wants 0, the answer is 0 — only a term that DIVIDES can have this, and the held-out runs still decide
+      if (!/\//.test(t.expr) || !vals.every((v, i) => isNum(v) || (!Number.isFinite(v) && Number.isNaN(v) && want[i] === 0))) return false;
+      const g = t.f; t = { ...t, js: `((v) => (Number.isFinite(v) ? v : 0))(${t.js})`, f: (a) => { const v = g(a); return Number.isFinite(v) ? v : 0; }, guarded: true }; vals = args.map((a) => t.f(a)); } const k = key(vals); if (seen.has(k)) return false; seen.add(k); t.vals = vals; pool.push(t); if (vals.every((v, i) => same(v, want[i]))) found = t; return true; };
   const base = [...leaves(contract), ...extraLeaves]; for (const t of base) for (const o of listOps(t)) base.push(o);
   for (const c of [...wordConstants(contract), ...unitConstants(contract)]) base.push({ expr: String(c), js: String(c), f: () => c, constant: true });
   for (const t of base) add(t); if (found) return found;
-  const wrap = (terms) => { for (const t of terms) { if (t.arr || t.constant) continue; for (const p of [0, 1, 2]) add({ expr: `roundTo(${t.expr}, ${p})`, js: `roundTo(${t.js}, ${p})`, f: (a) => roundTo(t.f(a), p) }); add({ expr: `ceil(${t.expr})`, js: `Math.ceil(${t.js})`, f: (a) => Math.ceil(t.f(a)) }); if (found) return; } };
+  const wrap = (terms) => { for (const t of terms) { if (t.arr || t.constant) continue; for (const p of [0, 1, 2]) add({ expr: `roundTo(${t.expr}, ${p})`, js: `roundTo(${t.js}, ${p})`, f: (a) => roundTo(t.f(a), p) }); add({ expr: `ceil(${t.expr})`, js: `Math.ceil(${t.js})`, f: (a) => Math.ceil(t.f(a)) }); add({ expr: `abs(${t.expr})`, js: `Math.abs(${t.js})`, f: (a) => Math.abs(t.f(a)) }); if (found) return; } };
   const numeric = () => pool.filter((t) => !t.arr);
   const offered = new Set(cardsFor(contract).map((c) => c.name)); // only the operations the person's own words name enter the search
   const raw = numeric().filter((t) => !t.constant && base.includes(t));
   if (raw.length <= 10 && offered.has("haversineKm")) for (const a of raw) for (const b of raw) for (const c of raw) for (const d of raw) add({ expr: `haversineKm(${a.expr}, ${b.expr}, ${c.expr}, ${d.expr})`, js: `haversineKm(${a.js}, ${b.js}, ${c.js}, ${d.js})`, f: (x) => CARDS.haversineKm.fn(a.f(x), b.f(x), c.f(x), d.f(x)) });
-  for (const name of ["kmToMiles", "milesToKm"]) if (offered.has(name)) for (const t of [...numeric()]) { if (t.constant) continue; add({ expr: `${name}(${t.expr})`, js: `${name}(${t.js})`, f: (a) => CARDS[name].fn(t.f(a)) }); }
+  // every offered one-argument operation (kmToMiles, celsiusToFahrenheit, ...) is tried on every number found so far; one that does not return a number is dropped by `add`
+  for (const name of [...offered]) if (CARDS[name]?.fn.length === 1) for (const t of [...numeric()]) { if (t.constant) continue; add({ expr: `${name}(${t.expr})`, js: `${name}(${t.js})`, f: (a) => CARDS[name].fn(t.f(a)) }); }
   if (found) return found; wrap([...pool]); if (found) return found;
   const binary = (as, bs) => { for (const a of as) for (const b of bs) for (const [sym, fn] of [["+", (x, y) => x + y], ["-", (x, y) => x - y], ["*", (x, y) => x * y], ["/", (x, y) => (y === 0 ? NaN : x / y)]]) { if (a.constant && b.constant) continue; if ((sym === "+" || sym === "*") && a.expr > b.expr) continue; add({ expr: `(${a.expr} ${sym} ${b.expr})`, js: `(${a.js} ${sym} ${b.js})`, f: (x) => fn(a.f(x), b.f(x)) }); if (found) return; } };
-  const L = numeric().filter((t) => base.includes(t) || (offered.size && t.expr.startsWith("roundTo(haversineKm"))); let before = pool.length; binary(L, L); if (found) return found; let fresh = pool.slice(before); wrap(fresh); if (found) return found;
+  const L = numeric().filter((t) => base.includes(t)); let before = pool.length; binary(L, L); if (found) return found; let fresh = pool.slice(before); wrap(fresh); if (found) return found;
   const consts = pool.filter((t) => t.constant), mid = fresh.filter((t) => !t.arr).slice(0, 3000);
   before = pool.length; binary(mid, [...L.slice(0, 60), ...consts]); binary([...L.slice(0, 60), ...consts], mid); if (found) return found; wrap(pool.slice(before)); return found;
 }
@@ -88,7 +94,7 @@ export function solveContract(contract) {
     if (!vals.every(isNum)) { fields.push({ key: k, kind: "non-numeric" }); continue; }
     const f = solveField(contract, k, vals, extra);
     if (f.kind === "solved") extra.push({ expr: k, js: `(${f.term.js})`, f: f.term.f });
-    const { term, ...out } = f; fields.push({ ...out, js: term?.js });
+    const { term, ...out } = f; fields.push({ ...out, js: term?.js, term });
   }
   return { shape: "object", fields };
 }

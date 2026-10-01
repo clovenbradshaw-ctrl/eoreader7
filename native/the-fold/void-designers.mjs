@@ -54,6 +54,9 @@ export const VOIDS = Object.freeze([
     ledger: 6, limit: "the layer that binds a comp label to a data key to an output name exists (organs/key-referents.js) and is not yet the author of the contract", evidence: "TEACH-IT-TO-FISH §3 row 6 (B)" },
   { id: "contract-example", path: "app", asks: "the worked example the model is shown, and the oracle that decides it", designer: "app-weather-fuel.mjs, hand-written", kind: "person", basis: "supplied", at: "the-fold/app-weather-fuel.mjs#",
     ledger: 5, limit: "the example's OUTPUT is the oracle's answer: the model is handed the answer key's first line; a copy field could be read off the sample, a transform field cannot", evidence: "TEACH-IT-TO-FISH §3 row 5 (S)" },
+  { id: "fields", path: "app", asks: "what each field of a unit's answer IS, when the answer is a flat object", designer: "the cheap species (copy, compose, decide, template, map, argmax, topk) in fielded-swarm.mjs, checked by the examples and then the runs they were not shown", kind: "mechanical", basis: "measured", at: "the-fold/fielded-swarm.mjs#cheapFill",
+    limit: "needs the three worked examples (a bare prompt has none, row 5); cannot fill a conditional that answers with an input value, a substring, the best or mean of a list of numbers, a clamp, or a list-valued result",
+    evidence: "measured 2026-10-01 with no model: set A (fitted) 23/23 slots, 7/7 units; set C (written after the last edit, never edited for) 14/20 slots, 4/6 units; redealt-target control 0 solved of 40+ (species.test.mjs)" },
   { id: "wide-leaf", path: "app", asks: "when one leaf is too wide to draw at once", designer: "fieldsOf / fieldPlan (the-fold/app-units.mjs)", kind: "mechanical", basis: "measured", at: "the-fold/app-units.mjs#fieldsOf",
     limit: "reads the keys off the contract's worked example, so it inherits that example's author", evidence: "measured 2026-09-30: 1 of 9 leaves needed it" },
 

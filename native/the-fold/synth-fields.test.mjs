@@ -32,8 +32,12 @@ test("a number the person's words state is a constant (`divided by 200`); a unit
   assert.equal(field("readingTime", "minutes").expr, "ceil((words / 200))");
 });
 
-test("LIMIT, pinned: a guard is not an arithmetic expression — `0 when there are no words` makes the mean undefined on the empty example, so avgLen is left to the model, and text and list results are not searched at all", () => {
-  assert.equal(field("wordStats", "avgLen").kind, "unsolved");
+test("a guard is read off the example: `0 when there are no words` makes the mean undefined on the empty example, and where the expression has no value and the example wants 0 the answer is 0 — held to the runs it was not shown like any other", () => {
+  const f = field("wordStats", "avgLen");
+  assert.equal(f.kind, "solved"); assert.match(f.js, /Number\.isFinite/); assert.equal(f.heldOut, "2/2");
+});
+
+test("LIMIT, pinned: this module searches NUMBERS only — a categorical or text field is `non-numeric` here (species.mjs fills those) and a list result is not a flat object", () => {
   assert.equal(field("bedReport", "status").kind, "non-numeric");
   assert.equal(solveContract(by.topAuthors).shape, "not-flat-object");
 });
