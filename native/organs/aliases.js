@@ -60,6 +60,10 @@ export const ALIAS_REFUSALS = Object.freeze({
   NOT_A_NAME: "not-a-name",        // the gloss is prose, a date, a figure — not a form a text uses as a name
   SAME_AS_FULL: "same-as-full",    // the gloss restates the name it glosses
   ADDRESS_UNVERIFIED: "address-unverified", // the sentence did not read back at its own offsets
+  // The three below are raised by licenseAliases, not by declaredAliases: a declaration is read; whether it may stand as SAMENESS is decided apart.
+  SHARED_LABEL: "shared-label",               // the gloss was declared against more than one distinct full — a label, not a name
+  CO_PRESENT: "co-present",                   // the full and the gloss stand together in a sentence that is not their declaration — two things
+  NOT_NAME_BEHAVED: "not-name-behaved",       // the gloss is written as a common word somewhere — a description, not a name
 });
 
 /**
@@ -151,6 +155,143 @@ export function declaredAliases(text, { splitSentences, minUses, shapes } = {}) 
     }
   }
   return { aliases, refused };
+}
+
+// ── A DECLARATION IS A SHAPE; SAMENESS IS ANOTHER QUESTION ───────────────────
+// Handle: Sullivan — a sign means nothing until it connects to the thing it
+// names; everything before that is mimicry. A parenthesis is a sign that two
+// forms stand together in a sentence. It says nothing yet about one thing
+// being named twice: "Paris (France)", "Malta (Catholic)", "Eric Watkins
+// (philosopher)", "MARTHE (kommt)" are the same punctuation as "Regional
+// Transit Authority (RTA)". Measured on real prose (a seeded sample across
+// encyclopedic, academic, legal and literary text; eval/the-fold/results/
+// alias-precision-RESULTS.md) the declaration shape plus the use-wall above
+// admits mostly NOT aliases: the wall asks whether the gloss is used again,
+// and a category, a place, a role or a stage direction is used again too.
+//
+// So the connection is earned apart from the declaration, from the
+// material's own behaviour, by three vetoes. None decides sameness from the
+// shape of a string (L2: a shape may veto, never admit), none is a tuned
+// number, and each is the repo's own existing doctrine applied here:
+//
+//   SHARED_LABEL   one name names one thing. A gloss declared against more
+//                  than one distinct full in the same text is a label that
+//                  many things wear ("(Catholic)", "(observer)", "(c)"), not
+//                  the name of any of them. aliasIndex already refuses to
+//                  resolve such a gloss "for the reader"; this refuses to
+//                  let it join a class.
+//   CO_PRESENT     two forms that stand together in a sentence that is not
+//                  their declaration are two things the text keeps apart
+//                  ("Paris, France"); an alias is used IN PLACE OF the full.
+//                  Co-presence is distinctness evidence everywhere else in
+//                  this engine (contest.js; the pronoun organ's blocked
+//                  frames) and is read the same way here.
+//   NOT_NAME_BEHAVED  a name essentially never appears lowercased (the
+//                  physics filter cast.js already applies to sentence-opening
+//                  candidates). A gloss written lowercase where it is
+//                  declared ("(philosopher)", "(kommt)", "(ed.)") is a
+//                  description; one that is lowercase mid-sentence anywhere
+//                  else in the text is a common word. An all-capitals gloss
+//                  is an initialism and is not tested against its lowercase
+//                  twin ("US" is not "us"). A script without case never
+//                  triggers this at all.
+//
+// This is a veto layer over the declaration reader, and it only ever REMOVES:
+// what it refuses stays typed on the record, with the declaring sentence.
+//
+// STATUS, 2026-10-01: MEASURED, NOT WIRED. Out of sample, with the labels fixed
+// before the walls' decisions were opened (alias-precision-RESULTS.md, read by
+// tests/alias-precision-results.test.js): the declaration alone is 18.0%
+// aliases (24 of 133 decided); with these vetoes 43.5% on 23 admits (10 of
+// 23), keeping 41.7% of the true ones. They are aimed the right way — each
+// refuses more false pairs than true — but they cost recall on acronyms
+// (shared-label counts a plural or spelling variant of one full as a second
+// full; co-present refuses a list that sets the gloss beside the full) and
+// cannot tell "Gambia" (used again as the country) from "PDG" (used again IN
+// PLACE OF the party). That needs positive evidence of substitution, and a
+// declaration is a witness's statement, not a verdict. Nothing in the surface
+// folds by this layer.
+
+const wordRe = (form, flags = "i") =>
+  new RegExp(`(?<![\\w'’-])${escapeRe(foldSpaces(form)).replace(/\s+/g, "\\s+")}(?![\\w'’-])`, flags);
+/** The first letter that has a case, or null when the form has none (a caseless script, digits, symbols). */
+const firstCased = (s) => {
+  for (const ch of String(s)) if (ch.toLowerCase() !== ch.toUpperCase()) return ch;
+  return null;
+};
+const isLowerInitial = (s) => { const c = firstCased(s); return c !== null && c === c.toLowerCase(); };
+const isAllCaps = (s) => { const letters = [...String(s)].filter((ch) => ch.toLowerCase() !== ch.toUpperCase()); return letters.length >= 2 && letters.every((ch) => ch === ch.toUpperCase()); };
+
+/**
+ * licenseAliases(aliases, text, { splitSentences }) → { licensed, refused }
+ *
+ *   aliases         the `aliases` of declaredAliases(text, …) for THIS text.
+ *   splitSentences  injected, with offsets (grounding.js's): the sentences the
+ *                   text stands in, read once.
+ *
+ * Each refused entry is the declaration it refused, plus `why`
+ * (ALIAS_REFUSALS.SHARED_LABEL | CO_PRESENT | NOT_NAME_BEHAVED) and the
+ * evidence that refused it (`fulls`, or the `sentence` where the two stood
+ * together, or the lowercase `use`). Nothing is dropped silently.
+ */
+export function licenseAliases(aliases, text, { splitSentences } = {}) {
+  if (typeof splitSentences !== "function")
+    throw new TypeError("licenseAliases: splitSentences is injected, with offsets — this module holds no sentence rule of its own");
+  const list = Array.isArray(aliases) ? aliases : [];
+  if (!list.length) return { licensed: [], refused: [] };
+  const src = String(text ?? "");
+  const sentences = splitSentences(src).map((s) => ({ text: String(s?.text ?? ""), start: s?.start ?? -1 }));
+  const lowered = sentences.map((s) => s.text.toLowerCase());
+  const licensed = [];
+  const refused = [];
+
+  const fullsOf = new Map(); // alias (lower) -> Set of distinct fulls (lower)
+  for (const a of list) {
+    const k = foldSpaces(a.alias).toLowerCase();
+    if (!fullsOf.has(k)) fullsOf.set(k, new Set());
+    fullsOf.get(k).add(foldSpaces(a.full).toLowerCase());
+  }
+  const declaringStarts = new Map(); // "full|alias" -> Set of the starts of the sentences that declare that pair
+  for (const a of list) {
+    const k = `${foldSpaces(a.full).toLowerCase()}|${foldSpaces(a.alias).toLowerCase()}`;
+    if (!declaringStarts.has(k)) declaringStarts.set(k, new Set());
+    declaringStarts.get(k).add(a.start);
+  }
+
+  for (const a of list) {
+    const aliasLo = foldSpaces(a.alias).toLowerCase();
+    const fullLo = foldSpaces(a.full).toLowerCase();
+    // 1. SHARED_LABEL
+    const fulls = fullsOf.get(aliasLo);
+    if (fulls && fulls.size > 1) { refused.push({ ...a, why: ALIAS_REFUSALS.SHARED_LABEL, fulls: [...fulls].sort() }); continue; }
+    // 3a. NOT_NAME_BEHAVED — as declared
+    if (isLowerInitial(a.alias)) { refused.push({ ...a, why: ALIAS_REFUSALS.NOT_NAME_BEHAVED, use: a.alias }); continue; }
+    const aliasRe = wordRe(a.alias, "gi");
+    const aliasHere = wordRe(a.alias, "i");
+    const fullRe = wordRe(a.full, "i");
+    const declares = declaringStarts.get(`${fullLo}|${aliasLo}`) ?? new Set();
+    let coPresent = null;
+    let lowerUse = null;
+    for (let i = 0; i < sentences.length; i += 1) {
+      if (!lowered[i].includes(aliasLo)) continue;
+      const s = sentences[i];
+      // 2. CO_PRESENT — in a sentence that is not one of this pair's own declarations
+      if (!declares.has(s.start) && aliasHere.test(s.text) && fullRe.test(s.text)) { coPresent = s.text; break; }
+      // 3b. NOT_NAME_BEHAVED — lowercase mid-sentence anywhere else (initialisms are not tested against a lowercase twin)
+      if (!lowerUse && !isAllCaps(a.alias)) {
+        const firstWord = s.text.search(/[\p{L}\p{N}]/u);
+        aliasRe.lastIndex = 0;
+        for (const m of s.text.matchAll(aliasRe)) {
+          if (m.index <= Math.max(0, firstWord)) continue; // a sentence-opener is capitalised by convention, not by being a name
+          if (isLowerInitial(m[0])) { lowerUse = s.text.slice(Math.max(0, m.index - 30), m.index + m[0].length + 30); break; }
+        }
+      }
+    }
+    if (coPresent) { refused.push({ ...a, why: ALIAS_REFUSALS.CO_PRESENT, together: coPresent }); continue; }
+    if (lowerUse) { refused.push({ ...a, why: ALIAS_REFUSALS.NOT_NAME_BEHAVED, use: lowerUse }); continue; }
+    licensed.push(a);
+  }
+  return { licensed, refused };
 }
 
 /**

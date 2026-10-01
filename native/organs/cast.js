@@ -130,8 +130,33 @@ export function makeCastHandles({ splitSentences, extractSurfaces, discoverRefer
  * so that "Bezukhov" and "Pierre Bezúkhov" land on the same node. One
  * implementation of "the same name" — the resolver is a projection of this
  * index, so support and identity cannot drift apart.
+ *
+ * `surfaceFold` (identity-routes.js) is the WHOLE-NAME fold: it is applied to
+ * the name asked about and to every established surface, as whole strings,
+ * before the comparison below. It is not `nameFold`: `nameFold` reaches the
+ * engine's sameness test one TOKEN at a time (surfaces.js::tokensOf maps it
+ * over the tokens), so it cannot see where in a name a token stands, and a
+ * mark whose scope is the END of a phrase (an enclitic: "Elizabeth Hart's")
+ * needs to. Measured on real prose the day it was added: folding the mark
+ * off every token made "Dante" reach "Dante's Blindness" and "Mantua" reach
+ * "Mantua's Foundation" — a title with a possessive inside it joined to the
+ * thing it names — and folding the last token alone did not.
+ *
+ * `surfaceFoldMode` says WHEN it applies. "recover" (the default once a fold
+ * is given) is the near-miss spelling fallback's own posture: the fold is
+ * consulted only when the name, asked as written, resolved to nothing — never
+ * a widening of a resolution the index already made, so a name that resolved
+ * before resolves to exactly the same referents, byte for byte, and the fold
+ * can only add an answer where there was none. "always" folds both sides on
+ * every call and is the measured alternative, not the recommendation: it
+ * joins two REFERENTS the index kept apart (a sentence-initial "Ferrars's"
+ * that is Edward's mother to "Edward Ferrars"; a cluster discovery had
+ * already mixed), which a merge route must be judged on — 6.5% of its
+ * same-name joins and 13.6% of its partial ones joined different beings
+ * (eval/the-fold/results/possessive-audit-RESULTS.md). Omitted, byte-identical
+ * to before this parameter existed.
  */
-export function makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, blankFurniture = null, leadingSurfaces = null, nameFold = null, nameVariant = null, commonNoun = null }) {
+export function makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, blankFurniture = null, leadingSurfaces = null, nameFold = null, nameVariant = null, commonNoun = null, surfaceFold = null, surfaceFoldMode = "recover" }) {
   return function indexFor(passages) {
     const text = (passages ?? []).map((p) => (blankFurniture ? (p?.blanked ?? p?.text ?? "") : (p?.text ?? ""))).join("\n\n");
     const empty = { events: [], referents: new Set(), resolve: () => new Set(), represent: () => null };
@@ -215,53 +240,104 @@ export function makeReferentIndex({ splitSentences, extractSurfaces, discoverRef
     // posture, applied here: widening what the reader recognises as one
     // spelling, never removing a distinction it already drew).
     const fold = nameFold ?? diaNorm;
+    // The whole-name fold (see the header), computed once per established
+    // surface. With none injected every helper below is the identity and
+    // nothing changes by a byte.
+    const wholeFold = typeof surfaceFold === "function" ? surfaceFold : null;
+    const foldAlways = wholeFold !== null && surfaceFoldMode === "always";
+    const folded = new Map();
+    const foldedSurface = (s) => {
+      let v = folded.get(s);
+      if (v === undefined) { v = String(wholeFold(s) ?? ""); folded.set(s, v); }
+      return v;
+    };
+    const asWritten = (s) => s;
+    let foldTouchesAnySurface; // computed at first need: does the fold change ANY established surface?
+    const foldChangesSomething = (rawName, foldedName) => {
+      if (foldedName !== rawName) return true;
+      if (foldTouchesAnySurface === undefined) foldTouchesAnySurface = events.some((e) => foldedSurface(e.surface) !== e.surface);
+      return foldTouchesAnySurface;
+    };
 
-    function resolve(name) {
-      // Two tests, both required, because they answer different questions.
-      // namesCorefer — the engine's own sameness test, so what counts as
-      // "the same name" cannot drift between discovery and support. But
-      // coreference is SYMMETRIC (built for merging a cast) and support is
-      // not: material that says only "Pierre" must not support an answer
-      // that extends him to "Pierre Bezukhov" — the surname would be model-
-      // supplied content wearing a resolved name's clothes. So the second
-      // test is coverage: every individuating token of the claimed name
-      // must appear in the established surface. Sub-forms of an established
-      // name resolve; extensions of it do not.
-      //
-      // Honestly noted: at engine tier this rescue largely coincides with
-      // folded byte containment — the genuinely disjoint alias ("Peter
-      // Kirílovich" for Pierre) is model-tier, typed as a gap by the engine
-      // itself, and closes only when a received prior with a named giver
-      // supplies it. This resolver is the seam where that prior will plug
-      // in; it does not pretend to be the prior.
+    // One exact/prefix pass. `surfOf` says which form of each established
+    // surface is compared (as written, or folded).
+    //
+    // Two tests, both required, because they answer different questions.
+    // namesCorefer — the engine's own sameness test, so what counts as
+    // "the same name" cannot drift between discovery and support. But
+    // coreference is SYMMETRIC (built for merging a cast) and support is
+    // not: material that says only "Pierre" must not support an answer
+    // that extends him to "Pierre Bezukhov" — the surname would be model-
+    // supplied content wearing a resolved name's clothes. So the second
+    // test is coverage: every individuating token of the claimed name
+    // must appear in the established surface. Sub-forms of an established
+    // name resolve; extensions of it do not.
+    //
+    // Honestly noted: at engine tier this rescue largely coincides with
+    // folded byte containment — the genuinely disjoint alias ("Peter
+    // Kirílovich" for Pierre) is model-tier, typed as a gap by the engine
+    // itself, and closes only when a received prior with a named giver
+    // supplies it. This resolver is the seam where that prior will plug
+    // in; it does not pretend to be the prior.
+    const partsOf = (name) => fold(name).split(/\s+/).filter((t) => t.length > 2);
+    function exactPass(name, parts, surfOf) {
       const ids = new Set();
-      const parts = fold(name).split(/\s+/).filter((t) => t.length > 2);
       if (!parts.length) return ids;
       for (const e of events) {
-        if (!namesCorefer(name, e.surface, { fold })) continue;
-        const surfaceTokens = fold(e.surface).split(/\s+/);
+        const es = surfOf(e.surface);
+        if (!namesCorefer(name, es, { fold })) continue;
+        const surfaceTokens = fold(es).split(/\s+/);
         if (parts.every((p) => surfaceTokens.some((s) => covers(s, p)))) ids.add(e.referent_id);
       }
-      if (ids.size || !nameVariant) return ids;
-      // NEAR-MISS SPELLING, LAST RESORT ONLY (surfaces.js::isNearMissSpelling's
-      // own header has the full safety argument). Reached only when every
-      // exact/prefix-folded match above found nothing at all — never a
-      // widening of an already-successful resolution. A candidate qualifies
-      // only if EVERY one of its own tokens is a near-miss of some token the
-      // referent's surface establishes; and the whole fallback is REFUSED
-      // — not resolved to a guess — the instant it would merge the
-      // candidate with more than one DISTINCT referent, since that is
-      // exactly the shape of a document that has independently established
-      // two real, different people whose names happen to sit one edit
-      // apart (measured live: "Reed"/"Reid", "Allen"/"Allan" are each
-      // edit-distance-1 and exact homophones).
+      return ids;
+    }
+
+    // NEAR-MISS SPELLING, LAST RESORT ONLY (surfaces.js::isNearMissSpelling's
+    // own header has the full safety argument). Reached only when every
+    // exact/prefix-folded match above found nothing at all — never a
+    // widening of an already-successful resolution. A candidate qualifies
+    // only if EVERY one of its own tokens is a near-miss of some token the
+    // referent's surface establishes; and the whole fallback is REFUSED
+    // — not resolved to a guess — the instant it would merge the
+    // candidate with more than one DISTINCT referent, since that is
+    // exactly the shape of a document that has independently established
+    // two real, different people whose names happen to sit one edit
+    // apart (measured live: "Reed"/"Reid", "Allen"/"Allan" are each
+    // edit-distance-1 and exact homophones).
+    function nearMissPass(parts, surfOf, ids) {
+      if (!nameVariant || !parts.length) return ids;
       const variantIds = new Set();
       for (const e of events) {
-        const surfaceTokens = fold(e.surface).split(/\s+/);
+        const surfaceTokens = fold(surfOf(e.surface)).split(/\s+/);
         if (parts.every((p) => surfaceTokens.some((s) => nameVariant(s, p)))) variantIds.add(e.referent_id);
         if (variantIds.size > 1) return ids; // ambiguous — refused, never guessed
       }
       return variantIds.size === 1 ? variantIds : ids;
+    }
+
+    function resolve(rawName) {
+      if (foldAlways) {
+        const name = String(wholeFold(rawName) ?? "");
+        const parts = partsOf(name);
+        const ids = exactPass(name, parts, foldedSurface);
+        return ids.size ? ids : nearMissPass(parts, foldedSurface, ids);
+      }
+      const parts = partsOf(rawName);
+      const written = exactPass(rawName, parts, asWritten);
+      if (written.size) return written;
+      if (!wholeFold) return nearMissPass(parts, asWritten, written);
+      // RECOVERY: nothing answered the name as written. Only now is the
+      // whole-name fold consulted, and only if it changes anything at all.
+      const name = String(wholeFold(rawName) ?? "");
+      const changes = foldChangesSomething(rawName, name);
+      const foldedParts = changes ? partsOf(name) : parts;
+      if (changes) {
+        const recovered = exactPass(name, foldedParts, foldedSurface);
+        if (recovered.size) return recovered;
+      }
+      const near = nearMissPass(parts, asWritten, written);
+      if (near.size || !changes) return near;
+      return nearMissPass(foldedParts, foldedSurface, new Set());
     }
 
     return { events, referents: new Set(best.keys()), resolve, represent: (id) => best.get(id) ?? null };

@@ -112,6 +112,11 @@ export async function makeHolograph({ routes = ROUTES } = {}) {
   // POSSESSIVE. cast.js::resolve compares a name to an established surface as written; a person established only as "Anna's"
   // is not found by "Anna". stripPossessive is the engine's own marker strip (it reads the apostrophe glyph and nothing else), and
   // nameFold is the seam app.js already uses for opticalReferentForm — composed, not replaced.
+  // This is the route AS THE E6 RUN USED IT, kept so the committed raw record still reproduces from this harness: the clitic stripped off
+  // EVERY token, both sides, through the token-level `nameFold`. It is NOT the route the app ships. Measured on real prose
+  // (eval/the-fold/results/possessive-audit-RESULTS.md) it joins a person to every title that contains their possessive ("Dante" to
+  // "Dante's Blindness", "Plato" to "Plato's Republic"); the shipped route is organs/identity-routes.js — the LAST token only, consulted
+  // only when the name asked as written resolved to nothing (cast.js `surfaceFold`).
   const foldPossessive = (t) => String(t ?? "").split(/\s+/).map(stripPossessive).join(" ");
   const nameFold = on.has("possessive") ? (t, o) => opticalReferentForm(foldPossessive(t), o) : opticalReferentForm;
   // PRONOUN. A pronoun that opens a sentence ("She also avoids tree nuts.") is admitted as a being by the leading-surface door,

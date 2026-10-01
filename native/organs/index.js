@@ -72,8 +72,11 @@ export { EVIDENCE_FLOOR, scanFunctionalCandidates, acquireCandidates, recheckCan
 export * as hlAcquire from "./hl-acquire.js";
 // hl.js also RE-EXPORTS the engine's own HL API (verdicts, stage builders) — names the seam generator's export scan missed, added when void-hl broke on BEYOND_REACH.
 export { BOUND, CONTRADICTED, CONTESTED, UNBOUND, BEYOND_REACH, UNREFUTED, UNDETERMINED, flip, createStage, addAnchor, addEdge, declareFunctional, declareTransitive, declareComplete, extendStage, atomic, read, attach } from "./hl.js";
-export { ALIAS_REFUSALS, aliasIndex, declaredAliases, shapesFrom } from "./aliases.js";
+export { ALIAS_REFUSALS, aliasIndex, declaredAliases, licenseAliases, shapesFrom } from "./aliases.js";
 export * as aliases from "./aliases.js";
+// The routes by which two written forms are one referent, each a declared prior for a declared language (Chomsky, Sullivan).
+export { ENCLITIC_PRIORS, ENCLITIC_REFUSALS, MIN_STRIPPED_TOKEN, lastTokenFold, terminalEncliticFold } from "./identity-routes.js";
+export * as identityRoutes from "./identity-routes.js";
 export { witnessSentences, endsFor, settledBy, rowFor, WITNESS_VERDICTS } from "./witness-sentences.js";
 export * as witnessSentencesOrgan from "./witness-sentences.js";
 // floor 6 — a corroborated note as a premise (derivation.js)
