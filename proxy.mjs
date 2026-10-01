@@ -1185,6 +1185,52 @@ async function handleRequest(req, res) {
     return;
   }
 
+  if (req.method === "POST" && req.url === "/v1/read") {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", async () => {
+      let parsed;
+      try { parsed = JSON.parse(body); } catch { res.writeHead(400, { "content-type": "application/json" }); res.end(JSON.stringify({ error: "bad json" })); return; }
+      const name = String(parsed?.name ?? "").trim();
+      const text = String(parsed?.text ?? "").trim();
+      if (!text) { res.writeHead(400, { "content-type": "application/json" }); res.end(JSON.stringify({ error: "text is required — the document to read" })); return; }
+      const t0 = Date.now();
+      try {
+        // THE READING DOOR — khora perceives, model-free. The constitutional
+        // reader (legacy host): createSession → admitChunked → sessionReferents.
+        // The mouth is never consulted (GL-RR-04/05; a read is not a draw). The
+        // surface (holodeck) treats the returned referents as a witness beside
+        // its own finder. P2: stages run and not run are named, never implied.
+        const { createSession, admitChunked, sessionReferents, sessionRelations } = await import("./native/legacy-ported/packages/host/corpus.js");
+        const sourceId = `doc:${(name || "unnamed").replace(/[^a-zA-Z0-9_.-]/g, "_")}`;
+        const session = createSession();
+        admitChunked(session, { text: text.slice(0, 60000), sourceId, language: "en" });
+        const cast = sessionReferents(session, { sourceId, priors: [], limit: 200 });
+        const relations = sessionRelations(session, { sourceId });
+        const referents = (cast.referents ?? []).map((r) => ({
+          surfaces: [r.display].filter(Boolean),
+          routes: (r.fromPrior === true ? ["prior"] : ["witnessed"]).concat(r.individuation ? [`grain:${r.individuation}`] : []),
+          grain: r.individuation ?? null,
+        }));
+        log(`read → ${referents.length} referents, ${(relations?.relations ?? relations ?? []).length} relations, ${Date.now() - t0}ms`);
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end(JSON.stringify({
+          schema: "EORead@1", ms: Date.now() - t0,
+          basis: "constitutional reader (legacy host): createSession → admitChunked → sessionReferents; model-free; priors: language en (declared — bin/priors/lang/en.json absent, engine floor used, gap disclosed); stages 1-5a run, 5b-8 not run",
+          sentences: [], relations: relations?.relations ?? relations ?? [],
+          referents, descriptorBeings: [],
+          gaps: (cast.gaps ?? []).map((g) => (typeof g === "string" ? g : `${g.reason}`)).slice(0, 8),
+          disclosure: { giver: "heimdall", standing: "disclosed", rule: "a read is not a draw — the mouth is never consulted; the ground is a hypothesis (standing: hypothesis, half-life'd), never asserted (S1/P2/P3, khora)" },
+        }));
+      } catch (e) {
+        log(`read error: ${String(e.message ?? e).slice(0, 140)}`);
+        if (!res.headersSent) res.writeHead(500, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
   if (req.method === "POST" && req.url === "/v1/ask") {
     let body = "";
     req.on("data", (c) => (body += c));
