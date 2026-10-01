@@ -65,7 +65,8 @@ test("LIMIT, pinned: a whole first word of a compound key (`total` for `total_be
 test("a task's prompt carries only the cards its own words name: the card-relevant tasks show theirs, the controls with no relevant card show none, and a contract can opt out", () => {
   for (const d of DIVERSE) {
     const p = unitPrompt(d.contract), n = d.contract.name;
-    if (["topAuthors", "dueSoon"].includes(n)) assert.doesNotMatch(p, /already exist/, `${n}: no card applies, so the prompt carries none`);
+    // bedReport rounds to a WHOLE percent (Math.round); roundTo is for decimal places, so it is offered nothing (measured 2026-10-01: the offer flipped a draw)
+    if (["topAuthors", "dueSoon", "bedReport"].includes(n)) assert.doesNotMatch(p, /already exist/, `${n}: no card applies, so the prompt carries none`);
     else assert.match(p, /These functions already exist/, n);
     assert.doesNotMatch(unitPrompt({ ...d.contract, cards: false }), /already exist/);
   }
