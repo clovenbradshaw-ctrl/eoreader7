@@ -34,6 +34,7 @@ import { loadUnit, UNIT_RUN_TIMEOUT_MS } from "./unit-wall.mjs";
 import { declaredFromExample, KEY_REFERENTS_SCHEMA } from "../organs/key-referents.js";
 import { CARDS_SCHEMA, cardsDoc, cardsFor } from "../organs/cards.js";
 import { constReassigned, canonicalize, adoptIf } from "../organs/code-canonical.js";
+import { shapeRewrites, applyShapeRewrites } from "../organs/output-shape.js";
 import { readSemantics, factsFrom } from "../organs/code-semantics.js";
 import { createTaskLog } from "../kernel/task-log.js";
 import { proposeCanonical, settledContent, readAnchorLog, appendAnchorLog } from "../adapters/build/code-anchor-log.js";
@@ -386,12 +387,34 @@ export function readSuggestion(suggestion, contract) {
     }
     return { res, code, canonical: { ...canonical, findings: [...(canonical.findings ?? []), ...(sem?.findings ?? [])], claims: sem?.claims ?? [] }, semantics: sem };
   };
-  if (contract.canonical === false) return withMeaning(raw, suggestion, { code: suggestion, transformations: [], findings: [] });
-  const reading = canonicalize(suggestion, { resolutions: raw.resolutions ?? [], offered: cardsShown(contract) });
-  if (!reading.changed) return withMeaning(raw, suggestion, { ...reading, code: suggestion, transformations: [] });
-  const can = testUnit(reading.code, { ...contract, resolve: false, cards: contract.cards === false ? false : "exact" });
-  if (adoptIf(-failedRuns(contract, raw.failures), -failedRuns(contract, can.failures))) return withMeaning({ ...can, resolutions: raw.resolutions, declared: raw.declared }, reading.code, reading);
-  return withMeaning(raw, suggestion, { ...reading, code: suggestion, transformations: [], refused: "the canonical form did worse than the suggestion" });
+  // the third reading: the answer's TYPES, held against the worked example's (organs/output-shape.js). Adopted only where the whole oracle does at least as well.
+  const shaped = (chosen) => {
+    if (contract.shape === false || !chosen.res.fn || !contract.example?.input) return chosen;
+    let got, want;
+    try { want = contract.example.output(); got = chosen.res.fn(...contract.example.input()); } catch { return chosen; }
+    const rewrites = shapeRewrites(got, want);
+    if (!rewrites.length) return chosen;
+    const code = applyShapeRewrites(chosen.code, rewrites);
+    if (code === chosen.code) return chosen;
+    const t = testUnit(code, { ...contract, resolve: false, cards: contract.cards === false ? false : "exact" });
+    if (!adoptIf(-failedRuns(contract, chosen.res.failures), -failedRuns(contract, t.failures))) return { ...chosen, canonical: { ...chosen.canonical, refused: chosen.canonical.refused ?? "the output-shape reading did worse than the draw" } };
+    const how = { length: "an array where the example shows a number: its length", number: "a numeric string where the example shows a number", project: "an object where the example shows one of its values" };
+    return { res: { ...t, resolutions: chosen.res.resolutions, declared: chosen.res.declared }, code, canonical: { ...chosen.canonical, code, changed: true, transformations: [...(chosen.canonical.transformations ?? []), ...rewrites.map((r) => ({ kind: "output_coerced", name: r.key, how: r.kind, prop: r.prop ?? null, basis: `${r.key} came back as ${how[r.kind]}${r.prop ? ` (.${r.prop})` : ""}` }))] } };
+  };
+  let chosen;
+  if (contract.canonical === false) chosen = { res: raw, code: suggestion, canonical: { code: suggestion, transformations: [], findings: [] } };
+  else {
+    const reading = canonicalize(suggestion, { resolutions: raw.resolutions ?? [], offered: cardsShown(contract) });
+    if (!reading.changed) chosen = { res: raw, code: suggestion, canonical: { ...reading, code: suggestion, transformations: [] } };
+    else {
+      const can = testUnit(reading.code, { ...contract, resolve: false, cards: contract.cards === false ? false : "exact" });
+      chosen = adoptIf(-failedRuns(contract, raw.failures), -failedRuns(contract, can.failures))
+        ? { res: { ...can, resolutions: raw.resolutions, declared: raw.declared }, code: reading.code, canonical: reading }
+        : { res: raw, code: suggestion, canonical: { ...reading, code: suggestion, transformations: [], refused: "the canonical form did worse than the suggestion" } };
+    }
+  }
+  chosen = shaped(chosen);
+  return withMeaning(chosen.res, chosen.code, chosen.canonical);
 }
 
 /**
