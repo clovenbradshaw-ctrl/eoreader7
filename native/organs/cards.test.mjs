@@ -4,7 +4,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import vm from "node:vm";
-import { CARDS, CARD_NAMES, CARDS_SCHEMA, cardSource, cardsDoc, freeCalls } from "./cards.js";
+import { CARDS, CARD_NAMES, CARDS_SCHEMA, cardSource, cardsDoc, freeCalls, resolveCard } from "./cards.js";
 
 const near = (a, b, eps = 1e-9) => assert.ok(Math.abs(a - b) <= eps, `${a} is not within ${eps} of ${b}`);
 
@@ -139,4 +139,15 @@ test("every card declares its tags, and a card's own purpose words offer it", ()
   for (const n of CARD_NAMES) assert.ok(CARDS[n].tags && CARDS[n].tags.split(/\s+/).length >= 3, `${n} declares what it is for`);
   assert.deepEqual(cardsFor(task("convert the bearing in degrees to a compass direction")).map((c) => c.name), ["compass16"]);
   assert.deepEqual(cardsFor(task("pad the unpadded clock time as hh:mm")).map((c) => c.name), ["padTime"]);
+});
+
+test("angles: 180 degrees is pi radians and back; the pair inverts", () => {
+  near(CARDS.degreesToRadians.fn(180), Math.PI, 1e-12); near(CARDS.degreesToRadians.fn(90), Math.PI / 2, 1e-12); near(CARDS.degreesToRadians.fn(-45), -Math.PI / 4, 1e-12);
+  near(CARDS.radiansToDegrees.fn(Math.PI), 180, 1e-9); near(CARDS.radiansToDegrees.fn(CARDS.degreesToRadians.fn(51.47)), 51.47, 1e-9);
+});
+
+test("a name a model INVENTS for an operation resolves to the one card it means: toRadians, deg2rad, c2f, km2mi (a 2 between words is the shorthand for `to`) — and `rad2deg` is not `deg2rad`", () => {
+  const want = { toRadians: "degreesToRadians", degToRad: "degreesToRadians", deg2rad: "degreesToRadians", rad2deg: "radiansToDegrees", toDegrees: "radiansToDegrees", c2f: "celsiusToFahrenheit", f2c: "fahrenheitToCelsius", km2mi: "kmToMiles", mph2kmh: "mphToKmh", toFahrenheit: "celsiusToFahrenheit" };
+  for (const [asked, real] of Object.entries(want)) assert.equal(resolveCard(asked).real, real, asked);
+  assert.equal(resolveCard("radians").ambiguous, true, "a bare `radians` could be either direction: it names none");
 });

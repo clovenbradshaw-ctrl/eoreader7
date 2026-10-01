@@ -27,6 +27,8 @@ function kmhToMph(kmh) { return Number(kmh) / 1.609344; }
 function mphToKmh(mph) { return Number(mph) * 1.609344; }
 function kmToMiles(km) { return Number(km) / 1.609344; }
 function milesToKm(miles) { return Number(miles) * 1.609344; }
+function degreesToRadians(degrees) { return (Number(degrees) * Math.PI) / 180; }
+function radiansToDegrees(radians) { return (Number(radians) * 180) / Math.PI; }
 function compass16(degrees) {
   const names = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
   const d = ((Number(degrees) % 360) + 360) % 360;
@@ -60,6 +62,8 @@ export const CARDS = Object.freeze({
   mphToKmh: { fn: mphToKmh, doc: "miles per hour -> kilometres per hour", tags: "miles hour kilometres speed mph kmh" },
   kmToMiles: { fn: kmToMiles, doc: "a distance in kilometres -> the same distance in statute miles (divides by 1.609344; a number, not rounded)", tags: "kilometres miles distance statute length" },
   milesToKm: { fn: milesToKm, doc: "a distance in statute miles -> the same distance in kilometres (multiplies by 1.609344; a number, not rounded)", tags: "miles kilometres distance statute length" },
+  degreesToRadians: { fn: degreesToRadians, doc: "an angle in degrees -> the same angle in radians (what Math.sin, Math.cos and Math.atan2 take)", tags: "degrees radians angle trigonometry latitude" },
+  radiansToDegrees: { fn: radiansToDegrees, doc: "an angle in radians -> the same angle in degrees (what Math.atan2 and Math.acos hand back)", tags: "radians degrees angle trigonometry bearing" },
   compass16: { fn: compass16, doc: "a bearing in degrees -> its 16-point compass name (\"N\", \"NNE\", ... \"NNW\")", tags: "compass bearing direction degrees cardinal" },
   padTime: { fn: padTime, doc: "a clock time written without padding (0, \"300\", \"1200\") -> \"HH:MM\"; null if it is not a time", tags: "pad padding padded unpadded clock hhmm" },
   joinPresent: { fn: joinPresent, doc: "joinPresent([a, b, c], \", \") joins the parts that are present (not null, undefined or empty); the separator defaults to \", \"", tags: "join joined separator present missing label" },
@@ -113,7 +117,8 @@ export function freeCalls(code) {
 
 /** the asked name's words, each an exact or a leading part of one word of the card's name, in the card's order: `toFahrenheit`, `celsiusToF`, `round`, `toNum` */
 function wordsInOrder(asked, real) {
-  const a = keyTokens(asked), r = keyTokens(real);
+  // `deg2rad`, `c2f`, `km2mi`: a 2 between two words is the standing shorthand for "to" — the words it stands for are what is compared
+  const a = keyTokens(asked).flatMap((w) => { const m = /^([a-z]+)2([a-z]+)$/i.exec(w); return m ? [m[1].toLowerCase(), "to", m[2].toLowerCase()] : [w]; }), r = keyTokens(real);
   if (!a.length) return false;
   let j = 0;
   for (const w of a) {

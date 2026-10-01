@@ -80,6 +80,14 @@ const parses = (code) => { try { new vm.Script(String(code).replace(/^\s*export\
 /** Calls the host environment provides, so a call to one is not "a name nothing declares" (cards.js GLOBALS holds the language's own; these are the platform's). */
 const ENVIRONMENT_CALLS = new Set(["require", "fetch", "setTimeout", "setInterval", "clearTimeout", "clearInterval", "queueMicrotask", "structuredClone", "Buffer", "URL", "URLSearchParams", "TextEncoder", "TextDecoder", "AbortController", "atob", "btoa", "alert", "prompt", "confirm", "readFileSync", "writeFileSync", "test", "describe", "it", "expect", "assert"]);
 
+/** The part of the task that describes ONE unit: from where its name is called out to where the next unit's is (or the end). A unit is offered the operations ITS words name, not the whole file's. */
+export function clauseOf(task, units, i) {
+  const t = String(task ?? ""), at = t.indexOf(`${units[i].name}(`);
+  if (at < 0) return t;
+  const ends = units.map((u) => t.indexOf(`${u.name}(`)).filter((j) => j > at);
+  return t.slice(at, ends.length ? Math.min(...ends) : t.length);
+}
+
 /** The one-unit prompt. A JavaScript task is shown the operations its own words name (cards.js cardsFor): the model CALLS them instead of re-deriving them. */
 export function unitPrompt(task, name, offered = []) {
   const base = `Write ONLY raw code (no prose, no markdown fences) for EXACTLY ONE function, named \`${name}\` — do NOT output any other function. It is one unit of this file: ${task}\nOutput only the single function \`${name}\`. Assume each function takes a string argument.`;
@@ -93,7 +101,7 @@ async function draw(model, prompt, { maxTokens = 220, timeoutMs = 90000 } = {}) 
     signal: AbortSignal.timeout(timeoutMs),
   });
   const j = await r.json();
-  return { text: j.response ?? "", tokens: (j.prompt_eval_count ?? 0) + (j.eval_count ?? 0) };
+  return { text: j.response ?? "", tokens: (j.prompt_eval_count ?? 0) + (j.eval_count ?? 0), truncated: j.done_reason === "length" };
 }
 
 const clean = (txt) => {
@@ -147,8 +155,16 @@ export async function buildCodeTask({ task, model, testCommand = null, out = nul
   if (!units.length) return { ok: false, error: "no independent units found in the task — not a discrete build (defer to the normal turn)" };
   const unitNames = units.map((u) => u.name);
   // the operations the task's own words name (JavaScript tasks only), never one the file itself is asked to define
-  const offered = read && taskLanguage(task) === "js" ? cardsFor({ doc: task }).map((c) => c.name).filter((n) => !unitNames.includes(n)) : [];
-  const draws = await pool(units, parallelism, (u) => drawFn(model, unitPrompt(task, u.name, offered)));
+  const js = read && taskLanguage(task) === "js";
+  const offeredFor = (i) => (js ? cardsFor({ doc: clauseOf(task, units, i) }).map((c) => c.name).filter((n) => !unitNames.includes(n)) : []);
+  const offered = [...new Set(units.flatMap((_, i) => offeredFor(i)))];
+  // A draw the server cut off at its token cap is not a different answer, it is half of one: that unit is asked again ONCE with twice the room (and named if it is cut again).
+  const ask = async (u, i) => {
+    let d = await drawFn(model, unitPrompt(task, u.name, offeredFor(i)));
+    if (d?.truncated) { const again = await drawFn(model, unitPrompt(task, u.name, offeredFor(i)), { maxTokens: 440 }); d = { ...again, tokens: (d.tokens || 0) + (again?.tokens || 0), retried: true }; }
+    return d;
+  };
+  const draws = await pool(units, parallelism, ask);
   // A draw is a SUGGESTION. What it means is read, resolved against what really exists (the card library; the file's own units), and the
   // reading is recorded as typed transformations (code-canonical.js). Adopted only where the code still parses: a rewrite that breaks it is refused.
   const cardPool = CARD_NAMES.filter((n) => !unitNames.includes(n));
@@ -160,6 +176,8 @@ export async function buildCodeTask({ task, model, testCommand = null, out = nul
     const adopted = can.changed && adoptIf(parses(raw) ? 1 : 0, parses(can.code) ? 1 : 0);
     const code = adopted ? can.code : raw;
     if (adopted) for (const t of can.transformations) transformations.push({ unit: units[i].name, ...t });
+    if (draws[i]?.truncated) unresolved.push({ unit: units[i].name, kind: "truncated", name: "the draw was cut off at the token cap, twice" });
+    else if (!parses(code)) unresolved.push({ unit: units[i].name, kind: "does_not_parse", name: "the unit does not parse" });
     for (const f of can.findings) {
       if (f.kind === "unresolved_call" && ENVIRONMENT_CALLS.has(f.name)) continue;
       (f.kind === "ambiguous_call" ? ambiguous : unresolved).push({ unit: units[i].name, ...f });

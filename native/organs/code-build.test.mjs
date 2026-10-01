@@ -7,7 +7,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import vm from "node:vm";
-import { buildCodeTask, taskLanguage, unitPrompt, planUnits, extractUnit } from "./code-build.js";
+import { buildCodeTask, taskLanguage, unitPrompt, planUnits, extractUnit, clauseOf } from "./code-build.js";
 import { readAnchorLog, settledContent } from "../adapters/build/code-anchor-log.js";
 
 const TASK = "Write a JavaScript module with these functions: describeTemp(celsius) returns the temperature in Fahrenheit rounded to one decimal, like 72.5F; tally(numbers) returns the sum of an array of numbers.";
@@ -122,4 +122,39 @@ test("extractUnit for Python ends at the first line indented no deeper than the 
   const text = "def tally(numbers):\n    def add(a, b):\n        return a + b\n    total = 0\n    for n in numbers:\n        total = add(total, n)\n    return total\n\ndef other():\n    return 1\n";
   const got = extractUnit(text, "tally");
   assert.match(got, /def add/); assert.match(got, /return total$/); assert.doesNotMatch(got, /other/);
+});
+
+test("a unit is offered the operations ITS OWN clause names, not the whole file's", async () => {
+  const task = "Write a JavaScript module with these functions: toFahrenheit(celsius) converts degrees Celsius to degrees Fahrenheit; windLabel(ms) converts a wind speed in metres per second to a string like \"22 mph\"; legMiles(lat1, lon1, lat2, lon2) returns the great-circle distance in statute miles, rounded to one decimal.";
+  const units = planUnits(task);
+  assert.match(clauseOf(task, units, 0), /^toFahrenheit\(celsius\) converts degrees Celsius[^]*Fahrenheit;\s*$/); assert.doesNotMatch(clauseOf(task, units, 0), /windLabel/);
+  assert.match(clauseOf(task, units, 2), /^legMiles\([^]*decimal\.$/);
+  const seen = {};
+  await buildCodeTask({ task, model: "stand-in", out: tmp(), drawFn: async (m, prompt) => { const name = /named `(\w+)`/.exec(prompt)[1]; seen[name] = prompt; return { text: `function ${name}() { return 1; }`, tokens: 1 }; } });
+  assert.match(seen.toFahrenheit, /celsiusToFahrenheit/); assert.doesNotMatch(seen.toFahrenheit, /haversineKm|msToMph/);
+  assert.match(seen.windLabel, /msToMph/); assert.doesNotMatch(seen.windLabel, /celsiusToFahrenheit|haversineKm/);
+  assert.match(seen.legMiles, /haversineKm/); assert.doesNotMatch(seen.legMiles, /celsiusToFahrenheit|msToMph/);
+});
+
+test("a draw the server cut off at its token cap is asked AGAIN once with more room, and named if it is cut twice (a half-written function is not an answer)", async () => {
+  const full = "function tally(numbers) {\n  let t = 0;\n  for (const n of numbers) { t += n; }\n  return t;\n}";
+  const calls = [];
+  const out = tmp();
+  const r = await buildCodeTask({ task: "Write a JavaScript file with functions: tally(numbers), count(items).", model: "stand-in", out, drawFn: async (m, prompt, opts) => {
+    const name = /named `(\w+)`/.exec(prompt)[1]; calls.push([name, opts?.maxTokens ?? null]);
+    if (name === "tally") return opts?.maxTokens ? { text: full, tokens: 40 } : { text: full.slice(0, 40), tokens: 20, truncated: true };
+    return { text: "function count(items) {\n  const n = items", tokens: 20, truncated: true };
+  } });
+  assert.deepEqual(calls.filter(([n]) => n === "tally"), [["tally", null], ["tally", 440]], "cut once: asked again with more room");
+  assert.equal(run(r.code.split("\n\n")[0], "tally([1, 2, 3])"), 6);
+  assert.deepEqual(r.canonical.unresolved.map((f) => [f.unit, f.kind]), [["count", "truncated"]], "cut twice: the unit is NAMED, not shipped as if it were whole");
+  assert.equal(r.verified, false, "and the file does not parse, which is what the check says");
+  fs.rmSync(out, { force: true });
+});
+
+test("a unit that does not parse is a finding naming the unit", async () => {
+  const out = tmp();
+  const r = await buildCodeTask({ task: TASK, model: "stand-in", out, drawFn: stand({ describeTemp: "function describeTemp(c) { return c +; }", tally: "function tally(n) { return n.length; }" }) });
+  assert.deepEqual(r.canonical.unresolved.map((f) => [f.unit, f.kind]), [["describeTemp", "does_not_parse"]]);
+  fs.rmSync(out, { force: true });
 });
