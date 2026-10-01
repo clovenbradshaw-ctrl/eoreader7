@@ -94,15 +94,17 @@ export function unitPrompt(task, name, offered = []) {
   return offered.length ? `${base}\nThese functions already exist — call them, do not write them yourself, and do not declare them:\n${cardsDoc(offered)}` : base;
 }
 
-async function draw(model, prompt, { maxTokens = 220, timeoutMs = 90000 } = {}) {
-  const r = await fetch(`${OLLAMA}/api/generate`, {
+/** a draw against one model server: the runner's own door passes its private daemon address, a bare caller gets the conventional one */
+export const makeDraw = (base = OLLAMA) => async function draw(model, prompt, { maxTokens = 220, timeoutMs = 90000 } = {}) {
+  const r = await fetch(`${base}/api/generate`, {
     method: "POST", headers: { "content-type": "application/json" },
     body: JSON.stringify({ model, prompt, stream: false, options: { num_predict: maxTokens, temperature: 0 } /* no num_ctx: the server owns the one window (2026-09-21 post-mortem) */ }),
     signal: AbortSignal.timeout(timeoutMs),
   });
   const j = await r.json();
   return { text: j.response ?? "", tokens: (j.prompt_eval_count ?? 0) + (j.eval_count ?? 0), truncated: j.done_reason === "length" };
-}
+};
+const draw = makeDraw();
 
 const clean = (txt) => {
   const t = String(txt ?? "").replace(/```[a-z]*/gi, "");
@@ -234,4 +236,20 @@ export async function buildCodeTask({ task, model, testCommand = null, out = nul
       rule: "a discrete multi-unit coding task is DECOMPOSED into independent units, each drawn from the model CONCURRENTLY (bounded by parallelism), then ASSEMBLED and VALIDATED mechanically — the structure is computed, only the units are generated, and the test (not the prose) decides. No testCommand ⇒ written and disclosed as UNVERIFIED.",
     },
   };
+}
+
+/** What a finished build says, in plain words: how it was built, whether anything checked it, what the reading of the drafts did, and what is still unsettled. Pure. */
+export function describeBuild(b) {
+  const checked = b.verified === true ? "the test you gave passed"
+    : typeof b.verified === "string" && b.verified.startsWith("validated") ? b.verified
+    : b.verified === "syntax_only" ? "it parses; no test was given, so nothing has run it"
+    : `verification failed${b.verifyError ? `: ${b.verifyError}` : ""}`;
+  const lines = [`Built ${b.units.length} unit(s) — ${b.units.join(", ")} — drawn independently (${b.tokens} tokens, ${Math.round(b.wallMs / 1000)}s); ${checked}.`];
+  const c = b.canonical ?? {};
+  for (const t of c.transformations ?? []) lines.push(`Read ${t.unit}: ${t.kind === "const_to_let" ? `\`${t.name}\` is assigned again, so it is a \`let\`` : `\`${t.from}\` is \`${t.to}\` (${t.basis})`}.`);
+  if ((c.cards ?? []).length) lines.push(`The file carries ${c.cards.join(", ")}, written and checked once, because the units call them.`);
+  for (const f of c.unresolved ?? []) lines.push(f.kind === "truncated" || f.kind === "does_not_parse" ? `${f.unit}: ${f.name}.` : `${f.unit} calls \`${f.name}\`, which nothing in the file declares.`);
+  for (const f of c.ambiguous ?? []) lines.push(`${f.unit} calls \`${f.name}\`, which could be ${f.candidates.join(" or ")} — left as written.`);
+  const lang = /^\s*(def |import |from )/m.test(b.code) ? "python" : "js";
+  return `${lines.join("\n")}\n\n\`\`\`${lang}\n${b.code.trimEnd()}\n\`\`\``;
 }

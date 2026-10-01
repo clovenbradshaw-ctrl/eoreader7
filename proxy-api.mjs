@@ -79,7 +79,10 @@ export function parseProxyRequest(body) {
   const attachments = Array.isArray(body?.attachments)
     ? body.attachments.map((a, i) => ({ name: String(a?.name ?? `attachment-${i + 1}`).slice(0, 120), text: String(a?.text ?? "") })).filter((a) => a.text.trim())
     : [];
-  return { model, ...turn, stream, discloseThinking, kelsen, mode, attachments };
+  // DOOR: which door of the one turn the caller asks for. Only an explicit "build" opens the build door on these wire shapes (a chat client's ordinary message
+  // is never taken for a build on the strength of its words); nothing = a conversation.
+  const door = body?.door === "build" ? "build" : null;
+  return { model, ...turn, stream, discloseThinking, kelsen, mode, attachments, door };
 }
 
 // ── ANTHROPIC MESSAGES API (Claude Code speaks this; the proxy is openai/

@@ -22,7 +22,7 @@ let _inflight = 0; // turns currently running — the model watchdog never fires
 // The mechanical code build (2026-09-21): a discrete multi-unit coding task is
 // decomposed, the units drawn CONCURRENTLY, then assembled and validated —
 // triggered by a REGULAR NL PROMPT, not a hand-built harness.
-import { detectBuildTask, buildCodeTask } from "./native/organs/code-build.js";
+import { buildCodeTask } from "./native/organs/code-build.js";
 
 // Structure Search: the plain-language search-term registry and the unified
 // target-resolution modalities (Exact, Pattern/regex, Near-Miss, and four
@@ -1195,27 +1195,6 @@ const job = await startDocumentJob({
         return;
       }
 
-      // A REGULAR NL PROMPT that names a discrete multi-unit coding task is
-      // recognized as a mechanical BUILD: compute the structure, draw only the
-      // independent units (concurrently), assemble and validate. Not the model
-      // turn — this shape is code.
-      if (detectBuildTask(task)) {
-        const b = await buildCodeTask({
-          task, model: String(parsed?.model ?? "").trim() || "qwen2.5-coder:1.5b",
-          testCommand: parsed?.testCommand ?? null, out: parsed?.out ?? null, parallelism: currentParallelism(),
-        }).catch((e) => ({ ok: false, error: e.message }));
-        if (b.ok) {
-          log(`ask → BUILD units=${b.units.length} tokens=${b.tokens} wallMs=${b.wallMs} verified=${b.verified}`);
-          res.writeHead(200, { "content-type": "application/json" });
-          res.end(JSON.stringify({
-            answer: `Recognized a discrete build: computed the structure, drew ${b.draws} independent unit(s) concurrently (${b.units.join(", ")}) — ${b.tokens} tokens, ${b.wallMs}ms; ${b.verified === true ? "the test passed" : b.verified === "syntax_only" ? "syntax-checked (no test given)" : "VERIFICATION FAILED"}.`,
-            kind: b.kind, units: b.units, draws: b.draws, tokens: b.tokens, wallMs: b.wallMs, verified: b.verified, verifyError: b.verifyError,
-            code: b.code, disclosure: b.disclosure,
-          }));
-          return;
-        }
-        // not a discrete build after all → fall through to the normal turn
-      }
       // Same default the /v1/documents job uses — one literal, not a second
       // magic constant for the same choice.
       const model = String(parsed?.model ?? "").trim() || pickDefaultModel();
@@ -1329,6 +1308,8 @@ const job = await startDocumentJob({
             caller: callerFromRequest(req, "ask", parsed),
             webConsent: parsed?.webConsent === true || parsed?.webConsent === "true",
             seed: parsed?.seed != null ? String(parsed.seed) : null,
+            // the build is a door of THIS turn (proxy-runner.mjs): the plain doorway lets the task's own words decide; { door: "build" } asks for it, { door: "chat" } declines it
+            door: parsed?.door === "build" || parsed?.door === "chat" ? parsed.door : "auto",
           }, (chunk) => {
             // every generated chunk rides the live sink so the watch surface can
             // show the actual text as it is written (monitor-only; never stored).

@@ -7,7 +7,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import vm from "node:vm";
-import { buildCodeTask, taskLanguage, unitPrompt, planUnits, extractUnit, clauseOf } from "./code-build.js";
+import { buildCodeTask, taskLanguage, unitPrompt, planUnits, extractUnit, clauseOf, describeBuild } from "./code-build.js";
 import { readAnchorLog, settledContent } from "../adapters/build/code-anchor-log.js";
 
 const TASK = "Write a JavaScript module with these functions: describeTemp(celsius) returns the temperature in Fahrenheit rounded to one decimal, like 72.5F; tally(numbers) returns the sum of an array of numbers.";
@@ -156,5 +156,21 @@ test("a unit that does not parse is a finding naming the unit", async () => {
   const out = tmp();
   const r = await buildCodeTask({ task: TASK, model: "stand-in", out, drawFn: stand({ describeTemp: "function describeTemp(c) { return c +; }", tally: "function tally(n) { return n.length; }" }) });
   assert.deepEqual(r.canonical.unresolved.map((f) => [f.unit, f.kind]), [["describeTemp", "does_not_parse"]]);
+  fs.rmSync(out, { force: true });
+});
+
+test("describeBuild says what happened in plain words: how it was built, whether anything ran it, what the reading did, what is unsettled — and carries the code", async () => {
+  const out = tmp();
+  const r = await buildCodeTask({ task: TASK, model: "stand-in", out, drawFn: stand({
+    describeTemp: "function describeTemp(celsius) { const t = cToF(celsius); return formatTemp(t); }",
+    tally: "function tally(numbers) { const total = 0; for (const n of numbers) total += n; return total; }",
+  }) });
+  const said = describeBuild(r);
+  assert.match(said, /^Built 2 unit\(s\) — describeTemp, tally — drawn independently/);
+  assert.match(said, /it parses; no test was given, so nothing has run it/, "a parse is not a run, and it says so");
+  assert.match(said, /`cToF` is `celsiusToFahrenheit`/); assert.match(said, /`total` is assigned again, so it is a `let`/);
+  assert.match(said, /describeTemp calls `formatTemp`, which nothing in the file declares/);
+  assert.match(said, /```js\n[\s\S]*function describeTemp[\s\S]*```$/);
+  assert.doesNotMatch(said, /canonical|suggestion|apparatus|transformation/i, "the person reads plain words, not the machinery's names");
   fs.rmSync(out, { force: true });
 });

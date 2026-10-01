@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { ingest } from "./native/organs/ingest.js";
 import { analysisDoor, isAnalysis } from "./native/the-fold/surface/notebook-door.mjs";
+import { detectBuildTask, buildCodeTask, makeDraw, describeBuild } from "./native/organs/code-build.js";
 import { fileURLToPath } from "node:url";
 
 import { createCausalTextPerceiver, textEncounters, surfaceIndex, surfacesIn } from "./native/adapters/text/recursive.js";
@@ -4276,7 +4277,7 @@ export function openProblemOf(task) {
   return null;
 }
 
-export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null, testCommand = "", drawOnly = false }, onToken, onNote = null, onThinking = null) {
+export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null, testCommand = "", drawOnly = false, door = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   // ── ETHOS FIRST (the ground) ──────────────────────────────────────────────
   // The constitution (Charter/Grotius + the spec gate/Brandeis) produces a
@@ -4490,6 +4491,25 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       quote,
     };
   };
+  // ── THE BUILD DOOR (native/organs/code-build.js) ───────────────────────────
+  // ONE engine, a few handles: a discrete multi-unit coding task is a door of this turn, not a second API. `door: "build"` asks for it, `door: "auto"` lets the
+  // task's own words decide (detectBuildTask — the plain doorway sends "auto"), `door: "chat"` / nothing keeps it a conversation. A build is DRAWN as independent
+  // units (the model suggests), each draw is READ against what exists (the card library, the file's own units) and recorded, and the file is assembled — the same
+  // turn pipeline's admission, session and record apply, and the next message in this session can name what was built (session.lastBuild).
+  if (door === "build" || (door === "auto" && detectBuildTask(task))) {
+    let parallelism = 2;
+    try { parallelism = (await import("./heimdall.mjs")).currentParallelism?.() ?? 2; } catch { /* no Heimdall: the conservative default */ }
+    if (onNote) onNote({ move: "build_door", note: "a discrete coding task: units drawn independently, each draw read against the operations that exist, then assembled" });
+    const b = await buildCodeTask({ task, model, testCommand: testCommand || null, parallelism, drawFn: makeDraw(OLLAMA), anchorDir: path.join(learnedDir(), "builds") }).catch((e) => ({ ok: false, error: e.message }));
+    if (b.ok) {
+      session.lastBuild = { units: b.units, out: b.out, verified: b.verified, at: new Date().toISOString(), turn: session.turnCount + 1 };
+      usage.completionTokens += b.tokens;
+      return earlyResult(describeBuild(b), { answerShape: "build", mechanical: { rung: "code-build", kind: b.kind, units: b.units, draws: b.draws, tokens: b.tokens, wallMs: b.wallMs, out: b.out, verified: b.verified, verifyError: b.verifyError, canonical: b.canonical, code: b.code, disclosure: b.disclosure } });
+    }
+    if (door === "build") return earlyResult(`That is not a build I can split into independent units: ${b.error}. Name the functions in the request as name(args), e.g. "write a JavaScript file with functions: area(w, h), perimeter(w, h)".`, { answerShape: "build", mechanical: { rung: "code-build", gap: "no_units", basis: b.error } });
+    // door "auto" and not a discrete build after all: it is an ordinary turn
+  }
+
   // ── THE ANALYSIS DOOR (the-fold/surface/notebook-door.mjs) ──────────────────
   // "/analyze <question>" or "/explore" with a table attached: learned methods, or an ant colony when none exists and no model is
   // set. A mechanical door — no model drafts the reply; it is what the checks found, with the methods named so each can be switched
