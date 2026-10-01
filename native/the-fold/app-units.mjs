@@ -72,6 +72,14 @@ export function skeletonOf(contract) {
 /** the cards a task's prompt offers: those its own words name (organs/cards.js cardsFor). The wall still has ALL of them, so a near name still resolves. */
 export function cardsShown(contract) { return contract.cards === false ? [] : cardsFor(contract).map((c) => c.name); }
 
+/** facts read off the example INPUT's type, said as facts: a parameter that is a string of HTML is text to search, not a parsed document (a small model otherwise reaches for `document`) */
+export function textFacts(contract) {
+  try {
+    const a = contract.runs?.[0]?.args?.() ?? [], names = contract.params.filter((_, i) => typeof a[i] === "string" && /^\s*<(?:!doctype|html|\w+[\s>])/i.test(a[i]));
+    return names.length ? `${names.map((n) => `\`${n}\``).join(" and ")} ${names.length > 1 ? "are" : "is"} a string of HTML text — a plain string, not a parsed document; it is read as text.` : null;
+  } catch { return null; }
+}
+
 export function unitPrompt(contract, { failures = [], previous = null, skeleton = false, repair = "edit", facts = [] } = {}) {
   // `shown` is what the mouth sees when the real sample is too long to show whole and the author knows which stretch carries the shape (an excerpt, cut with a marker — never rewritten)
   const sample = typeof contract.shown === "string" ? contract.shown.slice(0, SAMPLE_SHOWN_CHARS) : typeof contract.sampleText === "string" ? contract.sampleText.slice(0, SAMPLE_SHOWN_CHARS) : JSON.stringify(trimSample(contract.sampleJson), null, 1).slice(0, SAMPLE_SHOWN_CHARS);
@@ -81,6 +89,7 @@ export function unitPrompt(contract, { failures = [], previous = null, skeleton 
     `It must return this shape:\n${contract.returns}`,
     contract.notes ? `Notes:\n${contract.notes}` : null,
     cardsShown(contract).length ? `These functions already exist — call them, do not write them yourself, and do not declare them:\n${cardsDoc(cardsShown(contract))}` : null,
+    textFacts(contract),
     `Here is a real example of the ${contract.paramDoc ?? contract.params[0]} it receives (long lists are cut to their first items):\n${sample}`,
     workedExample(contract),
     (skeleton || contract.skeleton === true) && skeletonOf(contract) ? `Start from this skeleton — keep the keys and their order, replace every ___ with an expression (add any lines before the return that you need):\n${skeletonOf(contract)}` : null,
@@ -364,7 +373,7 @@ export async function makeFieldedUnit(contract, opts = {}) {
   const codes = {}, models = new Set(), declared = {}, resolutions = [], failedFields = [], bySpecies = {};
   for (const key of keys) {
     // THE CHEAPEST FILLER FIRST (opts.species, a caller's hook): a slot a species can fill with no model is filled, then held to the SAME oracle as a drawn field — it counts only if it passes
-    const cheap = key === ABSENT ? null : opts.species?.(contract, key);
+    const cheap = opts.species?.(contract, key === ABSENT ? "absent" : key);
     if (cheap?.js) {
       const fc = fieldContract(contract, key), code = `function ${key}Of(${contract.params.join(", ")}) { return ${cheap.js}; }`, t = testUnit(code, fc);
       see("unit", { name: fc.name, species: cheap.species, ok: t.ok, calls: 0, ...(t.ok ? {} : { gap: "a species filled the slot but the field's oracle refused it", failures: t.failures.slice(0, 2) }) });

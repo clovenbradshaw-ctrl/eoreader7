@@ -9,6 +9,7 @@
 //   joinPresent  the parts that EXIST joined by a separator: `[name, admin1, country].filter(Boolean).join(", ")`, null when none do if the words say null
 //   slice     a fixed stretch of a string path: `entry.time.slice(0, 16)` — the offsets are searched, the examples and the held-out runs decide
 //   normalize a string path (or the first non-empty of two) put through the text operations the words name: trim, lower, underscores to spaces, a stated ending removed (`_day`, `_night`)
+//   guard     the yes/no "is there nothing to return for this input": a predicate over one or two input paths (is missing, is not a number, is not a numeric string), checked on EVERY run
 //   argmax    the item of a list with the largest key (the longest word, the priciest line), the first on a tie, `""` for none
 //
 // Nothing here knows what a ward, a flight or a cart is; the leaves are the input's own paths and the operations are the cards the person's words name plus the language's own.
@@ -315,6 +316,43 @@ export function normalize(contract, wants, accept = () => true) {
     const f = (x) => { let v; for (const l of src) { v = safe(l.f, x); if (!emptyish(v)) break; } if (typeof v !== "string") return undefined; for (const o of ch) v = o.f(v); return v; };
     if (args.every((x, i) => f(x) === wants[i]) && accept(f)) return { js: `(${src.map((l) => l.js).join(" || ")})${ch.map((o) => o.js).join("")}`, f };
   }
+  return null;
+}
+
+/** every scalar path of the input (any type), keys from the union of every run's input, a bracket for a key that is not a legal name */
+function scalarPaths(contract) {
+  const all = contract.runs.map((r) => r.args()), out = [];
+  contract.params.forEach((p, i) => {
+    const walk = (vals, path, js, depth) => {
+      if (depth > 4) return;
+      const present = vals.filter((v) => v !== undefined);
+      if (present.some((v) => v === null || ["string", "number", "boolean"].includes(typeof v))) out.push({ js, f: (a) => get(a[i], path) });
+      const objs = present.filter((v) => v && typeof v === "object" && !Array.isArray(v));
+      if (objs.length) for (const k of [...new Set(objs.flatMap(Object.keys))]) walk(vals.map((v) => v?.[k]), [...path, k], /^[A-Za-z_$][\w$]*$/.test(k) ? `${js}?.${k}` : `${js}?.[${JSON.stringify(k)}]`, depth + 1);
+    };
+    walk(all.map((a) => a[i]), [], p, 0);
+  });
+  return out;
+}
+const PREDICATES = [
+  { js: (e) => `${e} == null`, f: (v) => v == null },
+  { js: (e) => `typeof ${e} !== "number"`, f: (v) => typeof v !== "number" },
+  { js: (e) => `Number.isNaN(parseFloat(${e}))`, f: (v) => Number.isNaN(parseFloat(v)) },
+];
+/** GUARD: whether the answer is null for this input. `isNull(run)` says it for each run; the predicate (one path, or two joined by ||) must agree on EVERY run, and both outcomes must occur so a constant is not mistaken for a rule */
+export function guard(contract, isNull = (r) => r.want() === null) {
+  const runs = contract.runs, truth = runs.map(isNull);
+  if (!truth.some(Boolean) || truth.every(Boolean)) return null;
+  const P = scalarPaths(contract), cands = [], lastKey = (js) => (js.match(/(?:\?\.|\.)(\w+)$|\["([^"]+)"\]$/) ?? []).slice(1).find(Boolean) ?? js;
+  const said = new Set(keyTokens([contract.doc, contract.returns, contract.notes].join(" ")));
+  const named = (js) => (keyTokens(lastKey(js)).some((t) => said.has(t)) ? 1 : 0); // a path the person's own words name is a better reason than one that merely fits
+  const words = [contract.doc, contract.returns, contract.notes].join(" "), numBonus = /not a number/i.test(words) ? 2 : /numeric|\bnumber\b/i.test(words) ? 1 : 0, kindBonus = [/\b(no|none|missing|without)\b/i.test(words) ? 1 : 0, numBonus, numBonus]; // and so is the KIND of test the words describe
+  for (const pr of PREDICATES) for (const a of P) cands.push({ js: pr.js(a.js), f: (x) => pr.f(safe(a.f, x)), score: named(a.js) + kindBonus[PREDICATES.indexOf(pr)], size: 1 });
+  for (const pr of PREDICATES) for (const a of P) for (const b of P) if (a.js < b.js) cands.push({ js: `${pr.js(a.js)} || ${pr.js(b.js)}`, f: (x) => pr.f(safe(a.f, x)) || pr.f(safe(b.f, x)), score: named(a.js) + named(b.js) + kindBonus[PREDICATES.indexOf(pr)], size: 2 });
+  // the same field in alternative places, both missing: a node's `lat` AND a way's `center.lat` (no position at all)
+  for (const a of P) for (const b of P) if (a.js < b.js && lastKey(a.js) === lastKey(b.js)) cands.push({ js: `${PREDICATES[0].js(a.js)} && ${PREDICATES[0].js(b.js)}`, f: (x) => PREDICATES[0].f(safe(a.f, x)) && PREDICATES[0].f(safe(b.f, x)), score: 2 * named(a.js) + kindBonus[0], size: 2 });
+  cands.sort((x, y) => y.score - x.score || x.size - y.size); // the best-evidenced reason first (the words name the path and the kind of test), then the simplest
+  for (const c of cands) if (runs.every((r, i) => { try { return Boolean(c.f(r.args())) === truth[i]; } catch { return false; } })) return { species: "guard", js: c.js, f: c.f };
   return null;
 }
 

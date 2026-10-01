@@ -19,7 +19,7 @@ import { driveApp } from "./app-drive.mjs";
 import { seenImages, readSeen, likenessOfApp } from "./app-likeness.mjs";
 import { LEAF_CONTRACTS } from "./app-leaves.mjs";
 import { generateUnits } from "./app-generate.mjs";
-import { openFold } from "./app-fold.mjs";
+import { openFold, project } from "./app-fold.mjs";
 import { speciesHook } from "./app-species.mjs";
 import { makeMouth, openUnitCache, loadTrails, saveTrails } from "./app-units.mjs";
 import { REFERENCE_LEAVES } from "./app-weather-fuel.reference.mjs";
@@ -54,7 +54,10 @@ export async function buildApp({ work, out, places = ["London"], mouths = ["qwen
   const onLeaf = (name, l) => {
     const mods = [...new Set(String(l.model ?? "").split("+").filter((m) => m && !m.startsWith("species:")))], nsp = Object.keys(l.bySpecies ?? {}).length;
     const by = l.ok ? [...mods, ...(nsp ? [`${nsp} species fill(s)`] : [])].join(" + ") : null;
-    if (l.ok) fold.append("land", { leaf: name, code: l.code, by, calls: l.calls ?? 0, rounds: l.rounds ?? 0, bySpecies: l.bySpecies ?? {}, declared: l.declared ?? {}, resolutions: l.resolutions ?? [] });
+    const cur = project(fold.entries()).landed[name];
+    if (l.ok && cur && cur.code === l.code) return; // already in the fold, unchanged: nothing to append
+    if (!l.ok && cur) return; // a leaf that has landed is not reopened by a failed retry
+    if (l.ok) fold.append(cur ? "supersede" : "land", { leaf: name, code: l.code, by, calls: l.calls ?? 0, rounds: l.rounds ?? 0, bySpecies: l.bySpecies ?? {}, declared: l.declared ?? {}, resolutions: l.resolutions ?? [] });
     else fold.append("open", { leaf: name, failures: (l.failures ?? []).slice(0, 3), calls: l.calls ?? 0 });
   };
   const t0 = Date.now();

@@ -13,6 +13,7 @@ import { LEAF_CONTRACTS } from "./app-leaves.mjs";
 import { REFERENCE_LEAVES } from "./app-weather-fuel.reference.mjs";
 import { loadUnit, testUnit, composeFieldCode, fieldsOf } from "./app-units.mjs";
 import { cheapFill } from "./fielded-swarm.mjs";
+import { guard } from "./species.mjs";
 
 /** a leaf contract the species can read: every run also carries the value the reference leaf returns for it */
 export function speciesContract(c) {
@@ -42,6 +43,7 @@ export function fillLeaf(c) {
 export function speciesHook() {
   const memo = new Map();
   return (c, key) => {
+    if (key === "absent") { const k = `${c.name}#absent`; if (!memo.has(k)) { let g = null; try { g = guard(speciesContract(c)); } catch { g = null; } memo.set(k, { absent: g }); } return memo.get(k).absent; }
     if (!memo.has(c.name)) { let r = {}; try { const sc = speciesContract(c); r = cheapFill({ ...sc, runs: sc.runs.filter((x) => x.want() !== null) }); } catch { r = {}; } memo.set(c.name, r); }
     return memo.get(c.name)[key] ?? null;
   };

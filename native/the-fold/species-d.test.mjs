@@ -90,3 +90,16 @@ test("normalize uses only the operations the words name, and a stated ending onl
   const silent = mkc("the symbol made readable", "", data, want);
   assert.equal(normalize(silent, silent.runs.slice(0, 3).map((x) => x.want()), holdsOn(silent)), null, "the endings are not in the words, so they are not guessed");
 });
+
+// ---- guard ----
+import { guard } from "./species.mjs";
+test("guard finds the yes/no 'nothing to return' from the words and every run; a constant or a coincidence is not a rule", () => {
+  const data = [{ id: 1, pos: "4.5", alt: "x" }, { id: 2, pos: "7.25", alt: "y" }, { id: 3, pos: "oops", alt: "z" }, { id: 4, pos: "9", alt: "w" }, { id: 5, pos: "n/a", alt: "v" }];
+  const c = { name: "g", params: ["p"], doc: "d", returns: "the place, or null if its pos is not a number", notes: "", runs: data.map((d) => ({ args: () => JSON.parse(JSON.stringify([d])), want: () => (Number.isNaN(parseFloat(d.pos)) ? null : { id: d.id }) })) };
+  const g = guard(c);
+  assert.ok(g && /parseFloat\(p\?\.pos\)/.test(g.js), g?.js);
+  const allSame = { ...c, runs: c.runs.map((r) => ({ ...r, want: () => ({ id: 1 }) })) };
+  assert.equal(guard(allSame), null, "no null run: nothing to learn a guard from");
+  const redealt = { ...c, runs: c.runs.map((r, i) => ({ ...r, want: () => (i % 2 ? null : { id: i }) })) };
+  assert.equal(guard(redealt), null, "CONTROL: nulls assigned by position are not any predicate of the input");
+});
