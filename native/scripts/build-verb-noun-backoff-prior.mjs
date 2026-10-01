@@ -66,7 +66,7 @@ const MODEL_PATH = path.join(ROOT, "native", "priors", "parser-eng-ewt.json");
 // held-out tenth in margin-calibration.test.mjs.
 export const MEDIAN_MARGIN = 26.886;
 
-const liveriorsRoot = process.argv[2] || "/Users/mlacy/Documents/3.0/live_priors";
+const liveriorsRoot = process.argv[2] || decodeURIComponent(new URL("../../../live_priors", import.meta.url).pathname);
 const charBudgetPerCategory = Number(process.argv[3] || 3000000);
 const OUT_PATH = process.argv[4] || path.join(ROOT, "native", "priors", "verb-noun-backoff-en.json");
 

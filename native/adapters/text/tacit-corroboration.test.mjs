@@ -10,11 +10,11 @@ import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { withinTextSightings, discoverCorroboratedBeings, discoverCrossSourceBeings } from "./tacit-corroboration.js";
 
-const FAUSTUS = "/Users/mlacy/Documents/3.0/live_priors/15-western-canon/marlowe/doctor-faustus-1604-quarto.txt";
-const ANTIGONE = "/Users/mlacy/Documents/3.0/live_priors/11-multi-language/greek-originals/sophocles-antigone.txt";
-const POS_ENG = "/Users/mlacy/Documents/3.0/the-fold/priors-data/pos-prior-eng.json";
+const FAUSTUS = decodeURIComponent(new URL("../../../../live_priors/15-western-canon/marlowe/doctor-faustus-1604-quarto.txt", import.meta.url).pathname);
+const ANTIGONE = decodeURIComponent(new URL("../../../../live_priors/11-multi-language/greek-originals/sophocles-antigone.txt", import.meta.url).pathname);
+const POS_ENG = decodeURIComponent(new URL("../../../../the-fold/priors-data/pos-prior-eng.json", import.meta.url).pathname);
 const POS_GRC = fileURLToPath(new URL("../../priors/pos-grc.json", import.meta.url));
-const HENRY_DIR = "/Users/mlacy/Documents/3.0/live_priors/15-western-canon/first-folio/";
+const HENRY_DIR = decodeURIComponent(new URL("../../../../live_priors/15-western-canon/first-folio/", import.meta.url).pathname);
 
 test("withinTextSightings collapses an adjacent burst to one sighting, but counts genuinely separated recurrences", () => {
   const s = withinTextSightings("alpha alpha alpha " + "x ".repeat(60) + "alpha", { minSeparation: 50 });

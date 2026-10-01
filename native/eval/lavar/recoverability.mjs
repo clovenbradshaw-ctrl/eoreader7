@@ -21,7 +21,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const BOOK = process.argv[3] ?? "/Users/mlacy/Documents/3.0/live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt";
+const BOOK = process.argv[3] ?? decodeURIComponent(new URL("../../../../live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt", import.meta.url).pathname);
 const BASENAME = path.basename(BOOK, ".txt");
 const raw = fs.readFileSync(BOOK, "utf8");
 

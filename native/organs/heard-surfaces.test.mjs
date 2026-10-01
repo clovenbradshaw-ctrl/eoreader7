@@ -10,12 +10,12 @@ import { fileURLToPath } from "node:url";
 import { heardSurfaces, isPositionallySigned, POSITIONAL_SIGNATURE, NAMING_CLASSES, peelProclitics } from "./heard-surfaces.js";
 
 const N = "../adapters/text/";
-const BOOK = "/Users/mlacy/Documents/3.0/live_priors/01-literature-books/gitenberg/pg2554_Crime-and-Punishment.txt";
+const BOOK = decodeURIComponent(new URL("../../../live_priors/01-literature-books/gitenberg/pg2554_Crime-and-Punishment.txt", import.meta.url).pathname);
 const POS_ENG = fileURLToPath(new URL("../priors/pos-eng.json", import.meta.url));
 const POS_HEB = fileURLToPath(new URL("../priors/pos-heb.json", import.meta.url));
 const POS_ARB = fileURLToPath(new URL("../priors/pos-arb.json", import.meta.url));
 const PROCLITICS_HEB = fileURLToPath(new URL("../priors/proclitics-heb.json", import.meta.url));
-const HEB_WIKI_ARTICLE = "/Users/mlacy/Documents/3.0/live_priors/11-multi-language/wikipedia-lang/he/_________.txt";
+const HEB_WIKI_ARTICLE = decodeURIComponent(new URL("../../../live_priors/11-multi-language/wikipedia-lang/he/_________.txt", import.meta.url).pathname);
 
 // A listener's material: names recur, keep no determiner, and appear both
 // opening a sentence and inside one. The common nouns keep "the" in front.

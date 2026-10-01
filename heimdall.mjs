@@ -1106,6 +1106,8 @@ const fetchWithTimeout = async (url, ms) => {
 //   ER7_SURFACE_FAMILIES="er7:er7 fold:fold"   (surface -> model-family prefix)
 //   ER7_SURFACE_ENV_er7="ER7_WEB_SEARCH=0"     (per-surface restart env)
 // ─────────────────────────────────────────────────────────────────────────
+// The fold lives beside this repo (./fold lays the siblings out that way).
+const FOLD_DIR = process.env.ER7_FOLD_DIR ?? path.join(HERE, "..", "the-fold");
 const SURFACE_SPECS = String(process.env.ER7_SURFACES ?? "").trim()
   ? String(process.env.ER7_SURFACES).trim().split(/\s+/).filter(Boolean).map((s) => {
       const [name, port, cwd, ...cmd] = s.split(":");
@@ -1119,10 +1121,10 @@ const SURFACE_SPECS = String(process.env.ER7_SURFACES ?? "").trim()
       // connection vitals (2026-09-13), so a watcher that cannot see inside
       // a browser still sees the page's engine and its Matrix room tie.
       { name: "er7", port: 11436, cwd: HERE, cmd: "node proxy.mjs" },
-      { name: "fold-chat", port: 8811, cwd: "/Users/mlacy/Documents/3.0/the-fold", cmd: "node serve.mjs" },
-      { name: "fold-8812", port: 8812, cwd: "/Users/mlacy/Documents/3.0/the-fold", cmd: "node explore-server.mjs" },
-      { name: "fold-8819", port: 8819, cwd: "/Users/mlacy/Documents/3.0/the-fold", cmd: "node explore-server.mjs 8819" },
-      { name: "fold-8837", port: 8837, cwd: "/Users/mlacy/Documents/3.0/the-fold", cmd: "node explore-server.mjs 8837" },
+      { name: "fold-chat", port: 8811, cwd: FOLD_DIR, cmd: "node serve.mjs" },
+      { name: "fold-8812", port: 8812, cwd: FOLD_DIR, cmd: "node explore-server.mjs" },
+      { name: "fold-8819", port: 8819, cwd: FOLD_DIR, cmd: "node explore-server.mjs 8819" },
+      { name: "fold-8837", port: 8837, cwd: FOLD_DIR, cmd: "node explore-server.mjs 8837" },
     ];
 
 const FAMILY_OF = (surfaceName) =>

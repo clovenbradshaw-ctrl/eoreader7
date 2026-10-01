@@ -118,7 +118,7 @@ const { readAtmosphere } = await import(path.join(HERE, "..", "..", "legacy-port
 const { GROUND_FLOOR_DIFFERENCE } = await import(path.join(HERE, "..", "..", "legacy-ported", "packages", "engine", "ground-floor.js"));
 const { tokenize } = await import(path.join(HERE, "..", "..", "organs", "source.js"));
 
-const BOOK = "/Users/mlacy/Documents/3.0/live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt";
+const BOOK = decodeURIComponent(new URL("../../../../live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt", import.meta.url).pathname);
 const raw = fs.readFileSync(BOOK, "utf8");
 const heads = [...raw.matchAll(/^CHAPTER ([IVXLC]+)\.\s*\r?\n([^\r\n]*)\r?\n/gm)];
 

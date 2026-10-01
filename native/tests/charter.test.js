@@ -109,7 +109,7 @@ test("the gate refuses to run ungoverned", () => {
 // If the real 516-language UN corpus is beside this checkout, verify the
 // byte-grounded build on the actual English UDHR too — otherwise the excerpt
 // fixture above is the enforcement (data-gated, the live rule).
-const REAL_UDHR = "/Users/mlacy/Documents/3.0/live_priors/06-government-legal/un-udhr/udhr-eng.txt";
+const REAL_UDHR = decodeURIComponent(new URL("../../../live_priors/06-government-legal/un-udhr/udhr-eng.txt", import.meta.url).pathname);
 if (existsSync(REAL_UDHR)) {
   test("the real UDHR builds a full charter (data-gated)", () => {
     const real = buildUdhCharter(readFileSync(REAL_UDHR, "utf8"));

@@ -17,7 +17,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const WP = "/Users/mlacy/Documents/3.0/live_priors/11-multi-language/war-and-peace";
+const WP = decodeURIComponent(new URL("../../../../live_priors/11-multi-language/war-and-peace", import.meta.url).pathname);
 const VERSIONS = [
   { lang: "eng", file: `${WP}/en/pg2600_War_and_Peace_Tolstoy_Maude.txt`, base: "pg2600_War_and_Peace_Tolstoy_Maude" },
   { lang: "fra", file: `${WP}/fr/guerre-et-paix_Tolstoy_Bienstock_wikisource.txt`, base: "guerre-et-paix_Tolstoy_Bienstock_wikisource" },

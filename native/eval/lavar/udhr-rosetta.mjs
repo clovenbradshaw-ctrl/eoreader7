@@ -46,7 +46,7 @@ import { createHyperlexicon, admitHyperlexiconCandidates, giveHyperlexiconAfford
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = path.resolve(process.argv.find((a) => a.startsWith("--out="))?.slice(6) ?? path.join(HERE, "results"));
-const CORPUS = "/Users/mlacy/Documents/3.0/live_priors/06-government-legal/un-udhr";
+const CORPUS = decodeURIComponent(new URL("../../../../live_priors/06-government-legal/un-udhr", import.meta.url).pathname);
 
 // Per-language article-heading convention + POS prior. Each shape is
 // GROUNDED (confirmed against the actual corpus files, 2026-09-13), never

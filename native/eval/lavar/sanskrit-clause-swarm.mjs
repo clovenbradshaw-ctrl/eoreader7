@@ -33,7 +33,7 @@ import { elenchusBar, RERUN_NULL } from "./elenchus-bar.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const TEST = path.join(HERE, "../fixtures/ud-sanskrit-vedic/sa_vedic-ud-test.conllu");
-const CASE_PRIOR = JSON.parse(fs.readFileSync("/Users/mlacy/Documents/3.0/live_priors/derived-priors/case-priors/case-marking-san.json", "utf8"));
+const CASE_PRIOR = JSON.parse(fs.readFileSync(decodeURIComponent(new URL("../../../../live_priors/derived-priors/case-priors/case-marking-san.json", import.meta.url).pathname), "utf8"));
 
 // ── received instruments (TRAIN only) ──
 // pos-san.json: the shipped POSPrior@1 (TRAIN tallies, built by

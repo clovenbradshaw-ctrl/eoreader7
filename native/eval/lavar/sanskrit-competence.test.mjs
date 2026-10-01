@@ -31,7 +31,7 @@ import { caseOf, paradigmOf } from "./sanskrit.mjs";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CONLLU = path.join(HERE, "../fixtures/ud-sanskrit-vedic/sa_vedic-ud-test.conllu");
 const UFAL = path.join(HERE, "../fixtures/ud-sanskrit-ufal/sa_ufal-ud-test.conllu");
-const PRIOR = JSON.parse(fs.readFileSync("/Users/mlacy/Documents/3.0/live_priors/derived-priors/case-priors/case-marking-san.json", "utf8"));
+const PRIOR = JSON.parse(fs.readFileSync(decodeURIComponent(new URL("../../../../live_priors/derived-priors/case-priors/case-marking-san.json", import.meta.url).pathname), "utf8"));
 
 const NOMINAL_UPOS = ["NOUN", "PROPN", "ADJ", "PRON", "NUM"];
 const SH = 0.5, CT = 10; // the reader operating point (sanskrit-swarm)

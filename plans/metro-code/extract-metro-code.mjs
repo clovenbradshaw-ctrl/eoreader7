@@ -7,7 +7,7 @@
 // (PlanLedgerObservation@1). No model in the loop. Same ground in, same ledger out.
 
 import fs from "node:fs";
-import { extractPlanRows } from "/Users/mlacy/Documents/3.0/eoreader7/native/organs/plans/extract.mjs";
+import { extractPlanRows } from "../../native/organs/plans/extract.mjs";
 
 const ROOT = new URL("./", import.meta.url);
 const manifest = JSON.parse(fs.readFileSync(new URL("./manifest.json", import.meta.url), "utf8"));

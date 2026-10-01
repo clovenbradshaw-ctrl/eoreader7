@@ -95,7 +95,7 @@ import { fileURLToPath } from "node:url";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const { Field } = await import(path.join(HERE, "..", "..", "..", "..", "the-fold", "relative.js"));
 
-const BOOK = "/Users/mlacy/Documents/3.0/live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt";
+const BOOK = decodeURIComponent(new URL("../../../../live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt", import.meta.url).pathname);
 const raw = fs.readFileSync(BOOK, "utf8");
 
 // Same head-detection + real-title fix as golden-tool.mjs, reused verbatim.

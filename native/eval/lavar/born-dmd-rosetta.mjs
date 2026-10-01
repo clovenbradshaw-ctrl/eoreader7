@@ -17,7 +17,7 @@ import { fileURLToPath } from "node:url";
 import { dmd } from "../../kernel/dmd.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const WP = "/Users/mlacy/Documents/3.0/live_priors/11-multi-language/war-and-peace";
+const WP = decodeURIComponent(new URL("../../../../live_priors/11-multi-language/war-and-peace", import.meta.url).pathname);
 const VERSIONS = [
   { lang: "eng", slug: "pg2600-ch1-3-aligned", file: `${WP}/aligned/en/pg2600-ch1-3-aligned.txt` },
   { lang: "fra", slug: "guerre-et-paix-ch1-3-aligned", file: `${WP}/aligned/fr/guerre-et-paix-ch1-3-aligned.txt` },

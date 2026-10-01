@@ -22,7 +22,7 @@ const PROCLITICS_HEB = fileURLToPath(new URL("../priors/proclitics-heb.json", im
 const PROCLITICS_ARB = fileURLToPath(new URL("../priors/proclitics-arb.json", import.meta.url));
 const CLASSES_HEB = fileURLToPath(new URL("../priors/identity-classes-heb.json", import.meta.url));
 const CLASSES_ARB = fileURLToPath(new URL("../priors/identity-classes-arb.json", import.meta.url));
-const HEB_WIKI_ARTICLE = "/Users/mlacy/Documents/3.0/live_priors/11-multi-language/wikipedia-lang/he/_________.txt";
+const HEB_WIKI_ARTICLE = decodeURIComponent(new URL("../../../live_priors/11-multi-language/wikipedia-lang/he/_________.txt", import.meta.url).pathname);
 const HAVE_HEB = existsSync(POS_HEB) && existsSync(PROCLITICS_HEB) && existsSync(CLASSES_HEB);
 const HAVE_ARB = existsSync(POS_ARB) && existsSync(PROCLITICS_ARB) && existsSync(CLASSES_ARB);
 

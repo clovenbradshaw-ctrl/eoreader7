@@ -69,7 +69,7 @@ function resolveBook() {
   const candidates = [
     process.env.EOREADER7_ALICE_FIXTURE,
     path.join(HERE, "..", "..", "..", "..", "live_priors", "01-literature-books", "gutenberg", "pg11_Alice_s_Adventures_in_Wonderland.txt"),
-    "/Users/mlacy/Documents/3.0/live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt",
+    decodeURIComponent(new URL("../../../../live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt", import.meta.url).pathname),
   ].filter(Boolean);
   return candidates.find((p) => fs.existsSync(p)) ?? null;
 }

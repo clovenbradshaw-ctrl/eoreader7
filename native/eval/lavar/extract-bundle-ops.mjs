@@ -10,8 +10,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const BUNDLE = process.argv[2] ?? "/Users/mlacy/Documents/3.0/index-px14EQkj.js";
-const OUT = process.argv[3] ?? "/Users/mlacy/Documents/3.0/bundle-ops-index.json";
+const BUNDLE = process.argv[2] ?? decodeURIComponent(new URL("../../../../index-px14EQkj.js", import.meta.url).pathname);
+const OUT = process.argv[3] ?? decodeURIComponent(new URL("../../../../bundle-ops-index.json", import.meta.url).pathname);
 
 const text = fs.readFileSync(BUNDLE, "utf8");
 

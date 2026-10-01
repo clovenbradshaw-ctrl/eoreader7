@@ -209,7 +209,7 @@ test("reviewReferentAssignments groups by referent_id and skips singleton groups
 test("THE FLAGSHIP, on real bytes: the Marmeladov/Sonia specimen, now caught UPSTREAM of this organ (T5, eoreader7 task list 2026-09-10)",
   { skip: DRACULA ? false : "corpus-relative check reused; real check needs live_priors' Crime and Punishment text" }, async () => {
   const fs = await import("node:fs");
-  const path = "/Users/mlacy/Documents/3.0/live_priors/01-literature-books/gitenberg/pg2554_Crime-and-Punishment.txt";
+  const path = decodeURIComponent(new URL("../../../live_priors/01-literature-books/gitenberg/pg2554_Crime-and-Punishment.txt", import.meta.url).pathname);
   if (!fs.existsSync(path)) { return; } // disclosed skip: corpus not present on this machine, not a code failure
   const sp = await import(N + "spans.js");
   const sf = await import(N + "surfaces.js");
@@ -301,7 +301,7 @@ test("THE FLAGSHIP, on real bytes: the Marmeladov/Sonia specimen, now caught UPS
 test("KNOWN DEFECT (pinned): the gate confirms different people as readily as the same person — it reads frequency, not identity",
   { skip: DRACULA ? false : "needs live_priors' Crime and Punishment text" }, async () => {
   const fs = await import("node:fs");
-  const path = "/Users/mlacy/Documents/3.0/live_priors/01-literature-books/gitenberg/pg2554_Crime-and-Punishment.txt";
+  const path = decodeURIComponent(new URL("../../../live_priors/01-literature-books/gitenberg/pg2554_Crime-and-Punishment.txt", import.meta.url).pathname);
   if (!fs.existsSync(path)) return; // disclosed skip, not a pass
   const sp = await import(N + "spans.js");
   const sf = await import(N + "surfaces.js");
