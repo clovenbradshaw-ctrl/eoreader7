@@ -34,7 +34,8 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { parseSearchResults, extractReadable, hostOf, looksLikeChallenge, searchRequest } from "../organs/web.js";
+import { extractReadable, hostOf, looksLikeChallenge } from "../organs/web.js";
+import { searchWeb } from "./search-web.mjs";
 import { tokenize } from "../organs/source.js";
 import { imageCandidates, linksOf, relevance, licenseSignals, robotsAllows, screenShaped, uiLikeness } from "../organs/comp-research.js";
 
@@ -108,10 +109,9 @@ export async function researchComps({ need, queries = [], seeds = [], dir, pytho
   // ── search ──────────────────────────────────────────────────────────────
   const results = [];
   for (const q of queries) {
-    const sreq = searchRequest(q);
-    const r = await fetcher(sreq.url, { accept: "text/html", method: sreq.init.method, body: sreq.init.body, headers: sreq.init.headers });
-    const p = r.ok ? parseSearchResults(r.text) : { results: [], blocked: false };
-    L.see("search", { query: q, engine: "lite.duckduckgo.com (POST)", status: r.status, blocked: !!p.blocked, offEndpoint: !!p.offEndpoint, refused: r.refused ?? null, found: p.results.length });
+    const s = await searchWeb(fetcher, q, { see: (e, x) => L.see(e, x) });
+    const p = { results: s.results, blocked: s.gap?.type === "challenged" };
+    L.see("search", { query: q, engine: "duckduckgo (lite POST, then the GET faces)", tries: s.tries.length, blocked: !!p.blocked, gap: s.gap?.type ?? null, found: p.results.length });
     p.results.slice(0, maxResultsPerQuery).forEach((x, i) => {
       const rel = relevance({ url: x.url, alt: x.title, title: "", context: x.snippet }, need);
       results.push({ ...x, rank: i + 1, query: q, relevance: rel.score, hits: rel.hits });
