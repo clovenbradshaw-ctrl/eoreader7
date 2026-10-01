@@ -33,6 +33,8 @@ native/eval/the-fold/results/*.json
 !native/eval/the-fold/results/alias-precision-labels.json
 native/eval/results/*.json
 native/eval/lavar/results/*-test.json
+# the ten UD treebanks sullivan-names.mjs reads (1-25 MB each, fetched by fetch-ud-name-treebanks.sh, hashes recorded in results/sullivan-names.json)
+native/eval/lavar/ud-names/
 native/eval/the-fold/results/longform-multi-type-*/
 native/eval/the-fold/results/longform-code-*/
 

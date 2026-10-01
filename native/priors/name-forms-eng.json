@@ -1,0 +1,210 @@
+{
+ "schema": "NameFormPrior@1",
+ "language": {
+  "iso": "eng",
+  "bcp47": "en",
+  "name": "English",
+  "stage": "Present-day English, web register"
+ },
+ "provenance": {
+  "giver": {
+   "value": "UD_English-EWT (Silveira, Dozat, Manning, Schuster, Chi, Bauer, Connor, de Marneffe, Schneider, Bowman, Zhu, Galbraith — README Contributors), converted from the English Web Treebank, LDC2012T13",
+   "basis": "declared from the treebank's documentation"
+  },
+  "period": {
+   "value": "2000s — the English Web Treebank's weblogs, newsgroups, emails, reviews and question-answer forums (as priors/morph-cues-en.json already records)",
+   "basis": "declared from the treebank's documentation"
+  },
+  "region": {
+   "value": "predominantly American English, as priors/parser-eng-ewt.json's ParserProvenance@1 declares",
+   "basis": "declared from the treebank's documentation"
+  },
+  "register": {
+   "value": "informal written web English — blog, social, reviews, email, web (README genre)",
+   "basis": "declared from the treebank's documentation"
+  },
+  "script": {
+   "value": "Latin (100.0% of the 77109 letters of the name words)",
+   "basis": "measured from the file"
+  },
+  "license": {
+   "value": "CC BY-SA 4.0",
+   "basis": "declared from the treebank's documentation"
+  },
+  "source": {
+   "value": "UD_English-EWT, UD master as fetched 2026-10-01: en_ewt-train.conllu sha256 d68e06122a702464c613076523d56740f047e5bbe89dd90ec32737e04d952143 (15034493 bytes, 12544 sentences); en_ewt-dev.conllu sha256 39239e0a60db3ae68f4b7036189f11b6692741d10ff8240dd91f74f2760d90f8 (1898574 bytes, 2001 sentences); en_ewt-test.conllu sha256 fa024f43dc5da3c5ac02563bc9bd0e974f46cbb1560823976a8f342a37dc494a (1900101 bytes, 2077 sentences)",
+   "basis": "measured from the file"
+  },
+  "lemmas": {
+   "value": "Lemmas: automatic with corrections (the README's machine-readable metadata). A name's gold stem is its lemma's, so a stem the lemmatizer got wrong is a miss this prior is charged for.",
+   "basis": "declared from the treebank's documentation"
+  }
+ },
+ "normalisation": {
+  "nfc": true,
+  "lowercase": true,
+  "apostrophes": "U+2019 U+02BC U+2018 U+0060 U+00B4 folded to U+0027"
+ },
+ "classes": {
+  "preserving": [
+   "clitic",
+   "case"
+  ],
+  "reason": "a clitic or a case ending marks a name's role in its clause and leaves the referent where it was; a plural marks a group, so it is never stripped (the treebank's lemma of a plural is its singular, which is why this is declared and not searched)"
+ },
+ "operatingPoint": {
+  "minShare": 0.95,
+  "minCount": 10,
+  "maxK": 2,
+  "minStem": 1,
+  "classes": [
+   "clitic",
+   "case"
+  ],
+  "heldOut": {
+   "dev": {
+    "H": 0.8172043010752689,
+    "A": 0.9743589743589743,
+    "C": 0.7037037037037037,
+    "issued": 39,
+    "correct": 38,
+    "gold": 54,
+    "falseStrips": 1,
+    "wrongStrips": 0,
+    "types": 1058
+   },
+   "test": {
+    "H": 0.8831168831168831,
+    "A": 1,
+    "C": 0.7906976744186046,
+    "issued": 34,
+    "correct": 34,
+    "gold": 43,
+    "falseStrips": 0,
+    "wrongStrips": 0,
+    "types": 1186
+   }
+  },
+  "lineage": {
+   "fitness": "H = 2AC/(A+C) over the DEV types",
+   "space": {
+    "minShare": [
+     0.5,
+     0.6,
+     0.7,
+     0.8,
+     0.9,
+     0.95
+    ],
+    "minCount": [
+     2,
+     3,
+     5,
+     10,
+     20,
+     50
+    ],
+    "maxK": [
+     2,
+     3,
+     4
+    ]
+   },
+   "selector": "exhaustive sweep, then the plateau's least-claim point",
+   "plateau": 68,
+   "arms": {
+    "sweep": {
+     "name": "sweep",
+     "devH": 0.8172043010752689,
+     "cfg": {
+      "minShare": 0.95,
+      "minCount": 10,
+      "maxK": 2
+     },
+     "testH": 0.8831168831168831,
+     "evaluations": 108
+    },
+    "swarm": {
+     "name": "swarm",
+     "devH": 0.8172043010752689,
+     "cfg": {
+      "minShare": 0.95,
+      "minCount": 5,
+      "maxK": 3
+     },
+     "testH": 0.8831168831168831,
+     "evaluations": 31,
+     "births": 28,
+     "admitted": 0,
+     "generations": 2,
+     "bar": 2.220446049250313e-16,
+     "dry": true,
+     "gateH": 0.8172043010752689,
+     "gateCfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 2
+     },
+     "stall": {
+      "gains": 0,
+      "gainsAdmitted": 0,
+      "largestGain": null,
+      "largestLoss": -0.012856474988312327
+     }
+    },
+    "gainsOnly": {
+     "name": "gainsOnly",
+     "devH": 0.8172043010752689,
+     "cfg": {
+      "minShare": 0.95,
+      "minCount": 5,
+      "maxK": 3
+     },
+     "testH": 0.8831168831168831,
+     "evaluations": 31,
+     "births": 28,
+     "admitted": 0,
+     "generations": 2,
+     "gateH": 0.8172043010752689,
+     "gateCfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 2
+     },
+     "stall": {
+      "gains": 0,
+      "gainsAdmitted": 0,
+      "largestGain": null,
+      "largestLoss": -0.012856474988312327
+     }
+    }
+   }
+  }
+ },
+ "explains": {
+  "nameWords": 12605,
+  "preservingSuffix": 450,
+  "preservingPrefix": 1,
+  "number": 459,
+  "other": 226
+ },
+ "suffixRules": [
+  {
+   "ending": "'s",
+   "kind": "strip",
+   "exponent": "'s",
+   "class": "clitic",
+   "share": 0.9879,
+   "n": 414
+  },
+  {
+   "ending": "s'",
+   "kind": "strip",
+   "exponent": "'",
+   "class": "clitic",
+   "share": 1,
+   "n": 15
+  }
+ ],
+ "prefixRules": []
+}

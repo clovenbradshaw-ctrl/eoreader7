@@ -1,0 +1,6659 @@
+{
+ "schema": "SullivanNames@1",
+ "at": "2026-10-01",
+ "fitness": "H = 2AC/(A+C) over the DEV types",
+ "space": {
+  "configs": 108,
+  "seeds": 3,
+  "dimensions": {
+   "minShare": [
+    0.5,
+    0.6,
+    0.7,
+    0.8,
+    0.9,
+    0.95
+   ],
+   "minCount": [
+    2,
+    3,
+    5,
+    10,
+    20,
+    50
+   ],
+   "maxK": [
+    2,
+    3,
+    4
+   ]
+  },
+  "minStem": 1
+ },
+ "ship": {
+  "minPrecision": 0.9,
+  "minIssued": 30
+ },
+ "languages": [
+  {
+   "name": "English",
+   "iso": "eng",
+   "code": "en_ewt",
+   "treebank": "UD_English-EWT",
+   "files": {
+    "train": {
+     "path": "en_ewt-train.conllu",
+     "bytes": 15034493,
+     "sha256": "d68e06122a702464c613076523d56740f047e5bbe89dd90ec32737e04d952143",
+     "sentences": 12544,
+     "skippedSentences": 0,
+     "nameWords": 12605
+    },
+    "dev": {
+     "path": "en_ewt-dev.conllu",
+     "bytes": 1898574,
+     "sha256": "39239e0a60db3ae68f4b7036189f11b6692741d10ff8240dd91f74f2760d90f8",
+     "sentences": 2001,
+     "skippedSentences": 0,
+     "nameWords": 1865
+    },
+    "test": {
+     "path": "en_ewt-test.conllu",
+     "bytes": 1900101,
+     "sha256": "fa024f43dc5da3c5ac02563bc9bd0e974f46cbb1560823976a8f342a37dc494a",
+     "sentences": 2077,
+     "skippedSentences": 0,
+     "nameWords": 2071
+    }
+   },
+   "types": {
+    "dev": 1058,
+    "test": 1186,
+    "droppedDev": {
+     "ambiguous": 0,
+     "unreadable": 0
+    },
+    "droppedTest": {
+     "ambiguous": 0,
+     "unreadable": 0
+    }
+   },
+   "explains": {
+    "nameWords": 12605,
+    "preservingSuffix": 450,
+    "preservingPrefix": 1,
+    "number": 459,
+    "other": 226
+   },
+   "noGold": false,
+   "arms": {
+    "sweep": {
+     "name": "sweep",
+     "devH": 0.8172043010752689,
+     "cfg": {
+      "minShare": 0.95,
+      "minCount": 10,
+      "maxK": 2
+     },
+     "testH": 0.8831168831168831,
+     "evaluations": 108
+    },
+    "swarm": {
+     "name": "swarm",
+     "devH": 0.8172043010752689,
+     "cfg": {
+      "minShare": 0.95,
+      "minCount": 5,
+      "maxK": 3
+     },
+     "testH": 0.8831168831168831,
+     "evaluations": 31,
+     "births": 28,
+     "admitted": 0,
+     "generations": 2,
+     "bar": 2.220446049250313e-16,
+     "dry": true,
+     "gateH": 0.8172043010752689,
+     "gateCfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 2
+     },
+     "stall": {
+      "gains": 0,
+      "gainsAdmitted": 0,
+      "largestGain": null,
+      "largestLoss": -0.012856474988312327
+     }
+    },
+    "gainsOnly": {
+     "name": "gainsOnly",
+     "devH": 0.8172043010752689,
+     "cfg": {
+      "minShare": 0.95,
+      "minCount": 5,
+      "maxK": 3
+     },
+     "testH": 0.8831168831168831,
+     "evaluations": 31,
+     "births": 28,
+     "admitted": 0,
+     "generations": 2,
+     "gateH": 0.8172043010752689,
+     "gateCfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 2
+     },
+     "stall": {
+      "gains": 0,
+      "gainsAdmitted": 0,
+      "largestGain": null,
+      "largestLoss": -0.012856474988312327
+     }
+    }
+   },
+   "controls": {
+    "finalS": {
+     "H": 0.07881773399014778,
+     "A": 0.05,
+     "C": 0.18604651162790697,
+     "issued": 160,
+     "correct": 8,
+     "gold": 43,
+     "falseStrips": 120,
+     "wrongStrips": 32,
+     "types": 1186
+    },
+    "apostrophe": {
+     "H": 0.8974358974358974,
+     "A": 1,
+     "C": 0.813953488372093,
+     "issued": 35,
+     "correct": 35,
+     "gold": 43,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 1186
+    },
+    "shuffled": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 43,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 1186
+    }
+   },
+   "champion": {
+    "cfg": {
+     "minShare": 0.95,
+     "minCount": 10,
+     "maxK": 2
+    },
+    "claims": 2,
+    "dev": {
+     "H": 0.8172043010752689,
+     "A": 0.9743589743589743,
+     "C": 0.7037037037037037,
+     "issued": 39,
+     "correct": 38,
+     "gold": 54,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 1058
+    },
+    "test": {
+     "H": 0.8831168831168831,
+     "A": 1,
+     "C": 0.7906976744186046,
+     "issued": 34,
+     "correct": 34,
+     "gold": 43,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 1186
+    }
+   },
+   "selection": {
+    "selector": "exhaustive sweep, then the plateau's least-claim point",
+    "plateau": 68,
+    "claims": [
+     2,
+     4
+    ],
+    "testH": [
+     0.8831168831168831,
+     0.8974358974358974
+    ]
+   },
+   "rules": {
+    "suffix": [
+     {
+      "ending": "'s",
+      "kind": "strip",
+      "exponent": "'s",
+      "class": "clitic",
+      "share": 0.9879,
+      "n": 414
+     },
+     {
+      "ending": "s'",
+      "kind": "strip",
+      "exponent": "'",
+      "class": "clitic",
+      "share": 1,
+      "n": 15
+     }
+    ],
+    "prefix": []
+   },
+   "selfCheck": {
+    "equivalent": true,
+    "types": 1186,
+    "differing": 0
+   },
+   "errors": {
+    "falseStrips": [],
+    "wrongStrips": [],
+    "misses": [
+     {
+      "word": "Andiamos",
+      "gold": "andiamo",
+      "count": 2
+     },
+     {
+      "word": "Bachelors",
+      "gold": "bachelor",
+      "count": 1
+     },
+     {
+      "word": "Cox'",
+      "gold": "cox",
+      "count": 1
+     },
+     {
+      "word": "Limos",
+      "gold": "limo",
+      "count": 1
+     },
+     {
+      "word": "Mc.Donalds",
+      "gold": "mc.donald",
+      "count": 1
+     },
+     {
+      "word": "McDonalds",
+      "gold": "mcdonald",
+      "count": 1
+     },
+     {
+      "word": "Sams",
+      "gold": "sam",
+      "count": 1
+     },
+     {
+      "word": "Services",
+      "gold": "service",
+      "count": 1
+     },
+     {
+      "word": "portillos",
+      "gold": "portillo",
+      "count": 1
+     }
+    ]
+   },
+   "incumbent": {
+    "test": {
+     "aOnly": 0,
+     "bOnly": 1,
+     "both": 1177,
+     "neither": 8,
+     "p": 1
+    }
+   },
+   "ship": true,
+   "shipWhy": "TEST precision 1.000 on 34 issued types, H above both controls built to fail",
+   "provenance": {
+    "giver": {
+     "value": "UD_English-EWT (Silveira, Dozat, Manning, Schuster, Chi, Bauer, Connor, de Marneffe, Schneider, Bowman, Zhu, Galbraith — README Contributors), converted from the English Web Treebank, LDC2012T13",
+     "basis": "declared from the treebank's documentation"
+    },
+    "period": {
+     "value": "2000s — the English Web Treebank's weblogs, newsgroups, emails, reviews and question-answer forums (as priors/morph-cues-en.json already records)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "region": {
+     "value": "predominantly American English, as priors/parser-eng-ewt.json's ParserProvenance@1 declares",
+     "basis": "declared from the treebank's documentation"
+    },
+    "register": {
+     "value": "informal written web English — blog, social, reviews, email, web (README genre)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "script": {
+     "value": "Latin (100.0% of the 77109 letters of the name words)",
+     "basis": "measured from the file"
+    },
+    "license": {
+     "value": "CC BY-SA 4.0",
+     "basis": "declared from the treebank's documentation"
+    },
+    "source": {
+     "value": "UD_English-EWT, UD master as fetched 2026-10-01: en_ewt-train.conllu sha256 d68e06122a702464c613076523d56740f047e5bbe89dd90ec32737e04d952143 (15034493 bytes, 12544 sentences); en_ewt-dev.conllu sha256 39239e0a60db3ae68f4b7036189f11b6692741d10ff8240dd91f74f2760d90f8 (1898574 bytes, 2001 sentences); en_ewt-test.conllu sha256 fa024f43dc5da3c5ac02563bc9bd0e974f46cbb1560823976a8f342a37dc494a (1900101 bytes, 2077 sentences)",
+     "basis": "measured from the file"
+    },
+    "lemmas": {
+     "value": "Lemmas: automatic with corrections (the README's machine-readable metadata). A name's gold stem is its lemma's, so a stem the lemmatizer got wrong is a miss this prior is charged for.",
+     "basis": "declared from the treebank's documentation"
+    }
+   }
+  },
+  {
+   "name": "German",
+   "iso": "deu",
+   "code": "de_gsd",
+   "treebank": "UD_German-GSD",
+   "files": {
+    "train": {
+     "path": "de_gsd-train.conllu",
+     "bytes": 19637803,
+     "sha256": "6cb1b600029292fb7bf60531a1d6d7824544791d732c0f7abae8102a2ac337bf",
+     "sentences": 13813,
+     "skippedSentences": 0,
+     "nameWords": 28215
+    },
+    "dev": {
+     "path": "de_gsd-dev.conllu",
+     "bytes": 904919,
+     "sha256": "01e8e674973592747ffe9a8c77fcf9d2f5936a8484e731ad4f76254318a8952c",
+     "sentences": 799,
+     "skippedSentences": 0,
+     "nameWords": 568
+    },
+    "test": {
+     "path": "de_gsd-test.conllu",
+     "bytes": 1206749,
+     "sha256": "595070aa50b706a91dc66f17c296f7a9a25cbc75269f177c27680fb1c21528ab",
+     "sentences": 977,
+     "skippedSentences": 0,
+     "nameWords": 946
+    }
+   },
+   "types": {
+    "dev": 458,
+    "test": 710,
+    "droppedDev": {
+     "ambiguous": 0,
+     "unreadable": 0
+    },
+    "droppedTest": {
+     "ambiguous": 2,
+     "unreadable": 0
+    }
+   },
+   "explains": {
+    "nameWords": 28215,
+    "preservingSuffix": 1330,
+    "preservingPrefix": 0,
+    "number": 364,
+    "other": 186
+   },
+   "noGold": false,
+   "arms": {
+    "sweep": {
+     "name": "sweep",
+     "devH": 0.558139534883721,
+     "cfg": {
+      "minShare": 0.5,
+      "minCount": 3,
+      "maxK": 4
+     },
+     "testH": 0.54320987654321,
+     "evaluations": 108
+    },
+    "swarm": {
+     "name": "swarm",
+     "devH": 0.5333333333333333,
+     "cfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 4
+     },
+     "testH": 0.5714285714285715,
+     "evaluations": 31,
+     "births": 28,
+     "admitted": 0,
+     "generations": 2,
+     "bar": 2.220446049250313e-16,
+     "dry": true,
+     "gateH": 0.30303030303030304,
+     "gateCfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 2
+     },
+     "stall": {
+      "gains": 3,
+      "gainsAdmitted": 0,
+      "largestGain": 0.2303030303030303,
+      "largestLoss": -0.30303030303030304
+     }
+    },
+    "gainsOnly": {
+     "name": "gainsOnly",
+     "devH": 0.5333333333333333,
+     "cfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 4
+     },
+     "testH": 0.5714285714285715,
+     "evaluations": 34,
+     "births": 31,
+     "admitted": 1,
+     "generations": 3,
+     "gateH": 0.43243243243243246,
+     "gateCfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 3
+     },
+     "stall": {
+      "gains": 2,
+      "gainsAdmitted": 1,
+      "largestGain": 0.12940212940212942,
+      "largestLoss": -0.43243243243243246
+     }
+    }
+   },
+   "controls": {
+    "finalS": {
+     "H": 0.5801526717557252,
+     "A": 0.4523809523809524,
+     "C": 0.8085106382978723,
+     "issued": 84,
+     "correct": 38,
+     "gold": 47,
+     "falseStrips": 46,
+     "wrongStrips": 0,
+     "types": 710
+    },
+    "apostrophe": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 47,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 710
+    },
+    "shuffled": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 47,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 710
+    }
+   },
+   "champion": {
+    "cfg": {
+     "minShare": 0.5,
+     "minCount": 3,
+     "maxK": 4
+    },
+    "claims": 84,
+    "dev": {
+     "H": 0.558139534883721,
+     "A": 0.7058823529411765,
+     "C": 0.46153846153846156,
+     "issued": 17,
+     "correct": 12,
+     "gold": 26,
+     "falseStrips": 5,
+     "wrongStrips": 0,
+     "types": 458
+    },
+    "test": {
+     "H": 0.54320987654321,
+     "A": 0.6470588235294118,
+     "C": 0.46808510638297873,
+     "issued": 34,
+     "correct": 22,
+     "gold": 47,
+     "falseStrips": 12,
+     "wrongStrips": 0,
+     "types": 710
+    }
+   },
+   "selection": {
+    "selector": "exhaustive sweep, then the plateau's least-claim point",
+    "plateau": 1,
+    "claims": [
+     84,
+     84
+    ],
+    "testH": [
+     0.54320987654321,
+     0.54320987654321
+    ]
+   },
+   "rules": {
+    "suffix": [
+     {
+      "ending": "ache",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "aels",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.8571,
+      "n": 7
+     },
+     {
+      "ending": "ahen",
+      "kind": "strip",
+      "exponent": "en",
+      "class": "case",
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "alen",
+      "kind": "strip",
+      "exponent": "en",
+      "class": "case",
+      "share": 0.525,
+      "n": 40
+     },
+     {
+      "ending": "alke",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.6,
+      "n": 5
+     },
+     {
+      "ending": "alls",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.8,
+      "n": 5
+     },
+     {
+      "ending": "appe",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "ards",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.8182,
+      "n": 11
+     },
+     {
+      "ending": "bile",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.6667,
+      "n": 6
+     },
+     {
+      "ending": "chas",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6,
+      "n": 5
+     },
+     {
+      "ending": "dene",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.5714,
+      "n": 7
+     },
+     {
+      "ending": "ders",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 12
+     },
+     {
+      "ending": "dors",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 4
+     },
+     {
+      "ending": "eens",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.75,
+      "n": 4
+     },
+     {
+      "ending": "eien",
+      "kind": "strip",
+      "exponent": "en",
+      "class": "case",
+      "share": 0.75,
+      "n": 4
+     },
+     {
+      "ending": "elde",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.6667,
+      "n": 6
+     },
+     {
+      "ending": "enen",
+      "kind": "strip",
+      "exponent": "en",
+      "class": "case",
+      "share": 0.6667,
+      "n": 6
+     },
+     {
+      "ending": "ents",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6,
+      "n": 10
+     },
+     {
+      "ending": "eons",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "eres",
+      "kind": "strip",
+      "exponent": "es",
+      "class": "case",
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "ergs",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.6,
+      "n": 5
+     },
+     {
+      "ending": "erks",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "gens",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.5556,
+      "n": 9
+     },
+     {
+      "ending": "ghts",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "hans",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "hren",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.5,
+      "n": 4
+     },
+     {
+      "ending": "hten",
+      "kind": "strip",
+      "exponent": "en",
+      "class": "case",
+      "share": 0.75,
+      "n": 4
+     },
+     {
+      "ending": "iale",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.5556,
+      "n": 9
+     },
+     {
+      "ending": "ichs",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6207,
+      "n": 29
+     },
+     {
+      "ending": "igen",
+      "kind": "strip",
+      "exponent": "en",
+      "class": "case",
+      "share": 0.525,
+      "n": 40
+     },
+     {
+      "ending": "iles",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "inas",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "inge",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.5,
+      "n": 4
+     },
+     {
+      "ending": "kens",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.6667,
+      "n": 6
+     },
+     {
+      "ending": "lins",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.5556,
+      "n": 9
+     },
+     {
+      "ending": "lten",
+      "kind": "strip",
+      "exponent": "en",
+      "class": "case",
+      "share": 0.7857,
+      "n": 14
+     },
+     {
+      "ending": "mens",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.9412,
+      "n": 17
+     },
+     {
+      "ending": "mers",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 6
+     },
+     {
+      "ending": "mtes",
+      "kind": "strip",
+      "exponent": "es",
+      "class": "case",
+      "share": 1,
+      "n": 4
+     },
+     {
+      "ending": "nale",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.6,
+      "n": 10
+     },
+     {
+      "ending": "nche",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 9
+     },
+     {
+      "ending": "ndes",
+      "kind": "strip",
+      "exponent": "es",
+      "class": "case",
+      "share": 0.8667,
+      "n": 15
+     },
+     {
+      "ending": "nzen",
+      "kind": "strip",
+      "exponent": "en",
+      "class": "case",
+      "share": 0.5,
+      "n": 6
+     },
+     {
+      "ending": "odes",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 4
+     },
+     {
+      "ending": "oore",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "oten",
+      "kind": "strip",
+      "exponent": "en",
+      "class": "case",
+      "share": 0.9,
+      "n": 10
+     },
+     {
+      "ending": "oter",
+      "kind": "strip",
+      "exponent": "er",
+      "class": "case",
+      "share": 1,
+      "n": 4
+     },
+     {
+      "ending": "oßen",
+      "kind": "strip",
+      "exponent": "en",
+      "class": "case",
+      "share": 0.7222,
+      "n": 18
+     },
+     {
+      "ending": "pans",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 4
+     },
+     {
+      "ending": "rats",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.8,
+      "n": 5
+     },
+     {
+      "ending": "rche",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 33
+     },
+     {
+      "ending": "rens",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 5
+     },
+     {
+      "ending": "rges",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5833,
+      "n": 12
+     },
+     {
+      "ending": "rnen",
+      "kind": "strip",
+      "exponent": "en",
+      "class": "case",
+      "share": 0.75,
+      "n": 4
+     },
+     {
+      "ending": "rzen",
+      "kind": "strip",
+      "exponent": "en",
+      "class": "case",
+      "share": 0.5714,
+      "n": 7
+     },
+     {
+      "ending": "sive",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.5,
+      "n": 6
+     },
+     {
+      "ending": "tens",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.5714,
+      "n": 7
+     },
+     {
+      "ending": "tors",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6667,
+      "n": 12
+     },
+     {
+      "ending": "tute",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 1,
+      "n": 4
+     },
+     {
+      "ending": "tzes",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "uhns",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "uses",
+      "kind": "strip",
+      "exponent": "es",
+      "class": "case",
+      "share": 0.625,
+      "n": 8
+     },
+     {
+      "ending": "yers",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "ären",
+      "kind": "strip",
+      "exponent": "en",
+      "class": "case",
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "ads",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "ags",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.6,
+      "n": 5
+     },
+     {
+      "ending": "aue",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.8,
+      "n": 5
+     },
+     {
+      "ending": "che",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.5174,
+      "n": 230
+     },
+     {
+      "ending": "dts",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "eds",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "eie",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 1,
+      "n": 4
+     },
+     {
+      "ending": "ems",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.75,
+      "n": 8
+     },
+     {
+      "ending": "ens",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5036,
+      "n": 137
+     },
+     {
+      "ending": "eue",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.7143,
+      "n": 7
+     },
+     {
+      "ending": "ges",
+      "kind": "strip",
+      "exponent": "es",
+      "class": "case",
+      "share": 0.5682,
+      "n": 44
+     },
+     {
+      "ending": "hns",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 6
+     },
+     {
+      "ending": "hts",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 6
+     },
+     {
+      "ending": "ids",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.8182,
+      "n": 11
+     },
+     {
+      "ending": "ige",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.5385,
+      "n": 13
+     },
+     {
+      "ending": "ins",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5135,
+      "n": 37
+     },
+     {
+      "ending": "iße",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.75,
+      "n": 4
+     },
+     {
+      "ending": "kas",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.8462,
+      "n": 13
+     },
+     {
+      "ending": "kte",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.5,
+      "n": 4
+     },
+     {
+      "ending": "lds",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.8333,
+      "n": 6
+     },
+     {
+      "ending": "lms",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.7143,
+      "n": 7
+     },
+     {
+      "ending": "lte",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.7778,
+      "n": 9
+     },
+     {
+      "ending": "ngs",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.8095,
+      "n": 21
+     },
+     {
+      "ending": "nks",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 6
+     },
+     {
+      "ending": "nns",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 4
+     },
+     {
+      "ending": "ote",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.5,
+      "n": 8
+     },
+     {
+      "ending": "oße",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.5714,
+      "n": 7
+     },
+     {
+      "ending": "pas",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6364,
+      "n": 11
+     },
+     {
+      "ending": "rks",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6154,
+      "n": 13
+     },
+     {
+      "ending": "rns",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5714,
+      "n": 7
+     },
+     {
+      "ending": "rrn",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.8,
+      "n": 5
+     },
+     {
+      "ending": "rze",
+      "kind": "strip",
+      "exponent": "e",
+      "class": "case",
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "sts",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "tem",
+      "kind": "strip",
+      "exponent": "em",
+      "class": "case",
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "uen",
+      "kind": "strip",
+      "exponent": "en",
+      "class": "case",
+      "share": 0.5385,
+      "n": 13
+     },
+     {
+      "ending": "uls",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "ums",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.7647,
+      "n": 17
+     },
+     {
+      "ending": "uts",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5714,
+      "n": 7
+     },
+     {
+      "ending": "zes",
+      "kind": "strip",
+      "exponent": "es",
+      "class": "case",
+      "share": 0.625,
+      "n": 8
+     },
+     {
+      "ending": "'s",
+      "kind": "strip",
+      "exponent": "'s",
+      "class": "clitic",
+      "share": 0.5,
+      "n": 4
+     },
+     {
+      "ending": "ds",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6,
+      "n": 105
+     },
+     {
+      "ending": "gs",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5167,
+      "n": 60
+     }
+    ],
+    "prefix": []
+   },
+   "selfCheck": {
+    "equivalent": true,
+    "types": 710,
+    "differing": 0
+   },
+   "errors": {
+    "falseStrips": [
+     {
+      "word": "Amiens",
+      "predicted": "amien",
+      "gold": "amiens",
+      "count": 1
+     },
+     {
+      "word": "Anders",
+      "predicted": "ander",
+      "gold": "anders",
+      "count": 1
+     },
+     {
+      "word": "Bachtins",
+      "predicted": "bachtin",
+      "gold": "bachtins",
+      "count": 1
+     },
+     {
+      "word": "Jugoslawiens",
+      "predicted": "jugoslawien",
+      "gold": "jugoslawiens",
+      "count": 1
+     },
+     {
+      "word": "Liberalen",
+      "predicted": "liberal",
+      "gold": "liberalen",
+      "count": 1
+     },
+     {
+      "word": "PDS",
+      "predicted": "pd",
+      "gold": "pds",
+      "count": 1
+     },
+     {
+      "word": "Peres",
+      "predicted": "per",
+      "gold": "peres",
+      "count": 1
+     },
+     {
+      "word": "Rappe",
+      "predicted": "rapp",
+      "gold": "rappe",
+      "count": 1
+     },
+     {
+      "word": "Reiche",
+      "predicted": "reich",
+      "gold": "reiche",
+      "count": 1
+     },
+     {
+      "word": "Systems",
+      "predicted": "system",
+      "gold": "systems",
+      "count": 1
+     },
+     {
+      "word": "Wenders",
+      "predicted": "wender",
+      "gold": "wenders",
+      "count": 1
+     },
+     {
+      "word": "Zyprioten",
+      "predicted": "zypriot",
+      "gold": "zyprioten",
+      "count": 1
+     }
+    ],
+    "wrongStrips": [],
+    "misses": [
+     {
+      "word": "Europäischen",
+      "gold": "europäisch",
+      "count": 4
+     },
+     {
+      "word": "Nigerias",
+      "gold": "nigeria",
+      "count": 2
+     },
+     {
+      "word": "Amirs",
+      "gold": "amir",
+      "count": 1
+     },
+     {
+      "word": "Avrils",
+      "gold": "avril",
+      "count": 1
+     },
+     {
+      "word": "Dokos",
+      "gold": "doko",
+      "count": 1
+     },
+     {
+      "word": "Eritreas",
+      "gold": "eritrea",
+      "count": 1
+     },
+     {
+      "word": "Eurotunnels",
+      "gold": "eurotunnel",
+      "count": 1
+     },
+     {
+      "word": "Gerichtshofs",
+      "gold": "gerichtshof",
+      "count": 1
+     },
+     {
+      "word": "Grabbes",
+      "gold": "grabbe",
+      "count": 1
+     },
+     {
+      "word": "Jacksons",
+      "gold": "jackson",
+      "count": 1
+     },
+     {
+      "word": "Jägers",
+      "gold": "jäger",
+      "count": 1
+     },
+     {
+      "word": "Kanadas",
+      "gold": "kanada",
+      "count": 1
+     }
+    ]
+   },
+   "incumbent": {
+    "test": {
+     "aOnly": 22,
+     "bOnly": 12,
+     "both": 651,
+     "neither": 25,
+     "p": 0.12144948495551944
+    }
+   },
+   "ship": false,
+   "shipWhy": "TEST precision 0.647 is under 0.9; TEST H is not above the controls built to fail",
+   "provenance": {
+    "giver": {
+     "value": "UD_German-GSD (Petrov, Seeker, McDonald, Nivre, Zeman, Boyd, Blaschke — README Contributors), converted from the content-head version of the universal dependency treebank v2.0 (legacy)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "period": {
+     "value": "the README states no dates for the texts",
+     "basis": "declared from the treebank's documentation"
+    },
+    "region": {
+     "value": "the README states no region; the news portion is from the TIGER Treebank (README) — a German newspaper corpus, which the builder attributes to the Frankfurter Rundschau",
+     "basis": "declared by the builder — verify"
+    },
+    "register": {
+     "value": "news, reviews, wiki (README genre)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "script": {
+     "value": "Latin (100.0% of the 189474 letters of the name words)",
+     "basis": "measured from the file"
+    },
+    "license": {
+     "value": "CC BY-SA 4.0",
+     "basis": "declared from the treebank's documentation"
+    },
+    "source": {
+     "value": "UD_German-GSD, UD master as fetched 2026-10-01: de_gsd-train.conllu sha256 6cb1b600029292fb7bf60531a1d6d7824544791d732c0f7abae8102a2ac337bf (19637803 bytes, 13813 sentences); de_gsd-dev.conllu sha256 01e8e674973592747ffe9a8c77fcf9d2f5936a8484e731ad4f76254318a8952c (904919 bytes, 799 sentences); de_gsd-test.conllu sha256 595070aa50b706a91dc66f17c296f7a9a25cbc75269f177c27680fb1c21528ab (1206749 bytes, 977 sentences)",
+     "basis": "measured from the file"
+    },
+    "lemmas": {
+     "value": "Lemmas: automatic (the README's machine-readable metadata). A name's gold stem is its lemma's, so a stem the lemmatizer got wrong is a miss this prior is charged for.",
+     "basis": "declared from the treebank's documentation"
+    }
+   }
+  },
+  {
+   "name": "Dutch",
+   "iso": "nld",
+   "code": "nl_alpino",
+   "treebank": "UD_Dutch-Alpino",
+   "files": {
+    "train": {
+     "path": "nl_alpino-train.conllu",
+     "bytes": 16057099,
+     "sha256": "d6612a025ae77a8f58494458b987be6f39fdcaa40c94b5e2a5522e50c4166cfb",
+     "sentences": 12289,
+     "skippedSentences": 0,
+     "nameWords": 13611
+    },
+    "dev": {
+     "path": "nl_alpino-dev.conllu",
+     "bytes": 1089881,
+     "sha256": "0444fc2590d7f522b5f201473940a40f0f1790770fcb568450581f12bcbcffd9",
+     "sentences": 718,
+     "skippedSentences": 0,
+     "nameWords": 1119
+    },
+    "test": {
+     "path": "nl_alpino-test.conllu",
+     "bytes": 1030969,
+     "sha256": "20d0f718cdc73b51dbb2744386c9d4ecb1a9df6a076efa81b4c008ace3801fc0",
+     "sentences": 596,
+     "skippedSentences": 0,
+     "nameWords": 660
+    }
+   },
+   "types": {
+    "dev": 571,
+    "test": 333,
+    "droppedDev": {
+     "ambiguous": 0,
+     "unreadable": 0
+    },
+    "droppedTest": {
+     "ambiguous": 0,
+     "unreadable": 0
+    }
+   },
+   "explains": {
+    "nameWords": 13611,
+    "preservingSuffix": 96,
+    "preservingPrefix": 0,
+    "number": 144,
+    "other": 253
+   },
+   "noGold": false,
+   "arms": {
+    "sweep": {
+     "name": "sweep",
+     "devH": 0,
+     "cfg": {
+      "minShare": 0.95,
+      "minCount": 50,
+      "maxK": 2
+     },
+     "testH": 0,
+     "evaluations": 108
+    },
+    "swarm": {
+     "name": "swarm",
+     "devH": 0,
+     "cfg": {
+      "minShare": 0.95,
+      "minCount": 50,
+      "maxK": 2
+     },
+     "testH": 0,
+     "evaluations": 31,
+     "births": 28,
+     "admitted": 0,
+     "generations": 2,
+     "bar": 2.220446049250313e-16,
+     "dry": true,
+     "gateH": 0,
+     "gateCfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 2
+     },
+     "stall": {
+      "gains": 0,
+      "gainsAdmitted": 0,
+      "largestGain": null,
+      "largestLoss": null
+     }
+    },
+    "gainsOnly": {
+     "name": "gainsOnly",
+     "devH": 0,
+     "cfg": {
+      "minShare": 0.95,
+      "minCount": 50,
+      "maxK": 2
+     },
+     "testH": 0,
+     "evaluations": 31,
+     "births": 28,
+     "admitted": 0,
+     "generations": 2,
+     "gateH": 0,
+     "gateCfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 2
+     },
+     "stall": {
+      "gains": 0,
+      "gainsAdmitted": 0,
+      "largestGain": null,
+      "largestLoss": null
+     }
+    }
+   },
+   "controls": {
+    "finalS": {
+     "H": 0.07407407407407407,
+     "A": 0.04,
+     "C": 0.5,
+     "issued": 50,
+     "correct": 2,
+     "gold": 4,
+     "falseStrips": 46,
+     "wrongStrips": 2,
+     "types": 333
+    },
+    "apostrophe": {
+     "H": 0.5714285714285715,
+     "A": 0.6666666666666666,
+     "C": 0.5,
+     "issued": 3,
+     "correct": 2,
+     "gold": 4,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 333
+    },
+    "shuffled": null
+   },
+   "champion": null,
+   "reason": "no operating point recovers any of the 1 DEV type the gold changes — too few to choose a point by",
+   "ship": false,
+   "rules": {
+    "suffix": [],
+    "prefix": []
+   },
+   "provenance": {
+    "giver": {
+     "value": "UD_Dutch-Alpino (Zeman, Žabokrtský, Bouma, van Noord — README Contributors), samples of treebanks annotated at the University of Groningen with the Alpino tools: the Alpino CD-ROM (Eindhoven corpus), QA questions, grammar-maintenance suites, the Dutch reference grammar's examples, and Lassy Small sections WR-P-P-H and WR-P-P-L",
+     "basis": "declared from the treebank's documentation"
+    },
+    "period": {
+     "value": "the README states no dates for the texts",
+     "basis": "declared from the treebank's documentation"
+    },
+    "region": {
+     "value": "the README states no region; the builder reads the Alpino and Lassy Small newspaper sections as Netherlands and Flemish press Dutch",
+     "basis": "declared by the builder — verify"
+    },
+    "register": {
+     "value": "news (README genre), with question and grammar-example sentences in train",
+     "basis": "declared from the treebank's documentation"
+    },
+    "script": {
+     "value": "Latin (100.0% of the 84470 letters of the name words)",
+     "basis": "measured from the file"
+    },
+    "license": {
+     "value": "CC BY-SA 4.0",
+     "basis": "declared from the treebank's documentation"
+    },
+    "source": {
+     "value": "UD_Dutch-Alpino, UD master as fetched 2026-10-01: nl_alpino-train.conllu sha256 d6612a025ae77a8f58494458b987be6f39fdcaa40c94b5e2a5522e50c4166cfb (16057099 bytes, 12289 sentences); nl_alpino-dev.conllu sha256 0444fc2590d7f522b5f201473940a40f0f1790770fcb568450581f12bcbcffd9 (1089881 bytes, 718 sentences); nl_alpino-test.conllu sha256 20d0f718cdc73b51dbb2744386c9d4ecb1a9df6a076efa81b4c008ace3801fc0 (1030969 bytes, 596 sentences)",
+     "basis": "measured from the file"
+    },
+    "lemmas": {
+     "value": "Lemmas: converted from manual (the README's machine-readable metadata). A name's gold stem is its lemma's, so a stem the lemmatizer got wrong is a miss this prior is charged for.",
+     "basis": "declared from the treebank's documentation"
+    }
+   }
+  },
+  {
+   "name": "Swedish",
+   "iso": "swe",
+   "code": "sv_talbanken",
+   "treebank": "UD_Swedish-Talbanken",
+   "files": {
+    "train": {
+     "path": "sv_talbanken-train.conllu",
+     "bytes": 6023121,
+     "sha256": "5e3c41f35999453c94a0f66155f695e6699950c44741abe7d98a2305f7f3f63d",
+     "sentences": 4315,
+     "skippedSentences": 0,
+     "nameWords": 1081
+    },
+    "dev": {
+     "path": "sv_talbanken-dev.conllu",
+     "bytes": 879504,
+     "sha256": "e1c14ae088f575d9f5f2d870d456b9e3911a04725f141752bb8c972a81cb6c6c",
+     "sentences": 504,
+     "skippedSentences": 0,
+     "nameWords": 36
+    },
+    "test": {
+     "path": "sv_talbanken-test.conllu",
+     "bytes": 1831116,
+     "sha256": "f7bc84ce37cd6a71e95b8d8684801da0bb6d2be4e419ba2e865eb109d6cd1bc6",
+     "sentences": 1219,
+     "skippedSentences": 0,
+     "nameWords": 243
+    }
+   },
+   "types": {
+    "dev": 23,
+    "test": 123,
+    "droppedDev": {
+     "ambiguous": 0,
+     "unreadable": 0
+    },
+    "droppedTest": {
+     "ambiguous": 0,
+     "unreadable": 0
+    }
+   },
+   "explains": {
+    "nameWords": 1081,
+    "preservingSuffix": 115,
+    "preservingPrefix": 0,
+    "number": 0,
+    "other": 2
+   },
+   "noGold": false,
+   "arms": {
+    "sweep": {
+     "name": "sweep",
+     "devH": 0.888888888888889,
+     "cfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 2
+     },
+     "testH": 0.8461538461538461,
+     "evaluations": 108
+    },
+    "swarm": {
+     "name": "swarm",
+     "devH": 0.888888888888889,
+     "cfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 2
+     },
+     "testH": 0.8461538461538461,
+     "evaluations": 31,
+     "births": 28,
+     "admitted": 0,
+     "generations": 2,
+     "bar": 2.220446049250313e-16,
+     "dry": true,
+     "gateH": 0.888888888888889,
+     "gateCfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 2
+     },
+     "stall": {
+      "gains": 0,
+      "gainsAdmitted": 0,
+      "largestGain": null,
+      "largestLoss": -0.888888888888889
+     }
+    },
+    "gainsOnly": {
+     "name": "gainsOnly",
+     "devH": 0.888888888888889,
+     "cfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 2
+     },
+     "testH": 0.8461538461538461,
+     "evaluations": 31,
+     "births": 28,
+     "admitted": 0,
+     "generations": 2,
+     "gateH": 0.888888888888889,
+     "gateCfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 2
+     },
+     "stall": {
+      "gains": 0,
+      "gainsAdmitted": 0,
+      "largestGain": null,
+      "largestLoss": -0.888888888888889
+     }
+    }
+   },
+   "controls": {
+    "finalS": {
+     "H": 0.7142857142857143,
+     "A": 0.7142857142857143,
+     "C": 0.7142857142857143,
+     "issued": 14,
+     "correct": 10,
+     "gold": 14,
+     "falseStrips": 1,
+     "wrongStrips": 3,
+     "types": 123
+    },
+    "apostrophe": {
+     "H": 0.13333333333333333,
+     "A": 1,
+     "C": 0.07142857142857142,
+     "issued": 1,
+     "correct": 1,
+     "gold": 14,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 123
+    },
+    "shuffled": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 14,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 123
+    }
+   },
+   "champion": {
+    "cfg": {
+     "minShare": 0.5,
+     "minCount": 2,
+     "maxK": 2
+    },
+    "claims": 12,
+    "dev": {
+     "H": 0.888888888888889,
+     "A": 0.8,
+     "C": 1,
+     "issued": 5,
+     "correct": 4,
+     "gold": 4,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 23
+    },
+    "test": {
+     "H": 0.8461538461538461,
+     "A": 0.9166666666666666,
+     "C": 0.7857142857142857,
+     "issued": 12,
+     "correct": 11,
+     "gold": 14,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 123
+    }
+   },
+   "selection": {
+    "selector": "exhaustive sweep, then the plateau's least-claim point",
+    "plateau": 3,
+    "claims": [
+     12,
+     15
+    ],
+    "testH": [
+     0.8,
+     0.8461538461538461
+    ]
+   },
+   "rules": {
+    "suffix": [
+     {
+      "ending": ":s",
+      "kind": "strip",
+      "exponent": ":s",
+      "class": "case",
+      "share": 1,
+      "n": 26
+     },
+     {
+      "ending": "ds",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.9474,
+      "n": 19
+     },
+     {
+      "ending": "es",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6875,
+      "n": 32
+     },
+     {
+      "ending": "gs",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 6
+     },
+     {
+      "ending": "is",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 4
+     },
+     {
+      "ending": "ks",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "ls",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "ms",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.8889,
+      "n": 9
+     },
+     {
+      "ending": "ns",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.8,
+      "n": 20
+     },
+     {
+      "ending": "rs",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 2
+     },
+     {
+      "ending": "ts",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "'",
+      "kind": "strip",
+      "exponent": "'",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     }
+    ],
+    "prefix": []
+   },
+   "selfCheck": {
+    "equivalent": true,
+    "types": 123,
+    "differing": 0
+   },
+   "errors": {
+    "falseStrips": [
+     {
+      "word": "SDS",
+      "predicted": "sd",
+      "gold": "sds",
+      "count": 1
+     }
+    ],
+    "wrongStrips": [],
+    "misses": [
+     {
+      "word": "Afrikas",
+      "gold": "afrika",
+      "count": 1
+     },
+     {
+      "word": "Kennedys",
+      "gold": "kennedy",
+      "count": 1
+     },
+     {
+      "word": "Kenyas",
+      "gold": "kenya",
+      "count": 1
+     }
+    ]
+   },
+   "incumbent": {
+    "test": {
+     "aOnly": 10,
+     "bOnly": 1,
+     "both": 109,
+     "neither": 3,
+     "p": 0.01171875
+    }
+   },
+   "ship": false,
+   "shipWhy": "only 12 issued types on TEST, under 30",
+   "provenance": {
+    "giver": {
+     "value": "UD_Swedish-Talbanken (conversion Joakim Nivre and Aaron Smith, Uppsala University; original Talbanken annotated at Lund University by a team led by Ulf Teleman — README Acknowledgments)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "period": {
+     "value": "the original Talbanken was developed at Lund University in the 1970s (README Summary); lemmas and features were revised in later conversions",
+     "basis": "declared from the treebank's documentation"
+    },
+    "region": {
+     "value": "the README states no region; Lund and Uppsala are the institutions it names",
+     "basis": "declared by the builder — verify"
+    },
+    "register": {
+     "value": "informative prose — textbooks, information brochures and newspaper articles (README Introduction; genre news nonfiction)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "script": {
+     "value": "Latin (100.0% of the 7170 letters of the name words)",
+     "basis": "measured from the file"
+    },
+    "license": {
+     "value": "CC BY-SA 4.0",
+     "basis": "declared from the treebank's documentation"
+    },
+    "source": {
+     "value": "UD_Swedish-Talbanken, UD master as fetched 2026-10-01: sv_talbanken-train.conllu sha256 5e3c41f35999453c94a0f66155f695e6699950c44741abe7d98a2305f7f3f63d (6023121 bytes, 4315 sentences); sv_talbanken-dev.conllu sha256 e1c14ae088f575d9f5f2d870d456b9e3911a04725f141752bb8c972a81cb6c6c (879504 bytes, 504 sentences); sv_talbanken-test.conllu sha256 f7bc84ce37cd6a71e95b8d8684801da0bb6d2be4e419ba2e865eb109d6cd1bc6 (1831116 bytes, 1219 sentences)",
+     "basis": "measured from the file"
+    },
+    "lemmas": {
+     "value": "Lemmas: automatic with corrections (SALDO, README) (the README's machine-readable metadata). A name's gold stem is its lemma's, so a stem the lemmatizer got wrong is a miss this prior is charged for.",
+     "basis": "declared from the treebank's documentation"
+    }
+   }
+  },
+  {
+   "name": "Danish",
+   "iso": "dan",
+   "code": "da_ddt",
+   "treebank": "UD_Danish-DDT",
+   "files": {
+    "train": {
+     "path": "da_ddt-train.conllu",
+     "bytes": 5137462,
+     "sha256": "65730e35b07d1e944ee9ae1d344b5c84746cf0aeadf5faf0550059b4ded86fb6",
+     "sentences": 4383,
+     "skippedSentences": 0,
+     "nameWords": 3940
+    },
+    "dev": {
+     "path": "da_ddt-dev.conllu",
+     "bytes": 660002,
+     "sha256": "d714b22776ad60fbdb6e4ffc15a5c3ffc162705617567d3cf2b09cc6b51e800a",
+     "sentences": 564,
+     "skippedSentences": 0,
+     "nameWords": 488
+    },
+    "test": {
+     "path": "da_ddt-test.conllu",
+     "bytes": 639330,
+     "sha256": "2232ee43dcd35dba32b476534d230edf1aa26d4bd830813f452fd829c276f737",
+     "sentences": 565,
+     "skippedSentences": 0,
+     "nameWords": 550
+    }
+   },
+   "types": {
+    "dev": 396,
+    "test": 385,
+    "droppedDev": {
+     "ambiguous": 0,
+     "unreadable": 0
+    },
+    "droppedTest": {
+     "ambiguous": 0,
+     "unreadable": 0
+    }
+   },
+   "explains": {
+    "nameWords": 3940,
+    "preservingSuffix": 274,
+    "preservingPrefix": 0,
+    "number": 0,
+    "other": 11
+   },
+   "noGold": false,
+   "arms": {
+    "sweep": {
+     "name": "sweep",
+     "devH": 0.7428571428571428,
+     "cfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 4
+     },
+     "testH": 0.823529411764706,
+     "evaluations": 108
+    },
+    "swarm": {
+     "name": "swarm",
+     "devH": 0.7428571428571428,
+     "cfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 4
+     },
+     "testH": 0.823529411764706,
+     "evaluations": 31,
+     "births": 28,
+     "admitted": 0,
+     "generations": 2,
+     "bar": 2.220446049250313e-16,
+     "dry": true,
+     "gateH": 0.676056338028169,
+     "gateCfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 2
+     },
+     "stall": {
+      "gains": 2,
+      "gainsAdmitted": 0,
+      "largestGain": 0.06680080482897377,
+      "largestLoss": -0.676056338028169
+     }
+    },
+    "gainsOnly": {
+     "name": "gainsOnly",
+     "devH": 0.7428571428571428,
+     "cfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 4
+     },
+     "testH": 0.823529411764706,
+     "evaluations": 36,
+     "births": 33,
+     "admitted": 2,
+     "generations": 3,
+     "gateH": 0.7428571428571428,
+     "gateCfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 4
+     },
+     "stall": {
+      "gains": 2,
+      "gainsAdmitted": 2,
+      "largestGain": 0.06638655462184861,
+      "largestLoss": -0.7428571428571428
+     }
+    }
+   },
+   "controls": {
+    "finalS": {
+     "H": 0.5111111111111112,
+     "A": 0.39655172413793105,
+     "C": 0.71875,
+     "issued": 58,
+     "correct": 23,
+     "gold": 32,
+     "falseStrips": 30,
+     "wrongStrips": 5,
+     "types": 385
+    },
+    "apostrophe": {
+     "H": 0.4,
+     "A": 1,
+     "C": 0.25,
+     "issued": 8,
+     "correct": 8,
+     "gold": 32,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 385
+    },
+    "shuffled": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 32,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 385
+    }
+   },
+   "champion": {
+    "cfg": {
+     "minShare": 0.5,
+     "minCount": 2,
+     "maxK": 4
+    },
+    "claims": 40,
+    "dev": {
+     "H": 0.7428571428571428,
+     "A": 0.7222222222222222,
+     "C": 0.7647058823529411,
+     "issued": 36,
+     "correct": 26,
+     "gold": 34,
+     "falseStrips": 10,
+     "wrongStrips": 0,
+     "types": 396
+    },
+    "test": {
+     "H": 0.823529411764706,
+     "A": 0.7777777777777778,
+     "C": 0.875,
+     "issued": 36,
+     "correct": 28,
+     "gold": 32,
+     "falseStrips": 8,
+     "wrongStrips": 0,
+     "types": 385
+    }
+   },
+   "selection": {
+    "selector": "exhaustive sweep, then the plateau's least-claim point",
+    "plateau": 1,
+    "claims": [
+     40,
+     40
+    ],
+    "testH": [
+     0.823529411764706,
+     0.823529411764706
+    ]
+   },
+   "rules": {
+    "suffix": [
+     {
+      "ending": "amos",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "anas",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "gels",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 2
+     },
+     {
+      "ending": "gens",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 5
+     },
+     {
+      "ending": "gers",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 2
+     },
+     {
+      "ending": "kins",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "lads",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "lers",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "llas",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 2
+     },
+     {
+      "ending": "lles",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 4
+     },
+     {
+      "ending": "mans",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "ones",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 2
+     },
+     {
+      "ending": "rnes",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 2
+     },
+     {
+      "ending": "tans",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "ters",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "ucks",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "yars",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "aks",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "als",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "ans",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.6,
+      "n": 15
+     },
+     {
+      "ending": "cos",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "cus",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "das",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 2
+     },
+     {
+      "ending": "dos",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "eus",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "ias",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6667,
+      "n": 6
+     },
+     {
+      "ending": "ies",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "lls",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 4
+     },
+     {
+      "ending": "ngs",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "ors",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.8,
+      "n": 5
+     },
+     {
+      "ending": "pas",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "ras",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.5,
+      "n": 2
+     },
+     {
+      "ending": "sas",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 5
+     },
+     {
+      "ending": "ses",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "tes",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "ærs",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "'s",
+      "kind": "strip",
+      "exponent": "'s",
+      "class": "case",
+      "share": 1,
+      "n": 17
+     },
+     {
+      "ending": "bs",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.75,
+      "n": 4
+     },
+     {
+      "ending": "ds",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.7308,
+      "n": 26
+     },
+     {
+      "ending": "fs",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 4
+     },
+     {
+      "ending": "gs",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.7143,
+      "n": 7
+     },
+     {
+      "ending": "hs",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.75,
+      "n": 4
+     },
+     {
+      "ending": "ks",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.8571,
+      "n": 28
+     },
+     {
+      "ending": "ms",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.625,
+      "n": 8
+     },
+     {
+      "ending": "ns",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6387,
+      "n": 119
+     },
+     {
+      "ending": "os",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.619,
+      "n": 21
+     },
+     {
+      "ending": "ps",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6667,
+      "n": 3
+     },
+     {
+      "ending": "ts",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.8,
+      "n": 10
+     },
+     {
+      "ending": "ys",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.9,
+      "n": 10
+     },
+     {
+      "ending": "'",
+      "kind": "strip",
+      "exponent": "'",
+      "class": "case",
+      "share": 1,
+      "n": 13
+     }
+    ],
+    "prefix": []
+   },
+   "selfCheck": {
+    "equivalent": true,
+    "types": 385,
+    "differing": 0
+   },
+   "errors": {
+    "falseStrips": [
+     {
+      "word": "Jens",
+      "predicted": "jen",
+      "gold": "jens",
+      "count": 3
+     },
+     {
+      "word": "Animals",
+      "predicted": "animal",
+      "gold": "animals",
+      "count": 1
+     },
+     {
+      "word": "BMS",
+      "predicted": "bm",
+      "gold": "bms",
+      "count": 1
+     },
+     {
+      "word": "Bodies",
+      "predicted": "bodie",
+      "gold": "bodies",
+      "count": 1
+     },
+     {
+      "word": "Bruxelles",
+      "predicted": "bruxelle",
+      "gold": "bruxelles",
+      "count": 1
+     },
+     {
+      "word": "Eduardas",
+      "predicted": "eduarda",
+      "gold": "eduardas",
+      "count": 1
+     },
+     {
+      "word": "Records",
+      "predicted": "record",
+      "gold": "records",
+      "count": 1
+     },
+     {
+      "word": "Satellites",
+      "predicted": "satellite",
+      "gold": "satellites",
+      "count": 1
+     }
+    ],
+    "wrongStrips": [],
+    "misses": [
+     {
+      "word": "B.T.s",
+      "gold": "b.t.",
+      "count": 1
+     },
+     {
+      "word": "Hookers",
+      "gold": "hooker",
+      "count": 1
+     },
+     {
+      "word": "Istanbuls",
+      "gold": "istanbul",
+      "count": 1
+     },
+     {
+      "word": "Potashinskas",
+      "gold": "potashinska",
+      "count": 1
+     }
+    ]
+   },
+   "incumbent": {
+    "test": {
+     "aOnly": 20,
+     "bOnly": 8,
+     "both": 353,
+     "neither": 4,
+     "p": 0.03569813817739487
+    }
+   },
+   "ship": false,
+   "shipWhy": "TEST precision 0.778 is under 0.9",
+   "provenance": {
+    "giver": {
+     "value": "UD_Danish-DDT (Johannsen, Martínez Alonso, Plank — README Contributors), converted from the Danish Dependency Treebank (Buch-Kromann 2003); the source texts and part-of-speech tags were created by the PAROLE-DK project of the Danish Society for Language and Literature",
+     "basis": "declared from the treebank's documentation"
+    },
+    "period": {
+     "value": "the README cites PAROLE-DK (Keson 1998) and states no dates for the texts; the builder reads them as 1990s",
+     "basis": "declared by the builder — verify"
+    },
+    "region": {
+     "value": "Danish; the README states no region further",
+     "basis": "declared from the treebank's documentation"
+    },
+    "register": {
+     "value": "news, fiction, spoken, nonfiction (README genre)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "script": {
+     "value": "Latin (100.0% of the 24520 letters of the name words)",
+     "basis": "measured from the file"
+    },
+    "license": {
+     "value": "CC BY-SA 4.0",
+     "basis": "declared from the treebank's documentation"
+    },
+    "source": {
+     "value": "UD_Danish-DDT, UD master as fetched 2026-10-01: da_ddt-train.conllu sha256 65730e35b07d1e944ee9ae1d344b5c84746cf0aeadf5faf0550059b4ded86fb6 (5137462 bytes, 4383 sentences); da_ddt-dev.conllu sha256 d714b22776ad60fbdb6e4ffc15a5c3ffc162705617567d3cf2b09cc6b51e800a (660002 bytes, 564 sentences); da_ddt-test.conllu sha256 2232ee43dcd35dba32b476534d230edf1aa26d4bd830813f452fd829c276f737 (639330 bytes, 565 sentences)",
+     "basis": "measured from the file"
+    },
+    "lemmas": {
+     "value": "Lemmas: converted from manual (the README's machine-readable metadata). A name's gold stem is its lemma's, so a stem the lemmatizer got wrong is a miss this prior is charged for.",
+     "basis": "declared from the treebank's documentation"
+    }
+   }
+  },
+  {
+   "name": "French",
+   "iso": "fra",
+   "code": "fr_gsd",
+   "treebank": "UD_French-GSD",
+   "files": {
+    "train": {
+     "path": "fr_gsd-train.conllu",
+     "bytes": 25555018,
+     "sha256": "4b9a87b1b7e6e7003219df1d3ccca87ffaca0f00a6055b12b1857df5373589d2",
+     "sentences": 14450,
+     "skippedSentences": 0,
+     "nameWords": 24649
+    },
+    "dev": {
+     "path": "fr_gsd-dev.conllu",
+     "bytes": 2573677,
+     "sha256": "9221e5084cc6a1b1540671cfbd2fc0456efc223b2fe8dd2146c2bad921be02d4",
+     "sentences": 1476,
+     "skippedSentences": 0,
+     "nameWords": 2550
+    },
+    "test": {
+     "path": "fr_gsd-test.conllu",
+     "bytes": 724095,
+     "sha256": "eee5a599b429658b6ee8582fae9993eb07161247fc64bad57d16b2050ed4eb1a",
+     "sentences": 416,
+     "skippedSentences": 0,
+     "nameWords": 487
+    }
+   },
+   "types": {
+    "dev": 2060,
+    "test": 410,
+    "droppedDev": {
+     "ambiguous": 0,
+     "unreadable": 0
+    },
+    "droppedTest": {
+     "ambiguous": 0,
+     "unreadable": 0
+    }
+   },
+   "explains": {
+    "nameWords": 24649,
+    "preservingSuffix": 0,
+    "preservingPrefix": 1517,
+    "number": 1,
+    "other": 12
+   },
+   "noGold": false,
+   "arms": {
+    "sweep": {
+     "name": "sweep",
+     "devH": 1,
+     "cfg": {
+      "minShare": 0.95,
+      "minCount": 10,
+      "maxK": 3
+     },
+     "testH": 1,
+     "evaluations": 108
+    },
+    "swarm": {
+     "name": "swarm",
+     "devH": 1,
+     "cfg": {
+      "minShare": 0.95,
+      "minCount": 5,
+      "maxK": 3
+     },
+     "testH": 1,
+     "evaluations": 31,
+     "births": 28,
+     "admitted": 0,
+     "generations": 2,
+     "bar": 2.220446049250313e-16,
+     "dry": true,
+     "gateH": 1,
+     "gateCfg": {
+      "minShare": 0.7,
+      "minCount": 5,
+      "maxK": 3
+     },
+     "stall": {
+      "gains": 0,
+      "gainsAdmitted": 0,
+      "largestGain": null,
+      "largestLoss": -0.0071428571428571175
+     }
+    },
+    "gainsOnly": {
+     "name": "gainsOnly",
+     "devH": 1,
+     "cfg": {
+      "minShare": 0.95,
+      "minCount": 5,
+      "maxK": 3
+     },
+     "testH": 1,
+     "evaluations": 31,
+     "births": 28,
+     "admitted": 0,
+     "generations": 2,
+     "gateH": 1,
+     "gateCfg": {
+      "minShare": 0.7,
+      "minCount": 5,
+      "maxK": 3
+     },
+     "stall": {
+      "gains": 0,
+      "gainsAdmitted": 0,
+      "largestGain": null,
+      "largestLoss": -0.0071428571428571175
+     }
+    }
+   },
+   "controls": {
+    "finalS": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 42,
+     "correct": 0,
+     "gold": 38,
+     "falseStrips": 40,
+     "wrongStrips": 2,
+     "types": 410
+    },
+    "apostrophe": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 1,
+     "correct": 0,
+     "gold": 38,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 410
+    },
+    "shuffled": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 38,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 410
+    }
+   },
+   "champion": {
+    "cfg": {
+     "minShare": 0.95,
+     "minCount": 10,
+     "maxK": 3
+    },
+    "claims": 3,
+    "dev": {
+     "H": 1,
+     "A": 1,
+     "C": 1,
+     "issued": 141,
+     "correct": 141,
+     "gold": 141,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 2060
+    },
+    "test": {
+     "H": 1,
+     "A": 1,
+     "C": 1,
+     "issued": 38,
+     "correct": 38,
+     "gold": 38,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 410
+    }
+   },
+   "selection": {
+    "selector": "exhaustive sweep, then the plateau's least-claim point",
+    "plateau": 48,
+    "claims": [
+     3,
+     5
+    ],
+    "testH": [
+     1,
+     1
+    ]
+   },
+   "rules": {
+    "suffix": [],
+    "prefix": [
+     {
+      "ending": "qu'",
+      "kind": "strip",
+      "exponent": "qu'",
+      "class": "clitic",
+      "share": 1,
+      "n": 18
+     },
+     {
+      "ending": "d'",
+      "kind": "strip",
+      "exponent": "d'",
+      "class": "clitic",
+      "share": 0.9909,
+      "n": 772
+     },
+     {
+      "ending": "l'",
+      "kind": "strip",
+      "exponent": "l'",
+      "class": "clitic",
+      "share": 0.9959,
+      "n": 732
+     }
+    ]
+   },
+   "selfCheck": {
+    "equivalent": true,
+    "types": 410,
+    "differing": 0
+   },
+   "errors": {
+    "falseStrips": [],
+    "wrongStrips": [],
+    "misses": []
+   },
+   "incumbent": {
+    "test": {
+     "aOnly": 39,
+     "bOnly": 0,
+     "both": 371,
+     "neither": 0,
+     "p": 3.637978807091713e-12
+    }
+   },
+   "ship": true,
+   "shipWhy": "TEST precision 1.000 on 38 issued types, H above both controls built to fail",
+   "provenance": {
+    "giver": {
+     "value": "UD_French-GSD (de Marneffe, Guillaume, McDonald, Suhr, Nivre, Grioni, Dickerson, Perrier — README Contributors), converted in 2015 from the content-head version of the universal dependency treebank v2.0 and updated independently since",
+     "basis": "declared from the treebank's documentation"
+    },
+    "period": {
+     "value": "the README states no dates for the texts",
+     "basis": "declared from the treebank's documentation"
+    },
+    "region": {
+     "value": "the README states no region",
+     "basis": "declared from the treebank's documentation"
+    },
+    "register": {
+     "value": "blog, news, reviews, wiki (README genre)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "script": {
+     "value": "Latin (99.9% of the 165944 letters of the name words)",
+     "basis": "measured from the file"
+    },
+    "license": {
+     "value": "CC BY-SA 4.0",
+     "basis": "declared from the treebank's documentation"
+    },
+    "source": {
+     "value": "UD_French-GSD, UD master as fetched 2026-10-01: fr_gsd-train.conllu sha256 4b9a87b1b7e6e7003219df1d3ccca87ffaca0f00a6055b12b1857df5373589d2 (25555018 bytes, 14450 sentences); fr_gsd-dev.conllu sha256 9221e5084cc6a1b1540671cfbd2fc0456efc223b2fe8dd2146c2bad921be02d4 (2573677 bytes, 1476 sentences); fr_gsd-test.conllu sha256 eee5a599b429658b6ee8582fae9993eb07161247fc64bad57d16b2050ed4eb1a (724095 bytes, 416 sentences)",
+     "basis": "measured from the file"
+    },
+    "lemmas": {
+     "value": "Lemmas: automatic with corrections (the README's machine-readable metadata). A name's gold stem is its lemma's, so a stem the lemmatizer got wrong is a miss this prior is charged for.",
+     "basis": "declared from the treebank's documentation"
+    }
+   }
+  },
+  {
+   "name": "Spanish",
+   "iso": "spa",
+   "code": "es_gsd",
+   "treebank": "UD_Spanish-GSD",
+   "files": {
+    "train": {
+     "path": "es_gsd-train.conllu",
+     "bytes": 23947367,
+     "sha256": "9e527de0e45dca4a8ef00105a3ebd102da941964b35f01916a6baa6288130f7b",
+     "sentences": 14186,
+     "skippedSentences": 7,
+     "nameWords": 32976
+    },
+    "dev": {
+     "path": "es_gsd-dev.conllu",
+     "bytes": 2318393,
+     "sha256": "704fb19afc0a34cff476e1a70351b7026c4364f862e8e8388b02873852567c22",
+     "sentences": 1400,
+     "skippedSentences": 0,
+     "nameWords": 3367
+    },
+    "test": {
+     "path": "es_gsd-test.conllu",
+     "bytes": 756973,
+     "sha256": "ecce253f44bffaa9803ae7ec0c10911c13e4f1fc3cb439dbd1db2cebe0a12741",
+     "sentences": 427,
+     "skippedSentences": 0,
+     "nameWords": 767
+    }
+   },
+   "types": {
+    "dev": 2442,
+    "test": 644,
+    "droppedDev": {
+     "ambiguous": 2,
+     "unreadable": 0
+    },
+    "droppedTest": {
+     "ambiguous": 0,
+     "unreadable": 0
+    }
+   },
+   "explains": {
+    "nameWords": 32976,
+    "preservingSuffix": 278,
+    "preservingPrefix": 24,
+    "number": 210,
+    "other": 267
+   },
+   "noGold": false,
+   "arms": {
+    "sweep": {
+     "name": "sweep",
+     "devH": 0.4545454545454546,
+     "cfg": {
+      "minShare": 0.6,
+      "minCount": 2,
+      "maxK": 4
+     },
+     "testH": 0.5714285714285715,
+     "evaluations": 108
+    },
+    "swarm": {
+     "name": "swarm",
+     "devH": 0.4545454545454546,
+     "cfg": {
+      "minShare": 0.6,
+      "minCount": 2,
+      "maxK": 4
+     },
+     "testH": 0.5714285714285715,
+     "evaluations": 43,
+     "births": 40,
+     "admitted": 3,
+     "generations": 3,
+     "bar": 2.220446049250313e-16,
+     "dry": true,
+     "gateH": 0.4545454545454546,
+     "gateCfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 4
+     },
+     "stall": {
+      "gains": 3,
+      "gainsAdmitted": 3,
+      "largestGain": 0.18787878787878787,
+      "largestLoss": -0.4545454545454546
+     }
+    },
+    "gainsOnly": {
+     "name": "gainsOnly",
+     "devH": 0.4545454545454546,
+     "cfg": {
+      "minShare": 0.6,
+      "minCount": 2,
+      "maxK": 4
+     },
+     "testH": 0.5714285714285715,
+     "evaluations": 43,
+     "births": 40,
+     "admitted": 3,
+     "generations": 3,
+     "gateH": 0.4545454545454546,
+     "gateCfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 4
+     },
+     "stall": {
+      "gains": 3,
+      "gainsAdmitted": 3,
+      "largestGain": 0.18787878787878787,
+      "largestLoss": -0.4545454545454546
+     }
+    }
+   },
+   "controls": {
+    "finalS": {
+     "H": 0.05882352941176471,
+     "A": 0.03076923076923077,
+     "C": 0.6666666666666666,
+     "issued": 65,
+     "correct": 2,
+     "gold": 3,
+     "falseStrips": 63,
+     "wrongStrips": 0,
+     "types": 644
+    },
+    "apostrophe": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 3,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 644
+    },
+    "shuffled": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 3,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 644
+    }
+   },
+   "champion": {
+    "cfg": {
+     "minShare": 0.6,
+     "minCount": 2,
+     "maxK": 4
+    },
+    "claims": 7,
+    "dev": {
+     "H": 0.4545454545454546,
+     "A": 0.5555555555555556,
+     "C": 0.38461538461538464,
+     "issued": 9,
+     "correct": 5,
+     "gold": 13,
+     "falseStrips": 4,
+     "wrongStrips": 0,
+     "types": 2442
+    },
+    "test": {
+     "H": 0.5714285714285715,
+     "A": 0.5,
+     "C": 0.6666666666666666,
+     "issued": 4,
+     "correct": 2,
+     "gold": 3,
+     "falseStrips": 2,
+     "wrongStrips": 0,
+     "types": 644
+    }
+   },
+   "selection": {
+    "selector": "exhaustive sweep, then the plateau's least-claim point",
+    "plateau": 2,
+    "claims": [
+     7,
+     14
+    ],
+    "testH": [
+     0.5714285714285715,
+     0.5714285714285715
+    ]
+   },
+   "rules": {
+    "suffix": [
+     {
+      "ending": "cias",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.6667,
+      "n": 24
+     },
+     {
+      "ending": "idos",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.7167,
+      "n": 180
+     },
+     {
+      "ending": "ndas",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "rzas",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.8,
+      "n": 5
+     },
+     {
+      "ending": "slas",
+      "kind": "strip",
+      "exponent": "s",
+      "class": "case",
+      "share": 0.7059,
+      "n": 17
+     }
+    ],
+    "prefix": [
+     {
+      "ending": "d'œ",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "l'e",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "d'",
+      "kind": "strip",
+      "exponent": "d'",
+      "class": "clitic",
+      "share": 0.6923,
+      "n": 26
+     },
+     {
+      "ending": "l'",
+      "kind": "strip",
+      "exponent": "l'",
+      "class": "clitic",
+      "share": 0.6667,
+      "n": 9
+     }
+    ]
+   },
+   "selfCheck": {
+    "equivalent": true,
+    "types": 644,
+    "differing": 0
+   },
+   "errors": {
+    "falseStrips": [
+     {
+      "word": "Ciencias",
+      "predicted": "ciencia",
+      "gold": "ciencias",
+      "count": 1
+     },
+     {
+      "word": "d'Aurance",
+      "predicted": "aurance",
+      "gold": "d'aurance",
+      "count": 1
+     }
+    ],
+    "wrongStrips": [],
+    "misses": [
+     {
+      "word": "ARENALES",
+      "gold": "arenale",
+      "count": 1
+     }
+    ]
+   },
+   "incumbent": {
+    "test": {
+     "aOnly": 2,
+     "bOnly": 2,
+     "both": 639,
+     "neither": 1,
+     "p": 1
+    }
+   },
+   "ship": false,
+   "shipWhy": "TEST precision 0.500 is under 0.9; only 4 issued types on TEST, under 30",
+   "provenance": {
+    "giver": {
+     "value": "UD_Spanish-GSD (Ballesteros, Martínez Alonso, McDonald, Pascual, Silveira, Zeman, Nivre, Bauer — README Contributors), converted from the legacy universal dependency treebank v2.0, with token-level morphology added automatically by parsers and taggers (Bohnet et al.)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "period": {
+     "value": "the README states no dates for the texts",
+     "basis": "declared from the treebank's documentation"
+    },
+    "region": {
+     "value": "the README states no region",
+     "basis": "declared from the treebank's documentation"
+    },
+    "register": {
+     "value": "blog, news, reviews, wiki (README genre)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "script": {
+     "value": "Latin (100.0% of the 211131 letters of the name words)",
+     "basis": "measured from the file"
+    },
+    "license": {
+     "value": "CC BY-SA 4.0",
+     "basis": "declared from the treebank's documentation"
+    },
+    "source": {
+     "value": "UD_Spanish-GSD, UD master as fetched 2026-10-01: es_gsd-train.conllu sha256 9e527de0e45dca4a8ef00105a3ebd102da941964b35f01916a6baa6288130f7b (23947367 bytes, 14186 sentences); es_gsd-dev.conllu sha256 704fb19afc0a34cff476e1a70351b7026c4364f862e8e8388b02873852567c22 (2318393 bytes, 1400 sentences); es_gsd-test.conllu sha256 ecce253f44bffaa9803ae7ec0c10911c13e4f1fc3cb439dbd1db2cebe0a12741 (756973 bytes, 427 sentences)",
+     "basis": "measured from the file"
+    },
+    "lemmas": {
+     "value": "Lemmas: automatic (the README's machine-readable metadata). A name's gold stem is its lemma's, so a stem the lemmatizer got wrong is a miss this prior is charged for.",
+     "basis": "declared from the treebank's documentation"
+    }
+   }
+  },
+  {
+   "name": "Italian",
+   "iso": "ita",
+   "code": "it_isdt",
+   "treebank": "UD_Italian-ISDT",
+   "files": {
+    "train": {
+     "path": "it_isdt-train.conllu",
+     "bytes": 19443447,
+     "sha256": "7c3e32d7f296c877387a0c805c3ae8c471e2b5e8df97f5e3da810834b50566ab",
+     "sentences": 13121,
+     "skippedSentences": 0,
+     "nameWords": 13657
+    },
+    "dev": {
+     "path": "it_isdt-dev.conllu",
+     "bytes": 833985,
+     "sha256": "1bc7dda04c58a4d87e2e6607a0e612462b87e7da6dde56be610d3749521af744",
+     "sentences": 564,
+     "skippedSentences": 0,
+     "nameWords": 593
+    },
+    "test": {
+     "path": "it_isdt-test.conllu",
+     "bytes": 735446,
+     "sha256": "cea8ca0e8d1ddf7ce509f10afff426d00e058982f49473e0744cd0ee477129e3",
+     "sentences": 482,
+     "skippedSentences": 0,
+     "nameWords": 501
+    }
+   },
+   "types": {
+    "dev": 485,
+    "test": 440,
+    "droppedDev": {
+     "ambiguous": 0,
+     "unreadable": 0
+    },
+    "droppedTest": {
+     "ambiguous": 0,
+     "unreadable": 0
+    }
+   },
+   "explains": {
+    "nameWords": 13657,
+    "preservingSuffix": 22,
+    "preservingPrefix": 687,
+    "number": 0,
+    "other": 6
+   },
+   "noGold": false,
+   "arms": {
+    "sweep": {
+     "name": "sweep",
+     "devH": 0.9615384615384615,
+     "cfg": {
+      "minShare": 0.8,
+      "minCount": 5,
+      "maxK": 4
+     },
+     "testH": 0.972972972972973,
+     "evaluations": 108
+    },
+    "swarm": {
+     "name": "swarm",
+     "devH": 0.9615384615384615,
+     "cfg": {
+      "minShare": 0.8,
+      "minCount": 5,
+      "maxK": 4
+     },
+     "testH": 0.972972972972973,
+     "evaluations": 30,
+     "births": 27,
+     "admitted": 1,
+     "generations": 3,
+     "bar": 2.220446049250313e-16,
+     "dry": true,
+     "gateH": 0.9411764705882353,
+     "gateCfg": {
+      "minShare": 0.8,
+      "minCount": 10,
+      "maxK": 4
+     },
+     "stall": {
+      "gains": 7,
+      "gainsAdmitted": 1,
+      "largestGain": 0.06617647058823539,
+      "largestLoss": -0.16844919786096257
+     }
+    },
+    "gainsOnly": {
+     "name": "gainsOnly",
+     "devH": 0.9615384615384615,
+     "cfg": {
+      "minShare": 0.8,
+      "minCount": 5,
+      "maxK": 4
+     },
+     "testH": 0.972972972972973,
+     "evaluations": 30,
+     "births": 27,
+     "admitted": 1,
+     "generations": 3,
+     "gateH": 0.9411764705882353,
+     "gateCfg": {
+      "minShare": 0.8,
+      "minCount": 10,
+      "maxK": 4
+     },
+     "stall": {
+      "gains": 7,
+      "gainsAdmitted": 1,
+      "largestGain": 0.06617647058823539,
+      "largestLoss": -0.16844919786096257
+     }
+    }
+   },
+   "controls": {
+    "finalS": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 20,
+     "correct": 0,
+     "gold": 18,
+     "falseStrips": 20,
+     "wrongStrips": 0,
+     "types": 440
+    },
+    "apostrophe": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 18,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 440
+    },
+    "shuffled": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 18,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 440
+    }
+   },
+   "champion": {
+    "cfg": {
+     "minShare": 0.8,
+     "minCount": 5,
+     "maxK": 4
+    },
+    "claims": 9,
+    "dev": {
+     "H": 0.9615384615384615,
+     "A": 0.9259259259259259,
+     "C": 1,
+     "issued": 27,
+     "correct": 25,
+     "gold": 25,
+     "falseStrips": 2,
+     "wrongStrips": 0,
+     "types": 485
+    },
+    "test": {
+     "H": 0.972972972972973,
+     "A": 0.9473684210526315,
+     "C": 1,
+     "issued": 19,
+     "correct": 18,
+     "gold": 18,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 440
+    }
+   },
+   "selection": {
+    "selector": "exhaustive sweep, then the plateau's least-claim point",
+    "plateau": 15,
+    "claims": [
+     9,
+     9
+    ],
+    "testH": [
+     0.972972972972973,
+     0.972972972972973
+    ]
+   },
+   "rules": {
+    "suffix": [
+     {
+      "ending": "'s",
+      "kind": "strip",
+      "exponent": "'s",
+      "class": "clitic",
+      "share": 1,
+      "n": 22
+     }
+    ],
+    "prefix": [
+     {
+      "ending": "all'",
+      "kind": "strip",
+      "exponent": "all'",
+      "class": "clitic",
+      "share": 1,
+      "n": 38
+     },
+     {
+      "ending": "nell",
+      "kind": "strip",
+      "exponent": "nell'",
+      "class": "clitic",
+      "share": 0.8667,
+      "n": 15
+     },
+     {
+      "ending": "dal",
+      "kind": "strip",
+      "exponent": "dall'",
+      "class": "clitic",
+      "share": 0.8,
+      "n": 35
+     },
+     {
+      "ending": "den",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 7
+     },
+     {
+      "ending": "der",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 6
+     },
+     {
+      "ending": "sul",
+      "kind": "strip",
+      "exponent": "sull'",
+      "class": "clitic",
+      "share": 1,
+      "n": 9
+     },
+     {
+      "ending": "un'",
+      "kind": "strip",
+      "exponent": "un'",
+      "class": "clitic",
+      "share": 1,
+      "n": 6
+     },
+     {
+      "ending": "d'",
+      "kind": "strip",
+      "exponent": "d'",
+      "class": "clitic",
+      "share": 0.914,
+      "n": 93
+     },
+     {
+      "ending": "de",
+      "kind": "strip",
+      "exponent": "dell'",
+      "class": "clitic",
+      "share": 0.8446,
+      "n": 296
+     },
+     {
+      "ending": "l'",
+      "kind": "strip",
+      "exponent": "l'",
+      "class": "clitic",
+      "share": 1,
+      "n": 257
+     }
+    ]
+   },
+   "selfCheck": {
+    "equivalent": true,
+    "types": 440,
+    "differing": 0
+   },
+   "errors": {
+    "falseStrips": [
+     {
+      "word": "D'Ovidio",
+      "predicted": "ovidio",
+      "gold": "d'ovidio",
+      "count": 1
+     }
+    ],
+    "wrongStrips": [],
+    "misses": []
+   },
+   "incumbent": {
+    "test": {
+     "aOnly": 18,
+     "bOnly": 1,
+     "both": 421,
+     "neither": 0,
+     "p": 0.0000762939453125
+    }
+   },
+   "ship": false,
+   "shipWhy": "only 19 issued types on TEST, under 30",
+   "provenance": {
+    "giver": {
+     "value": "UD_Italian-ISDT (Bosco, Lenci, Montemagni, Simi — README Contributors), converted from ISDT, the Italian Stanford Dependency Treebank released for the Evalita-2014 parsing task, itself from MIDT (TUT and ISST-TANL)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "period": {
+     "value": "the README states no dates for the texts",
+     "basis": "declared from the treebank's documentation"
+    },
+    "region": {
+     "value": "the README states no region",
+     "basis": "declared from the treebank's documentation"
+    },
+    "register": {
+     "value": "legal, news, wiki (README genre)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "script": {
+     "value": "Latin (100.0% of the 87636 letters of the name words)",
+     "basis": "measured from the file"
+    },
+    "license": {
+     "value": "CC BY-NC-SA 3.0 (non-commercial — a prior learned from it is a derived work: verify the terms before redistributing it)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "source": {
+     "value": "UD_Italian-ISDT, UD master as fetched 2026-10-01: it_isdt-train.conllu sha256 7c3e32d7f296c877387a0c805c3ae8c471e2b5e8df97f5e3da810834b50566ab (19443447 bytes, 13121 sentences); it_isdt-dev.conllu sha256 1bc7dda04c58a4d87e2e6607a0e612462b87e7da6dde56be610d3749521af744 (833985 bytes, 564 sentences); it_isdt-test.conllu sha256 cea8ca0e8d1ddf7ce509f10afff426d00e058982f49473e0744cd0ee477129e3 (735446 bytes, 482 sentences)",
+     "basis": "measured from the file"
+    },
+    "lemmas": {
+     "value": "Lemmas: converted from manual (the README's machine-readable metadata). A name's gold stem is its lemma's, so a stem the lemmatizer got wrong is a miss this prior is charged for.",
+     "basis": "declared from the treebank's documentation"
+    }
+   }
+  },
+  {
+   "name": "Finnish",
+   "iso": "fin",
+   "code": "fi_tdt",
+   "treebank": "UD_Finnish-TDT",
+   "files": {
+    "train": {
+     "path": "fi_tdt-train.conllu",
+     "bytes": 13375770,
+     "sha256": "07217d128d3752e61f1249c1e57de402ca17b31d2fba479d4f857ff78e28b40d",
+     "sentences": 12217,
+     "skippedSentences": 0,
+     "nameWords": 9961
+    },
+    "dev": {
+     "path": "fi_tdt-dev.conllu",
+     "bytes": 1504226,
+     "sha256": "e4c0f4d3afc4a66b71a64756d62f900d1e4c3b58d9bc548dea330f12f15d89b0",
+     "sentences": 1364,
+     "skippedSentences": 0,
+     "nameWords": 1061
+    },
+    "test": {
+     "path": "fi_tdt-test.conllu",
+     "bytes": 1727677,
+     "sha256": "3317528f16ab74333dce44051971e1ed0d115c8ffa1359a20f3bddb8e63498ee",
+     "sentences": 1555,
+     "skippedSentences": 0,
+     "nameWords": 1098
+    }
+   },
+   "types": {
+    "dev": 585,
+    "test": 598,
+    "droppedDev": {
+     "ambiguous": 0,
+     "unreadable": 0
+    },
+    "droppedTest": {
+     "ambiguous": 0,
+     "unreadable": 0
+    }
+   },
+   "explains": {
+    "nameWords": 9961,
+    "preservingSuffix": 3222,
+    "preservingPrefix": 0,
+    "number": 37,
+    "other": 1588
+   },
+   "noGold": false,
+   "arms": {
+    "sweep": {
+     "name": "sweep",
+     "devH": 0.8326693227091634,
+     "cfg": {
+      "minShare": 0.5,
+      "minCount": 5,
+      "maxK": 4
+     },
+     "testH": 0.7621052631578946,
+     "evaluations": 108
+    },
+    "swarm": {
+     "name": "swarm",
+     "devH": 0.8237623762376238,
+     "cfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 4
+     },
+     "testH": 0.7800829875518671,
+     "evaluations": 31,
+     "births": 28,
+     "admitted": 0,
+     "generations": 2,
+     "bar": 2.220446049250313e-16,
+     "dry": true,
+     "gateH": 0.7240618101545253,
+     "gateCfg": {
+      "minShare": 0.7,
+      "minCount": 5,
+      "maxK": 3
+     },
+     "stall": {
+      "gains": 7,
+      "gainsAdmitted": 0,
+      "largestGain": 0.09970056608309852,
+      "largestLoss": -0.612537646585752
+     }
+    },
+    "gainsOnly": {
+     "name": "gainsOnly",
+     "devH": 0.8237623762376238,
+     "cfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 4
+     },
+     "testH": 0.7800829875518671,
+     "evaluations": 39,
+     "births": 36,
+     "admitted": 2,
+     "generations": 3,
+     "gateH": 0.7950310559006211,
+     "gateCfg": {
+      "minShare": 0.7,
+      "minCount": 5,
+      "maxK": 4
+     },
+     "stall": {
+      "gains": 4,
+      "gainsAdmitted": 2,
+      "largestGain": 0.06311616228359984,
+      "largestLoss": -0.6835068923318478
+     }
+    }
+   },
+   "controls": {
+    "finalS": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 29,
+     "correct": 0,
+     "gold": 244,
+     "falseStrips": 28,
+     "wrongStrips": 1,
+     "types": 598
+    },
+    "apostrophe": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 1,
+     "correct": 0,
+     "gold": 244,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 598
+    },
+    "shuffled": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 2,
+     "correct": 0,
+     "gold": 244,
+     "falseStrips": 2,
+     "wrongStrips": 0,
+     "types": 598
+    }
+   },
+   "champion": {
+    "cfg": {
+     "minShare": 0.5,
+     "minCount": 5,
+     "maxK": 4
+    },
+    "claims": 69,
+    "dev": {
+     "H": 0.8326693227091634,
+     "A": 0.842741935483871,
+     "C": 0.8228346456692913,
+     "issued": 248,
+     "correct": 209,
+     "gold": 254,
+     "falseStrips": 16,
+     "wrongStrips": 23,
+     "types": 585
+    },
+    "test": {
+     "H": 0.7621052631578946,
+     "A": 0.7835497835497836,
+     "C": 0.7418032786885246,
+     "issued": 231,
+     "correct": 181,
+     "gold": 244,
+     "falseStrips": 20,
+     "wrongStrips": 30,
+     "types": 598
+    }
+   },
+   "selection": {
+    "selector": "exhaustive sweep, then the plateau's least-claim point",
+    "plateau": 1,
+    "claims": [
+     69,
+     69
+    ],
+    "testH": [
+     0.7621052631578946,
+     0.7621052631578946
+    ]
+   },
+   "rules": {
+    "suffix": [
+     {
+      "ending": ":lle",
+      "kind": "strip",
+      "exponent": ":lle",
+      "class": "case",
+      "share": 1,
+      "n": 14
+     },
+     {
+      "ending": ":ssa",
+      "kind": "strip",
+      "exponent": ":ssa",
+      "class": "case",
+      "share": 1,
+      "n": 8
+     },
+     {
+      "ending": ":ssä",
+      "kind": "strip",
+      "exponent": ":ssä",
+      "class": "case",
+      "share": 1,
+      "n": 6
+     },
+     {
+      "ending": ":stä",
+      "kind": "strip",
+      "exponent": ":stä",
+      "class": "case",
+      "share": 1,
+      "n": 5
+     },
+     {
+      "ending": "alla",
+      "kind": "strip",
+      "exponent": "lla",
+      "class": "case",
+      "share": 0.6364,
+      "n": 22
+     },
+     {
+      "ending": "alle",
+      "kind": "strip",
+      "exponent": "lle",
+      "class": "case",
+      "share": 0.9048,
+      "n": 21
+     },
+     {
+      "ending": "arin",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.6842,
+      "n": 19
+     },
+     {
+      "ending": "ella",
+      "kind": "strip",
+      "exponent": "lla",
+      "class": "case",
+      "share": 0.5294,
+      "n": 17
+     },
+     {
+      "ending": "elle",
+      "kind": "strip",
+      "exponent": "lle",
+      "class": "case",
+      "share": 0.6667,
+      "n": 6
+     },
+     {
+      "ending": "elta",
+      "kind": "strip",
+      "exponent": "elta",
+      "class": "case",
+      "share": 0.6,
+      "n": 5
+     },
+     {
+      "ending": "essä",
+      "kind": "strip",
+      "exponent": "ssä",
+      "class": "case",
+      "share": 1,
+      "n": 6
+     },
+     {
+      "ending": "hkin",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 8
+     },
+     {
+      "ending": "ican",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.5,
+      "n": 6
+     },
+     {
+      "ending": "illa",
+      "kind": "strip",
+      "exponent": "illa",
+      "class": "case",
+      "share": 0.7097,
+      "n": 31
+     },
+     {
+      "ending": "ille",
+      "kind": "strip",
+      "exponent": "ille",
+      "class": "case",
+      "share": 0.5652,
+      "n": 69
+     },
+     {
+      "ending": "illä",
+      "kind": "strip",
+      "exponent": "illä",
+      "class": "case",
+      "share": 0.7143,
+      "n": 14
+     },
+     {
+      "ending": "iron",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 1,
+      "n": 6
+     },
+     {
+      "ending": "issa",
+      "kind": "strip",
+      "exponent": "issa",
+      "class": "case",
+      "share": 0.6917,
+      "n": 120
+     },
+     {
+      "ending": "ista",
+      "kind": "strip",
+      "exponent": "ista",
+      "class": "case",
+      "share": 0.7,
+      "n": 30
+     },
+     {
+      "ending": "istä",
+      "kind": "strip",
+      "exponent": "istä",
+      "class": "case",
+      "share": 0.8889,
+      "n": 9
+     },
+     {
+      "ending": "kiin",
+      "kind": "strip",
+      "exponent": "in",
+      "class": "case",
+      "share": 0.7895,
+      "n": 19
+     },
+     {
+      "ending": "lion",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.875,
+      "n": 8
+     },
+     {
+      "ending": "maan",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.5385,
+      "n": 13
+     },
+     {
+      "ending": "nton",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 6
+     },
+     {
+      "ending": "ohan",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 5
+     },
+     {
+      "ending": "olle",
+      "kind": "strip",
+      "exponent": "lle",
+      "class": "case",
+      "share": 0.875,
+      "n": 8
+     },
+     {
+      "ending": "onia",
+      "kind": "strip",
+      "exponent": "ia",
+      "class": "case",
+      "share": 0.6154,
+      "n": 13
+     },
+     {
+      "ending": "ptin",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.8333,
+      "n": 6
+     },
+     {
+      "ending": "skin",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.7857,
+      "n": 28
+     },
+     {
+      "ending": "tsin",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 1,
+      "n": 16
+     },
+     {
+      "ending": "urin",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.625,
+      "n": 16
+     },
+     {
+      "ending": "usta",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.7778,
+      "n": 9
+     },
+     {
+      "ending": "utin",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.875,
+      "n": 8
+     },
+     {
+      "ending": "älle",
+      "kind": "strip",
+      "exponent": "lle",
+      "class": "case",
+      "share": 1,
+      "n": 6
+     },
+     {
+      "ending": "ässä",
+      "kind": "strip",
+      "exponent": "ssä",
+      "class": "case",
+      "share": 1,
+      "n": 5
+     },
+     {
+      "ending": "ästä",
+      "kind": "strip",
+      "exponent": "stä",
+      "class": "case",
+      "share": 1,
+      "n": 5
+     },
+     {
+      "ending": ":tä",
+      "kind": "strip",
+      "exponent": ":tä",
+      "class": "case",
+      "share": 1,
+      "n": 6
+     },
+     {
+      "ending": "aan",
+      "kind": "strip",
+      "exponent": "an",
+      "class": "case",
+      "share": 0.7463,
+      "n": 67
+     },
+     {
+      "ending": "ain",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.8889,
+      "n": 9
+     },
+     {
+      "ending": "can",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.5714,
+      "n": 7
+     },
+     {
+      "ending": "dia",
+      "kind": "strip",
+      "exponent": "ia",
+      "class": "case",
+      "share": 1,
+      "n": 5
+     },
+     {
+      "ending": "een",
+      "kind": "strip",
+      "exponent": "en",
+      "class": "case",
+      "share": 0.8261,
+      "n": 23
+     },
+     {
+      "ending": "fen",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.5,
+      "n": 6
+     },
+     {
+      "ending": "hon",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.6,
+      "n": 5
+     },
+     {
+      "ending": "iin",
+      "kind": "strip",
+      "exponent": "iin",
+      "class": "case",
+      "share": 0.6076,
+      "n": 79
+     },
+     {
+      "ending": "isa",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 20
+     },
+     {
+      "ending": "ken",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.8333,
+      "n": 12
+     },
+     {
+      "ending": "kon",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 1,
+      "n": 8
+     },
+     {
+      "ending": "len",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.925,
+      "n": 40
+     },
+     {
+      "ending": "llä",
+      "kind": "strip",
+      "exponent": "llä",
+      "class": "case",
+      "share": 0.5789,
+      "n": 38
+     },
+     {
+      "ending": "lon",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 1,
+      "n": 6
+     },
+     {
+      "ending": "ltä",
+      "kind": "strip",
+      "exponent": ":ltä",
+      "class": "case",
+      "share": 0.6,
+      "n": 5
+     },
+     {
+      "ending": "maa",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 0.6667,
+      "n": 15
+     },
+     {
+      "ending": "mon",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 1,
+      "n": 5
+     },
+     {
+      "ending": "non",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.8333,
+      "n": 12
+     },
+     {
+      "ending": "oon",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.5667,
+      "n": 30
+     },
+     {
+      "ending": "osa",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 7
+     },
+     {
+      "ending": "pää",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 5
+     },
+     {
+      "ending": "ren",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.7222,
+      "n": 18
+     },
+     {
+      "ending": "sia",
+      "kind": "strip",
+      "exponent": "ia",
+      "class": "case",
+      "share": 0.7,
+      "n": 10
+     },
+     {
+      "ending": "sta",
+      "kind": "strip",
+      "exponent": "sta",
+      "class": "case",
+      "share": 0.6214,
+      "n": 103
+     },
+     {
+      "ending": "ton",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.5625,
+      "n": 32
+     },
+     {
+      "ending": "uun",
+      "kind": "strip",
+      "exponent": "un",
+      "class": "case",
+      "share": 0.75,
+      "n": 12
+     },
+     {
+      "ending": "von",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.8889,
+      "n": 9
+     },
+     {
+      "ending": "'n",
+      "kind": "strip",
+      "exponent": "'n",
+      "class": "case",
+      "share": 1,
+      "n": 5
+     },
+     {
+      "ending": ":n",
+      "kind": "strip",
+      "exponent": ":n",
+      "class": "case",
+      "share": 0.9963,
+      "n": 269
+     },
+     {
+      "ending": "aa",
+      "kind": "strip",
+      "exponent": "a",
+      "class": "case",
+      "share": 0.803,
+      "n": 66
+     },
+     {
+      "ending": "an",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.7975,
+      "n": 795
+     },
+     {
+      "ending": "in",
+      "kind": "strip",
+      "exponent": "in",
+      "class": "case",
+      "share": 0.7055,
+      "n": 961
+     },
+     {
+      "ending": "iä",
+      "kind": "strip",
+      "exponent": "iä",
+      "class": "case",
+      "share": 0.8571,
+      "n": 14
+     },
+     {
+      "ending": "oa",
+      "kind": "strip",
+      "exponent": "a",
+      "class": "case",
+      "share": 0.8125,
+      "n": 16
+     },
+     {
+      "ending": "sa",
+      "kind": "strip",
+      "exponent": "ssa",
+      "class": "case",
+      "share": 0.6253,
+      "n": 371
+     },
+     {
+      "ending": "sä",
+      "kind": "strip",
+      "exponent": "issä",
+      "class": "case",
+      "share": 0.6393,
+      "n": 61
+     },
+     {
+      "ending": "un",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.5526,
+      "n": 38
+     },
+     {
+      "ending": "yn",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.9608,
+      "n": 51
+     },
+     {
+      "ending": "än",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.9649,
+      "n": 57
+     },
+     {
+      "ending": "ää",
+      "kind": "strip",
+      "exponent": "ä",
+      "class": "case",
+      "share": 0.5,
+      "n": 12
+     },
+     {
+      "ending": "ön",
+      "kind": "strip",
+      "exponent": "n",
+      "class": "case",
+      "share": 0.9167,
+      "n": 12
+     },
+     {
+      "ending": "-",
+      "kind": "strip",
+      "exponent": "-",
+      "class": "case",
+      "share": 0.7778,
+      "n": 9
+     },
+     {
+      "ending": ":",
+      "kind": "strip",
+      "exponent": ":",
+      "class": "case",
+      "share": 1,
+      "n": 6
+     }
+    ],
+    "prefix": []
+   },
+   "selfCheck": {
+    "equivalent": true,
+    "types": 598,
+    "differing": 0
+   },
+   "errors": {
+    "falseStrips": [
+     {
+      "word": "Aasia",
+      "predicted": "aas",
+      "gold": "aasia",
+      "count": 3
+     },
+     {
+      "word": "Jan",
+      "predicted": "ja",
+      "gold": "jan",
+      "count": 3
+     },
+     {
+      "word": "Asia",
+      "predicted": "as",
+      "gold": "asia",
+      "count": 2
+     },
+     {
+      "word": "Indonesia",
+      "predicted": "indones",
+      "gold": "indonesia",
+      "count": 2
+     },
+     {
+      "word": "Pieterszoon",
+      "predicted": "pieterszoo",
+      "gold": "pieterszoon",
+      "count": 2
+     },
+     {
+      "word": "Van",
+      "predicted": "va",
+      "gold": "van",
+      "count": 2
+     },
+     {
+      "word": "Burton",
+      "predicted": "burto",
+      "gold": "burton",
+      "count": 1
+     },
+     {
+      "word": "Costa",
+      "predicted": "co",
+      "gold": "costa",
+      "count": 1
+     },
+     {
+      "word": "Edin",
+      "predicted": "ed",
+      "gold": "edin",
+      "count": 1
+     },
+     {
+      "word": "European",
+      "predicted": "europea",
+      "gold": "european",
+      "count": 1
+     },
+     {
+      "word": "Jean",
+      "predicted": "jea",
+      "gold": "jean",
+      "count": 1
+     },
+     {
+      "word": "Ketchikan",
+      "predicted": "ketchika",
+      "gold": "ketchikan",
+      "count": 1
+     }
+    ],
+    "wrongStrips": [
+     {
+      "word": "Balille",
+      "predicted": "bal",
+      "gold": "bali",
+      "count": 3
+     },
+     {
+      "word": "Karrin",
+      "predicted": "karr",
+      "gold": "karri",
+      "count": 3
+     },
+     {
+      "word": "Balin",
+      "predicted": "bal",
+      "gold": "bali",
+      "count": 2
+     },
+     {
+      "word": "Mopsin",
+      "predicted": "mops",
+      "gold": "mopsi",
+      "count": 2
+     },
+     {
+      "word": "Pervomaiskin",
+      "predicted": "pervomaiski",
+      "gold": "pervomaisk",
+      "count": 2
+     },
+     {
+      "word": "Venäjään",
+      "predicted": "venäjää",
+      "gold": "venäjä",
+      "count": 2
+     },
+     {
+      "word": "al-Zaidille",
+      "predicted": "al-zaid",
+      "gold": "al-zaidi",
+      "count": 2
+     },
+     {
+      "word": "Akademin",
+      "predicted": "akadem",
+      "gold": "akademi",
+      "count": 1
+     },
+     {
+      "word": "Akademissa",
+      "predicted": "akadem",
+      "gold": "akademi",
+      "count": 1
+     },
+     {
+      "word": "Balilla",
+      "predicted": "bal",
+      "gold": "bali",
+      "count": 1
+     },
+     {
+      "word": "Balillakin",
+      "predicted": "balillak",
+      "gold": "bali",
+      "count": 1
+     },
+     {
+      "word": "Ilmarilla",
+      "predicted": "ilmar",
+      "gold": "ilmari",
+      "count": 1
+     }
+    ],
+    "misses": [
+     {
+      "word": "Aksulle",
+      "gold": "aksu",
+      "count": 1
+     },
+     {
+      "word": "Amsterdamia",
+      "gold": "amsterdam",
+      "count": 1
+     },
+     {
+      "word": "Balia",
+      "gold": "bali",
+      "count": 1
+     },
+     {
+      "word": "Benuen",
+      "gold": "benue",
+      "count": 1
+     },
+     {
+      "word": "Bushia",
+      "gold": "bush",
+      "count": 1
+     },
+     {
+      "word": "Clubia",
+      "gold": "club",
+      "count": 1
+     },
+     {
+      "word": "Exchangen",
+      "gold": "exchange",
+      "count": 1
+     },
+     {
+      "word": "Faten",
+      "gold": "fate",
+      "count": 1
+     },
+     {
+      "word": "Greenpeacen",
+      "gold": "greenpeace",
+      "count": 1
+     },
+     {
+      "word": "Helsinki-Vantaata",
+      "gold": "helsinki-vantaa",
+      "count": 1
+     },
+     {
+      "word": "Hopeeksi",
+      "gold": "hopee",
+      "count": 1
+     },
+     {
+      "word": "Internationalia",
+      "gold": "international",
+      "count": 1
+     }
+    ]
+   },
+   "incumbent": {
+    "test": {
+     "aOnly": 182,
+     "bOnly": 20,
+     "both": 333,
+     "neither": 63,
+     "p": 6.9417610879819825e-34
+    }
+   },
+   "ship": false,
+   "shipWhy": "TEST precision 0.784 is under 0.9",
+   "provenance": {
+    "giver": {
+     "value": "UD_Finnish-TDT (Ginter, Kanerva, Laippala, Miekka, Missilä, Ojala, Pyysalo — README Contributors), based on the Turku Dependency Treebank, release 2013-07-18",
+     "basis": "declared from the treebank's documentation"
+    },
+    "period": {
+     "value": "the README states no dates for the texts",
+     "basis": "declared from the treebank's documentation"
+    },
+    "region": {
+     "value": "general Finnish (README); no region stated",
+     "basis": "declared from the treebank's documentation"
+    },
+    "register": {
+     "value": "news, wiki, blog, legal, fiction, grammar examples (README genre)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "script": {
+     "value": "Latin (100.0% of the 72037 letters of the name words)",
+     "basis": "measured from the file"
+    },
+    "license": {
+     "value": "CC BY-SA 4.0",
+     "basis": "declared from the treebank's documentation"
+    },
+    "source": {
+     "value": "UD_Finnish-TDT, UD master as fetched 2026-10-01: fi_tdt-train.conllu sha256 07217d128d3752e61f1249c1e57de402ca17b31d2fba479d4f857ff78e28b40d (13375770 bytes, 12217 sentences); fi_tdt-dev.conllu sha256 e4c0f4d3afc4a66b71a64756d62f900d1e4c3b58d9bc548dea330f12f15d89b0 (1504226 bytes, 1364 sentences); fi_tdt-test.conllu sha256 3317528f16ab74333dce44051971e1ed0d115c8ffa1359a20f3bddb8e63498ee (1727677 bytes, 1555 sentences)",
+     "basis": "measured from the file"
+    },
+    "lemmas": {
+     "value": "Lemmas: manual native (the README's machine-readable metadata). A name's gold stem is its lemma's, so a stem the lemmatizer got wrong is a miss this prior is charged for.",
+     "basis": "declared from the treebank's documentation"
+    }
+   }
+  },
+  {
+   "name": "Hungarian",
+   "iso": "hun",
+   "code": "hu_szeged",
+   "treebank": "UD_Hungarian-Szeged",
+   "files": {
+    "train": {
+     "path": "hu_szeged-train.conllu",
+     "bytes": 1456431,
+     "sha256": "1e9d02111d6e842ad60d20cccfb43d8f758b4cc311d13e2044af2e285372847a",
+     "sentences": 910,
+     "skippedSentences": 0,
+     "nameWords": 1276
+    },
+    "dev": {
+     "path": "hu_szeged-dev.conllu",
+     "bytes": 843187,
+     "sha256": "8cb5b630e09d5d938ce624b06fe3abe57a631533f5aef186ba533daca6e4ab5b",
+     "sentences": 441,
+     "skippedSentences": 0,
+     "nameWords": 687
+    },
+    "test": {
+     "path": "hu_szeged-test.conllu",
+     "bytes": 756298,
+     "sha256": "9031ec98f775ceae6940580a1bb4ef8a2a9e9bee38c40eb9e8ce0f006b56fa59",
+     "sentences": 449,
+     "skippedSentences": 0,
+     "nameWords": 750
+    }
+   },
+   "types": {
+    "dev": 386,
+    "test": 455,
+    "droppedDev": {
+     "ambiguous": 0,
+     "unreadable": 0
+    },
+    "droppedTest": {
+     "ambiguous": 0,
+     "unreadable": 0
+    }
+   },
+   "explains": {
+    "nameWords": 1276,
+    "preservingSuffix": 196,
+    "preservingPrefix": 0,
+    "number": 2,
+    "other": 57
+   },
+   "noGold": false,
+   "arms": {
+    "sweep": {
+     "name": "sweep",
+     "devH": 0.7058823529411764,
+     "cfg": {
+      "minShare": 0.7,
+      "minCount": 2,
+      "maxK": 4
+     },
+     "testH": 0.6753246753246753,
+     "evaluations": 108
+    },
+    "swarm": {
+     "name": "swarm",
+     "devH": 0.676923076923077,
+     "cfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 4
+     },
+     "testH": 0.7283236994219654,
+     "evaluations": 31,
+     "births": 28,
+     "admitted": 0,
+     "generations": 2,
+     "bar": 2.220446049250313e-16,
+     "dry": true,
+     "gateH": 0.5737704918032787,
+     "gateCfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 2
+     },
+     "stall": {
+      "gains": 4,
+      "gainsAdmitted": 0,
+      "largestGain": 0.1031525851197983,
+      "largestLoss": -0.5737704918032787
+     }
+    },
+    "gainsOnly": {
+     "name": "gainsOnly",
+     "devH": 0.676923076923077,
+     "cfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 4
+     },
+     "testH": 0.7283236994219654,
+     "evaluations": 34,
+     "births": 31,
+     "admitted": 1,
+     "generations": 3,
+     "gateH": 0.6456692913385826,
+     "gateCfg": {
+      "minShare": 0.5,
+      "minCount": 2,
+      "maxK": 3
+     },
+     "stall": {
+      "gains": 4,
+      "gainsAdmitted": 1,
+      "largestGain": 0.07189879953530398,
+      "largestLoss": -0.6456692913385826
+     }
+    }
+   },
+   "controls": {
+    "finalS": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 40,
+     "correct": 0,
+     "gold": 94,
+     "falseStrips": 40,
+     "wrongStrips": 0,
+     "types": 455
+    },
+    "apostrophe": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 1,
+     "correct": 0,
+     "gold": 94,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 455
+    },
+    "shuffled": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 94,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 455
+    }
+   },
+   "champion": {
+    "cfg": {
+     "minShare": 0.7,
+     "minCount": 2,
+     "maxK": 4
+    },
+    "claims": 30,
+    "dev": {
+     "H": 0.7058823529411764,
+     "A": 0.875,
+     "C": 0.5915492957746479,
+     "issued": 48,
+     "correct": 42,
+     "gold": 71,
+     "falseStrips": 0,
+     "wrongStrips": 6,
+     "types": 386
+    },
+    "test": {
+     "H": 0.6753246753246753,
+     "A": 0.8666666666666667,
+     "C": 0.5531914893617021,
+     "issued": 60,
+     "correct": 52,
+     "gold": 94,
+     "falseStrips": 4,
+     "wrongStrips": 4,
+     "types": 455
+    }
+   },
+   "selection": {
+    "selector": "exhaustive sweep, then the plateau's least-claim point",
+    "plateau": 1,
+    "claims": [
+     30,
+     30
+    ],
+    "testH": [
+     0.6753246753246753,
+     0.6753246753246753
+    ]
+   },
+   "rules": {
+    "suffix": [
+     {
+      "ending": "-nek",
+      "kind": "strip",
+      "exponent": "-nek",
+      "class": "case",
+      "share": 1,
+      "n": 5
+     },
+     {
+      "ending": "-től",
+      "kind": "strip",
+      "exponent": "-től",
+      "class": "case",
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "atra",
+      "kind": "strip",
+      "exponent": "ra",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "dert",
+      "kind": "strip",
+      "exponent": "t",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "áron",
+      "kind": "strip",
+      "exponent": "on",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "ban",
+      "kind": "strip",
+      "exponent": "ban",
+      "class": "case",
+      "share": 0.9459,
+      "n": 37
+     },
+     {
+      "ending": "ben",
+      "kind": "strip",
+      "exponent": "ben",
+      "class": "case",
+      "share": 1,
+      "n": 16
+     },
+     {
+      "ending": "ból",
+      "kind": "strip",
+      "exponent": "ból",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "gon",
+      "kind": "strip",
+      "exponent": "on",
+      "class": "case",
+      "share": 0.8889,
+      "n": 9
+     },
+     {
+      "ending": "gra",
+      "kind": "strip",
+      "exponent": "ra",
+      "class": "case",
+      "share": 1,
+      "n": 4
+     },
+     {
+      "ending": "kel",
+      "kind": "strip",
+      "exponent": "kel",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "ket",
+      "kind": "strip",
+      "exponent": "et",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "lal",
+      "kind": "strip",
+      "exponent": "lal",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "rel",
+      "kind": "strip",
+      "exponent": "rel",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "rot",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "ról",
+      "kind": "strip",
+      "exponent": "ról",
+      "class": "case",
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "ről",
+      "kind": "strip",
+      "exponent": "ről",
+      "class": "case",
+      "share": 0.8,
+      "n": 5
+     },
+     {
+      "ending": "set",
+      "kind": "strip",
+      "exponent": "et",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "tre",
+      "kind": "strip",
+      "exponent": "re",
+      "class": "case",
+      "share": 1,
+      "n": 3
+     },
+     {
+      "ending": "tól",
+      "kind": "strip",
+      "exponent": "tól",
+      "class": "case",
+      "share": 1,
+      "n": 5
+     },
+     {
+      "ending": "val",
+      "kind": "strip",
+      "exponent": "val",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "ába",
+      "kind": "none",
+      "exponent": null,
+      "class": null,
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "-n",
+      "kind": "strip",
+      "exponent": "-n",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "-t",
+      "kind": "strip",
+      "exponent": "-t",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "ak",
+      "kind": "strip",
+      "exponent": "nak",
+      "class": "case",
+      "share": 0.9091,
+      "n": 11
+     },
+     {
+      "ending": "ba",
+      "kind": "strip",
+      "exponent": "ba",
+      "class": "case",
+      "share": 0.8182,
+      "n": 11
+     },
+     {
+      "ending": "ez",
+      "kind": "strip",
+      "exponent": "hez",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "jt",
+      "kind": "strip",
+      "exponent": "t",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "ot",
+      "kind": "strip",
+      "exponent": "ot",
+      "class": "case",
+      "share": 0.7143,
+      "n": 7
+     },
+     {
+      "ending": "oz",
+      "kind": "strip",
+      "exponent": "hoz",
+      "class": "case",
+      "share": 0.75,
+      "n": 4
+     },
+     {
+      "ending": "él",
+      "kind": "strip",
+      "exponent": "nél",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     },
+     {
+      "ending": "ót",
+      "kind": "strip",
+      "exponent": "t",
+      "class": "case",
+      "share": 1,
+      "n": 2
+     }
+    ],
+    "prefix": []
+   },
+   "selfCheck": {
+    "equivalent": true,
+    "types": 455,
+    "differing": 0
+   },
+   "errors": {
+    "falseStrips": [
+     {
+      "word": "Bírósághoz",
+      "predicted": "bíróság",
+      "gold": "bírósághoz",
+      "count": 1
+     },
+     {
+      "word": "Faliba",
+      "predicted": "fali",
+      "gold": "faliba",
+      "count": 1
+     },
+     {
+      "word": "Piket",
+      "predicted": "pik",
+      "gold": "piket",
+      "count": 1
+     },
+     {
+      "word": "Ördögökkel",
+      "predicted": "ördögök",
+      "gold": "ördögökkel",
+      "count": 1
+     }
+    ],
+    "wrongStrips": [
+     {
+      "word": "BL-ben",
+      "predicted": "bl-",
+      "gold": "bl",
+      "count": 1
+     },
+     {
+      "word": "Daewooéhoz",
+      "predicted": "daewooé",
+      "gold": "daewoo",
+      "count": 1
+     },
+     {
+      "word": "McDonald'séhoz",
+      "predicted": "mcdonald'sé",
+      "gold": "mcdonald's",
+      "count": 1
+     },
+     {
+      "word": "Seattle-ben",
+      "predicted": "seattle-",
+      "gold": "seattle",
+      "count": 1
+     }
+    ],
+    "misses": [
+     {
+      "word": "Vjahirevet",
+      "gold": "vjahirev",
+      "count": 3
+     },
+     {
+      "word": "Ferencet",
+      "gold": "ferenc",
+      "count": 2
+     },
+     {
+      "word": "Gazpromnál",
+      "gold": "gazprom",
+      "count": 2
+     },
+     {
+      "word": "Gyerevet",
+      "gold": "gyerev",
+      "count": 2
+     },
+     {
+      "word": "Hannoverbe",
+      "gold": "hannover",
+      "count": 2
+     },
+     {
+      "word": "Szegeden",
+      "gold": "szeged",
+      "count": 2
+     },
+     {
+      "word": "Sándort",
+      "gold": "sándor",
+      "count": 2
+     },
+     {
+      "word": "Thaiföldön",
+      "gold": "thaiföld",
+      "count": 2
+     },
+     {
+      "word": "Vjahirevre",
+      "gold": "vjahirev",
+      "count": 2
+     },
+     {
+      "word": "Agassinál",
+      "gold": "agassi",
+      "count": 1
+     },
+     {
+      "word": "Coffeet",
+      "gold": "coffee",
+      "count": 1
+     },
+     {
+      "word": "Cserkeszfölddel",
+      "gold": "cserkeszföld",
+      "count": 1
+     }
+    ]
+   },
+   "incumbent": {
+    "test": {
+     "aOnly": 53,
+     "bOnly": 4,
+     "both": 356,
+     "neither": 42,
+     "p": 5.910882894255565e-12
+    }
+   },
+   "ship": false,
+   "shipWhy": "TEST precision 0.867 is under 0.9",
+   "provenance": {
+    "giver": {
+     "value": "UD_Hungarian-Szeged (Farkas, Simkó, Szántó, Varga, Vincze — README Contributors), derived from the Szeged Dependency Treebank (Vincze et al. 2010): the Népszava newspaper section, plus 500 HVG sentences from v1.3",
+     "basis": "declared from the treebank's documentation"
+    },
+    "period": {
+     "value": "the README states no dates for the texts",
+     "basis": "declared from the treebank's documentation"
+    },
+    "region": {
+     "value": "Hungary — a national daily (README: Népszava); no region stated further",
+     "basis": "declared by the builder — verify"
+    },
+    "register": {
+     "value": "news (README genre): politics, economics, sport, culture",
+     "basis": "declared from the treebank's documentation"
+    },
+    "script": {
+     "value": "Latin (100.0% of the 9009 letters of the name words)",
+     "basis": "measured from the file"
+    },
+    "license": {
+     "value": "CC BY-NC-SA 3.0 (non-commercial — a prior learned from it is a derived work: verify the terms before redistributing it)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "source": {
+     "value": "UD_Hungarian-Szeged, UD master as fetched 2026-10-01: hu_szeged-train.conllu sha256 1e9d02111d6e842ad60d20cccfb43d8f758b4cc311d13e2044af2e285372847a (1456431 bytes, 910 sentences); hu_szeged-dev.conllu sha256 8cb5b630e09d5d938ce624b06fe3abe57a631533f5aef186ba533daca6e4ab5b (843187 bytes, 441 sentences); hu_szeged-test.conllu sha256 9031ec98f775ceae6940580a1bb4ef8a2a9e9bee38c40eb9e8ce0f006b56fa59 (756298 bytes, 449 sentences)",
+     "basis": "measured from the file"
+    },
+    "lemmas": {
+     "value": "Lemmas: converted with corrections (the README's machine-readable metadata). A name's gold stem is its lemma's, so a stem the lemmatizer got wrong is a miss this prior is charged for.",
+     "basis": "declared from the treebank's documentation"
+    }
+   }
+  }
+ ],
+ "transfer": [
+  {
+   "from": "English",
+   "on": {
+    "English": {
+     "H": 0.8831168831168831,
+     "A": 1,
+     "C": 0.7906976744186046,
+     "issued": 34,
+     "correct": 34,
+     "gold": 43,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 1186
+    },
+    "German": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 47,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 710
+    },
+    "Dutch": {
+     "H": 0.5714285714285715,
+     "A": 0.6666666666666666,
+     "C": 0.5,
+     "issued": 3,
+     "correct": 2,
+     "gold": 4,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 333
+    },
+    "Swedish": {
+     "H": 0.13333333333333333,
+     "A": 1,
+     "C": 0.07142857142857142,
+     "issued": 1,
+     "correct": 1,
+     "gold": 14,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 123
+    },
+    "Danish": {
+     "H": 0.4,
+     "A": 1,
+     "C": 0.25,
+     "issued": 8,
+     "correct": 8,
+     "gold": 32,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 385
+    },
+    "French": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 1,
+     "correct": 0,
+     "gold": 38,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 410
+    },
+    "Spanish": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 3,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 644
+    },
+    "Italian": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 18,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 440
+    },
+    "Finnish": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 1,
+     "correct": 0,
+     "gold": 244,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 598
+    },
+    "Hungarian": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 1,
+     "correct": 0,
+     "gold": 94,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 455
+    }
+   }
+  },
+  {
+   "from": "German",
+   "on": {
+    "English": {
+     "H": 0.7191011235955057,
+     "A": 0.6956521739130435,
+     "C": 0.7441860465116279,
+     "issued": 46,
+     "correct": 32,
+     "gold": 43,
+     "falseStrips": 14,
+     "wrongStrips": 0,
+     "types": 1186
+    },
+    "German": {
+     "H": 0.54320987654321,
+     "A": 0.6470588235294118,
+     "C": 0.46808510638297873,
+     "issued": 34,
+     "correct": 22,
+     "gold": 47,
+     "falseStrips": 12,
+     "wrongStrips": 0,
+     "types": 710
+    },
+    "Dutch": {
+     "H": 0.47058823529411764,
+     "A": 0.3076923076923077,
+     "C": 1,
+     "issued": 13,
+     "correct": 4,
+     "gold": 4,
+     "falseStrips": 9,
+     "wrongStrips": 0,
+     "types": 333
+    },
+    "Swedish": {
+     "H": 0.2,
+     "A": 0.3333333333333333,
+     "C": 0.14285714285714285,
+     "issued": 6,
+     "correct": 2,
+     "gold": 14,
+     "falseStrips": 3,
+     "wrongStrips": 1,
+     "types": 123
+    },
+    "Danish": {
+     "H": 0.5555555555555556,
+     "A": 0.6818181818181818,
+     "C": 0.46875,
+     "issued": 22,
+     "correct": 15,
+     "gold": 32,
+     "falseStrips": 7,
+     "wrongStrips": 0,
+     "types": 385
+    },
+    "French": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 9,
+     "correct": 0,
+     "gold": 38,
+     "falseStrips": 9,
+     "wrongStrips": 0,
+     "types": 410
+    },
+    "Spanish": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 4,
+     "correct": 0,
+     "gold": 3,
+     "falseStrips": 4,
+     "wrongStrips": 0,
+     "types": 644
+    },
+    "Italian": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 3,
+     "correct": 0,
+     "gold": 18,
+     "falseStrips": 3,
+     "wrongStrips": 0,
+     "types": 440
+    },
+    "Finnish": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 3,
+     "correct": 0,
+     "gold": 244,
+     "falseStrips": 2,
+     "wrongStrips": 1,
+     "types": 598
+    },
+    "Hungarian": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 6,
+     "correct": 0,
+     "gold": 94,
+     "falseStrips": 6,
+     "wrongStrips": 0,
+     "types": 455
+    }
+   }
+  },
+  {
+   "from": "Swedish",
+   "on": {
+    "English": {
+     "H": 0.12030075187969926,
+     "A": 0.08888888888888889,
+     "C": 0.18604651162790697,
+     "issued": 90,
+     "correct": 8,
+     "gold": 43,
+     "falseStrips": 82,
+     "wrongStrips": 0,
+     "types": 1186
+    },
+    "German": {
+     "H": 0.48979591836734687,
+     "A": 0.47058823529411764,
+     "C": 0.5106382978723404,
+     "issued": 51,
+     "correct": 24,
+     "gold": 47,
+     "falseStrips": 27,
+     "wrongStrips": 0,
+     "types": 710
+    },
+    "Dutch": {
+     "H": 0.0975609756097561,
+     "A": 0.05405405405405406,
+     "C": 0.5,
+     "issued": 37,
+     "correct": 2,
+     "gold": 4,
+     "falseStrips": 35,
+     "wrongStrips": 0,
+     "types": 333
+    },
+    "Swedish": {
+     "H": 0.8461538461538461,
+     "A": 0.9166666666666666,
+     "C": 0.7857142857142857,
+     "issued": 12,
+     "correct": 11,
+     "gold": 14,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 123
+    },
+    "Danish": {
+     "H": 0.5333333333333334,
+     "A": 0.46511627906976744,
+     "C": 0.625,
+     "issued": 43,
+     "correct": 20,
+     "gold": 32,
+     "falseStrips": 23,
+     "wrongStrips": 0,
+     "types": 385
+    },
+    "French": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 29,
+     "correct": 0,
+     "gold": 38,
+     "falseStrips": 29,
+     "wrongStrips": 0,
+     "types": 410
+    },
+    "Spanish": {
+     "H": 0.06666666666666667,
+     "A": 0.037037037037037035,
+     "C": 0.3333333333333333,
+     "issued": 27,
+     "correct": 1,
+     "gold": 3,
+     "falseStrips": 26,
+     "wrongStrips": 0,
+     "types": 644
+    },
+    "Italian": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 16,
+     "correct": 0,
+     "gold": 18,
+     "falseStrips": 16,
+     "wrongStrips": 0,
+     "types": 440
+    },
+    "Finnish": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 15,
+     "correct": 0,
+     "gold": 244,
+     "falseStrips": 14,
+     "wrongStrips": 1,
+     "types": 598
+    },
+    "Hungarian": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 13,
+     "correct": 0,
+     "gold": 94,
+     "falseStrips": 13,
+     "wrongStrips": 0,
+     "types": 455
+    }
+   }
+  },
+  {
+   "from": "Danish",
+   "on": {
+    "English": {
+     "H": 0.5616438356164384,
+     "A": 0.39805825242718446,
+     "C": 0.9534883720930233,
+     "issued": 103,
+     "correct": 41,
+     "gold": 43,
+     "falseStrips": 62,
+     "wrongStrips": 0,
+     "types": 1186
+    },
+    "German": {
+     "H": 0.5057471264367817,
+     "A": 0.55,
+     "C": 0.46808510638297873,
+     "issued": 40,
+     "correct": 22,
+     "gold": 47,
+     "falseStrips": 18,
+     "wrongStrips": 0,
+     "types": 710
+    },
+    "Dutch": {
+     "H": 0.3636363636363636,
+     "A": 0.2222222222222222,
+     "C": 1,
+     "issued": 18,
+     "correct": 4,
+     "gold": 4,
+     "falseStrips": 14,
+     "wrongStrips": 0,
+     "types": 333
+    },
+    "Swedish": {
+     "H": 0.6956521739130435,
+     "A": 0.8888888888888888,
+     "C": 0.5714285714285714,
+     "issued": 9,
+     "correct": 8,
+     "gold": 14,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 123
+    },
+    "Danish": {
+     "H": 0.823529411764706,
+     "A": 0.7777777777777778,
+     "C": 0.875,
+     "issued": 36,
+     "correct": 28,
+     "gold": 32,
+     "falseStrips": 8,
+     "wrongStrips": 0,
+     "types": 385
+    },
+    "French": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 13,
+     "correct": 0,
+     "gold": 38,
+     "falseStrips": 13,
+     "wrongStrips": 0,
+     "types": 410
+    },
+    "Spanish": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 18,
+     "correct": 0,
+     "gold": 3,
+     "falseStrips": 18,
+     "wrongStrips": 0,
+     "types": 644
+    },
+    "Italian": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 8,
+     "correct": 0,
+     "gold": 18,
+     "falseStrips": 8,
+     "wrongStrips": 0,
+     "types": 440
+    },
+    "Finnish": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 9,
+     "correct": 0,
+     "gold": 244,
+     "falseStrips": 8,
+     "wrongStrips": 1,
+     "types": 598
+    },
+    "Hungarian": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 11,
+     "correct": 0,
+     "gold": 94,
+     "falseStrips": 11,
+     "wrongStrips": 0,
+     "types": 455
+    }
+   }
+  },
+  {
+   "from": "French",
+   "on": {
+    "English": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 43,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 1186
+    },
+    "German": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 47,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 710
+    },
+    "Dutch": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 4,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 333
+    },
+    "Swedish": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 14,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 123
+    },
+    "Danish": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 32,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 385
+    },
+    "French": {
+     "H": 1,
+     "A": 1,
+     "C": 1,
+     "issued": 38,
+     "correct": 38,
+     "gold": 38,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 410
+    },
+    "Spanish": {
+     "H": 0.4,
+     "A": 0.5,
+     "C": 0.3333333333333333,
+     "issued": 2,
+     "correct": 1,
+     "gold": 3,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 644
+    },
+    "Italian": {
+     "H": 0.5384615384615385,
+     "A": 0.875,
+     "C": 0.3888888888888889,
+     "issued": 8,
+     "correct": 7,
+     "gold": 18,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 440
+    },
+    "Finnish": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 244,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 598
+    },
+    "Hungarian": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 94,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 455
+    }
+   }
+  },
+  {
+   "from": "Spanish",
+   "on": {
+    "English": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 43,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 1186
+    },
+    "German": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 47,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 710
+    },
+    "Dutch": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 4,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 333
+    },
+    "Swedish": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 14,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 123
+    },
+    "Danish": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 32,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 385
+    },
+    "French": {
+     "H": 0.9444444444444444,
+     "A": 1,
+     "C": 0.8947368421052632,
+     "issued": 34,
+     "correct": 34,
+     "gold": 38,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 410
+    },
+    "Spanish": {
+     "H": 0.5714285714285715,
+     "A": 0.5,
+     "C": 0.6666666666666666,
+     "issued": 4,
+     "correct": 2,
+     "gold": 3,
+     "falseStrips": 2,
+     "wrongStrips": 0,
+     "types": 644
+    },
+    "Italian": {
+     "H": 0.48,
+     "A": 0.8571428571428571,
+     "C": 0.3333333333333333,
+     "issued": 7,
+     "correct": 6,
+     "gold": 18,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 440
+    },
+    "Finnish": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 244,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 598
+    },
+    "Hungarian": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 94,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 455
+    }
+   }
+  },
+  {
+   "from": "Italian",
+   "on": {
+    "English": {
+     "H": 0.8533333333333333,
+     "A": 1,
+     "C": 0.7441860465116279,
+     "issued": 32,
+     "correct": 32,
+     "gold": 43,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 1186
+    },
+    "German": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 47,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 710
+    },
+    "Dutch": {
+     "H": 0.5714285714285715,
+     "A": 0.6666666666666666,
+     "C": 0.5,
+     "issued": 3,
+     "correct": 2,
+     "gold": 4,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 333
+    },
+    "Swedish": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 14,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 123
+    },
+    "Danish": {
+     "H": 0.2702702702702703,
+     "A": 1,
+     "C": 0.15625,
+     "issued": 5,
+     "correct": 5,
+     "gold": 32,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 385
+    },
+    "French": {
+     "H": 0.9870129870129869,
+     "A": 0.9743589743589743,
+     "C": 1,
+     "issued": 39,
+     "correct": 38,
+     "gold": 38,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 410
+    },
+    "Spanish": {
+     "H": 0.4,
+     "A": 0.5,
+     "C": 0.3333333333333333,
+     "issued": 2,
+     "correct": 1,
+     "gold": 3,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 644
+    },
+    "Italian": {
+     "H": 0.972972972972973,
+     "A": 0.9473684210526315,
+     "C": 1,
+     "issued": 19,
+     "correct": 18,
+     "gold": 18,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 440
+    },
+    "Finnish": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 1,
+     "correct": 0,
+     "gold": 244,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 598
+    },
+    "Hungarian": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 1,
+     "correct": 0,
+     "gold": 94,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 455
+    }
+   }
+  },
+  {
+   "from": "Finnish",
+   "on": {
+    "English": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 82,
+     "correct": 0,
+     "gold": 43,
+     "falseStrips": 82,
+     "wrongStrips": 0,
+     "types": 1186
+    },
+    "German": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 48,
+     "correct": 0,
+     "gold": 47,
+     "falseStrips": 48,
+     "wrongStrips": 0,
+     "types": 710
+    },
+    "Dutch": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 20,
+     "correct": 0,
+     "gold": 4,
+     "falseStrips": 20,
+     "wrongStrips": 0,
+     "types": 333
+    },
+    "Swedish": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 10,
+     "correct": 0,
+     "gold": 14,
+     "falseStrips": 10,
+     "wrongStrips": 0,
+     "types": 123
+    },
+    "Danish": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 29,
+     "correct": 0,
+     "gold": 32,
+     "falseStrips": 29,
+     "wrongStrips": 0,
+     "types": 385
+    },
+    "French": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 25,
+     "correct": 0,
+     "gold": 38,
+     "falseStrips": 24,
+     "wrongStrips": 1,
+     "types": 410
+    },
+    "Spanish": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 36,
+     "correct": 0,
+     "gold": 3,
+     "falseStrips": 36,
+     "wrongStrips": 0,
+     "types": 644
+    },
+    "Italian": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 18,
+     "correct": 0,
+     "gold": 18,
+     "falseStrips": 17,
+     "wrongStrips": 1,
+     "types": 440
+    },
+    "Finnish": {
+     "H": 0.7621052631578946,
+     "A": 0.7835497835497836,
+     "C": 0.7418032786885246,
+     "issued": 231,
+     "correct": 181,
+     "gold": 244,
+     "falseStrips": 20,
+     "wrongStrips": 30,
+     "types": 598
+    },
+    "Hungarian": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 43,
+     "correct": 0,
+     "gold": 94,
+     "falseStrips": 23,
+     "wrongStrips": 20,
+     "types": 455
+    }
+   }
+  },
+  {
+   "from": "Hungarian",
+   "on": {
+    "English": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 11,
+     "correct": 0,
+     "gold": 43,
+     "falseStrips": 11,
+     "wrongStrips": 0,
+     "types": 1186
+    },
+    "German": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 8,
+     "correct": 0,
+     "gold": 47,
+     "falseStrips": 8,
+     "wrongStrips": 0,
+     "types": 710
+    },
+    "Dutch": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 4,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 333
+    },
+    "Swedish": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 1,
+     "correct": 0,
+     "gold": 14,
+     "falseStrips": 1,
+     "wrongStrips": 0,
+     "types": 123
+    },
+    "Danish": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 3,
+     "correct": 0,
+     "gold": 32,
+     "falseStrips": 3,
+     "wrongStrips": 0,
+     "types": 385
+    },
+    "French": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 5,
+     "correct": 0,
+     "gold": 38,
+     "falseStrips": 5,
+     "wrongStrips": 0,
+     "types": 410
+    },
+    "Spanish": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 9,
+     "correct": 0,
+     "gold": 3,
+     "falseStrips": 9,
+     "wrongStrips": 0,
+     "types": 644
+    },
+    "Italian": {
+     "H": 0,
+     "A": 0,
+     "C": 0,
+     "issued": 4,
+     "correct": 0,
+     "gold": 18,
+     "falseStrips": 3,
+     "wrongStrips": 1,
+     "types": 440
+    },
+    "Finnish": {
+     "H": 0,
+     "A": null,
+     "C": 0,
+     "issued": 0,
+     "correct": 0,
+     "gold": 244,
+     "falseStrips": 0,
+     "wrongStrips": 0,
+     "types": 598
+    },
+    "Hungarian": {
+     "H": 0.6753246753246753,
+     "A": 0.8666666666666667,
+     "C": 0.5531914893617021,
+     "issued": 60,
+     "correct": 52,
+     "gold": 94,
+     "falseStrips": 4,
+     "wrongStrips": 4,
+     "types": 455
+    }
+   }
+  }
+ ],
+ "genre": [
+  {
+   "name": "English PUD (news and Wikipedia; a different text, different annotators)",
+   "types": 1137,
+   "score": {
+    "H": 0.9833333333333333,
+    "A": 1,
+    "C": 0.9672131147540983,
+    "issued": 59,
+    "correct": 59,
+    "gold": 61,
+    "falseStrips": 0,
+    "wrongStrips": 0,
+    "types": 1137
+   },
+   "typed": {
+    "H": 0.9833333333333333,
+    "A": 1,
+    "C": 0.9672131147540983,
+    "issued": 59,
+    "correct": 59,
+    "gold": 61,
+    "falseStrips": 0,
+    "wrongStrips": 0,
+    "types": 1137
+   },
+   "incumbent": {
+    "aOnly": 0,
+    "bOnly": 0,
+    "both": 1135,
+    "neither": 2,
+    "p": 1
+   }
+  }
+ ]
+}

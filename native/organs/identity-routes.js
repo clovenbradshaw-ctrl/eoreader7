@@ -33,8 +33,18 @@
 // material can, and this route does not read the material. It is an identity fold, which widens what resolves, never one that
 // removes a distinction an established surface already drew.
 //
+// SUPERSEDED FOR THE PAGE, 2026-10-01 (READING-SPEC S139). ENGLISH below is a rule composed for the student — the answer, an apostrophe
+// glyph and an optional s, is in the object — and the next language would have been another object with another answer in it. What the
+// page loads now is `learnedNameFold`: the same route built from a NameFormPrior@1 that Sullivan LEARNED from a language's own treebank
+// (adapters/text/name-forms.js; eval/lavar/sullivan-names.mjs), audited on held-out gold and stored with its giver. For English the
+// learned prior and this object give the same answer on every type of the audit's TEST split but one (a name ending in an apostrophe
+// after a letter that is not s: "Cox'"), and on every type of an independent English treebank. This object stays as the measured
+// INCUMBENT — the control the learned prior is compared with, and what eval/the-fold/possessive-audit.mjs runs by default so its committed
+// numbers stay reproducible — and is not what a page should declare a language with.
+//
 // PURE. No engine import: the per-token strip is handed in (the cast.js pattern), so the page loads this from the organs seam and a
 // test loads it by path against the real engine module.
+import { nameFormRoute } from "../adapters/text/name-forms.js";
 
 /** Typed reasons this route can decline. */
 export const ENCLITIC_REFUSALS = Object.freeze({
@@ -109,4 +119,24 @@ export function terminalEncliticFold({ language = null, stripEnclitic = null, is
     return { fold: null, prior, gap: { type: ENCLITIC_REFUSALS.NO_STRIP_ORGAN, language: prior.language, detail: "the engine's per-token strip was not handed in" } };
   }
   return { fold: lastTokenFold(stripEnclitic, { isNumeral }), prior, gap: null };
+}
+
+/**
+ * learnedNameFold({ language, prior, isNumeral }) → { fold, prior, gap }
+ *
+ * The same route as terminalEncliticFold, built from a language's LEARNED prior instead of a typed object: `prior` is the parsed
+ * NameFormPrior@1 for the language the material is declared to be in (priors/name-forms-<iso>.json). The walls are the route's own and are
+ * unchanged — a declared language (an undeclared one is a typed gap, never an attempt in English), a prior for THAT language (another's is a
+ * typed gap), a prior that names its giver and carries its held-out scores (an unnamed one is refused), the last word of a name loses a
+ * learned suffix and the first a learned prefix and nothing inside a name is touched, and `fold: null` is the index's byte-identical default.
+ *
+ * What is added is the consumer's floor. A treebank's gold cannot see "Seven P's" (the idiom) or "Li's" (a name), so the prior declares no
+ * stem floor and the fold applies MIN_STRIPPED_TOKEN, the one measured on real prose in S137, with the same numeral licence (`isNumeral`,
+ * the engine's surfaces.js::isRomanNumeral): a stem of one letter is left as written, "Charles I's" still reaches "Charles I".
+ */
+export function learnedNameFold({ language = null, prior = null, isNumeral = null } = {}) {
+  if (language === null || language === undefined || String(language).trim() === "") {
+    return { fold: null, prior: null, gap: { type: ENCLITIC_REFUSALS.UNDECLARED_LANGUAGE, detail: "no language was declared for this material — a name-form prior is a fact about a language and is never applied by default" } };
+  }
+  return nameFormRoute({ language, prior, override: { minStem: MIN_STRIPPED_TOKEN, isNumeral } });
 }

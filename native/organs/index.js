@@ -75,7 +75,7 @@ export { BOUND, CONTRADICTED, CONTESTED, UNBOUND, BEYOND_REACH, UNREFUTED, UNDET
 export { ALIAS_REFUSALS, aliasIndex, declaredAliases, licenseAliases, shapesFrom } from "./aliases.js";
 export * as aliases from "./aliases.js";
 // The routes by which two written forms are one referent, each a declared prior for a declared language (Chomsky, Sullivan).
-export { ENCLITIC_PRIORS, ENCLITIC_REFUSALS, MIN_STRIPPED_TOKEN, lastTokenFold, terminalEncliticFold } from "./identity-routes.js";
+export { ENCLITIC_PRIORS, ENCLITIC_REFUSALS, MIN_STRIPPED_TOKEN, lastTokenFold, learnedNameFold, terminalEncliticFold } from "./identity-routes.js";
 export * as identityRoutes from "./identity-routes.js";
 export { witnessSentences, endsFor, settledBy, rowFor, WITNESS_VERDICTS } from "./witness-sentences.js";
 export * as witnessSentencesOrgan from "./witness-sentences.js";

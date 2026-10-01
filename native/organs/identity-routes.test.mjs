@@ -7,7 +7,9 @@
 // kept apart); omitted, the index is byte-identical to before the seam existed; and a one-letter stem is never folded.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { ENCLITIC_PRIORS, ENCLITIC_REFUSALS, MIN_STRIPPED_TOKEN, lastTokenFold, terminalEncliticFold } from "./identity-routes.js";
+import { readFileSync } from "node:fs";
+import { ENCLITIC_PRIORS, ENCLITIC_REFUSALS, MIN_STRIPPED_TOKEN, lastTokenFold, learnedNameFold, terminalEncliticFold } from "./identity-routes.js";
+import { GAPS as NAME_FORM_GAPS } from "../adapters/text/name-forms.js";
 import { makeReferentIndex } from "./cast.js";
 import { splitSentences } from "../adapters/text/spans.js";
 import { extractSurfaces, extractLeadingSurfaces, discoverReferents, namesCorefer, diaNorm, opticalReferentForm, isNearMissSpelling, stripPossessive, isRomanNumeral } from "../adapters/text/surfaces.js";
@@ -137,4 +139,95 @@ test("the near-miss spelling fallback folds the same way (a mark and a typo toge
   const idx = indexOf(text, { surfaceFold: route.fold });
   assert.deepEqual(reps(indexOf(text), "Jonson's"), [], "before: neither the mark nor the spelling resolves");
   assert.deepEqual(reps(idx, "Jonson's"), ["Johnson"], "after: the mark is folded, then the one-edit fallback finds the referent");
+});
+
+// ── THE LEARNED ROUTE (READING-SPEC S139) ─────────────────────────────────────
+// learnedNameFold builds the same route from a NameFormPrior@1 a treebank taught (priors/name-forms-<iso>.json) instead of the typed English object
+// above. The walls are the route's own and are pinned again here against the real index; what is new is that the answer comes from a count.
+const prior = (iso) => JSON.parse(readFileSync(new URL(`../priors/name-forms-${iso}.json`, import.meta.url), "utf8"));
+const learned = learnedNameFold({ language: "eng", prior: prior("eng"), isNumeral: isRomanNumeral });
+const learnedFr = learnedNameFold({ language: "fra", prior: prior("fra"), isNumeral: isRomanNumeral });
+
+test("learned: a language must be DECLARED, the prior must be for THAT language, and an unnamed or missing one is a typed gap with the index's byte-identical default", () => {
+  const undeclared = learnedNameFold({ prior: prior("eng") });
+  assert.equal(undeclared.fold, null);
+  assert.equal(undeclared.gap.type, ENCLITIC_REFUSALS.UNDECLARED_LANGUAGE, "never applied by default, even to English");
+  assert.equal(learnedNameFold({ language: "  ", prior: prior("eng") }).gap.type, ENCLITIC_REFUSALS.UNDECLARED_LANGUAGE);
+  const other = learnedNameFold({ language: "deu", prior: prior("eng") });
+  assert.equal(other.fold, null);
+  assert.equal(other.gap.type, NAME_FORM_GAPS.OTHER_LANGUAGE, "the English prior is not applied to a material declared German");
+  assert.equal(learnedNameFold({ language: "eng", prior: null }).gap.type, NAME_FORM_GAPS.NO_PRIOR);
+  const noGiver = prior("eng"); delete noGiver.provenance.giver;
+  assert.equal(learnedNameFold({ language: "eng", prior: noGiver }).gap.type, NAME_FORM_GAPS.BAD_PRIOR, "a prior that names no giver is refused");
+  for (const l of ["eng", "en", "ENG", "En"]) assert.equal(typeof learnedNameFold({ language: l, prior: prior("eng") }).fold, "function", l);
+  for (const l of ["fra", "fr"]) assert.equal(typeof learnedNameFold({ language: l, prior: prior("fra") }).fold, "function", l);
+  const text = "Marta met a friend. Anna barked orders at the postman. The postman liked Anna.";
+  const a = indexOf(text), b = indexOf(text, { surfaceFold: other.fold });
+  for (const q of ["Anna", "Anna's", "Marta", "Helsinki"]) assert.deepEqual(reps(a, q), reps(b, q), `a declined route changes nothing: ${q}`);
+});
+
+test("learned: both directions, and monotone, exactly as the typed route — against the real index", () => {
+  const bare = "Marta met a friend at the market. Anna barked orders at the postman. Anna told her sister about Helsinki. The postman liked Anna.";
+  const without = indexOf(bare), withMark = indexOf(bare, { surfaceFold: learned.fold });
+  assert.deepEqual(reps(without, "Anna's"), []);
+  assert.deepEqual(reps(withMark, "Anna's"), ["Anna"], "a possessive in a question reaches the bare name's referent");
+  assert.deepEqual(reps(withMark, "Anna’s"), ["Anna"], "and with the typographic apostrophe");
+  assert.deepEqual(reps(withMark, "Anna"), reps(without, "Anna"));
+  const marked = "Anna's dog barked at the postman. Anna's sister lives in Helsinki.";
+  const m0 = indexOf(marked), m1 = indexOf(marked, { surfaceFold: learned.fold });
+  assert.deepEqual(reps(m0, "Anna"), []);
+  assert.deepEqual(reps(m1, "Anna"), ["Anna's"], "the bare name reaches a referent the material establishes only with the mark");
+  const text = "Marta met a friend at the market. Anna barked orders at the postman. Anna told her sister about Helsinki. Anna's dog barked at Marta. Dante arrived at the gate. Dante\u2019s Blindness is the heading of the next chapter. Macy said hello. Macy's closed early.";
+  const plain = indexOf(text), last = indexOf(text, { surfaceFold: learned.fold });
+  let answered = 0;
+  for (const q of ["Anna", "Marta", "Helsinki", "Dante", "Dante\u2019s", "Dante\u2019s Blindness", "Macy", "Macy's", "Anna's", "Marta's", "Nobody", "Postman"]) {
+    const before = reps(plain, q);
+    if (before.length) { answered += 1; assert.deepEqual(reps(last, q), before, `${q}: already answered, so unchanged`); }
+  }
+  assert.ok(answered >= 8);
+  assert.deepEqual(reps(last, "Marta's"), ["Marta"]);
+  assert.deepEqual(reps(last, "Nobody's"), [], "a name the material never establishes stays unanswered");
+});
+
+test("learned: it folds the LAST word's end and the title keeps its inner mark — the control the typed route's every-token ancestor fails", () => {
+  const text = "Dante arrived at the gate of the city. Dante spoke to Virgil. Virgil answered him. Dante\u2019s Blindness is the heading of the next chapter. Virgil\u2019s Departure closes the canto. Dante\u2019s Blindness returns later.";
+  const plain = indexOf(text), idx = indexOf(text, { surfaceFold: learned.fold });
+  assert.deepEqual(reps(idx, "Dante"), ["Dante"], "the person is the person");
+  assert.deepEqual(reps(plain, "Dante's"), ["Dante\u2019s Blindness"], "before: a possessive of the person reached the TITLE");
+  assert.deepEqual(reps(idx, "Dante's"), ["Dante"], "after: it reaches the person");
+  assert.deepEqual(reps(idx, "Dante\u2019s Blindness"), ["Dante\u2019s Blindness"], "the title is still reachable by its own name");
+});
+
+test("learned: the stem floor is the CONSUMER'S — a one-letter stem is left as written, a numeral is licensed by the caller's own test, and the prior declares neither", () => {
+  assert.equal(prior("eng").operatingPoint.minStem, 1, "the treebank cannot see the idiom, so the prior declares no floor");
+  const f = learned.fold;
+  assert.equal(f("Seven P\u2019s"), "Seven P\u2019s", "a plural of a letter is not a name losing a mark");
+  assert.equal(f("Jackie Li's"), "Jackie Li", "a two-letter surname is a name");
+  assert.equal(f("Charles I's"), "Charles I", "a numeral indexes a name; the engine's own isRomanNumeral licenses it");
+  assert.equal(learnedNameFold({ language: "eng", prior: prior("eng") }).fold("Charles I's"), "Charles I's", "without a numeral licence the one-letter stem stays as written");
+  assert.equal(f(""), "");
+});
+
+test("learned vs typed: the same answer on every name of a bench but one — the one the learned table never saw twice, named", () => {
+  const typed = route.fold, fold = learned.fold;
+  const bench = ["Anna's", "Anna\u2019s", "Bush\u2019s", "Jones'", "Jesus'", "Thomas", "James", "Texas", "Iraqis", "Elizabeth Hart's", "Dante's Inferno", "King's Cross", "O'Brien", "Marines", "Seven P's", "Charles I's", "Jackie Li's", "Ann's", "  Anna's  ", "the King of England's", "Macy's"];
+  // The typed route also trims and collapses whitespace; the learned fold keeps what it does not strip exactly as written, and the index
+  // tokenizes either way — so the comparison is on the tokens.
+  const toks = (x) => x.trim().split(/\s+/).join(" ");
+  for (const n of bench) assert.equal(toks(fold(n)), typed(n), `${JSON.stringify(n)}`);
+  assert.equal(fold("  Anna's  "), "  Anna  ", "the learned fold changes only what it strips");
+  // THE ONE DIFFERENCE, stated: an apostrophe after a letter that is not s. The typed route strips any trailing apostrophe; the learned table has
+  // seen `s'` (15 of 15 in the treebank) and not enough `x'` to speak, so it is silent there. Measured: one type of the audit's 1,186 (README of the record).
+  assert.equal(typed("Cox'"), "Cox");
+  assert.equal(fold("Cox'"), "Cox'");
+});
+
+test("learned, French: an elided article comes off the front of a name, and the English prior does not fold a French mark", () => {
+  const text = "Pierre voyage beaucoup. Pierre aime l'Allemagne. Pierre a \u00e9crit sur l'Allemagne. Allemagne est un grand pays. Marie visite d'Alsace chaque \u00e9t\u00e9. Marie aime Alsace. Marie parle d'Alsace.";
+  const plain = indexOf(text), idx = indexOf(text, { surfaceFold: learnedFr.fold });
+  for (const q of ["l'Allemagne", "l\u2019Allemagne", "d'Alsace", "qu'Allemagne"]) { assert.deepEqual(reps(plain, q), [], `before: ${q} reaches nothing`); assert.equal(reps(idx, q).length, 1, `after: ${q} reaches a referent`); }
+  assert.deepEqual(reps(idx, "l'Allemagne"), ["Allemagne"]);
+  assert.deepEqual(reps(idx, "de Gaulle"), [], "a name that merely begins with d is not an elision: the apostrophe is part of the evidence");
+  assert.equal(learnedFr.fold("Anna's"), "Anna's", "a language's prior does not fold another language's marks");
+  assert.equal(learned.fold("l'Allemagne"), "l'Allemagne", "and the English prior leaves a French elision alone");
 });
