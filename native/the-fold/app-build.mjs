@@ -4,7 +4,9 @@
 // models for what none of them could fill) are set down as an app, the app is DRIVEN in a headless browser the way a person would, and the copy check runs against everything the research saw.
 // It writes one report that names, for every leaf and every slot, WHO filled it — a species, a model, or nobody — so the part of the app that is still a person's hand is on the page, not implied.
 //
-//   node native/the-fold/app-build.mjs --work <generate-work dir> --out <app dir> [--places "London,Paris"]
+//   node native/the-fold/app-build.mjs --work <generate-work dir> --out <app dir> [--places "London,Paris"] [--stand-in reference]
+//   --stand-in reference  a leaf no mouth could make pass is filled by the hand-written REFERENCE leaf, so the rest of the build can still be driven. It is labelled `reference (steered stand-in)` in the manifest,
+//                         the about page and the report, and counted apart: an app with a stand-in in it is NOT a generated app for that leaf.
 //
 // STEERED, said once and not hidden: the layout comps and the data sources are the ones the first run chose (ledger rows 2-4), the contracts and oracles are hand-written (rows 5-7), and the species are
 // shown the reference leaves' answers as their examples (row 5). Nothing here closes a row; it measures how much of the build the system now fills itself.
@@ -16,6 +18,7 @@ import { assembleApp } from "./app-assemble.mjs";
 import { driveApp } from "./app-drive.mjs";
 import { seenImages, readSeen, likenessOfApp } from "./app-likeness.mjs";
 import { LEAF_CONTRACTS } from "./app-leaves.mjs";
+import { REFERENCE_LEAVES } from "./app-weather-fuel.reference.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const FIX = path.join(here, "fixtures", "weather-fuel");
@@ -35,8 +38,13 @@ if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).
   const work = path.resolve(arg("work", "./generate-work")), out = path.resolve(arg("out", "./app-out")), places = arg("places", "London,Paris").split(",");
   const generated = JSON.parse(fs.readFileSync(path.join(work, "units.json"), "utf8"));
   const report = { schema: "EOAppBuild@1", at: new Date().toISOString(), work, out, generate: { ok: generated.ok, gap: generated.gap, whole: generated.whole, ms: generated.ms }, account: accountOf(generated) };
-  if (!generated.ok) { report.stopped = { type: "generate_gap", gap: generated.gap }; fs.writeFileSync(path.join(work, "build-report.json"), JSON.stringify(report, null, 1)); console.log("STOPPED: the leaves did not all verify —", JSON.stringify(generated.gap)); process.exit(2); }
-  const units = Object.fromEntries(Object.entries(generated.leaves).map(([n, u]) => [n, { code: u.code, model: u.model, rounds: u.rounds, calls: u.calls, cached: u.cached, declared: u.declared, resolutions: u.resolutions }]));
+  const standIn = arg("stand-in", null) === "reference", standIns = [];
+  if (!generated.ok && !standIn) { report.stopped = { type: "generate_gap", gap: generated.gap }; fs.writeFileSync(path.join(work, "build-report.json"), JSON.stringify(report, null, 1)); console.log("STOPPED: the leaves did not all verify —", JSON.stringify(generated.gap), "(re-run with --stand-in reference to drive the rest)"); process.exit(2); }
+  const units = Object.fromEntries(Object.entries(generated.leaves).map(([n, u]) => {
+    if (u.ok && u.code) return [n, { code: u.code, model: u.model, rounds: u.rounds, calls: u.calls, cached: u.cached, declared: u.declared, resolutions: u.resolutions }];
+    standIns.push(n); return [n, { code: REFERENCE_LEAVES[n], model: "reference (steered stand-in)", rounds: 0, calls: 0, cached: false, declared: {}, resolutions: [] }];
+  }));
+  report.standIns = standIns;
   const prov = JSON.parse(fs.readFileSync(path.join(FIX, "comps", "PROVENANCE.json"), "utf8"));
   const asm = assembleApp({ outDir: out, weatherSpec: spec("weather-comp-detect.json"), fuelSpec: spec("fuel-comp-detect.json"), units, provenance: { comps: prov, wholeOracle: generated.whole } });
   report.assemble = { ok: asm.ok, gap: asm.gap ?? null, files: asm.files?.length ?? 0 };
@@ -55,5 +63,6 @@ if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).
   const a = report.account;
   console.log(`\nleaf`.padEnd(20) + "how".padEnd(16) + "species slots  calls");
   for (const r of a) console.log(r.leaf.padEnd(19) + String(r.whole).padEnd(16) + String(r.slotsBySpecies).padStart(7) + String(r.calls).padStart(8));
+  if (standIns.length) console.log(`\nSTAND-INS (not generated — the reference leaf, a person's hand): ${standIns.join(", ")}`);
   console.log(`\nassembled ${asm.files.length} files -> ${out}; driven: ${drive.ok ? "no page errors" : "ERRORS " + JSON.stringify(drive.errors).slice(0, 200)}; likeness: ${report.likeness?.verdict ?? report.likeness?.error ?? "n/a"}`);
 }

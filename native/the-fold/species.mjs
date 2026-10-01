@@ -3,11 +3,15 @@
 //   decide    a categorical answer from a short decision list: `free == 0 -> "full"`, `percentFull >= 85 -> "busy"`, else `"ok"` — predicates over the numeric terms already solved, constants from the person's words
 //   template  a string made of input strings and the literal text between them (`"JFK → LAX"`) — the literal is read off the first example and must be the same in all of them
 //   map       a list that is an input list passed through one operation (`times.map(padTime)`)
+//   branch    a number whose rule depends on the VALUE of a string parameter (`units`: "metric" | "imperial"): the runs are split by that value, each side is solved on its own, and the pair must reproduce EVERY run
+//   optional  a path that may be missing: `result.admin1 ?? null` — the straight copy plus the null the words allow
+//   coalesce  the first non-empty of several paths, else a default the words state: `tags.name || tags.brand || "Fuel station"`
+//   joinPresent  the parts that EXIST joined by a separator: `[name, admin1, country].filter(Boolean).join(", ")`, null when none do if the words say null
 //   argmax    the item of a list with the largest key (the longest word, the priciest line), the first on a tie, `""` for none
 //
 // Nothing here knows what a ward, a flight or a cart is; the leaves are the input's own paths and the operations are the cards the person's words name plus the language's own.
 import { CARDS, cardsFor } from "../organs/cards.js";
-import { leaves as numericLeaves, wordConstants, UNIT_FACTORS } from "./synth-fields.mjs";
+import { leaves as numericLeaves, wordConstants, UNIT_FACTORS, synthesize } from "./synth-fields.mjs";
 import { keyTokens } from "../organs/key-referents.js";
 
 const SHOWN = 3;
@@ -173,4 +177,106 @@ export function topk(contract, wants) {
   }
   return null;
 }
+/** BRANCH: `units === "imperial" ? roundTo(parseMoney(c.temp_F), 0) : roundTo(parseMoney(c.temp_C), 0)`. A string parameter that takes two or three values over the runs picks the rule; each value's runs are solved by the
+ *  numeric search on their own (so a side with two runs has no held-out run — it is held to every run the leaf's oracle has instead, and the oracle is the arbiter, as for a drawn field). Refuses when any side has no
+ *  expression, so a parameter that merely correlates with the answer is never offered as its cause. */
+export function branch(contract, slot) {
+  const runs = contract.runs.filter((r) => r.want() !== null), got = runs.map((r) => r.want()[slot]);
+  if (runs.length < 4 || !got.every((v) => typeof v === "number" && Number.isFinite(v))) return null;
+  for (let pi = 0; pi < contract.params.length; pi++) {
+    const vals = runs.map((r) => r.args()[pi]);
+    if (!vals.every((v) => typeof v === "string")) continue;
+    const distinct = [...new Set(vals)];
+    if (distinct.length < 2 || distinct.length > 3 || distinct.some((d) => vals.filter((v) => v === d).length < 2)) continue;
+    const parts = [];
+    for (const d of distinct) {
+      const idx = runs.map((_, i) => i).filter((i) => vals[i] === d), sub = { ...contract, runs: idx.map((i) => runs[i]) };
+      const t = synthesize(sub, idx.map((i) => got[i]));
+      if (!t) { parts.length = 0; break; }
+      parts.push({ d, t });
+    }
+    if (parts.length !== distinct.length) continue;
+    const f = (a) => { const part = parts.find((x) => x.d === a[pi]); return part ? part.t.f(a) : NaN; };
+    if (!runs.every((r, i) => { try { return same(f(r.args()), got[i]); } catch { return false; } })) continue;
+    const p = contract.params[pi], last = parts[parts.length - 1];
+    const js = parts.slice(0, -1).reduceRight((acc, x) => `${p} === ${JSON.stringify(x.d)} ? ${x.t.js} : ${acc}`, last.t.js);
+    return { js: `(${js})`, f, on: p };
+  }
+  return null;
+}
+
+/** string paths of the input, KEYS FROM THE UNION of the shown runs (a key a shown run lacks is `undefined` there: that is what makes it optional), a list's first item by `[0]`, each also `.trim()`med */
+export function optionalStrings(contract) {
+  const runs = contract.runs.slice(0, SHOWN), a0 = runs.map((r) => r.args()), out = [];
+  contract.params.forEach((p, i) => {
+    const walk = (vals, path, js, depth) => {
+      const present = vals.filter((v) => v !== undefined && v !== null);
+      if (!present.length || depth > 4) return;
+      if (present.every((v) => typeof v === "string")) {
+        out.push({ js, f: (a) => get(a[i], path) });
+        if (present.some((v) => v !== v.trim())) out.push({ js: `${js}?.trim()`, f: (a) => get(a[i], path)?.trim() });
+        return;
+      }
+      if (present.every((v) => Array.isArray(v) && v.length && v.every((x) => x && typeof x === "object" || typeof x === "string"))) { walk(vals.map((v) => v?.[0]), [...path, 0], `${js}[0]`, depth + 1); return; }
+      if (present.every((v) => v && typeof v === "object" && !Array.isArray(v))) for (const k of [...new Set(present.flatMap(Object.keys))]) walk(vals.map((v) => v?.[k]), [...path, k], /^[A-Za-z_$][\w$]*$/.test(k) ? `${js}?.${k}`.replace(/^(\w+)\?\./, "$1.") : `${js}?.[${JSON.stringify(k)}]`, depth + 1);
+    };
+    walk(a0.map((a) => a[i]), [], p, 0);
+  });
+  return out;
+}
+const safe = (f, a) => { try { return f(a); } catch { return undefined; } };
+const emptyish = (v) => v === undefined || v === null || v === "";
+
+/** OPTIONAL: one path, null where it is missing */
+export function optional(contract, wants, accept = () => true) {
+  if (!wants.every((w) => w === null || typeof w === "string")) return null;
+  const args = contract.runs.slice(0, SHOWN).map((r) => r.args());
+  for (const l of optionalStrings(contract)) {
+    const f = (a) => safe(l.f, a) ?? null;
+    if (args.every((a, i) => same(f(a), wants[i])) && accept(f)) return { js: `${l.js} ?? null`, f };
+  }
+  return null;
+}
+
+/** COALESCE: the first non-empty of two or three paths, then a default the person's words quote (or null / "") */
+export function coalesce(contract, wants, accept = () => true) {
+  if (!wants.every((w) => w === null || typeof w === "string")) return null;
+  const args = contract.runs.slice(0, SHOWN).map((r) => r.args()), L = optionalStrings(contract), defaults = [...quotedIn(contract), null, ""];
+  const orders = [];
+  for (const a of L) for (const b of L) if (a !== b) { orders.push([a, b]); for (const c of L) if (c !== a && c !== b) orders.push([a, b, c]); }
+  // a default is a COMMITMENT the examples must force: the form with no default is tried first, and a default is only kept when some run actually falls through to it (a quoted word that never fires is not a rule)
+  for (const o of orders) {
+    const f = (a) => { let v; for (const l of o) { v = safe(l.f, a); if (!emptyish(v)) return v; } return v; };
+    if (args.every((a, i) => same(f(a), wants[i])) && accept(f)) return { js: o.map((l) => l.js).join(" || "), f };
+  }
+  for (const o of orders) for (const d of defaults) {
+    const f = (a) => { for (const l of o) { const v = safe(l.f, a); if (!emptyish(v)) return v; } return d; };
+    const fellThrough = (cs) => cs.some((r) => { try { return o.every((l) => emptyish(safe(l.f, r.args()))); } catch { return false; } });
+    if (args.every((a, i) => same(f(a), wants[i])) && fellThrough(contract.runs) && accept(f)) return { js: `${o.map((l) => l.js).join(" || ")} || ${JSON.stringify(d)}`, f };
+  }
+  return null;
+}
+
+/** JOIN PRESENT: the parts that exist, in order, joined by a separator drawn from the usual punctuation (and the person's quoted strings); empty -> null when the words say null */
+const SEPARATORS = [", ", " ", " - ", "-", "/", " / ", ": ", " · ", ""];
+export function joinPresent(contract, wants, accept = () => true) {
+  if (!wants.every((w) => w === null || typeof w === "string")) return null;
+  const args = contract.runs.slice(0, SHOWN).map((r) => r.args()), L = optionalStrings(contract).filter((l) => !l.js.endsWith("?.trim()")), seps = [...SEPARATORS, ...quotedIn(contract)];
+  const nullWord = /\bnull\b/i.test([contract.doc, contract.returns, contract.notes].join(" "));
+  const subsets = [];
+  for (const a of L) for (const b of L) if (a !== b) { subsets.push([a, b]); for (const c of L) if (c !== a && c !== b) subsets.push([a, b, c]); }
+  for (const o of subsets) for (const sep of seps) for (const orNull of nullWord ? [false, true] : [false]) {
+    const f = (a) => { const r = o.map((l) => safe(l.f, a)).filter((v) => !emptyish(v)).join(sep); return orNull && r === "" ? null : r; };
+    if (args.every((a, i) => same(f(a), wants[i])) && accept(f)) return { js: `[${o.map((l) => l.js).join(", ")}].filter(Boolean).join(${JSON.stringify(sep)})${orNull ? " || null" : ""}`, f };
+  }
+  return null;
+}
+
+/** NULL: every run, shown or not, answers null, and the person's words say the answer is null */
+export function nullConstant(contract, wants) {
+  if (!wants.every((w) => w === null)) return null;
+  if (!/\bnull\b/i.test([contract.doc, contract.returns, contract.notes].join(" "))) return null;
+  return { js: "null", f: () => null };
+}
+
 void finish; void numericLeaves;

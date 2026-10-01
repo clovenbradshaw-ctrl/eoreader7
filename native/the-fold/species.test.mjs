@@ -17,7 +17,7 @@ const sp = (n, k) => cheapFill(by[n])[k]?.species;
 
 test("each species fills the slot kind it is for, in every set", () => {
   assert.equal(sp("bedReport", "status"), "decide"); assert.equal(sp("playerCard", "tier"), "decide"); assert.equal(sp("shipQuote", "tier"), "decide");
-  assert.equal(sp("flightLeg", "route"), "template"); assert.equal(sp("contactCard", "display"), "template");
+  assert.ok(["template", "joinPresent"].includes(sp("flightLeg", "route")), "an all-present join is a template or the join of the parts that exist"); assert.ok(["template", "joinPresent"].includes(sp("contactCard", "display")));
   assert.equal(sp("busTimes", "times"), "map"); assert.equal(sp("slotLabels", "labels"), "map");
   assert.equal(sp("cartTotal", "priciest"), "argmax"); assert.equal(sp("longestPost", "longest"), "argmax"); assert.equal(sp("wordStats", "longest"), "argmax");
   assert.equal(sp("readingTime", "longest"), "topk");

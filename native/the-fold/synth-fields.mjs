@@ -21,6 +21,8 @@ const roundTo = (x, p) => Math.round(x * 10 ** p) / 10 ** p;
 export const NUMBER_WORDS = Object.freeze({ zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12 });
 export const wordConstants = (contract) => { const text = String([contract.doc, contract.returns, contract.notes].join(" ")); return [...new Set([...[...text.matchAll(/(?<![\w.])\d+(?:\.\d+)?(?![\w.])/g)].map((m) => Number(m[0])), ...(text.toLowerCase().match(/[a-z]+/g) ?? []).map((w) => NUMBER_WORDS[w]).filter((n) => n !== undefined)])]; };
 
+/** how many levels of nested objects the input is walked for numbers — a budget, named (P9): 3 reached `a.b.c.d`, 5 reaches a provider's `entry.data.instant.details.x` */
+export const MAX_LEAF_DEPTH = 5;
 export function leaves(contract) {
   const out = [], runs = contract.runs.slice(0, SHOWN), a0 = runs.map((r) => r.args());
   contract.params.forEach((p, i) => {
@@ -28,7 +30,7 @@ export function leaves(contract) {
       if (vals.every((v) => isNum(v))) { out.push({ expr, js: expr, f: (args) => get(args[i], path) }); return; }
       if (vals.every((v) => typeof v === "string" && Number.isFinite(money(v)) && /\d/.test(v)) && depth > 0) out.push({ expr: `parseMoney(${expr})`, js: `parseMoney(${expr})`, f: (args) => money(get(args[i], path)) });
       if (vals.every((v) => typeof v === "string") && depth === 0) { out.push({ expr: `splitWords(${expr})`, js: `splitWords(${expr})`, arr: "str", f: (args) => CARDS.splitWords.fn(get(args[i], path)) }); return; }
-      if (vals.every((v) => v && typeof v === "object" && !Array.isArray(v)) && depth < 3) { for (const k of [...new Set(vals.flatMap(Object.keys))]) walk(vals.map((v) => v?.[k]), [...path, k], `${expr}.${k}`, depth + 1); return; }
+      if (vals.every((v) => v && typeof v === "object" && !Array.isArray(v)) && depth < MAX_LEAF_DEPTH) { for (const k of [...new Set(vals.flatMap(Object.keys))]) walk(vals.map((v) => v?.[k]), [...path, k], `${expr}.${k}`, depth + 1); return; }
       if (vals.every(Array.isArray)) { // a list of objects: counts, sums and sum-products over their numeric keys
         out.push({ expr: `${expr}.length`, js: `${expr}.length`, f: (args) => get(args[i], path)?.length });
         const items = vals.flat().filter((x) => x && typeof x === "object"), keys = [...new Set(items.flatMap(Object.keys))].filter((k) => items.every((x) => Number.isFinite(money(x[k]))));

@@ -25,8 +25,9 @@ export function fillLeaf(c) {
   const sc = speciesContract(c), wants = sc.runs.map((r) => r.want());
   const shape = wants.every((w) => w && typeof w === "object" && !Array.isArray(w)) ? "object" : wants.some((w) => w && typeof w === "object" && !Array.isArray(w)) ? "object-or-null" : typeof wants[0] === "string" ? "string" : typeof wants[0] === "number" ? "number" : "other";
   const row = { leaf: c.name, shape, slots: [], filled: {}, unit: null, passes: false, failures: [] };
-  if (shape !== "object") { row.note = "not a flat object of fields: the species read fields, not a scraped value"; return row; }
+  if (shape !== "object" && shape !== "object-or-null") { row.note = "not a flat object of fields: the species read fields, not a scraped value"; return row; }
   row.slots = [...new Set(wants.flatMap((w) => Object.keys(w ?? {})))];
+  if (shape === "object-or-null") row.note = "a leaf that may answer null: its null-guard is the model's; the slots are counted from the runs that answer an object";
   let cheap = {}; try { cheap = cheapFill({ ...sc, runs: sc.runs.filter((r) => r.want() !== null) }); } catch (e) { row.error = String(e.message).slice(0, 120); }
   row.filled = Object.fromEntries(Object.entries(cheap).map(([k, v]) => [k, v.species]));
   if (row.slots.length && row.slots.every((k) => cheap[k])) {

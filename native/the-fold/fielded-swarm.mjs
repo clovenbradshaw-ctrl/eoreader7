@@ -12,7 +12,7 @@ import { DIVERSE } from "./diverse-tasks.mjs";
 import { HELDOUT } from "./diverse-heldout.mjs";
 import { readPrefill, heldOutAgreement } from "./prefill.mjs";
 import { solveContract, leaves as numericLeaves } from "./synth-fields.mjs";
-import { decide, template, mapList, argmax, topk } from "./species.mjs";
+import { decide, template, mapList, argmax, topk, branch, optional, coalesce, joinPresent, nullConstant } from "./species.mjs";
 import { fieldContract, composeFieldCode } from "./app-units.mjs";
 import { rungPrompt, RUNGS } from "./context-dose.mjs";
 import { runResults } from "./fold-experiment.mjs";
@@ -29,7 +29,7 @@ const copyJs = (contract, from) => from.replace(/^\[(\d+)\]/, (_, i) => contract
 /** one slot by the non-numeric species, in order; it counts only if it also reproduces every run it was NOT shown. `wants` is what the shown examples say (the control redeals it). -> { species, js } | null */
 export function fillSlot(contract, key, wants, terms) {
   const holds = (f) => contract.runs.slice(3).every((r) => { try { return JSON.stringify(f(r.args())) === JSON.stringify(r.want()[key]); } catch { return false; } });
-  for (const [name, make] of [["decide", () => decide(contract, wants, terms)], ["template", () => template(contract, wants)], ["map", () => mapList(contract, wants)], ["argmax", () => argmax(contract, wants)], ["topk", () => topk(contract, wants)]]) {
+  for (const [name, make] of [["decide", () => decide(contract, wants, terms)], ["null", () => nullConstant(contract, wants)], ["optional", () => optional(contract, wants, holds)], ["coalesce", () => coalesce(contract, wants, holds)], ["joinPresent", () => joinPresent(contract, wants, holds)], ["template", () => template(contract, wants)], ["map", () => mapList(contract, wants)], ["argmax", () => argmax(contract, wants)], ["topk", () => topk(contract, wants)]]) {
     let r = null; try { r = make(); } catch { r = null; }
     if (r && holds(r.f)) return { species: name, js: r.js };
   }
@@ -48,6 +48,8 @@ export function cheapFill(contract) {
   for (const f of solved.fields) if (f.kind === "solved" && !out[f.key]) { out[f.key] = { species: "compose", js: f.js }; terms.push({ name: f.key, js: `(${f.js})`, f: f.term.f }); }
   for (const k of Object.keys(contract.runs[0].want())) {
     if (out[k]) continue;
+    let b = null; try { b = branch(contract, k); } catch { b = null; } // a number whose rule a string parameter's value picks (units)
+    if (b) { out[k] = { species: "branch", js: b.js }; terms.push({ name: k, js: b.js, f: b.f }); continue; }
     const r = fillSlot(contract, k, contract.runs.slice(0, 3).map((x) => x.want()[k]), terms);
     if (r) out[k] = r;
   }
