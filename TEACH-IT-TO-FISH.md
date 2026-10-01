@@ -223,6 +223,18 @@ Every whole unit passes the parent's complete oracle with no model call anywhere
 
 **Not yet measured:** gemma2:2b, the species to close the named gaps, the words-to-expression compile, the stigmergy learning which species wins which slot, and parallel sampled draws of the model (set aside by the operator's steer).
 
+
+### The spread (2026-10-01) — one small task per kind of code, one generic prompt, nothing tuned (`native/the-fold/code-spread.mjs`)
+
+29 kinds (web, backend, C systems, embedded, games, data science/engineering, mobile, k8s, shell, spreadsheet, scientific, p5, live music, Solidity, CTF, compiler, Lean, Verilog, CUDA, quantum, PLC, Brainfuck, SQL recursion, n8n, prompt, Lua, Markdown, civic). One prompt builder for all (task + two examples + the opening line), a real oracle where a toolchain runs here (node, python, sqlite, gcc, bash, yq), and **9 kinds with no toolchain on this box (Swift, spreadsheet, Sonic Pi, Solidity, Lean, Verilog, CUDA, prompt, Lua) checked by structure only and reported `unverified`, never as passes**. Baseline, before the 27-cell ants are wired:
+
+| model | pass of the 20 that run |
+|---|---|
+| qwen2.5-coder:1.5b | **8/20** — web frontend, backend/HMAC, C popcount, embedded timer, data-science stdev, p5 draw, quantum amplitudes, PLC latch |
+| gemma2:2b | **5/20** — C, embedded, game, k8s, Markdown |
+
+Misses are real model misses on small, plain tasks: a bounce on `<0` where the example says 0-or-below, a top-3 SQL that returns the wrong third row, a shell file that continues its own comment header, an n8n workflow with one node. Three early failures were MY oracle bugs (a `yq` flag, a game example inconsistent with its own stated order, an unclosed Markdown comment in the prompt builder) and were fixed without changing any task's difficulty. This is the baseline the cell-wired system must beat; no species is aimed at any of these kinds.
+
 ## 5. Where this stands
 
 - Branch `ccr-a3663d65-cv04ak`, draft PR #148. The comp research, structural reader, leaf generation, stigmergic
