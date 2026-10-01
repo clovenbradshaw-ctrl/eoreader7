@@ -145,6 +145,19 @@ a stated reason. The joint we propose: the unit is a named slot, the losers
 are data, and the artifact is the fold of a log rather than a population or a
 single program. (That is a claim about what we found, not a survey.)
 
+**Holes filled and checked by execution.** Added 2026-10-01; the first draft missed
+the two ancestors closest to "a named slot, filled, gated by running it", and a
+later reader found the gap. Sketch-based synthesis (Solar-Lezama's thesis work,
+2008, and the counterexample-guided loop it popularised) fills the holes of a
+program with a solver and checks the result against a specification. Parsel
+(Zelikman, Wu, Mu and Goodman, 2022) has a language model decompose a task into
+function-level specifications, proposes implementations for each, and tests
+combinations of them against the stated behavior. Both already have the slot, the
+proposal and the execution gate. Neither, as far as we remember them, keeps the
+losing proposals as a typed record with a reason, routes by trails over slot kinds,
+or makes the artifact the fold of a log. Neither citation is marked †: they are from
+memory and unchecked.
+
 **The log as truth.** Event sourcing, and Kleppmann's "turning the database
 inside out" (2015): the log is the record, every view is a projection, and
 replay reproduces state. CRDTs (Shapiro et al., 2011) make concurrent
@@ -515,7 +528,7 @@ not bear on:
   *which three examples were shown* are the categorical ones (`decide` refilled
   9 of 36 under other triples; `copy`, `branch`, `argmax` did not move).
 - What it changes here: §3's "all of them keep the winner" was too strong and is
-  softened; §6's stigmergy row is updated (the colony and #148 use it; the
+  softened and §3 gains the missing ancestors (Sketch, Parsel); §6's stigmergy row is updated (the colony and #148 use it; the
   anchor log still does not) — with the finding that on these 80 slots every
   fill landed in pass 1, so the retry-and-environment half of the colony was
   never exercised;
