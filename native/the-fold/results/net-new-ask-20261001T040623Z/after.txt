@@ -1,0 +1,14 @@
+# after (UTC 2026-10-01T04:06:33Z)
+1a20cddb106fa803b3094509d91ce81425ccf9ff
+tracked changes since before:
+--- sha256
+77f609bb62c87e86cec7d6382e95e8dbe819d210bcc1fdc80bf58084e0c21eb1  proxy-runner.mjs
+194fcef458bde9777f907722c5e28c5bf4d42a2f36d09e234274944ef78295d4  native/organs/app-door.js
+3a4c3fddb05b6ad0727265efb8c459baa770bad5ed7492289f14a42867abecec  native/the-fold/app-packs.mjs
+17663b9108d2db70ea90688daab6d47079fe39f632b514f5ceca47f590164e97  native/the-fold/app-build.mjs
+6a8ccbc2bfa9f1ec65438bcce101f29d9ee37c29e240e3ff61ee1d8b3004bf01  native/the-fold/app-generate.mjs
+1afc0410818088a1646630cd461f7c54a958e7d9546aa1408bf63caa5c6cbc33  native/the-fold/app-units.mjs
+1c3354fc1a1072780aeac3dea647179c5efea25788617db1b892ef7e94bed8e1  native/the-fold/species.mjs
+b4a00c403c259fb9b7360dcfa57cabd900ef3eff006231d5d757c74b1380b078  native/the-fold/synth-fields.mjs
+5a917a09ab7438bbf1299e64e319dd81aec0989598d1b1fb62eb4cdfe838c391  native/the-fold/fielded-swarm.mjs
+24c9eb5eeb4fd7befe21e24d39e43a00c7d27bfcf8c6f0885e8c5503edbabdb4  native/the-fold/app-species.mjs
