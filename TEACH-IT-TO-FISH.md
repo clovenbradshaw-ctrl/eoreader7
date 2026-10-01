@@ -240,6 +240,11 @@ Misses are real model misses on small, plain tasks: a bounce on `<0` where the e
 
 Only prompting, local model only (`granite3.2-vision:2b` via the proxy's `/v1/ask`, saved in `native/the-fold/results/prompt-only-r1.json` and `-r2.json`). Turn 1: the verbatim §2 prompt -> `build-clarify` ("who is it for? how many?"). Turn 2, a plain user answer ("for anyone who travels and wants to check a place; one app, one screen") -> a 6 KB static HTML page titled with a hallucinated fragment ("Booking.com…"), no weather, no fuel, no fetch/API call, `disclosed.unchecked: true`. So the prompt alone does NOT yet produce the app: it produces a model-invented page, as row 1 already says. The leaf-by-leaf build elsewhere in this ledger (species + small models, 3 of 9 leaves verified, 41 slots filled without a model) used hand-written contracts and oracles (rows 5–7), so it is steered and is not this result.
 
+
+### The app door, first prompt-only run through it (2026-10-01)
+
+Same bare §2 prompt, fresh session, local models only (`native/organs/app-door.js`, `the-fold/app-packs.mjs`, `buildApp`; result in `native/the-fold/results/prompt-only-app-door.json`). It no longer asks "who is it for?" and no longer writes an invented page: the task is planned from its own words (weather: "weather"; fuel: "gas prices"), routed to the build, and built leaf by leaf with the cheap species then the local models. Outcome: **4 of 9 leaves verified** (parsePlace, wttrNow, metnoNow by species alone; wttrHour by species + one model draw), **5 failed** (metnoHour: `at`/`condition`; parseStation; nominatimStation; newestWeek; priceAfter), so the build STOPPED at `generate` with a typed gap and shipped nothing. Reachable from the prompt now; not learned: the pack's contracts, oracles, sources and comps are still a person's hand (rows 2-7), and the five failing leaves are the work list (string formatting, optional-chained reads, the haversine + null guard, and the two HTML scrapes).
+
 ## 5. Where this stands
 
 - Branch `ccr-a3663d65-cv04ak`, draft PR #148. The comp research, structural reader, leaf generation, stigmergic
