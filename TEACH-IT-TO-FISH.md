@@ -235,6 +235,11 @@ Every whole unit passes the parent's complete oracle with no model call anywhere
 
 Misses are real model misses on small, plain tasks: a bounce on `<0` where the example says 0-or-below, a top-3 SQL that returns the wrong third row, a shell file that continues its own comment header, an n8n workflow with one node. Three early failures were MY oracle bugs (a `yq` flag, a game example inconsistent with its own stated order, an unclosed Markdown comment in the prompt builder) and were fixed without changing any task's difficulty. This is the baseline the cell-wired system must beat; no species is aimed at any of these kinds.
 
+
+### The prompt-only run, repeated (2026-10-01): still fails at row 1
+
+Only prompting, local model only (`granite3.2-vision:2b` via the proxy's `/v1/ask`, saved in `native/the-fold/results/prompt-only-r1.json` and `-r2.json`). Turn 1: the verbatim §2 prompt -> `build-clarify` ("who is it for? how many?"). Turn 2, a plain user answer ("for anyone who travels and wants to check a place; one app, one screen") -> a 6 KB static HTML page titled with a hallucinated fragment ("Booking.com…"), no weather, no fuel, no fetch/API call, `disclosed.unchecked: true`. So the prompt alone does NOT yet produce the app: it produces a model-invented page, as row 1 already says. The leaf-by-leaf build elsewhere in this ledger (species + small models, 3 of 9 leaves verified, 41 slots filled without a model) used hand-written contracts and oracles (rows 5–7), so it is steered and is not this result.
+
 ## 5. Where this stands
 
 - Branch `ccr-a3663d65-cv04ak`, draft PR #148. The comp research, structural reader, leaf generation, stigmergic
