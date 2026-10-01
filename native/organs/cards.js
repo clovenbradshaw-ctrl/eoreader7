@@ -55,9 +55,9 @@ function parseMoney(x) {
   const t = String(x ?? "").replace(/[\s,$€£¥]/g, "");
   return /^[-+]?(\d+\.?\d*|\.\d+)$/.test(t) ? Number(t) : null;
 }
-function daysBetween(from, to) {
+function daysBetween(a, b) {
   const day = (d) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d instanceof Date ? d.toISOString() : String(d)); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) / 86400000 : NaN; };
-  return Math.round(day(to) - day(from));
+  return Math.round(day(a) - day(b));
 }
 function splitWords(text) { return String(text ?? "").match(/[\p{L}\p{N}']+/gu) ?? []; }
 function toNumber(x) { const n = typeof x === "number" || (typeof x === "string" && x.trim() !== "") ? Number(x) : NaN; return Number.isFinite(n) ? n : null; }
@@ -80,7 +80,7 @@ export const CARDS = Object.freeze({
   haversineKm: { fn: haversineKm, doc: "haversineKm(lat1, lon1, lat2, lon2): great-circle distance in kilometres (not rounded)", tags: "haversine great-circle distance latitude longitude kilometres" },
   roundTo: { fn: roundTo, doc: "roundTo(x, places): x rounded to that many decimal places (0 for a whole number)", tags: "decimal decimals place places" },
   parseMoney: { fn: parseMoney, doc: "a money amount, a number or text like \"$1,234.50\" or \"12.5\" -> the number; null if it is not an amount (US formatting: dot for decimals, comma for thousands)", tags: "money price prices currency dollars" },
-  daysBetween: { fn: daysBetween, doc: "daysBetween(from, to): whole calendar days from the first ISO date \"YYYY-MM-DD\" to the second — daysBetween(\"2026-10-01\", \"2026-10-08\") is 7 and daysBetween(\"2026-10-08\", \"2026-10-01\") is -7 (month lengths and leap years counted; NaN if either is not a date)", tags: "calendar overdue elapsed" },
+  daysBetween: { fn: daysBetween, doc: "daysBetween(a, b): how many whole calendar days the first ISO date \"YYYY-MM-DD\" is AFTER the second (a minus b) — daysBetween(\"2026-10-08\", \"2026-10-01\") is 7 and daysBetween(\"2026-10-01\", \"2026-10-08\") is -7, so a task due on `due` is daysBetween(due, today) days away (month lengths and leap years counted; NaN if either is not a date)", tags: "calendar overdue elapsed", giver: "the order date-fns differenceInCalendarDays(left, right), moment's a.diff(b) and Python's (a - b).days all use — and the order two small coders were measured to assume" },
   splitWords: { fn: splitWords, doc: "text -> its words in order, case as written: runs of letters, digits and apostrophes (punctuation and hyphens separate words); [] for none", tags: "words word tokenize tokens" },
   toNumber: { fn: toNumber, doc: "a number or numeric string -> the number; null for anything else (blank, text, missing)", tags: "numeric nan blank coerce" },
 });

@@ -191,15 +191,15 @@ test("parseMoney: the amount a price is written as, from a number or from text; 
   for (const bad of ["", "abc", "$", "1.2.3", "12 dollars", null, undefined, NaN, Infinity, "(5.00)"]) assert.equal(f(bad), null, String(bad));
 });
 
-test("daysBetween: calendar days, with the edges a hand-rolled version gets wrong — month ends, a leap day, a year end — written down independently", () => {
+test("daysBetween: calendar days, FIRST MINUS SECOND (date-fns, moment, Python — and what two small coders were measured to assume), with the edges a hand-rolled version gets wrong written down independently", () => {
   const f = CARDS.daysBetween.fn;
-  assert.equal(f("2026-10-01", "2026-10-01"), 0); assert.equal(f("2026-10-01", "2026-10-08"), 7);
-  assert.equal(f("2024-02-28", "2024-03-01"), 2, "2024 is a leap year"); assert.equal(f("2023-02-28", "2023-03-01"), 1);
-  assert.equal(f("2026-12-31", "2027-01-01"), 1); assert.equal(f("2026-10-28", "2026-11-04"), 7); assert.equal(f("2028-02-26", "2028-03-04"), 7);
-  assert.equal(f("2026-10-08", "2026-10-01"), -7, "negative when the second is earlier");
-  assert.equal(f("2026-03-28", "2026-03-30"), 2, "a daylight-saving week is still whole days"); assert.equal(f("2026-10-01T23:59:59Z", "2026-10-02"), 1, "a time of day is ignored");
+  assert.equal(f("2026-10-01", "2026-10-01"), 0); assert.equal(f("2026-10-08", "2026-10-01"), 7); assert.equal(f("2026-10-01", "2026-10-08"), -7, "negative when the first is earlier");
+  assert.equal(f("2024-03-01", "2024-02-28"), 2, "2024 is a leap year"); assert.equal(f("2023-03-01", "2023-02-28"), 1);
+  assert.equal(f("2027-01-01", "2026-12-31"), 1); assert.equal(f("2026-11-04", "2026-10-28"), 7); assert.equal(f("2028-03-04", "2028-02-26"), 7);
+  assert.equal(f("2026-03-30", "2026-03-28"), 2, "a daylight-saving week is still whole days"); assert.equal(f("2026-10-02", "2026-10-01T23:59:59Z"), 1, "a time of day is ignored");
   assert.ok(Number.isNaN(f("soon", "2026-10-01")) && Number.isNaN(f("2026-10-01", "")));
-  assert.equal(f(new Date("2026-10-01T00:00:00Z"), "2026-10-04"), 3);
+  assert.equal(f("2026-10-04", new Date("2026-10-01T00:00:00Z")), 3);
+  assert.ok(CARDS.daysBetween.giver, "an order is a convention, and a convention names whose");
 });
 
 test("splitWords: letters, digits and apostrophes make a word; punctuation and hyphens split; case is kept; non-ASCII letters are letters", () => {
@@ -221,5 +221,5 @@ test("a tag that is an ordinary word does not offer a card on its own: `day` is 
 test("the examples in a card's doc are true: they are run against the card itself", () => {
   const v = (n) => CARDS[n].fn;
   near(v("celsiusToFahrenheit")(100), 212); near(v("fahrenheitToCelsius")(212), 100); near(v("kmToMiles")(16.09344), 10, 1e-9); near(v("milesToKm")(10), 16.09344, 1e-9);
-  assert.equal(v("daysBetween")("2026-10-01", "2026-10-08"), 7); assert.equal(v("daysBetween")("2026-10-08", "2026-10-01"), -7);
+  assert.equal(v("daysBetween")("2026-10-08", "2026-10-01"), 7); assert.equal(v("daysBetween")("2026-10-01", "2026-10-08"), -7);
 });
