@@ -34,9 +34,10 @@ export const REQUIRED_UNITS = LEAF_NAMES;
  *   units: { [name]: { code, model, rounds, calls, cached, hash } } — every name in REQUIRED_UNITS
  * -> { ok, dir, files, binding, theme } | { ok:false, gap }
  */
-export function assembleApp({ outDir, appName = "Weather & Fuel", weatherSpec, fuelSpec = null, units, theme = null, defaultPlace = "London", provenance = {} }) {
+export function assembleApp({ outDir, appName = "Weather & Fuel", weatherSpec, fuelSpec = null, units, theme = null, defaultPlace = "London", provenance = {}, partial = false }) {
   const missing = REQUIRED_UNITS.filter((n) => !units?.[n]?.code);
-  if (missing.length) return { ok: false, gap: { type: "units_missing", missing, detail: "an app is not assembled around a unit no mouth could make pass" } };
+  // PARTIAL (a fold's preview): the leaves that have landed are assembled and each missing one is named OPEN in the manifest; the generated server answers its routes with a visible gap, never a guess
+  if (missing.length && !partial) return { ok: false, gap: { type: "units_missing", missing, detail: "an app is not assembled around a unit no mouth could make pass" } };
   const page = renderPage({ appName, weather: { spec: weatherSpec, table: WEATHER_TABLE, displayNames: WEATHER_NAMES }, fuel: fuelSpec ? { spec: fuelSpec, table: FUEL_TABLE, displayNames: FUEL_NAMES, heading: "Fuel nearby" } : null, theme, defaultPlace });
   fs.rmSync(outDir, { recursive: true, force: true });
   for (const d of ["lib", "units", "state"]) fs.mkdirSync(path.join(outDir, d), { recursive: true });
@@ -54,11 +55,12 @@ export function assembleApp({ outDir, appName = "Weather & Fuel", weatherSpec, f
     schema: "EOGeneratedApp@1", appName, generatedBy: "eoreader7 native/the-fold/app-assemble.mjs",
     userAgent: "generated-weather-fuel-app/1 (local demo; built by eoreader7)",
     composed: Object.fromEntries(FULL_UNITS.map((n) => [n, LEAVES_OF[n]])), wholeOracle: provenance.wholeOracle ?? null,
-    units: REQUIRED_UNITS.map((n) => ({ name: n, sha256: sha(units[n].code), model: units[n].model ?? null, rounds: units[n].rounds ?? null, calls: units[n].calls ?? null, cached: !!units[n].cached, contract: units[n].hash ?? null, declared: units[n].declared ?? {}, resolutions: units[n].resolutions ?? [] })),
+    units: REQUIRED_UNITS.filter((n) => units?.[n]?.code).map((n) => ({ name: n, sha256: sha(units[n].code), model: units[n].model ?? null, rounds: units[n].rounds ?? null, calls: units[n].calls ?? null, cached: !!units[n].cached, contract: units[n].hash ?? null, declared: units[n].declared ?? {}, resolutions: units[n].resolutions ?? [] })),
+    open: missing, partial: !!missing.length,
     theme: page.theme, defaultPlace,
     comps: provenance.comps ?? null, likeness: provenance.likeness ?? null, variant: provenance.variant ?? null,
   };
-  for (const n of REQUIRED_UNITS) files.push(w(`units/${n}.js`, units[n].code.endsWith("\n") ? units[n].code : units[n].code + "\n"));
+  for (const n of REQUIRED_UNITS.filter((x) => units?.[x]?.code)) files.push(w(`units/${n}.js`, units[n].code.endsWith("\n") ? units[n].code : units[n].code + "\n"));
   files.push(w("manifest.json", JSON.stringify(manifest, null, 1)));
   files.push(w("binding-report.json", JSON.stringify(page.binding, null, 1)));
   files.push(w("about.html", aboutHtml({ appName, manifest, binding: page.binding, provenance })));

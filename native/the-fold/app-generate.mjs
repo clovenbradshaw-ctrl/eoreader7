@@ -25,7 +25,7 @@ import { makeUnit, makeFieldedUnit, makeMouth, openUnitCache, loadTrails, saveTr
 /** The structural default order of mouths, cheapest first — small local models only (operator direction 2026-09-30: no larger coder). The learned order (stigmergy) reorders it. */
 export const DEFAULT_MOUTHS = ["qwen2.5-coder:1.5b", "gemma2:2b"];
 
-export async function generateUnits({ mouths = DEFAULT_MOUTHS, mouth = makeMouth(), trails = {}, cache = null, see = () => {}, only = null, now = Date.now(), rng = Math.random, repair = "edit", decompose = "whole", carry = false, anchorDir = null, species = null } = {}) {
+export async function generateUnits({ mouths = DEFAULT_MOUTHS, mouth = makeMouth(), trails = {}, cache = null, see = () => {}, only = null, now = Date.now(), rng = Math.random, repair = "edit", decompose = "whole", carry = false, anchorDir = null, species = null, onLeaf = null } = {}) {
   const leaves = {}; let gap = null;
   for (const c of LEAF_CONTRACTS) {
     if (only && !only.includes(c.name)) continue;
@@ -33,6 +33,7 @@ export async function generateUnits({ mouths = DEFAULT_MOUTHS, mouth = makeMouth
     trails = r.trails;
     leaves[c.name] = { ok: r.ok, code: r.code, model: r.model, calls: r.calls, rounds: r.rounds, cached: r.cached, ms: r.ms, hash: null, failures: r.failures, declared: r.declared ?? {}, resolutions: r.resolutions ?? [], bySpecies: r.bySpecies ?? {} };
     if (!r.ok) gap ??= { type: "leaf_failed", leaf: c.name, failures: r.failures.slice(0, 3) };
+    if (onLeaf) try { onLeaf(c.name, leaves[c.name]); } catch { /* a viewer must never break a build */ }
   }
   const whole = {};
   if (!gap && !only) {

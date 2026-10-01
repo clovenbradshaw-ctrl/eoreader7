@@ -35,7 +35,10 @@ const saveTrails = () => { try { fs.writeFileSync(TRAILS_FILE + ".tmp", JSON.str
 // ---- the leaves (verified code a model drew), each behind the wall, and the computed composition around them ----
 const leaf = {};
 for (const u of manifest.units) leaf[u.name] = loadUnit(fs.readFileSync(path.join(DIR, "units", `${u.name}.js`), "utf8"), u.name, { resolve: { declared: u.declared ?? {} } }); // the SAME resolving wall the unit was verified behind
-const unit = Object.fromEntries(FULL_UNITS.map((n) => [n, COMPOSE[n](Object.fromEntries(LEAVES_OF[n].map((l) => [l, leaf[l]])))]));
+// a full unit exists only when EVERY leaf it is made of has landed; one that has not is OPEN and its routes say so (a fold's preview), never a guess
+const unit = Object.fromEntries(FULL_UNITS.filter((n) => LEAVES_OF[n].every((l) => leaf[l])).map((n) => [n, COMPOSE[n](Object.fromEntries(LEAVES_OF[n].map((l) => [l, leaf[l]])))]));
+const openOf = (n) => LEAVES_OF[n].filter((l) => !leaf[l]);
+const notYet = (what, n) => Object.assign(new Error(`${what}: not passing its checks yet (open in the fold: ${openOf(n).join(", ")})`), { providers: [] });
 
 // ---- a polite, cached, time-limited fetch ----
 const cache = new Map();
@@ -66,7 +69,8 @@ const PROVIDERS = {
 };
 
 async function weather(p) {
-  const order = routeOrderFor(trails, "weather", { routes: Object.keys(PROVIDERS) });
+  if (!Object.values(PROVIDERS).some((x) => unit[x.unit])) throw notYet("weather", Object.values(PROVIDERS)[0].unit);
+  const order = routeOrderFor(trails, "weather", { routes: Object.keys(PROVIDERS).filter((k) => unit[PROVIDERS[k].unit]) });
   const tried = [], errors = [];
   for (const name of order) {
     const prov = PROVIDERS[name], t0 = Date.now();
@@ -96,9 +100,11 @@ const OVERPASS = "https://overpass-api.de/api/interpreter";
 async function fuel(p) {
   const q = `[out:json][timeout:20];(node(around:4000,${p.lat},${p.lon})[amenity=fuel];way(around:4000,${p.lat},${p.lon})[amenity=fuel];);out center 60;`;
   const raw = await getJson(OVERPASS, { method: "POST", body: "data=" + encodeURIComponent(q), headers: { "content-type": "application/x-www-form-urlencoded", "user-agent": "Mozilla/5.0 (compatible; generated-weather-fuel-app/1)" } });
+  if (!unit.parseStations) throw notYet("fuel stations", "parseStations");
   const stations = unit.parseStations(raw, Number(p.lat), Number(p.lon));
   let prices = null, priceGap = null;
-  if (/^united states/i.test(p.country ?? "")) {
+  if (!unit.parseEia) priceGap = `Prices: not passing their checks yet (open in the fold: ${openOf("parseEia").join(", ")}).`;
+  else if (/^united states/i.test(p.country ?? "")) {
     try { const e = unit.parseEia(await getText("https://www.eia.gov/petroleum/gasdiesel/", { ttl: 6 * 3600 * 1000 })); prices = { week: e.week, grades: e.prices, scope: "U.S. weekly average retail price (EIA) — not a station price" }; }
     catch (e) { priceGap = "The U.S. average price page could not be read right now: " + String(e.message).slice(0, 120); }
   } else priceGap = `No open, current fuel-price feed is wired for ${p.country || "this country"}; stations are shown without prices.`;
@@ -116,6 +122,7 @@ http.createServer(async (req, res) => {
     if (u.pathname === "/api/geocode") {
       const q = (u.searchParams.get("q") ?? "").trim(); if (!q) return send(res, 400, { error: "a place name is needed" });
       const raw = await getJson(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=en&format=json`, { ttl: 24 * 3600 * 1000 });
+      if (!unit.parseGeocode) throw notYet("place search", "parseGeocode");
       return send(res, 200, { places: unit.parseGeocode(raw) });
     }
     if (u.pathname === "/api/weather" || u.pathname === "/api/fuel") {

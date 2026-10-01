@@ -19,6 +19,7 @@ import { driveApp } from "./app-drive.mjs";
 import { seenImages, readSeen, likenessOfApp } from "./app-likeness.mjs";
 import { LEAF_CONTRACTS } from "./app-leaves.mjs";
 import { generateUnits } from "./app-generate.mjs";
+import { openFold } from "./app-fold.mjs";
 import { speciesHook } from "./app-species.mjs";
 import { makeMouth, openUnitCache, loadTrails, saveTrails } from "./app-units.mjs";
 import { REFERENCE_LEAVES } from "./app-weather-fuel.reference.mjs";
@@ -41,13 +42,23 @@ export function accountOf(generated) {
  * buildApp — the whole build as ONE call, for the app door: leaves drawn species-first then by the LOCAL models only (no stand-in, no larger model), assembled, driven, copy-checked.
  * -> { ok, stage, gap?, account, out, drive?, likeness? } — a leaf that no local mouth can make pass stops the build as a typed gap; nothing half-built ships.
  */
-export async function buildApp({ work, out, places = ["London"], mouths = ["qwen2.5-coder:1.5b", "gemma2:2b"], onNote: onNoteIn = null } = {}) {
+export async function buildApp({ work, out, places = ["London"], mouths = ["qwen2.5-coder:1.5b", "gemma2:2b"], onNote: onNoteIn = null, plan = null } = {}) {
   const onNote = typeof onNoteIn === "function" ? onNoteIn : () => {};
   fs.mkdirSync(work, { recursive: true });
   const cache = openUnitCache(path.join(work, "unit-cache")), trailsFile = path.join(work, "trails.json"), ledger = path.join(work, "build-ledger.jsonl");
   const see = (event, f) => { fs.appendFileSync(ledger, JSON.stringify({ at: new Date().toISOString(), event, ...f }) + "\n"); if (event === "unit" && f.name) onNote({ move: "app_unit", note: `${f.name}: ${f.species ? "species " + f.species : f.ok === false ? "no local model passed it" : "drawn and verified"}` }); };
+  // THE FOLD: every leaf that passes LANDS as an entry, one that does not is OPEN with why; the app is a projection of this log (app-view.mjs watches it and renders what has landed)
+  const fold = openFold(path.join(work, "fold.jsonl"));
+  if (plan) fold.append("propose", { needs: plan.needs, gaps: plan.gaps });
+  const seeFold = (event, f) => { see(event, f); if (event === "unit" && f.name && /Of$/.test(f.name)) fold.append("note", { note: `${f.name}: ${f.species ? "filled by species " + f.species + ", no model call" : f.ok === false ? "no local model passed it" : "drawn by a local model and verified"}` }); };
+  const onLeaf = (name, l) => {
+    const mods = [...new Set(String(l.model ?? "").split("+").filter((m) => m && !m.startsWith("species:")))], nsp = Object.keys(l.bySpecies ?? {}).length;
+    const by = l.ok ? [...mods, ...(nsp ? [`${nsp} species fill(s)`] : [])].join(" + ") : null;
+    if (l.ok) fold.append("land", { leaf: name, code: l.code, by, calls: l.calls ?? 0, rounds: l.rounds ?? 0, bySpecies: l.bySpecies ?? {}, declared: l.declared ?? {}, resolutions: l.resolutions ?? [] });
+    else fold.append("open", { leaf: name, failures: (l.failures ?? []).slice(0, 3), calls: l.calls ?? 0 });
+  };
   const t0 = Date.now();
-  const gen = await generateUnits({ mouths, trails: loadTrails(trailsFile), cache, see, decompose: "fields", species: speciesHook() });
+  const gen = await generateUnits({ mouths, trails: loadTrails(trailsFile), cache, see: seeFold, decompose: "fields", species: speciesHook(), onLeaf });
   saveTrails(trailsFile, gen.trails);
   const generated = { ok: gen.ok, gap: gen.gap, whole: gen.whole, leaves: gen.leaves, ms: Date.now() - t0 };
   fs.writeFileSync(path.join(work, "units.json"), JSON.stringify(generated, null, 1));
@@ -65,7 +76,15 @@ export async function buildApp({ work, out, places = ["London"], mouths = ["qwen
   return { ok: drive.ok, stage: drive.ok ? "done" : "drive", account, out, drive: report.drive, likeness };
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href && process.argv.includes("--live")) {
+  // node app-build.mjs --live --work <dir> [--port 8830]: the build AND the viewer in one process — open the printed URL and watch the fold evolve
+  const { startViewer } = await import("./app-view.mjs");
+  const work = path.resolve(arg("work", "./generate-work")), v = startViewer({ work, port: Number(arg("port", 8830)), appPort: Number(arg("app-port", 8831)), title: arg("title", "Weather & fuel app") });
+  console.log(`watch it evolve: ${v.url}`);
+  const r = await buildApp({ work, out: path.join(work, "final"), places: ["London", "Paris"], onNote: (n) => console.log("·", n.note) });
+  console.log(r.ok ? `\nALL CHECKS PASSING — built and driven: ${r.out}` : `\nBLOCKED at ${r.stage}: ${JSON.stringify(r.gap).slice(0, 300)}\nThe fold keeps what passed; the viewer stays up at ${v.url} (ctrl-c to stop).`);
+  if (!r.ok) setInterval(() => {}, 1 << 30); else v.stop();
+} else if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
   const work = path.resolve(arg("work", "./generate-work")), out = path.resolve(arg("out", "./app-out")), places = arg("places", "London,Paris").split(",");
   const generated = JSON.parse(fs.readFileSync(path.join(work, "units.json"), "utf8"));
   const report = { schema: "EOAppBuild@1", at: new Date().toISOString(), work, out, generate: { ok: generated.ok, gap: generated.gap, whole: generated.whole, ms: generated.ms }, account: accountOf(generated) };

@@ -4504,9 +4504,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       if (!plan.covered.length) return earlyResult(describePlan(plan), { answerShape: "app-gap", mechanical: { rung: "app-door", schema: plan.schema, plan, built: false } });
       const work = path.join(learnedDir(), "apps", new Date().toISOString().replace(/[:.]/g, "-"));
       const { buildApp } = await import("./native/the-fold/app-build.mjs");
-      const r = await buildApp({ work, out: path.join(work, "app"), places: PACKS.find((p) => p.id === plan.covered[0])?.places ?? ["London"], onNote }).catch((e) => ({ ok: false, stage: "error", gap: { type: "app_build_error", detail: e.message }, account: [], out: null }));
+      const r = await buildApp({ work, out: path.join(work, "app"), places: PACKS.find((p) => p.id === plan.covered[0])?.places ?? ["London"], onNote, plan }).catch((e) => ({ ok: false, stage: "error", gap: { type: "app_build_error", detail: e.message }, account: [], out: null }));
       const by = (r.account ?? []).map((a) => `${a.leaf}: ${a.whole}`).join("; ");
-      const text = r.ok ? `${describePlan(plan)}\nBuilt and driven in a browser: ${r.out}\nLeaves — ${by}.` : `${describePlan(plan)}\nThe build stopped at ${r.stage}: ${JSON.stringify(r.gap ?? r.drive?.errors ?? "").slice(0, 400)}. Nothing was shipped half-built.\nLeaves — ${by}.`;
+      const text = r.ok ? `${describePlan(plan)}\nBuilt and driven in a browser: ${r.out}\nThe fold (watch it: node native/the-fold/app-view.mjs --work ${work}): ${path.join(work, "fold.jsonl")}\nLeaves — ${by}.` : `${describePlan(plan)}\nThe build stopped at ${r.stage}: ${JSON.stringify(r.gap ?? r.drive?.errors ?? "").slice(0, 400)}. Nothing was shipped half-built.\nLeaves — ${by}.`;
       return earlyResult(text, { answerShape: "app", mechanical: { rung: "app-door", schema: plan.schema, plan, built: !!r.ok, stage: r.stage, out: r.out, account: r.account, likeness: r.likeness?.verdict ?? null } });
     }
   }
