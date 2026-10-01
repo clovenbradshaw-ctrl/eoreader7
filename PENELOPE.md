@@ -24,6 +24,13 @@ The voyage, not the loom: doors, admission, the shared mouth, the
 witness grammar, the ground. Penelope calls eoreader7 doors; nothing in
 `native/` imports penelope (boundary stands).
 
+## Done since (2026-10-01)
+
+- Mouth consolidation: penelope's gym draws through Heimdall admission
+  (shared mouth `er7:gemma2:2b`, `x-er7-session: penelope-gym`,
+  `x-er7-priority: batch`; 429/503 honored with bounded backoff).
+  First admitted draw verified live.
+
 ## Outstanding (not yet done)
 
 - Mouth consolidation (ONE-PIPELINE item 5): penelope's gym still draws
