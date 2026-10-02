@@ -1,0 +1,54 @@
+{
+  "schema": "MigrationLedger@1",
+  "date": "2026-10-01",
+  "note": "what moves where, between Khora, Penelope, and the surfaces. The khora is the perceiver and the ground-producer; it is eoreader7's reading body re-held. Nothing here invents a new machine — it re-homes the parts the khora does not own.",
+  "stays-in-khora": {
+    "why": "they ARE the perceiver and the ground-producer — the khora's own body",
+    "items": [
+      "the fold (the constitutional reader)",
+      "the swarm (hard meaning, contended framings)",
+      "the hunt (feed/web), look.js (image · OCR · measure)",
+      "the corpus ingestion, kleene-up (permanent addresses)",
+      "the reading organs: apollo · thea · hora · gary · martial · territory · output-holograph",
+      "the operational body: proxy (the door) · fleet · daemon · channel",
+      "the categories AS HYPOTHESIS: H · the 27 · the helix · the wheel (half-life'd, falsifier beside, REC on the axes)"
+    ]
+  },
+  "stays-as-the-seam": {
+    "why": "execution between the two houses — directed by penelope, never self-authorized",
+    "items": [
+      "heimdall (the bridge · admission · host picker · lanes)",
+      "the mouth kernel (the draw entry penelope directs)",
+      "the build machine (code-build · mechanical-units · Thea's loop) — governed by penelope's law (GL-BD-12)"
+    ]
+  },
+  "migrates-to-penelope": {
+    "why": "the record and the judgment are the keeper's — the khora perceives but does not keep, does not judge",
+    "items": [
+      "THE-LOG-IS-THE-MEMORY → the EOT (the memory is the keeper's, never the khora's)",
+      "task-log · artifact resume → the record",
+      "the gates · the consensus · the falsifier → penelope's consensus-gate, the bow",
+      "the refusal · the honesty floor · falsify-or-die → penelope (already hers)",
+      "the scars (the record of every voyage) → her weft (already hers)"
+    ]
+  },
+  "migrates-to-the-surfaces": {
+    "why": "the naming, the wanting, the answering are the dream's — given at the fold, never owned by the ground",
+    "items": [
+      "the archons' names (kleeneUp · Kelsen · Solon · Nagarjuna) → presented through the apps",
+      "\"the reader that wanted a mark\" → the person's voice, spoken at the surface",
+      "the answering · the chat · the interaction → eochat · the gym · the TUI",
+      "the mark (identity by consequence, the fold held at a point) → the app that holds it"
+    ]
+  },
+  "surfaces": {
+    "note": "many folds, one Ground@1 contract, delegation by address — see surfaces/manifest.json",
+    "the-fold": "reading surface",
+    "the-holograph": "run surface (penelope seal() — the facing page, [S#] sources)",
+    "the-chat": "interaction surface (eochat · eoWebLLM · the gym)",
+    "the-tui": "operator surface",
+    "the-council": "judgment surface",
+    "existing-artifact": "Documents/khora-v7.html — 'Khora — EO Event Stream', a surface mockup presenting the event stream; a fold, not the khora core"
+  },
+  "falsifyingControl": "a part that migrates twice, a surface that re-implements a seam instead of delegating, or the khora accumulating a record, a judgment, a name, or a want contradicts this ledger."
+}

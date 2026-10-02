@@ -1,0 +1,48 @@
+{
+  "schema": "Surfaces@1",
+  "note": "the folds — every app a person interacts through. Surfaces present ground, and they COMPOSE: each surface delegates the parts it does not own to the surface that does, so no surface re-implements a seam. One Ground@1 contract, many dream-surfaces.",
+  "surfaces": [
+    {
+      "name": "the-fold",
+      "kind": "reading surface",
+      "presents": "the folded world — beings, relations, the reading's ground",
+      "renders": "Ground@1 via the fold's facing pages",
+      "delegates": { "run-record": "the-holograph", "addressed-bytes": "khora:perceive" },
+      "host": "the-fold (the constitutional reader)"
+    },
+    {
+      "name": "the-holograph",
+      "kind": "run surface",
+      "presents": "the ledger of a single run — SOURCES / RESPONSE / NOTES",
+      "renders": "[S#] sources @ permanent address · bytes (Ground@1, verbatim)",
+      "delegates": { "ground-render": "the-fold", "record": "penelope:EOT" },
+      "host": "penelope gym/weave-build.mjs seal() — apps/weaves/<slug>-facing.html"
+    },
+    {
+      "name": "the-chat",
+      "kind": "interaction surface",
+      "presents": "the conversation — the person's words and the system's",
+      "renders": "the mouth's draw, folded with its scars and verdict",
+      "delegates": { "draw": "penelope:mouth", "witness": "khora:swarm", "run-record": "the-holograph" },
+      "host": "eochat · eoWebLLM · the gym (gym/chat.html)"
+    },
+    {
+      "name": "the-tui",
+      "kind": "operator surface",
+      "presents": "the terminal — the hand at the loom",
+      "renders": "the same Ground@1 the web surfaces render, at the shell",
+      "delegates": { "render": "the-fold", "run-record": "the-holograph" },
+      "host": "eoreader7 cli/tui.mjs"
+    },
+    {
+      "name": "the-council",
+      "kind": "judgment surface",
+      "presents": "the many claimants — comps contending, one mode surviving",
+      "renders": "ConsensusGate@1 verdicts over harvested witnesses",
+      "delegates": { "witness": "khora:swarm", "record": "penelope:EOT" },
+      "host": "penelope apps/council*.html"
+    }
+  ],
+  "composition-rule": "a request enters ONE surface; every part it does not own is delegated to the surface that does, by address — never re-implemented. The surfaces share one Ground@1 schema and call each other; the redundancy is measured (swatch), never assumed.",
+  "falsifyingControl": "a surface that re-implements a seam another surface already owns (a chat that re-renders the fold's ground instead of delegating), or a surface whose presented ground has no Ground@1 address, contradicts this."
+}

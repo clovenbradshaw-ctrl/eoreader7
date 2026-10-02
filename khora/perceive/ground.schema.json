@@ -1,0 +1,17 @@
+{
+  "schema": "Ground@1",
+  "note": "the contract everything shares — Khora produces it, Penelope weaves it, the surfaces fold it. An addressed, witnessed record with its standing and its falsifier beside it. The holograph already writes this shape ([S#] sources @ permanent address · bytes); Khora formalizes it.",
+  "fields": [
+    { "key": "s", "type": "string", "def": "the [S#] surface ref — the thing's name on the dream, given at the surface, never the khora's own" },
+    { "key": "addr", "type": "string", "def": "the permanent address — byte span, URI, or absolute path. Material crosses seams by address, never by assertion (GL-00)." },
+    { "key": "bytes", "type": "integer|null", "def": "the measured size in bytes, or null when addressed-only (a pointer, not a payload)" },
+    { "key": "provenance", "type": "array", "items": { "source": "corpus|hunt|mouth|box|measure|swarm", "unit": "string", "lang": "js|python|prose|null", "bytes": "integer" }, "def": "who produced each part and how much — the economy, never asserted" },
+    { "key": "witnesses", "type": "array", "items": { "author": "string", "basis": "string", "at": "epoch-ms" }, "def": "the framings that contended — hard meaning is swarmed, never single-framed. One witness is not a fact (GL-IM-03)." },
+    { "key": "standing", "type": "enum", "opts": ["hypothesis", "standing", "superseded", "falsified"], "def": "the status of the claim, per discipline/hypothesis.mjs" },
+    { "key": "halfLifeRounds", "type": "integer|null", "def": "after this many reviews the claim must be re-witnessed, or it decays" },
+    { "key": "falsifier", "type": "string|null", "def": "what would dissolve this ground — written beside it, never after" },
+    { "key": "supersededBy", "type": "string|null", "def": "the ref of the entry that superseded this one — append-only, never rewritten" },
+    { "key": "born", "type": "epoch-ms", "def": "when the ground was produced" }
+  ],
+  "falsifyingControl": "a ground record whose addr does not resolve, whose witnesses share one author, or whose falsifier is empty contradicts the contract — a claim with no way to be wrong is not ground, it is decoration"
+}
