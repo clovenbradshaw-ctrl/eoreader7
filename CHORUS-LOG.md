@@ -896,3 +896,16 @@ fast: 6 files · 20 affected tests pass (lowercase-lane-falsify 10/10, nominal-b
 | Simon/Chekhov | S87 | descriptor-lane.js | noted | ships OPT-IN and UNWIRED from every production path, on purpose (resolveIn/referents feed document-ledger, essay-shape-register, synonymPool, groundSeed); the same shape referentFromDescriptorHypothesis sat in for months — disclosed in S137, the memory note and the commit; wiring is a product decision, ask-side first |
 | Marshall | S86–S89, S24, S37, II.13 | READING-SPEC.md S137 | clean | new entry, not an amendment; carries **Generality:**; its enforcement test is in the same diff; the S89 quote is verbatim |
 clean: none claimed
+
+## 2026-09-30 — the screenshot reader brought into the pipeline: reading (lookAtImage), generation (page-build style), shell (screenshot-pipeline, 17 paths)
+fast: 6 modified + 11 new paths · screen-pipeline 22/22, assembly-registry + earned-constants pass · native suite 2005→2027 tests, the same 43 fail by name as a clean origin/main (0981582), 0 regressions · law: ok (0 citations; dup headers pre-existing: P115 P116 P117 P19 P233 in the-fold/POLICIES.md, S17 S96 here)
+FAIL carried, not fixed — identical on a clean origin/main worktree: tests/provenance-feed (5) and tests/single-grain-audit (imports auditSingleGrain, which proxy-runner.mjs never defined); native holodeck-e2e (2) fail on the colony evaluator's `setrlimit` ("current limit exceeds maximum limit") on this host.
+| lens | citation | file:line | verdict | one line |
+| Feynman | II.11 | proxy-runner.mjs:2654 | fixed | a bare `12 * 1024 * 1024` duplicated the workspace scan's own literal; both now read MAX_LOOK_IMAGE_BYTES, named as set by hand. Also: every hand-set constant of the screen core is named with its giver in SCREEN_SETTINGS, and the gate floor (0.77) cites the 12-vs-17 measurement it came from. |
+| Feynman | — | native/conformance/screen-pipeline.test.mjs | noted | first mutation pass found two tests that could not fail (the 1x sample hid a dropped unit; noise scores ~0 and cannot pin the gate floor); both strengthened and re-mutated before the entry was written. |
+| Dijkstra | — | proxy-runner.mjs:2657 | false-positive-on-review | `extname(name).toLowerCase()` is reached only after isImageFileName(name) (a closed extension set), and names a temp file inside an mkdtemp dir that is removed in `finally`; the name is never used as a path. |
+| Alexander | — | native/eval/results/assembly-reconstruction.json:408 | false-positive-on-review | the hit is the added A2.1 row for eval/results/screen-roundtrip.md (a typed no_registered_boundary gap, naming its organs); no composition gate was touched. |
+| Greenberg | — | native/organs/look.js | clean | `node native/organs/greenberg.js native/organs/look.js` returns {}; the edit is a third sense in lookAtImage, no grammar field or language default. |
+clean: Simon/Chekhov (not routed — every new source file is imported by screen-pipeline.test.mjs), Frankfurt (not routed).
+
+Context: user — "bring it fully into the pipeline for normal use in generation and/or reading" (PR #144's tool). Not done on purpose, stated in native/docs/SCREENSHOT-PIPELINE.md: HTTP chat still drops base64 attachments (parseProxyRequest keeps only {name, text}); the notebook door still ingests images by flat OCR.

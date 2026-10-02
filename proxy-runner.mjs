@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
 import { ingest } from "./native/organs/ingest.js";
 import { analysisDoor, isAnalysis } from "./native/the-fold/surface/notebook-door.mjs";
 import { fileURLToPath } from "node:url";
@@ -12,7 +13,7 @@ import { renderBelief, renderBeliefMapped } from "./native/adapters/build/belief
 import { makeWikiSummary } from "./native/adapters/sources/wiki-summary.js";
 import { makeNpmParts } from "./native/adapters/sources/npm-parts.js";
 import { sourcePart, provenanceComment } from "./native/organs/part-source.js";
-import { RENDERED_ELEMENTS } from "./native/adapters/build/belief-page.js";
+import { RENDERED_ELEMENTS, FALLBACK_STYLE } from "./native/adapters/build/belief-page.js";
 import { createEnglishParserPerceiver } from "./native/adapters/text/english-parser-perceiver.mjs";
 import { isCodeHunk, codeEncounters } from "./native/adapters/code/encounters.js";
 import { diaNorm, namesCorefer } from "./native/adapters/text/surfaces.js";
@@ -96,6 +97,10 @@ import { extractReadable, parseSearchResults, extractUrls, normalizeUrl, WEB_SEA
 // disagreement, and a text→image render for text whose formatting the
 // plain-text reader is reading wrong.
 import { isImageFileName, lookAtImage, lookAtText, shouldLook, weirdFormattingScore } from "./native/organs/look.js";
+// A screenshot the person handed in is a style reference for the page a build draws (organs/screen-style.js):
+// its measured colours, radii, type and spacing, through reference-fit. ER7_SCREEN_STYLE=0 turns the styling off; ER7_SCREEN=0 the look.
+import { styleFromScreens, layerStyle } from "./native/organs/screen-style.js";
+import { lookAtScreen } from "./native/organs/look-screen.js";
 import { hardReadSource, judgeStill, linesFor, loadLearned, saveLearned, learnedDir } from "./native/organs/hard-read.js";
 import { recordUse, linkSkills, skillRef, INSTRUMENTED } from "./native/organs/skill-usage.js";
 import { disabledSet } from "./native/organs/skill-toggles.js";
@@ -2662,13 +2667,47 @@ async function admitWorkspaceEntries(session, entries, onNote) {
   return { admitted, chars, looked };
 }
 
+// The largest image the reading will look at, in bytes. Set by hand, not measured: the workspace scan's own reasoning ("a 12MB image is
+// not something to look at every turn") serves an attached image too, so both read the one bound.
+const MAX_LOOK_IMAGE_BYTES = 12 * 1024 * 1024;
+
+// A screenshot ATTACHED to a turn — bytes in the request, not a file the person keeps. A UI screenshot read as flat OCR
+// (organs/ingest.js: Tesseract psm 3) comes out as its words in whatever order the page segmentation found them, with
+// the layout gone; the screen sense (organs/look-screen.js) reads it as a page: structure, regions, colours, and its gaps.
+// The bytes go to a temp file only as long as ffmpeg and tesseract need one, and NO sidecar is kept (persist: false) — the
+// repo's posture for attachments is that their bytes are never a file on this machine, and the text read off them is theirs
+// too. Returns the reading text (and leaves the sidecar on the session as a style reference), or null when the image is
+// not a screen / a tool is missing / it failed: the caller falls back to ingest, and the reason is on the record.
+export async function lookAttachedScreen(session, name, bytes, onNote) {
+  if (!isImageFileName(name) || bytes.length > MAX_LOOK_IMAGE_BYTES) return null;
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "er7-attach-"));
+  try {
+    const file = path.join(dir, `in${path.extname(name).toLowerCase()}`);
+    fs.writeFileSync(file, bytes);
+    const r = await lookAtScreen(file, { name, persist: false });
+    if (!r.screen) {
+      if (onNote) onNote({ move: "attachment_screen_skipped", name, reason: r.reason, ...(r.gate ? { flatShare: r.gate.flatShare, floor: r.gate.floor } : {}), ...(r.detail ? { detail: String(r.detail).slice(0, 160) } : {}) });
+      return null;
+    }
+    if (!session.screens) session.screens = new Map();
+    session.screens.set(name, r.sidecar);
+    if (onNote) onNote({ move: "attachment_screen_read", name, elements: r.sidecar.elements.length, gaps: r.sidecar.gaps.map((g) => g.kind) });
+    return r.text;
+  } catch (err) {
+    if (onNote) onNote({ move: "attachment_screen_error", name, error: err.message });
+    return null;
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 // Look at the workspace's IMAGE files (currently skipped by the text scan —
 // isTextFile refuses them) so the reading can actually SEE a diagram, a
 // screenshot, a chart. Each image's looked-at reading is admitted as its own
 // source, exactly like a text file. Bounded: MAX_LOOK_IMAGES per turn, and
 // only files this session has not already looked at.
 const MAX_LOOK_IMAGES = 6;
-async function lookWorkspaceImages(session, absRoot, onNote) {
+export async function lookWorkspaceImages(session, absRoot, onNote) {
   if (!fs.existsSync(absRoot)) return { looked: 0 };
   const images = [];
   const walk = (dir, depth) => {
@@ -2685,7 +2724,7 @@ async function lookWorkspaceImages(session, absRoot, onNote) {
       if (!isImageFileName(ent.name)) continue;
       let stat;
       try { stat = fs.statSync(full); } catch { continue; }
-      if (stat.size > 12 * 1024 * 1024) continue; // a 12MB image is not something to look at every turn
+      if (stat.size > MAX_LOOK_IMAGE_BYTES) continue;
       images.push({ abs: full, rel: full.slice(absRoot.length).replace(/^\//, ""), size: stat.size, mtimeMs: stat.mtimeMs });
     }
   };
@@ -2722,7 +2761,10 @@ async function lookWorkspaceImages(session, absRoot, onNote) {
         }
         if (!session.lookIndex) session.lookIndex = new Map();
         session.lookIndex.set(img.rel, key);
-        if (onNote) onNote({ move: "look_image", rel: img.rel, boxes: result.boxCount ?? 0, connectors: result.edgeCount ?? 0, vision: Boolean(result.visionRead), settled: result.visionSettled ?? true, chars: result.text.length });
+        // the screen sense's sidecar (adapters/image/screen-sidecar.js) stays on the session: the reading above has it as text,
+        // the page a build draws later has it as a measured style reference
+        if (result.sidecar) { if (!session.screens) session.screens = new Map(); session.screens.set(img.rel, result.sidecar); }
+        if (onNote) onNote({ move: "look_image", rel: img.rel, boxes: result.boxCount ?? 0, connectors: result.edgeCount ?? 0, vision: Boolean(result.visionRead), settled: result.visionSettled ?? true, chars: result.text.length, screen: result.screen?.applies ? { elements: result.screen.elements, cached: result.screen.cached, gaps: result.screen.gaps } : (result.screen ? { applies: false, reason: result.screen.reason } : null) });
       }
     } catch (err) {
       if (onNote) onNote({ move: "look_error", rel: img.rel, error: err.message });
@@ -4866,10 +4908,16 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       const name = String(a?.name ?? `attachment-${attachmentStats.files + 1}`).slice(0, 120);
       let text = String(a?.text ?? "");
       if (!text && a?.base64) { // any file: docx/xlsx/pptx/pdf/image/csv/ipynb -> text face + typed gaps (organs/ingest.js)
-        const ing = ingest({ name, bytes: Buffer.from(String(a.base64), "base64") });
-        text = ing.text;
-        if (onNote) onNote({ move: "attachment_ingested", name, kind: ing.kind, chars: ing.text.length, gaps: ing.gaps.map((g) => g.kind) });
-        if (!text.trim() && onNote) onNote({ move: "attachment_unread", name, gaps: ing.gaps });
+        const bytes = Buffer.from(String(a.base64), "base64");
+        // a screenshot is read as a PAGE first (measured structure, not flat OCR); anything else, or a screen the tools could not read, ingests as before
+        const screenText = await lookAttachedScreen(session, name, bytes, onNote);
+        if (screenText) text = screenText;
+        else {
+          const ing = ingest({ name, bytes });
+          text = ing.text;
+          if (onNote) onNote({ move: "attachment_ingested", name, kind: ing.kind, chars: ing.text.length, gaps: ing.gaps.map((g) => g.kind) });
+          if (!text.trim() && onNote) onNote({ move: "attachment_unread", name, gaps: ing.gaps });
+        }
       }
       if (!text.trim()) continue;
       attachmentStats.files += 1;
@@ -6796,8 +6844,13 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         };
         const forWhom = session?.buildDeclared?.anchor ?? null;
         const what = typeof buildTask === "string" && buildTask ? buildTask : task;
-        const style = await talkStyle();
-        if (onNote) onNote({ move: "talk_style", snipped: !!style, from: style ? `${style.provenance.package}@${style.provenance.version}${style.provenance.path}` : null, license: style?.provenance.license ?? null });
+        const baseStyle = await talkStyle();
+        // a screenshot in the workspace is the look the person asked for: measured, synthesised through reference-fit,
+        // layered over the snipped classless sheet (which gives every element its plain layout)
+        const screenStyle = (process.env.ER7_SCREEN_STYLE ?? "1") !== "0" && session?.screens?.size ? styleFromScreens([...session.screens.values()]) : null;
+        // with no snipped sheet, the screenshot's values sit over the engine's own base sheet, not over the browser's defaults
+        const style = screenStyle ? layerStyle(baseStyle ?? FALLBACK_STYLE, screenStyle) : baseStyle;
+        if (onNote) onNote({ move: "talk_style", snipped: !!baseStyle, from: style ? `${style.provenance.package}@${style.provenance.version}${style.provenance.path}` : null, license: style?.provenance.license ?? null, screens: screenStyle ? { n: session.screens.size, applied: [...Object.keys(screenStyle.tokens.colour), ...Object.keys(screenStyle.tokens).filter((k) => k !== "colour")], refused: screenStyle.refused.map((r) => r.token) } : null });
         const tb = makeTalkBuild({
           ask: talkAsk, parse, sentences: englishSentences, render: (belief, o) => renderBeliefMapped(belief, { ...o, style }), lookup: talkLookup, mouth: model, medium: PAGE_MEDIUM,
           log: (e) => {

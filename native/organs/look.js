@@ -10,6 +10,11 @@
 //      whole thing, escalated on disagreement to a larger model, judged by
 //      a mechanical read it cannot outvote for precise detail.
 //
+// A THIRD SENSE (organs/look-screen.js, added with the screenshot pipeline — native/docs/SCREENSHOT-PIPELINE.md): when the
+// image is a UI screenshot (a measured gate, not a guess) its structure is MEASURED from the pixels — flat colour regions
+// and Tesseract's text — needing only ffmpeg and tesseract. Its facts join the ones the vision read is judged against, its
+// text joins the reading, its `visual-box` lines join the fold. ER7_SCREEN=0 turns it off.
+//
 // The two never run blind: a judge call checks the vision read against the
 // mechanical facts and escalates only on a real, named disagreement
 // (settleImageRead, below — the fold's own "multiple eyes, triggered by
@@ -359,6 +364,13 @@ export async function lookAtImage(imagePath, { visionModel = VISION_LADDER[0].mo
     };
   }
 
+  // THE SCREEN SENSE (organs/look-screen.js): a UI screenshot's structure is flat colour regions and text, which are
+  // MEASURED, not described — needs only ffmpeg and tesseract, no venv and no model. Gated on the image being a screen
+  // at all (a photograph has nothing to measure); its sidecar is kept by the image's sha256, so the look is done once.
+  // A missing tool or a non-screen is carried in the result as a reason, never a silent skip. ER7_SCREEN=0 turns it off.
+  let screen;
+  try { screen = await (await import("./look-screen.js")).lookAtScreen(imagePath, { name }); } catch (err) { screen = { screen: false, reason: "error", detail: err.message }; }
+
   let detected = null;
   let detectorError = null;
   try {
@@ -401,11 +413,11 @@ export async function lookAtImage(imagePath, { visionModel = VISION_LADDER[0].mo
     }
   }
 
-  const factLines = imageFactLines(boxes, connectors, width, height);
+  const factLines = [...imageFactLines(boxes, connectors, width, height), ...(screen.screen ? screen.factLines : [])];
   const settled = await settleRead(visionRead, factLines, visionModelUsed);
 
-  if (!boxes.length && !visionRead) {
-    return { imagePath, name, text: "", boxCount: 0, edgeCount: 0, width, height, visionRead: null, visionModelUsed: null, visionSettled: true, unresolvedReason: null, detectorError, visionError, fastPath: { matched: false, error: fastPathError ?? null }, mechanicalStanding: null, visionStanding: null };
+  if (!boxes.length && !visionRead && !screen.screen) {
+    return { imagePath, name, text: "", boxCount: 0, edgeCount: 0, width, height, visionRead: null, visionModelUsed: null, visionSettled: true, unresolvedReason: null, detectorError, visionError, fastPath: { matched: false, error: fastPathError ?? null }, screen: screenSummary(screen), mechanicalStanding: null, visionStanding: null };
   }
 
   const readable = boxes.filter((b) => b.text && b.text.trim());
@@ -422,6 +434,10 @@ export async function lookAtImage(imagePath, { visionModel = VISION_LADDER[0].mo
       lines.push(`Connector between region ${c.connects[0]} and region ${c.connects[1]}${c.direction !== "undetermined" ? ` (direction: ${c.direction})` : " (direction not determined)"}.`);
     }
   }
+  if (screen.screen) {
+    if (lines.length) lines.push("");
+    lines.push(screen.text);
+  }
   if (!settled.settled) lines.push("", `(the vision read and the mechanical findings still disagree after ${settled.turns} tries: ${settled.unresolvedReason})`);
   if (settled.judgeBlocked) lines.push("", `(the agreement check was withheld by the safety-and-ethics gate: ${settled.judgeBlocked})`);
   if (settled.escalationBlocked) lines.push("", `(the escalation look was withheld by the safety-and-ethics gate: ${settled.escalationBlocked})`);
@@ -429,7 +445,9 @@ export async function lookAtImage(imagePath, { visionModel = VISION_LADDER[0].mo
   if (detectorError) lines.push("", `(the mechanical detector did not run: ${detectorError})`);
   if (visionError) lines.push("", `(no vision model answered: ${visionError})`);
 
-  const standing = readable.length ? `${VISION_STANDING} A mechanical detector also ran: ${MECHANICAL_STANDING}` : VISION_STANDING;
+  const baseStanding = readable.length ? `${VISION_STANDING} A mechanical detector also ran: ${MECHANICAL_STANDING}` : VISION_STANDING;
+  const standing = screen.screen ? `${baseStanding} ${screen.standing}` : baseStanding;
+  const allLedger = [...toLedgerLines(detected ?? { image: imagePath, boxes, connectors }), ...(screen.screen ? screen.ledgerLines : [])];
   return {
     imagePath, name,
     text: lines.join("\n"),
@@ -444,9 +462,18 @@ export async function lookAtImage(imagePath, { visionModel = VISION_LADDER[0].mo
     detectorError, visionError,
     fastPath: { matched: false, error: fastPathError ?? null },
     standing,
-    ledgerLines: toLedgerLines(detected ?? { image: imagePath, boxes, connectors }),
-    fold: foldVisual(toLedgerLines(detected ?? { image: imagePath, boxes, connectors })),
+    screen: screenSummary(screen),
+    sidecar: screen.screen ? screen.sidecar : null,
+    ledgerLines: allLedger,
+    fold: foldVisual(allLedger),
   };
+}
+
+// What the result says about the screen sense: applied (with where its sidecar is and what gated it), or why not.
+function screenSummary(screen) {
+  return screen.screen
+    ? { applies: true, cached: screen.cached, sidecarPath: screen.sidecarPath ?? null, gate: screen.gate ?? null, elements: screen.sidecar.elements.length, gaps: screen.sidecar.gaps.map((g) => g.kind) }
+    : { applies: false, reason: screen.reason, ...(screen.detail ? { detail: screen.detail } : {}), ...(screen.gate ? { gate: { flatShare: screen.gate.flatShare, floor: screen.gate.floor } } : {}) };
 }
 
 // ── lookAtText: the same capacity, one step back ───────────────────────────
