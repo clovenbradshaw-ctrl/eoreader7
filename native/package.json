@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test \"conformance/*.test.mjs\" \"tests/*.test.js\"",
+    "test": "node scripts/check-no-legacy-submodule.mjs && node --test \"conformance/*.test.mjs\" \"tests/*.test.js\"",
     "test:organs": "node --test \"organs/*.test.mjs\"",
     "test:heimdall": "node --test \"heimdall/*.test.mjs\"",
     "benchmark:heimdall": "node eval/heimdall/benchmark.mjs",

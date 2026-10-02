@@ -4,7 +4,7 @@
   "description": "EOReader 7 now has a native canonical recursive-reading kernel.",
   "main": "kernel.js",
   "scripts": {
-    "test": "node --test native/the-fold/essay-fold-falsify.test.mjs native/the-fold/pipeline-run-falsify.test.mjs native/the-fold/parameter-induction-falsify.test.mjs native/the-fold/referents-falsify.test.mjs native/the-fold/ground-replay-falsify.test.mjs native/organs/web.test.mjs native/tests/entity-profile.test.js native/conformance/block-profile.test.mjs"
+    "test": "node native/scripts/check-no-legacy-submodule.mjs && node --test native/the-fold/essay-fold-falsify.test.mjs native/the-fold/pipeline-run-falsify.test.mjs native/the-fold/parameter-induction-falsify.test.mjs native/the-fold/referents-falsify.test.mjs native/the-fold/ground-replay-falsify.test.mjs native/organs/web.test.mjs native/tests/entity-profile.test.js native/conformance/block-profile.test.mjs"
   },
   "repository": {
     "type": "git",

@@ -11,8 +11,18 @@
 // outside the allowlist below, so a future session (human or AI) does not
 // silently grow a new dependency on a submodule this repo is retiring.
 //
-// Run as part of `npm test` (wired into native/package.json's "test" script)
-// or standalone: node native/scripts/check-no-legacy-submodule.mjs
+// 2026-10-02: the frozen eoreader6.1 provider is retired permanently. The
+// fold's compatibility mount was scrubbed on 2026-10-01 (the-fold commit
+// 8fe7d9d) and its restore attempts (#192/#193) were closed, not merged. So
+// this guard also refuses the ways the frozen provider could be re-mounted
+// under a new name: a sibling path, a live import, a runtime path join, the
+// eoreader6.1-RETIRED mount directory, or the restore's own branch/framing.
+// Those markers are a hard fail with no allowlist — historical COMMENTS about
+// the retirement are permitted, and none of them match these patterns.
+//
+// Run as part of `npm test` (wired into native/package.json's "test" script
+// and the root package.json "test" script, which CI runs) or standalone:
+// node native/scripts/check-no-legacy-submodule.mjs
 
 import { execFileSync } from "node:child_process";
 import path from "node:path";
@@ -67,6 +77,19 @@ const ALLOWLIST = new Set([
 // config actually was. Never edited to erase history; matched by prefix.
 const HISTORICAL_PREFIXES = ["native/eval/the-fold/results/", "native/eval/results/"];
 
+// The ways the retired frozen provider could be re-mounted at runtime. A
+// match here is a live dependency, not a comment: the sibling path a launcher
+// would resolve, the import that would load it, the path join that would find
+// it, or the restore's own names. No allowlist — remove the reference.
+const MOUNT_MARKERS = [
+  { label: "sibling path to the retired provider", re: /\.\.\/[^"']*eoreader6\.1/ },
+  { label: "live import of the retired provider", re: /(from|require\(|import\()[[:space:]]*["'][^"']*eoreader6\.1/ },
+  { label: "runtime path to the retired provider", re: /path\.(join|resolve)\([^)]*eoreader6\.1/ },
+  { label: "the retired provider's mount directory", re: /eoreader6\.1-RETIRED/ },
+  { label: "the 6.1 restore branch name", re: /eoreader7-boundary-compat/ },
+  { label: "the 6.1 restore framing", re: /6\.1 compatibility/ },
+];
+
 function trackedFiles() {
   const out = execFileSync("git", ["-C", REPO_ROOT, "ls-files"], { encoding: "utf8" });
   return out.split("\n").filter(Boolean);
@@ -85,10 +108,33 @@ function grepLegacy(files) {
   }
 }
 
+function scanMountMarkers(files) {
+  const found = [];
+  for (const { label, re } of MOUNT_MARKERS) {
+    let out;
+    try {
+      out = execFileSync("git", ["-C", REPO_ROOT, "grep", "-n", "-I", "-i", "-E", re.source, "--", ...files], {
+        encoding: "utf8",
+      });
+    } catch (e) {
+      if (e.status === 1) continue; // no line matched this marker — clean
+      throw e;
+    }
+    for (const entry of out.split("\n").filter(Boolean)) {
+      const [file, line, ...text] = entry.split(":");
+      found.push({ label, file, line, text: text.join(":").trim() });
+    }
+  }
+  return found;
+}
+
 const files = trackedFiles().filter((f) => !f.startsWith("legacy-eoreader6.1/"));
 const hits = grepLegacy(files);
 const unexpected = hits.filter(
   (f) => !ALLOWLIST.has(f) && !HISTORICAL_PREFIXES.some((p) => f.startsWith(p)),
+);
+const mounts = scanMountMarkers(files).filter(
+  (m) => m.file !== "native/scripts/check-no-legacy-submodule.mjs" && !HISTORICAL_PREFIXES.some((p) => m.file.startsWith(p)),
 );
 
 if (unexpected.length > 0) {
@@ -105,4 +151,18 @@ if (unexpected.length > 0) {
   process.exit(1);
 }
 
-console.log(`check-no-legacy-submodule: clean (${hits.length} allowlisted mention(s), 0 unexpected)`);
+if (mounts.length > 0) {
+  console.error("check-no-legacy-submodule: the frozen eoreader6.1 provider is retired permanently, but a live re-mount was found:");
+  for (const m of mounts) console.error(`  [${m.label}] ${m.file}:${m.line}: ${m.text}`);
+  console.error(
+    "\nThe frozen 6.1 mount was scrubbed from the fold on 2026-10-01 (8fe7d9d) and its restore " +
+      "PRs were closed, not merged. Do not add a sibling path, import, or runtime path for " +
+      "eoreader6.1 — read the ported provider under native/ instead. Historical comments are fine; " +
+      "remove the live reference.",
+  );
+  process.exit(1);
+}
+
+console.log(
+  `check-no-legacy-submodule: clean (${hits.length} allowlisted mention(s), 0 unexpected, 0 live 6.1 mounts)`,
+);
