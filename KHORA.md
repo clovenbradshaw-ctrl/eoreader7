@@ -48,7 +48,15 @@ referents as a witness beside their own finders, never a replacement.
 1. The ground triad is one event — act and not-act co-arise; no pole is law.
 2. Dependency is the law of motion (the helix, measured).
 3. The world-structure is the **first hypothesis, not the constitution** — H,
-   half-life'd, falsifier beside it (`khora/H/H.mjs`).
+   half-life'd, falsifier beside it (`khora/H/H.mjs`). **The word "a priori"
+   does not survive:** the 27, the helix, the wheel were *recovered* from human
+   verb embeddings (a posteriori), orthogonality measured (Rand ≈ 0.05), the
+   resolution fitted at 8.8× chance. They are a maintained, corpus-recovered
+   model with a birth certificate, never dressed as a priori — and the desert
+   is a finding about languages, never about the machine, which can verb
+   anything in notation. **Named gap, recorded:** reSeed (REC on the axes) is
+   constitutional, not operational — the running cube still closes at 27; the
+   escape hatch is disclosed as unwired, never silent.
 4. REC is bounded and logged — revision is budgeted, the record is append-only.
 5. The tropism: cognition runs on surprise and seeks its own disproof — the
    governor of the drives, never the sole drive.

@@ -50,5 +50,17 @@
     "the-council": "judgment surface",
     "existing-artifact": "Documents/khora-v7.html — 'Khora — EO Event Stream', a surface mockup presenting the event stream; a fold, not the khora core"
   },
+  "named-gaps": [
+    {
+      "id": "closure-at-3-unwired",
+      "note": "the running resolver/cube still closes at 27; reSeed (REC on the axes) is constitutional, not operational. Named, not silent — the escape hatch stays unwired until the closure is actually open (2026-10-01, swarm attack 4).",
+      "falsifier": "a reSeed that fires without an external witness, or a closure-at-3 reported as open while the running cube still hard-codes 27, contradicts this."
+    },
+    {
+      "id": "axes-corpus-provenance",
+      "note": "the 27/axes were recovered from human verb embeddings (a posteriori); the khora discloses the birth certificate (khora/H/H.mjs PROVENANCE) and never dresses them as a priori. The desert is a finding about languages, never machines.",
+      "falsifier": "a claim that calls the 27 'a priori', or a run that under-attends where the prior is poor and reports the poverty as the machine's, contradicts this."
+    }
+  ],
   "falsifyingControl": "a part that migrates twice, a surface that re-implements a seam instead of delegating, or the khora accumulating a record, a judgment, a name, or a want contradicts this ledger."
 }
