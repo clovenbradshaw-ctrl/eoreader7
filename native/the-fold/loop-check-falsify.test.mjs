@@ -91,3 +91,45 @@ test("repetition is measured, not hidden: identical sentences are counted as rep
   assert.ok(m.repetitionPenalty >= 4, `five identical sentences are four repeats, got ${m.repetitionPenalty}`);
   assert.equal(m.carried, 1, "a statement carried once is carried — five identical sentences are ONE fact");
 });
+
+// THE BRIDGE EXEMPTION (falsified 2026-10-02): turnPass prepends a licensed
+// transition as the FIRST piece of a part, carrying [] by design (finish.js:
+// 396, applyBridge). A bridge must NOT be flagged as originated, and its own
+// archon finding must not undo it (the turns pass adds by charge, like prose).
+test("a licensed bridge (first piece of a part, carries []) is not originated and is kept", async () => {
+  const { measurePiece, judgeLoop } = await import("./loop-check.js");
+  const { buildDraft } = await import("./eot-draft.js");
+  const { arrangedDraft, arrangeEssay } = await import("./arrange.js");
+  const task = "Write an essay on the audit.";
+  const ground = "The audit found a gap in 2024.";
+  const d0 = buildDraft({ task, ground });
+  const o = arrangeEssay({ draft: d0 });
+  const d = arrangedDraft(d0, o);
+  const pt = d.root.children.flatMap((p) => p.children)[0];
+  const pid = d.root.children[0].id;
+  const before = measurePiece([{ id: pid, pieces: [{ text: pt.text, carries: [pt.id] }] }], { draft: d, ground, task });
+  const withBridge = [{ id: pid, pieces: [{ text: "This transition links what came before to what follows.", carries: [] }, { text: pt.text, carries: [pt.id] }] }];
+  const after = measurePiece(withBridge, { draft: d, ground, task });
+  assert.equal(after.originated?.length, 0, "the bridge position is exempt from the origination flag");
+  assert.equal(after.carried, before.carried, "the bridge loses no fact");
+  // the turns pass adds by charge — its own finding may not undo it
+  assert.equal(judgeLoop(before, after, { addsFindings: true }).keep, true, "the bridge is kept when the pass may add findings");
+});
+
+test("a mid-part mouth sentence that anchors no draft statement is STILL originated, even after the bridge exemption", async () => {
+  const { measurePiece, judgeLoop } = await import("./loop-check.js");
+  const { buildDraft } = await import("./eot-draft.js");
+  const { arrangedDraft, arrangeEssay } = await import("./arrange.js");
+  const task = "Write an essay on the audit.";
+  const ground = "The audit found a gap in 2024.";
+  const d0 = buildDraft({ task, ground });
+  const o = arrangeEssay({ draft: d0 });
+  const d = arrangedDraft(d0, o);
+  const pt = d.root.children.flatMap((p) => p.children)[0];
+  const pid = d.root.children[0].id;
+  const before = measurePiece([{ id: pid, pieces: [{ text: pt.text, carries: [pt.id] }] }], { draft: d, ground, task });
+  const withFabrication = [{ id: pid, pieces: [{ text: pt.text, carries: [pt.id] }, { text: "The wheel spins, and the ground becomes a figure.", carries: [] }] }];
+  const after = measurePiece(withFabrication, { draft: d, ground, task });
+  assert.equal(after.originated?.length, 1, "a mid-part sentence anchoring nothing is originated");
+  assert.equal(judgeLoop(before, after).keep, false, "and the loop that added it is undone");
+});

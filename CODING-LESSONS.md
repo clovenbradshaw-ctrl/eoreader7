@@ -2409,3 +2409,28 @@ and one fact.
 Falsifying control on the fix: a loop that folds the fabrication but is still
 undone, or a piece of five identical grounded sentences measured as five
 facts, contradicts this.
+
+## 90. A falsification guard that catches every fabrication will also catch the licensed transitions — the exemption must be the position, not the presence (2026-10-02)
+Lesson 89's origination guard was itself falsified the same afternoon. It
+flagged a mouth sentence that anchors no draft statement as ORIGINATED and
+undid the loop that added it — but the turns pass adds BRIDGES, which carry
+[] BY DESIGN (finish.js:396, applyBridge unshifts a transition as the FIRST
+piece of a part, licensed by Clark's missing_transition finding). The guard
+could not tell a licensed bridge from a fabrication, so every turns pass was
+undone as "originated" — a false positive on the exact material the gate is
+supposed to admit.
+Two corrections:
+(1) The exemption is the POSITION, not the presence: the first piece of a
+part is the bridge position and is exempt; a fabrication is a mouth sentence
+inserted INSIDE the flesh, after the part's opening. This is not a hole — a
+mid-part sentence anchoring nothing is still flagged and undone (verified).
+(2) judgeLoop's "more findings is worse" rule also undid bridges: a bridge's
+own sentence trips the archon finding that licensed it, so the turns pass
+must judge with addsFindings:true — its charge is to ADD, exactly like the
+prose loop (the escape that already existed for prose).
+Falsifying controls added (loop-check-falsify.test.mjs): a licensed bridge is
+not originated and is kept under addsFindings; a mid-part fabrication is
+still originated and undone. 33 tests pass.
+Falsifying control on the fix: a bridge that is flagged originated, or a
+mid-part fabrication that the position-exemption lets through, contradicts
+this.

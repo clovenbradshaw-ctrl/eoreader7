@@ -70,14 +70,21 @@ export function measurePiece(piece, { draft, ground = "", task = "", parse = nul
 }
 
 /** THE ORIGINATION CHECK — a fact is carried only by an admitted flesh of
- *  that fact, never by a mouth sentence that merely reuses its vocabulary.
- *  The piece's sentences are matched back to the draft statements they were
- *  admitted from (prosify's onRecord carries `carries` per sentence); a
- *  sentence the mouth wrote that anchors no draft statement is ORIGINATED —
- *  a fabrication by the admission law, and it must not count the fact carried.
- *  Fallback: when the piece lacks carry-metadata, dedupe identical sentences
- *  and flag any sentence that shares >half its words with no draft statement
- *  as originated (a nomination, disclosed, never a proof). */
+*  that fact, never by a mouth sentence that merely reuses its vocabulary.
+  *  The piece's sentences are matched back to the draft statements they were
+  *  admitted from (prosify's onRecord carries `carries` per sentence); a
+  *  sentence the mouth wrote that anchors no draft statement is ORIGINATED —
+  *  a fabrication by the admission law, and it must not count the fact carried.
+  *  THE BRIDGE POSITION IS EXEMPT (falsified 2026-10-02): turnPass prepends a
+  *  transition sentence as the FIRST piece of a part (finish.js:396,
+  *  applyBridge), and it carries [] BY DESIGN — it is a licensed turn, gated
+  *  by Clark's missing_transition finding and turnPass's own takes-up/hands-on
+  *  checks. Flagging it originated would undo every turns pass. So the
+  *  first piece of a part is never itself flagged; a fabrication is a mouth
+  *  sentence the mouth inserted INSIDE the flesh, after the part's opening.
+  *  Fallback: when the piece lacks carry-metadata, dedupe identical sentences
+  *  and flag any sentence that shares >half its words with no draft statement
+  *  as originated (a nomination, disclosed, never a proof). */
 function measureOrigination(piece, draft, A) {
   const ids = drawnParts(draft).flatMap((p) => p.children.map((pt) => pt.id));
   const byId = new Map(ids.map((id) => [id, A.get(id)]));
@@ -85,14 +92,18 @@ function measureOrigination(piece, draft, A) {
   const originated = [];
   for (const p of piece) {
     const seenHere = new Set();
-    for (const pc of p.pieces ?? []) {
+    const pieces = p.pieces ?? [];
+    for (let k = 0; k < pieces.length; k++) {
+      const pc = pieces[k];
       const text = String(pc.text ?? "").trim();
+      const isBridgePosition = k === 0;
       if (!text || seenHere.has(text)) { if (seenHere.has(text)) originated.push({ text, why: "repeated verbatim" }); continue; }
       seenHere.add(text);
       if (Array.isArray(pc.carries) && pc.carries.length) {
         for (const id of pc.carries) if (byId.has(id)) carried.add(id);
         continue;
       }
+      if (isBridgePosition) continue; // a licensed turn, not a fabrication
       // no carry metadata: does the sentence anchor a draft statement?
       const hits = [...byId.entries()].filter(([, a]) => carries(a, [text]).ok).map(([id]) => id);
       if (hits.length) hits.forEach((id) => carried.add(id));

@@ -542,7 +542,13 @@ export async function runPipeline({ task, groundFiles = [], groundText = null, m
         // collision risk analogous to tighten's (fixed above).
         for (const b of tp.bridges.filter((x) => x.kept)) {
           const candidate = applyBridge(piece, b);
-          const result = checkLoop(tag(`turns · ${b.part}`), candidate);
+          // addsFindings: true — a bridge is a TRANSITION SENTENCE, its charge
+          // is to add; the finding its own sentence trips is the finding that
+          // licensed it (Clark's missing_transition), exactly as the prose
+          // loop's new findings are its expected work (judgeLoop, 2026-09-21).
+          // Falsified 2026-10-02: without this, every bridge was undone as
+          // "more findings," and the turns pass could never land a transition.
+          const result = checkLoop(tag(`turns · ${b.part}`), candidate, { addsFindings: true });
           if (result !== candidate) {
             b.revertedByLoopCheck = true;
             write("check", `Loop · ${tag(`turns · ${b.part}`)} · reverted on its own`, b.sentence ?? "(none)", "this bridge's own side effect regressed the piece as a whole; reverted alone, the pass's other bridges stand", "eoreader7:loop-check");
