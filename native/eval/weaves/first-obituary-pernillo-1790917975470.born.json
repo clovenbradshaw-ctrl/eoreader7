@@ -1,0 +1,96 @@
+{
+  "slug": "first-obituary-pernillo-1790917975470",
+  "gates": [
+    {
+      "id": "born-prior",
+      "ok": true,
+      "evidence": "the prior is born, not declared"
+    },
+    {
+      "id": "sourced-facts",
+      "ok": true,
+      "evidence": "facts carry a source"
+    },
+    {
+      "id": "mouth-censored",
+      "ok": true,
+      "evidence": "the mouth's facts are refused"
+    },
+    {
+      "id": "first",
+      "ok": true,
+      "evidence": "the novelty is named"
+    },
+    {
+      "id": "standing",
+      "ok": true,
+      "evidence": "standing declared"
+    },
+    {
+      "id": "no-meta",
+      "ok": true,
+      "evidence": "no meta-voice in the body"
+    }
+  ],
+  "failures": [],
+  "roleFacts": [
+    [
+      "rel:cemetery",
+      4
+    ],
+    [
+      "rel:visitation",
+      3
+    ],
+    [
+      "rel:will",
+      3
+    ],
+    [
+      "rel:survived",
+      2
+    ],
+    [
+      "rel:rev",
+      2
+    ],
+    [
+      "rel:squad",
+      2
+    ],
+    [
+      "rel:born",
+      2
+    ],
+    [
+      "rel:retired",
+      2
+    ],
+    [
+      "rel:attire",
+      2
+    ],
+    [
+      "rel:officiating",
+      2
+    ],
+    [
+      "rel:is",
+      2
+    ]
+  ],
+  "gaps": [
+    "gap:referent:ref_auto_emma_mae_mclawhorn_bulluck",
+    "gap:referent:ref_auto_hampton",
+    "gap:referent:ref_auto_honolulu",
+    "gap:referent:ref_auto_hawaii",
+    "gap:referent:ref_auto_fl",
+    "gap:referent:ref_auto_february",
+    "gap:referent:ref_auto_james_edgar",
+    "gap:referent:ref_auto_riner"
+  ],
+  "mouthBytes": 330,
+  "mouthFacts": 2,
+  "gateVerdict": "MORE",
+  "gateNext": "would need ~1395 at current share — exceeds budget 86: needs HIGHER agreement, not just more comps"
+}
