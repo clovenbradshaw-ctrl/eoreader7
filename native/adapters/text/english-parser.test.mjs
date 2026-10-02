@@ -29,7 +29,7 @@ import { parseConllu, toEot } from "../../kernel/eot-rich.js";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "..", "..", "..");
 const MODEL = path.join(ROOT, "native", "priors", "parser-eng-ewt.json");
-const EWT = path.join(ROOT, "legacy-eoreader6.1", "scripts", "corpus", "en_ewt-ud-train.conllu");
+const EWT = path.join(ROOT, "native", "scripts", "corpus", "en_ewt-ud-train.conllu");
 const ready = fs.existsSync(MODEL) && fs.existsSync(EWT);
 const json = ready ? JSON.parse(fs.readFileSync(MODEL, "utf8")) : null;
 const model = ready ? Object.assign(loadModel(json), { provenance: json.provenance }) : null;

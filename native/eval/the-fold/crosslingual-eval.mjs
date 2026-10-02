@@ -97,12 +97,12 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { chunkSource } from "../../../../the-fold/source.js";
-import { makeRelationReader } from "../../../../the-fold/hypergraph.js";
+import { chunkSource } from "../../the-fold/source.js";
+import { makeRelationReader } from "../../organs/hypergraph.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ENGINE = join(HERE, "..", "..", "adapters", "text");
-const HOST = join(HERE, "..", "..", "..", "legacy-eoreader6.1", "packages", "host", "index.js");
+const HOST = join(HERE, "..", "..", "..", "legacy-ported", "packages", "host", "corpus.js");
 
 const DRAWS = 200;
 const SEED = 0;

@@ -108,7 +108,7 @@ async function main() {
   const prior = JSON.parse(fs.readFileSync(priorPath, "utf8"));
   console.log(`  provenance: ${JSON.stringify(prior.provenance)}`);
 
-  const EWT = path.join(ROOT, "legacy-eoreader6.1/scripts/corpus/en_ewt-ud-train.conllu");
+  const EWT = path.join(ROOT, "native", "scripts", "corpus", "en_ewt-ud-train.conllu");
   const allSents = parseConllu(fs.readFileSync(EWT, "utf8"));
   const heldOutTenth = allSents.filter((_, i) => i % 10 === 9); // english-parser.js's own standing held-out split
   // Within that tenth, use the SAME train/test halves build-ablation-grain-prior.mjs

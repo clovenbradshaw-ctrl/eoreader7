@@ -54,7 +54,7 @@ import { rootTripleFrom, scoreClaims, scrambleTokens, fisherGreater } from "./cl
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(here, "../../..");
-const EWT = path.join(ROOT, "legacy-eoreader6.1/scripts/corpus/en_ewt-ud-train.conllu");
+const EWT = path.join(ROOT, "native", "scripts", "corpus", "en_ewt-ud-train.conllu");
 const POS_PRIOR = path.join(ROOT, "native/priors/pos-en.json");
 const PARSER_MODEL = path.join(ROOT, "native/priors/parser-eng-ewt.json");
 

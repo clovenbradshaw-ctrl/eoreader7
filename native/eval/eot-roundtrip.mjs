@@ -41,7 +41,7 @@ export function findTreebanks() {
   // UD_English-EWT file english-parser.test.mjs trains and tests against.
   // Its directory also holds non-treebank files, so it joins by file, not
   // by directory.
-  const ewt = path.join(ROOT, "legacy-eoreader6.1", "scripts", "corpus", "en_ewt-ud-train.conllu");
+  const ewt = path.join(ROOT, "native", "scripts", "corpus", "en_ewt-ud-train.conllu");
   if (fs.existsSync(ewt)) banks.push({ name: "ud-english-ewt", files: [ewt] });
   return banks;
 }

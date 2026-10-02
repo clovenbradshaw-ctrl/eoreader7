@@ -103,6 +103,14 @@ native/moral-shadows/
 # untracked entry here. Not new work — leftover debris, never re-add.
 legacy-eoreader6.1/
 
+# UD_English-EWT train treebank, fetched (curl, see build-pos-prior.mjs's own
+# header) for the prior-build scripts and the parser tests. Same category as
+# every fetched-for-offline-replay artifact above: the scripts take the
+# corpus as input (an arg or this default), it is not committed, and a fresh
+# clone builds the priors from the fetch. Evicted 2026-10-01 from its old
+# home inside the retired legacy-eoreader6.1 submodule.
+native/scripts/corpus/
+
 # Multilingual literary corpus (fetched third-party texts + generated
 # out/*.json run outputs) for the pathos organ. Same "fetched pages cached
 # for offline replay, never committed" category as sanriku/, chicago/, and

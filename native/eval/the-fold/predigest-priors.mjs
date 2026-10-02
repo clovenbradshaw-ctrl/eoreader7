@@ -37,7 +37,7 @@ import { createRecursiveReader } from "../../kernel/reading.js";
 import { deriveExperiencePrior, mergeExperiencePriors } from "../../kernel/experience-priors.js";
 import { deriveRhythmPrior, mergeRhythmPriors, composeExperience } from "../../kernel/rhythm-priors.js";
 
-import { sedimentReading, compilePriors } from "../../../../the-fold/predigest.js";
+import { sedimentReading, compilePriors } from "../../the-fold/predigest.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "..", "..", "..", "..", "the-fold");

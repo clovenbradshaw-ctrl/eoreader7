@@ -27,10 +27,9 @@ import { existsSync } from "node:fs";
 import { runReasoningE2E, resolveOrgans, resolveModules } from "./lib/reasoning-e2e.mjs";
 
 const NATIVE = new URL("../..", import.meta.url).pathname;
-const LEGACY = new URL("../../../legacy-eoreader6.1", import.meta.url).pathname;
-const FOLD = new URL("../../../../the-fold", import.meta.url).pathname;
+const FOLD = new URL("../../the-fold", import.meta.url).pathname;
 
-const { provider, organs, classes } = await resolveOrgans({ native: NATIVE, legacy: LEGACY, existsSync });
+const { provider, organs, classes } = await resolveOrgans({ native: NATIVE, existsSync });
 const modules = await resolveModules({ native: NATIVE, fold: FOLD });
 console.log(`organs: ${provider}`);
 const out = runReasoningE2E({ organs, classes, modules });

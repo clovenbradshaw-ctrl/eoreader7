@@ -37,7 +37,7 @@
 // and reports where it disagrees with the real four-way classifier — the
 // concrete case where the fix's absence fails and its presence succeeds.
 
-import { makeMetacognition, assessAgreement, WITNESS_FLOOR } from "../../../../the-fold/metacognition.js";
+import { makeMetacognition, assessAgreement, WITNESS_FLOOR } from "../../the-fold/metacognition.js";
 import * as taskLog from "../../kernel/task-log.js";
 
 const lines = [];

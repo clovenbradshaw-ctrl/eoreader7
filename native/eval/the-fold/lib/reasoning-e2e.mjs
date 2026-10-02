@@ -243,13 +243,12 @@ export function runReasoningE2E({ organs, classes, modules }) {
 }
 
 /**
- * The organs, resolved the way the driver always did: the frozen provider
- * (`legacy-eoreader6.1`) where it is checked out, else the engine's own
- * adapters — and which one, returned, so it is printed beside the numbers.
+ * The organs: the engine's own adapters (native). The frozen provider
+ * (`legacy-eoreader6.1`) is retired; no path reads it.
  */
 export async function resolveOrgans({ native, legacy, existsSync }) {
-  const base = legacy && existsSync(`${legacy}/packages/engine/perceiver/text/spans.js`) ? `${legacy}/packages/engine/perceiver/text` : `${native}/adapters/text`;
-  const provider = base.includes("legacy-eoreader6.1") ? "legacy-eoreader6.1 (frozen provider)" : "native adapters/text (engine)";
+  const base = `${native}/adapters/text`;
+  const provider = "native adapters/text (engine)";
   const { splitSentences } = await import(`${base}/spans.js`);
   const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(`${base}/surfaces.js`);
   const { discoverRelationVocab, extractRelations } = await import(`${base}/relations.js`);

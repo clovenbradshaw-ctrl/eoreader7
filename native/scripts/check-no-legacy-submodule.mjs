@@ -29,7 +29,6 @@ const REPO_ROOT = path.resolve(HERE, "..", "..");
 // catch.
 const ALLOWLIST = new Set([
   ".gitignore", // the submodule is still checked out (root symlinks depend on it, see CLAUDE.md) — its own ignore rules stay
-  ".gitmodules", // the submodule itself is retained for now — see CLAUDE.md's disclosed blocker before removing this entry
   "README.md", // documents the submodule as part of the current checkout instructions
   "LAVAR.md", // historical/dated entry, not a forward-pointing instruction
   "native/ASSEMBLIES-AND-ARTIFACTS.md", // documents which pieces still come from the frozen provider
@@ -37,11 +36,8 @@ const ALLOWLIST = new Set([
   "native/docs/CAPACITY-DEVELOPMENT-PLAN.md", // documents the frozen provider as a current capability source
   "cli/eoreader7.mjs", // explains why POS prior is vendored, not read from the submodule
   "native/conformance/native-boundary.test.mjs", // the wall this script complements: no native/ adapter imports "legacy-eoreader6.1"
-  "native/eval/the-fold/crosslingual-eval.mjs", // disclosed gap: packages/host/index.js's transitive tree was not ported, see CLAUDE.md
-  "native/eval/the-fold/lib/reasoning-e2e.mjs", // intentional dual-provider corroboration harness (native vs. frozen, when submodule present)
-  "native/eval/the-fold/metacognition-eval.mjs", // prose mentioning the path, not a dependency
-  "native/eval/the-fold/predigest-priors.mjs", // historical note in a disclosed-gap message
-  "native/eval/the-fold/reasoning-e2e-no-llm.mjs", // same dual-provider harness as lib/reasoning-e2e.mjs
+  "native/eval/the-fold/crosslingual-eval.mjs", // disclosed gap: packages/host/index.js's transitive tree was not ported, see CLAUDE.md; now reads the ported legacy-ported/packages/host/corpus.js, the 6.1 mention is historical comment
+  "native/eval/the-fold/lib/reasoning-e2e.mjs", // reads native organs only since 2026-10-01 (the frozen provider is retired); the 6.1 mention is a historical comment
   "native/organs/arrangement.test.mjs", // comment describing a sibling file's fallback
   "native/organs/frame.test.mjs", // "legacy-eoreader6.1" used only as an opaque provider-label string in test data
   "native/organs/hypergraph-vocabulary-candidates.test.mjs", // comment describing a sibling file's fallback
@@ -51,6 +47,20 @@ const ALLOWLIST = new Set([
   "native/organs/notes-text-stance.test.mjs", // comment describing a sibling file's fallback
   "native/tests/morphology-vocab.test.js", // comment recording the 2026-09-10 port, not a live path
   "native/scripts/check-no-legacy-submodule.mjs", // this file, which names the string it greps for
+  "native/eval/the-fold/metacognition-eval.mjs", // prose mentioning the path, not a dependency
+  "native/eval/the-fold/predigest-priors.mjs", // historical note in a disclosed-gap message
+  "CHORUS-LOG.md", // dated postmortem entries recording the 2026-09-10 retirement
+  "LEGACY-EOREADER6.1.md", // the retirement's own pointer doc — history, not a dependency
+  "native/eval/the-fold/date-normalize.mjs", // comment: the isolated npm install never touches the old submodule
+  "native/eval/the-fold/gfp-vs-svo-first.mjs", // comment naming the retired corpus home; reads native/scripts/corpus since 2026-10-01
+  "native/eval/the-fold/long-project-heldout/HELDOUT.md", // "legacy-eoreader6.1/ — not read" — a refusal list, not a dependency
+  "native/eval/the-fold/package.json", // description explaining the isolated deps avoid the old submodule's package.json
+  "native/eval/the-fold/unwired-organs.mjs", // comment naming the frozen provider as a past home
+  "native/scripts/build-verb-noun-backoff-prior.mjs", // comment: the conllu default returns 0 when absent; reads native/scripts/corpus
+  "native/tests/corpus-resonance.test.js", // comment describing the skip pattern; no legacy path read
+  "native/the-fold/ground-selector.js", // comment citing the retired host/population.js measurement
+  "proxy-runner.mjs", // two comments recording past thresholds and the retired exact-term ladder
+  "scripts/kleene-up.mjs", // the sweep's own skip-list of retired/moved directories
 ]);
 
 // Historical result artifacts: dated postmortems recording what a past run's

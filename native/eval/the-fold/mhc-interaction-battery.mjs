@@ -54,9 +54,9 @@ import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { runBattery, stageFrom, contentIndependence, orderOf, SYMBOLIC_FLOOR } from "../../../../the-fold/mhc.js";
-import { interactionLadder, declareCounterpart } from "../../../../the-fold/mhc-interact.js";
-import { makeGrid } from "../../../../the-fold/grid.js";
+import { runBattery, stageFrom, contentIndependence, orderOf, SYMBOLIC_FLOOR } from "../../the-fold/mhc.js";
+import { interactionLadder, declareCounterpart } from "../../the-fold/mhc-interact.js";
+import { makeGrid } from "../../the-fold/grid.js";
 import { landAct } from "../../organs/index.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -74,7 +74,6 @@ const ASSEMBLY =
 // about a path. Both known layouts are tried and the one found is DECLARED.
 
 const KERNEL_LAYOUTS = [
-  { name: "eoreader6.1 (packages/engine)", cube: "../../eoreader6.1/packages/engine/operators.js", log: "../../eoreader6.1/packages/engine/holon/task-log.js" },
   { name: "eoreader7 (native/kernel)", cube: "../../kernel/cube.js", log: "../../kernel/task-log.js" },
 ];
 

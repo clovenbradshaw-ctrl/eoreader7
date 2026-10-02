@@ -31,7 +31,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "..", "..");
 const arg = (k, d) => process.argv.find((a) => a.startsWith(`--${k}=`))?.slice(k.length + 3) ?? d;
 
-const IN = arg("in", path.join(ROOT, "legacy-eoreader6.1", "scripts", "corpus", "en_ewt-ud-train.conllu"));
+const IN = arg("in", path.join(ROOT, "native", "scripts", "corpus", "en_ewt-ud-train.conllu"));
 const OUT = arg("out", path.join(ROOT, "native", "priors", "parser-eng-ewt.json"));
 const ITER = Number(arg("iterations", "5"));
 // RECEIVED from the treebank's own documentation (UD_English-EWT README and
