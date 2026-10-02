@@ -21,6 +21,12 @@
 // already built and gated. Same layer in, same lattice out.
 export const LATTICE_SCHEMA = "EOSurfaceLattice@1";
 
+// THE PROFILE BLOCK — a being's induced kind(s) and key parameters, whatever
+// the relations are. Optional and surface-neutral: `t3.profiles` is an
+// EOEntityProfiles@1 (or an array of profiles); when absent the lattice is
+// byte-identical to before.
+import { renderProfileSection, profilePayload } from "./block-profile.mjs";
+
 const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const KIND_LABEL = { goal: "goal", number: "number", name: "agency", place: "place", claim: "claim", assertion: "svo" };
@@ -56,7 +62,7 @@ export function renderLatticeSurface(inst) {
   // T3 · ENTITY — beads, with honest splits
   const beads = (t3.beads ?? []).map((b) => `<div class="bead${b.split ? " split" : ""}"><span class="orb"></span><span class="bead-name">${esc(b.name)}</span><span class="bead-count">${b.count}</span></div>`).join("");
   const splits = (t3.splits ?? []).map((s) => `<div class="split-pair"><div class="bead split"><span class="orb"></span><span class="bead-name">${esc(s.left)}</span><span class="bead-count">${s.leftCount ?? ""}</span></div><span class="split-edge">✗ ${esc(s.note)}</span><div class="bead split"><span class="orb"></span><span class="bead-name">${esc(s.right)}</span><span class="bead-count">${s.rightCount ?? ""}</span></div></div>`).join("");
-  const t3Inner = `${beads ? `<div class="beads">${beads}</div>` : ""}${splits}<p class="empty">${esc(t3.note)}</p>`;
+  const t3Inner = `${beads ? `<div class="beads">${beads}</div>` : ""}${splits}${renderProfileSection(t3.profiles ?? null)}<p class="empty">${esc(t3.note)}</p>`;
 
   // T4 · LINK — the asserted connections, byte-addressed, by document
   const t4Inner = (t4.docs ?? []).map((d) => bucket("T4", esc(d.title), `${d.rows.length} rows`, d.rows.map(rowHtml).join(""))).join("");
@@ -256,6 +262,7 @@ export function renderLatticeSurface(inst) {
   into a retained, hashed text layer; every assertion, claim, sentence and edge is sourceable to the byte, and what is
   not (the mouth, the gap) is marked, never laundered. Nothing here is authored by a frontier model.
 </footer>
+${profilePayload(t3.profiles ?? null)}
 <script>
   const root = document.documentElement;
   const saved = localStorage.getItem('fold-theme');

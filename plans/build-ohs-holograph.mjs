@@ -47,6 +47,7 @@ import { splitSentences } from "../native/adapters/text/spans.js";
 import * as TL from "../native/kernel/task-log.js";
 import * as CUBE from "../native/kernel/cube.js";
 import { renderLatticeSurface } from "../native/the-fold/surface/block-surface-lattice.mjs";
+import { buildProfiles } from "../native/the-fold/surface/block-profile.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OHS = join(HERE, "ohs");
@@ -504,6 +505,17 @@ function renderSurface({ def, ground, links, metrics, gate, hyper, holograph, re
 
   const status = { left: "live", ok: `${facts.length} claims · ${hyper.folded.length} assertions · ${beings.length} beings · ${gate.ok ? "gate pass" : "gate refuse"}` };
 
+  // T3 · THE PROFILES — each entity's key parameters, induced per kind from the
+  // hyperlexicon's own assertions (block-profile.mjs). The relations a being
+  // holds and the functional standing each earned; nothing declared in advance.
+  const profileTriples = hyper.folded
+    .map((a) => ({ id: a.id, subject: a.subject, verb: a.verb, object: a.object, witnessed: (a.witnessCount ?? 1) > 0 }))
+    .filter((t) => t.subject && t.verb && t.object);
+  const profileBeings = [...new Set(profileTriples.flatMap((t) => [t.subject, t.object]))];
+  const profiles = profileBeings.length >= 4
+    ? buildProfiles({ triples: profileTriples, beings: profileBeings, exposureFloor: 2, kindMethod: "characteristic-sets", kindOptions: { population: "ohs:holograph", draws: 99, alpha: 0.05, seed: 5 } })
+    : null;
+
   const instance = {
     def: {
       mark: "OHS",
@@ -518,7 +530,7 @@ function renderSurface({ def, ground, links, metrics, gate, hyper, holograph, re
     },
     t1: { docs: t1docs },
     t2: { kinds: t2kinds, categories: t2categories },
-    t3: { beads: t3beads, splits: t3splits, note: t3note },
+    t3: { beads: t3beads, splits: t3splits, note: t3note, profiles },
     t4: { docs: t4docs },
     t5: { blocks: t5blocks },
     t6: { lenses: t6lenses, svg: t6svg },

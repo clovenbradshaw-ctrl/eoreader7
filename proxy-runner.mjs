@@ -121,6 +121,11 @@ import { admitHandedOver } from "./native/the-fold/ground-carries.js";
 import { findPriorsGround, persistEarnedGround, makeAskEvidence } from "./native/the-fold/priors-ground.js";
 import { traceToGround, makeTracer } from "./native/the-fold/ground-trace.js";
 import { groundFacts, holographType } from "./native/organs/output-holograph.js";
+// THE ENTITY PROFILE (2026-10-01): an entity's key parameters, got by kind
+// induction over the turn's own assertion network. Attached to every result so
+// ANY surface — the fold, the lattice, the notebook, the holodeck — can show
+// it without re-deriving. A read of the record, never a schema.
+import { buildProfiles } from "./native/the-fold/surface/block-profile.mjs";
 import { splitSentences as engineSplitSentences } from "./native/adapters/text/spans.js";
 import { askShape } from "./native/organs/askshape.js";
 import { createLemmatizer, morphologyFromPrior } from "./native/adapters/text/morphology.js";
@@ -9028,6 +9033,33 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     if (onNote) onNote({ move: "holograph_typing_error", error: err.message });
   }
 
+  // ── THE ENTITY PROFILE (2026-10-01): kind induction on this turn's own
+  // assertion network, so ANY surface can show an entity's key parameters —
+  // whatever they are — each with the functional standing its induced kind
+  // earned. Built from the SAME notes the holograph types from; a turn with too
+  // few relations to induce a kind still yields honest raw profiles. Nothing
+  // here is authored; it is a read of the record the turn already stood on.
+  let entityProfiles = null;
+  try {
+    const profileNotes = readingSurface?.notes ?? notesFromEdges(rawEntries ?? []);
+    if (profileNotes?.length) {
+      const triples = profileNotes
+        .map((n) => ({ id: n.id, subject: n.end1, verb: n.label, object: n.end2, witnessed: (n.witnesses?.length ?? n.sources ?? 1) > 0 }))
+        .filter((t) => t.subject && t.verb && t.object);
+      const beings = [...new Set(triples.flatMap((t) => [t.subject, t.object]))];
+      if (beings.length >= 4) {
+        const built = buildProfiles({ triples, beings, exposureFloor: 2, kindMethod: "characteristic-sets", kindOptions: { population: `turn:${sessionId}:${session.turnCount}`, draws: 60, alpha: 0.05, seed: session.turnCount } });
+        const profiles = [...built.byId.values()].filter((p) => p.parameters.length);
+        if (profiles.length) {
+          entityProfiles = profiles;
+          if (onNote) onNote({ move: "entity_profiles", entities: profiles.length, kinds: built.diagnostics.kinds, established: built.diagnostics.established });
+        }
+      }
+    }
+  } catch (err) {
+    if (onNote) onNote({ move: "entity_profile_error", error: err.message });
+  }
+
   // THE FAMILY GATE (Grotius), KEPT AS FALLBACK until the holograph above is
   // proven: the UDHR charter the turn is armed with, plus the Earth
   // instruments — a resolved hierarchy, not one voice. The verdict is the
@@ -9137,6 +9169,11 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           withheld: holographWithheld.map((w) => ({ sentence: w.sentence, shape: w.shape, witnesses: w.witnesses, mayeroff: w.mayeroff ?? null, unrealizable: !!w.unrealizable })),
         }
       : null,
+    // THE ENTITY PROFILES — per-entity, kind-induced key parameters for the
+    // beings this turn's assertion network touched. An array of
+    // EOEntityProfile@1; null when the turn held too few relations to profile.
+    // Any surface renders it with native/the-fold/surface/block-profile.mjs.
+    entityProfiles,
     // GROUNDED WISDOM — the credited archons whose domain this turn touched
     // (the ones that ran + the ones the question matched). Every entry carries
     // its verbatim credit line from the compendium; a response that draws on

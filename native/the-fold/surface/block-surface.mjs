@@ -16,6 +16,12 @@
 import { readFileSync } from "node:fs";
 import { resolveHandles, DEFAULT_HANDLES } from "./handles.mjs";
 import { cellOf, surfaceCellOf, CELLS, OPERATOR_GLYPHS, GRAIN_DECALS, OPERATOR_NAME, GRAIN_NAME } from "./grounding-glyphs.mjs";
+// THE PROFILE BLOCK (2026-10-01): a being's profile — its induced kind(s) and
+// key parameters, whatever the relations are. Optional: when no profiles are
+// supplied the block renders nothing and this surface is byte-identical to
+// before. The same block is what any other surface (the lattice, the notebook,
+// the holodeck) imports, so the read is identical everywhere.
+import { renderProfileSection, profilePayload } from "./block-profile.mjs";
 
 export const SURFACE_SCHEMA = "EOSurface@1";
 
@@ -256,8 +262,12 @@ const KIND_DESC = {
 };
 const rowRef = (l) => `${l.doc}#${l.at[0]}-${l.at[1]}`;
 
-export function renderSurface({ def, ground, links, metrics, projections, gate, nativePages, geoPoints, bare = false, handleOverrides = null }) {
+export function renderSurface({ def, ground, links, metrics, projections, gate, nativePages, geoPoints, bare = false, handleOverrides = null, profiles = null }) {
   BARE_CHIPS = bare;
+  // THE PROFILE BLOCK — empty (and so invisible) unless the caller built
+  // profiles for this population.
+  const profileSection = renderProfileSection(profiles);
+  const profileScript = profilePayload(profiles);
   // A person's renamed handles (handles.mjs). A label is drawn as renamed ONLY
   // where the person changed it; otherwise the surface's own wording stands,
   // so output with no overrides is byte-identical to before.
@@ -1132,6 +1142,7 @@ ${docPayloads}
         <p class="empty">places — the districts each maps to, with 311 open counts</p>
         <div class="beads">${Object.entries(placeCount).sort((a, b) => b[1] - a[1]).map(([p, n]) => placeCard(p, n)).join("")}</div>
         <div class="split-pair">${beingCard("MTA", agencyCount["MTA"] ?? 0, "agency", { split: true })}<span class="split-edge">✗ not merged — no received prior</span>${beingCard("WeGo", agencyCount["WeGo"] ?? 0, "agency", { split: true })}</div>
+        ${profileSection}
       </div>
       <div class="panel" id="panel-connections">
         <div class="drawer-head">
@@ -1161,6 +1172,7 @@ ${docPayloads}
 ${docPayloads}
 ${timelinePayload}
 ${geoPayload}
+${profileScript}
 <script type="application/json" id="grounding-cells">${jsonScriptSafe(GROUNDING_CELLS)}</script>
 <div class="gmodal" id="gmodal" role="dialog" aria-modal="true">
   <div class="gmodal-card" id="gmodal-card">
