@@ -1102,7 +1102,7 @@ const fetchWithTimeout = async (url, ms) => {
 // ── THE REGISTRY: every surface, its family, how to probe it, how to
 // re-forge it. Env-driven so any process can be added without an edit:
 //   ER7_SURFACES="er7:11436:/Users/mlacy/eoreader7:node proxy.mjs
-//                 fold:8812:/Users/mlacy/Documents/3.0/the-fold:node explore-server.mjs 8812"
+//                 fold:8812:/Users/mlacy/Documents/3.0/the-fold-legacy:node explore-server.mjs 8812"
 //   ER7_SURFACE_FAMILIES="er7:er7 fold:fold"   (surface -> model-family prefix)
 //   ER7_SURFACE_ENV_er7="ER7_WEB_SEARCH=0"     (per-surface restart env)
 // ─────────────────────────────────────────────────────────────────────────
@@ -1119,10 +1119,10 @@ const SURFACE_SPECS = String(process.env.ER7_SURFACES ?? "").trim()
       // connection vitals (2026-09-13), so a watcher that cannot see inside
       // a browser still sees the page's engine and its Matrix room tie.
       { name: "er7", port: 11436, cwd: HERE, cmd: "node proxy.mjs" },
-      { name: "fold-chat", port: 8811, cwd: "/Users/mlacy/Documents/3.0/the-fold", cmd: "node serve.mjs" },
-      { name: "fold-8812", port: 8812, cwd: "/Users/mlacy/Documents/3.0/the-fold", cmd: "node explore-server.mjs" },
-      { name: "fold-8819", port: 8819, cwd: "/Users/mlacy/Documents/3.0/the-fold", cmd: "node explore-server.mjs 8819" },
-      { name: "fold-8837", port: 8837, cwd: "/Users/mlacy/Documents/3.0/the-fold", cmd: "node explore-server.mjs 8837" },
+      { name: "fold-chat", port: 8811, cwd: "/Users/mlacy/Documents/3.0/the-fold-legacy", cmd: "node serve.mjs" },
+      { name: "fold-8812", port: 8812, cwd: "/Users/mlacy/Documents/3.0/the-fold-legacy", cmd: "node explore-server.mjs" },
+      { name: "fold-8819", port: 8819, cwd: "/Users/mlacy/Documents/3.0/the-fold-legacy", cmd: "node explore-server.mjs 8819" },
+      { name: "fold-8837", port: 8837, cwd: "/Users/mlacy/Documents/3.0/the-fold-legacy", cmd: "node explore-server.mjs 8837" },
     ];
 
 const FAMILY_OF = (surfaceName) =>
