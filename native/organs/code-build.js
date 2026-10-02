@@ -42,6 +42,20 @@ export function detectBuildTask(task) {
   return listed;
 }
 
+/** A build INTENT: the task names a code-file target (file/module/script/
+ *  library/utility/helper/class) — even when no unit is named yet. The
+ *  tightened `listed` above excludes "write a module with a function" (no
+ *  named list), but that is a BUILD intent and must be a typed refusal or a
+ *  build, never a silent turn (the measured swallow at 2026-10-01, GL-BD-15).
+ *  Prose that merely mentions "functions" ("a paper about the functions of
+ *  memory") has no code-file target and stays a turn. */
+export function detectCodeBuildIntent(task) {
+  const t = String(task ?? "");
+  if (t.length < 12) return false;
+  const codeTarget = /\b(write|make|create|build|generate|implement|scaffold)\b[\s\S]{0,60}\b(file|module|script|library|utils?|helpers?|class)\b/i.test(t);
+  return codeTarget || detectBuildTask(t);
+}
+
 /** Plan the INDEPENDENT units: the function names the task lists. Conservative:
  *  only names that look like calls/definitions (`foo(`), deduped, capped.
  *  CamelCase names (fmtTime, newSession) are legitimate JS unit names — the
@@ -193,7 +207,7 @@ function languageFromTask(task) {
 export async function buildCodeTask({ task, model, testCommand = null, out = null, parallelism = 2 } = {}) {
   const started = Date.now();
   const units = planUnits(task);
-  if (!units.length) return { ok: false, error: "no independent units found in the task — not a discrete build (defer to the normal turn)" };
+  if (!units.length) return { ok: false, error: "no independent units found in the task — a build ask must name its functions (typed gap, never a turn)" };
   // Gary-shaped draw (2026-10-01): the task's own words ride last, and the
   // unit's function head is the completion anchor — the small-model law (the
   // prompt is a completion anchor, the test decides) plus Gary's

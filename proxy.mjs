@@ -24,7 +24,7 @@ let _inflight = 0; // turns currently running — the model watchdog never fires
 // The mechanical code build (2026-09-21): a discrete multi-unit coding task is
 // decomposed, the units drawn CONCURRENTLY, then assembled and validated —
 // triggered by a REGULAR NL PROMPT, not a hand-built harness.
-import { detectBuildTask, buildCodeTask } from "./native/organs/code-build.js";
+import { detectCodeBuildIntent, buildCodeTask } from "./native/organs/code-build.js";
 
 // Structure Search: the plain-language search-term registry and the unified
 // target-resolution modalities (Exact, Pattern/regex, Near-Miss, and four
@@ -1254,7 +1254,7 @@ async function handleRequest(req, res) {
       // recognized as a mechanical BUILD: compute the structure, draw only the
       // independent units (concurrently), assemble and validate. Not the model
       // turn — this shape is code.
-      if (detectBuildTask(task)) {
+      if (detectCodeBuildIntent(task)) {
         const b = await buildCodeTask({
           task, model: String(parsed?.model ?? "").trim() || "qwen2.5-coder:1.5b",
           testCommand: parsed?.testCommand ?? null, out: parsed?.out ?? null, parallelism: currentParallelism(),
