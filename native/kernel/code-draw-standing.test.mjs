@@ -23,7 +23,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { makeMetacognition } from "../../../the-fold/metacognition.js";
+import { makeMetacognition } from "../the-fold/metacognition.js";
 import * as taskLog from "./task-log.js";
 
 import {

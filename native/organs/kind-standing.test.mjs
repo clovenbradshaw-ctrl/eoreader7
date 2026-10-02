@@ -72,7 +72,7 @@ const PLACES = ["London", "Transylvania", "Bukovina", "Bistritz", "England", "Ex
 async function realVectors() {
   const { loadOrgans } = await import(`${LP}/scripts/eot-digest.mjs`);
   const organs = await loadOrgans();
-  const { stripContainer, stripItalicsMarkup } = await import("../../../the-fold/source.js");
+  const { stripContainer, stripItalicsMarkup } = await import("../the-fold/source.js");
   const body = stripItalicsMarkup(stripContainer(fs.readFileSync(BOOK, "utf8")).text);
   const sentences = organs.spans.splitSentences(body);
   const surfaces = organs.surfaces.extractSurfaces(sentences, {}).filter((e) => e.mentions >= 5).map((e) => e.surface);
@@ -232,7 +232,7 @@ test("P79's DECLARED place-kind is RECOVERED from nothing: discovered locative k
   // carries on its own.
   const { loadOrgans } = await import(`${LP}/scripts/eot-digest.mjs`);
   const organs = await loadOrgans();
-  const { stripContainer, stripItalicsMarkup } = await import("../../../the-fold/source.js");
+  const { stripContainer, stripItalicsMarkup } = await import("../the-fold/source.js");
   const body = stripItalicsMarkup(stripContainer(fs.readFileSync(BOOK, "utf8")).text);
   const sentences = organs.spans.splitSentences(body);
   const surfaces = organs.surfaces.extractSurfaces(sentences, {}).filter((e) => e.mentions >= 5).map((e) => e.surface);

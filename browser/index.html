@@ -76,6 +76,11 @@
         <input id="task" type="text" placeholder="Ask the reader anything — no model prefix, no chat scaffolding." autocomplete="off">
         <button id="send">send</button>
       </div>
+      <div class="row">
+        <label for="map-root">folder</label>
+        <input id="map-root" type="text" placeholder="/absolute/path: a Drive export, a repository, any folder" autocomplete="off" style="flex:1">
+        <button id="map-go" title="Read the whole folder at once and map what it is made of; type a question in the task box to ask all of it instead">map / ask</button>
+      </div>
       <div class="row hint">
         <span>Talk to the proxy the same way any client does: POST /v1/ask on port 11436.</span>
         <span id="session-hint"></span>
@@ -222,6 +227,42 @@ async function send() {
   }
 }
 
+// A whole folder, made sense of almost instantly (POST /v1/territory). With text in the task box it asks all of the folder;
+// otherwise it draws the map, each split carrying its price in bits and how far apart its halves are.
+function territoryText(a) {
+  const n = (x) => Number(x).toLocaleString();
+  if (!a || a.error) return "territory: " + (a?.error?.message ?? a?.error ?? "no answer");
+  if (Array.isArray(a.hits)) {
+    return [`${n(a.matched)} documents match "${a.q}" (${a.ms} ms)` + (a.absent?.length ? `; the folder never says: ${a.absent.join(", ")}` : ""),
+      ...a.hits.slice(0, 8).map((h) => `  ${h.name}  [territory ${h.territory}]\n      ${String(h.snippet || h.title || "").slice(0, 140)}`),
+      a.territories?.length ? "the best answers fall in territories " + a.territories.slice(0, 5).map((t) => `${t.id} (${t.hits})`).join(", ") : ""].filter(Boolean).join("\n");
+  }
+  const S = a.map?.stats; if (!S) return "territory: nothing to show";
+  const out = [a.root, `${n(S.docs)} documents of ${n(a.files?.found)} files, ${n(S.words)} words, ${n(S.redundant)} near-duplicates`];
+  const walk = (node, d) => {
+    const pad = "  ".repeat(d);
+    if (node.split) { out.push(`${pad}${n(node.docs)} docs: a split saves ${n(Math.round(node.split.gain))} bits, halves ${node.split.jsd.toFixed(2)} apart (0 same, 1 nothing shared)`); node.children.forEach((c) => walk(c, d + 1)); }
+    else out.push(`${pad}[${node.leaf.id}] ${n(node.leaf.docs)} docs${node.leaf.coherent ? ", coherent" : ""}: ${node.leaf.terms.slice(0, 5).join(", ") || "(no distinctive words)"}`);
+  };
+  if (a.map.tree) walk(a.map.tree, 0);
+  return out.join("\n");
+}
+async function mapFolder() {
+  const root = $("map-root").value.trim(), q = $("task").value.trim();
+  if (!root) { $("map-root").focus(); return; }
+  localStorage.setItem("er7-map-root", root);
+  addTurn("user", q ? `ask ${root}: ${q}` : `map ${root}`);
+  const wait = addTurn("assistant", "reading the whole folder…", ""); wait.querySelector(".body").className = "body loading";
+  try {
+    const r = await fetch(`${BASE}/v1/territory`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(q ? { root, q } : { root }) });
+    const a = await r.json();
+    wait.querySelector(".body").className = "body"; wait.querySelector(".body").textContent = territoryText(a);
+    if (q && !a.error) $("task").value = "";
+  } catch (e) { wait.remove(); addTurn("error", `could not reach proxy: ${e.message}`); }
+}
+$("map-go").onclick = mapFolder;
+$("map-root").value = localStorage.getItem("er7-map-root") || "";
+$("map-root").addEventListener("keydown", (e) => { if (e.key === "Enter") mapFolder(); });
 $("send").onclick = send;
 $("task").addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
 $("new-session").onclick = () => {

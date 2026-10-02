@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { witnessSentences, endsFor, settledBy, rowFor } from "./witness-sentences.js";
-import * as T from "../../../the-fold/testimony.js";
+import * as T from "./testimony.js";
 import { splitSentences } from "../adapters/text/spans.js";
 
 // The live specimen (2026-09-02): one answer, two sentences — a TRUE

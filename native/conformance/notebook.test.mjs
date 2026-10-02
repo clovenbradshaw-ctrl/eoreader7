@@ -92,10 +92,12 @@ test("python cells run with ingested tables as files, capture figures, and have 
   let s = emptyNotebook();
   s = addData(s, ingest({ name: "t.csv", bytes: Buffer.from("a,b\n1,2\n3,4\n") }), H).state;
   const r = runPython("import csv\nprint(sum(float(x['b']) for x in csv.DictReader(open('data/t.csv.csv'))))\nimport matplotlib.pyplot as plt\nplt.plot([1,2]);save('p')", s.files);
-  // A host that cannot isolate the network says so in the run's own record (notebook-run.mjs) — the
-  // second half of this test already accepts that note; the result itself is what is compared here.
-  const withoutIsolationNote = (o) => o.replace(/\n*\[note: network isolation unavailable[^\]]*\]\s*$/, "");
-  assert.equal(withoutIsolationNote(r.output).trim(), "6.0"); assert.equal(r.figures.length, 1); assert.match(r.figures[0].sha, /^[0-9a-f]{64}$/);
+  // A host that cannot isolate the network — or refuses to set a memory limit
+  // (macOS rejects RLIMIT_AS) — says so in the run's own record (notebook-run.mjs);
+  // the notes are stripped for the comparison, and the result itself is what is
+  // compared here.
+  const withoutNotes = (o) => o.replace(/\n*(?:\[note: [^\]]*\]\s*)+$/g, "");
+  assert.equal(withoutNotes(r.output).trim(), "6.0"); assert.equal(r.figures.length, 1); assert.match(r.figures[0].sha, /^[0-9a-f]{64}$/);
   const n = runPython("import socket\ntry:\n  socket.create_connection(('1.1.1.1',53),timeout=3); print('NET')\nexcept Exception as e: print('blocked')", {});
   assert.ok(/blocked/.test(n.output) || /NOT network-isolated/.test(n.output), "either blocked, or the run says isolation was unavailable");
   assert.ok(!/^NET/m.test(n.output) || /NOT network-isolated/.test(n.output));

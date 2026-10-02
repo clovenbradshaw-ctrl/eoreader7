@@ -41,7 +41,7 @@ test("mimeticFinding: a reference with fewer than 2 accent tokens is disclosed a
 
 test("REAL DATA: this repo's own local, already-built the-fold accent tokens measure as tightly hue-convergent", () => {
   let css;
-  try { css = fs.readFileSync(new URL("../../../the-fold/explore/explore.css", import.meta.url), "utf8"); }
+  try { css = fs.readFileSync(new URL("../../../the-fold-legacy/explore/explore.css", import.meta.url), "utf8"); }
   catch { css = null; }
   if (!css) { console.log("(the-fold sibling checkout not present here — skipping the real-file assertion)"); return; }
   const r = mimeticFinding([{ giver: "the-fold/explore/explore.css", cssText: css }]);
@@ -119,7 +119,7 @@ test("CAUGHT-BY-TESTING: an achromatic background makes hue comparison meaningle
 test("REAL DATA: this repo's own local design systems converge on a real, measured border-radius (median 8px, excluding pill shapes)", () => {
   let foldCss, heimdallCss;
   try {
-    foldCss = fs.readFileSync(new URL("../../../the-fold/index.html", import.meta.url), "utf8");
+    foldCss = fs.readFileSync(new URL("../../../the-fold-legacy/index.html", import.meta.url), "utf8");
     heimdallCss = fs.readFileSync(new URL("../../../heimdall/src/style.css", import.meta.url), "utf8");
   } catch { return; }
   const r = dominantConvention([{ giver: "the-fold/index.html", cssText: foldCss }, { giver: "heimdall/src/style.css", cssText: heimdallCss }], "border-radius");

@@ -4,8 +4,12 @@
 //   written under ./data/ (tables as CSV, text as .txt), CPU/memory limits set by
 //   resource.setrlimit, and — where the host allows it — NO NETWORK (`unshare -rn`).
 //   When network isolation is unavailable the run says so in its own record; it is never
-//   silently assumed. This is an authority wall by construction, not a hardened sandbox
+//   silently assumed. The same holds for the memory limit: a host that refuses
+//   setrlimit(RLIMIT_AS) (macOS returns EINVAL for RLIMIT_AS) gets a note in the run,
+//   never a crash. This is an authority wall by construction, not a hardened sandbox
 //   (P14's own posture): the person's code runs as the person.
+//   The interpreter is `ER7_PYTHON` when set, else `python3` (a numpy/matplotlib-bearing
+//   interpreter is required for the preload and figures).
 // js: the fold's own vm sandbox (sandboxed-agent.js), nothing granted.
 // Figures: any PNG the code writes to ./out/ (≤ 3, ≤ 1.5 MB each) is stored, hashed, on the entry.
 import fs from "node:fs"; import os from "node:os"; import path from "node:path";
@@ -18,8 +22,16 @@ const csv = (t) => [t.header, ...t.rows].map((r) => r.map((c) => (/[",\n]/.test(
 const ER7PY = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../../organs/er7py");
 // The runner: limits, the fold's tools already imported (`from er7 import *`, np, plt), and Jupyter's rule —
 // the LAST expression of a cell is displayed. The person's code lives in user.py so tracebacks name its own lines.
+// Limits are attempted and, where a host refuses them, noted in the run's own record — never a crash (same
+// posture as the network-isolation note below).
 const RUNNER = `import resource,sys,os,ast
-resource.setrlimit(resource.RLIMIT_AS,(8<<30,8<<30)); resource.setrlimit(resource.RLIMIT_CPU,(45,45))
+_limits=[]
+try:
+    resource.setrlimit(resource.RLIMIT_AS,(8<<30,8<<30)); _limits.append("memory")
+except Exception as _e: _limits.append(f"memory unavailable: {_e}")
+try:
+    resource.setrlimit(resource.RLIMIT_CPU,(45,45)); _limits.append("cpu")
+except Exception as _e: _limits.append(f"cpu unavailable: {_e}")
 os.makedirs("out",exist_ok=True)
 from er7 import *
 try:
@@ -34,9 +46,15 @@ exec(compile(tree,"user.py","exec"),g)
 if last is not None:
     v=eval(compile(ast.Expression(last.value),"user.py","eval"),g)
     if v is not None: print(repr(v))
+if any("unavailable" in x for x in _limits):
+    sys.stdout.write("\\n[note: "+"; ".join(x for x in _limits if "unavailable" in x)+"]\\n")
 `;
 let isolation;
 const canIsolate = () => (isolation ??= spawnSync("unshare", ["-rn", "true"]).status === 0);
+const PY = () => process.env.ER7_PYTHON ?? "python3";
+// A stable MPLCONFIGDIR so matplotlib's font cache is built once and reused across
+// runs (a fresh dir per run would print "building the font cache" to stderr every time).
+const MPLCFG = path.join(os.tmpdir(), "nb-mplconfig");
 
 export function runPython(code, files = {}, { timeoutMs = 60000 } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "nb-"));
@@ -48,9 +66,10 @@ export function runPython(code, files = {}, { timeoutMs = 60000 } = {}) {
   }
   fs.writeFileSync(path.join(dir, "user.py"), code); fs.writeFileSync(path.join(dir, "cell.py"), RUNNER);
   const iso = canIsolate();
+  const py = PY();
   const t0 = Date.now();
-  const r = iso ? spawnSync("unshare", ["-rn", "python3", "cell.py"], { cwd: dir, encoding: "utf8", timeout: timeoutMs, maxBuffer: 4e6, env: { ...process.env, MPLBACKEND: "Agg", PYTHONPATH: ER7PY, ER7_ISOLATED: iso ? "1" : "", OPENBLAS_NUM_THREADS: "1", MPLCONFIGDIR: dir } })
-    : spawnSync("python3", ["cell.py"], { cwd: dir, encoding: "utf8", timeout: timeoutMs, maxBuffer: 4e6, env: { ...process.env, MPLBACKEND: "Agg", PYTHONPATH: ER7PY, ER7_ISOLATED: iso ? "1" : "", OPENBLAS_NUM_THREADS: "1", MPLCONFIGDIR: dir } });
+  const r = iso ? spawnSync("unshare", ["-rn", py, "cell.py"], { cwd: dir, encoding: "utf8", timeout: timeoutMs, maxBuffer: 4e6, env: { ...process.env, MPLBACKEND: "Agg", PYTHONPATH: ER7PY, ER7_ISOLATED: iso ? "1" : "", OPENBLAS_NUM_THREADS: "1", MPLCONFIGDIR: MPLCFG } })
+    : spawnSync(py, ["cell.py"], { cwd: dir, encoding: "utf8", timeout: timeoutMs, maxBuffer: 4e6, env: { ...process.env, MPLBACKEND: "Agg", PYTHONPATH: ER7PY, ER7_ISOLATED: iso ? "1" : "", OPENBLAS_NUM_THREADS: "1", MPLCONFIGDIR: MPLCFG } });
   const figures = [];
   const od = path.join(dir, "out");
   for (const f of fs.existsSync(od) ? fs.readdirSync(od).filter((x) => x.endsWith(".png")).slice(0, 3) : []) {

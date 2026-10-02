@@ -144,3 +144,28 @@ export function facingRows(holo, cols) {
   }
   return { merged, leftW, rightW };
 }
+// A territory answer (POST /v1/territory) as plain lines: the map with the price of each split, or the answer to a question with
+// the passage each document was found in. Pure, so the TUI and its tests share it.
+export function territoryLines(a) {
+  const n = (x) => Number(x).toLocaleString("en-US");
+  const out = [];
+  if (!a || a.error) return [`territory: ${a?.error ?? "no answer"}`];
+  if (Array.isArray(a.hits)) {
+    out.push(`${n(a.matched)} documents match "${a.q}" (${a.ms} ms)${a.absent?.length ? `; the folder never says: ${a.absent.join(", ")}` : ""}`);
+    for (const h of a.hits.slice(0, 8)) out.push(`  ${h.name}  [territory ${h.territory}]`, `      ${String(h.snippet || h.title || "").slice(0, 140)}`);
+    if (a.territories?.length) out.push(`the best answers fall in territories ${a.territories.slice(0, 5).map((t) => `${t.id} (${t.hits})`).join(", ")}`);
+    return out;
+  }
+  if (Array.isArray(a.documents)) return [`territory ${a.territory}: ${a.documents.map((d) => d.name).join(", ")}`];
+  const S = a.map?.stats, files = a.files ?? {};
+  if (!S) return ["territory: nothing to show"];
+  out.push(`${a.root}`, `${n(S.docs)} documents of ${n(files.found)} files, ${n(S.words)} words, ${n(S.redundant)} near-duplicates${files.truncated ? ", crawl stopped at its budget" : ""}`);
+  const walk = (node, depth) => {
+    const pad = "  ".repeat(depth);
+    if (node.split) { out.push(`${pad}${n(node.docs)} docs: a split saves ${n(Math.round(node.split.gain))} bits, halves ${node.split.jsd.toFixed(2)} apart (0 same, 1 nothing shared)`); node.children.forEach((c) => walk(c, depth + 1)); }
+    else out.push(`${pad}[${node.leaf.id}] ${n(node.leaf.docs)} docs${node.leaf.coherent ? ", coherent" : ""}: ${node.leaf.terms.slice(0, 5).join(", ") || "(no distinctive words)"}`);
+  };
+  if (a.map.tree) walk(a.map.tree, 0);
+  out.push(`${a.map.K} territories${a.map.exhausted ? ": every one is coherent" : ""}. /map <folder> ? <question> asks all of it.`);
+  return out;
+}

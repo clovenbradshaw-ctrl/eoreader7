@@ -134,7 +134,7 @@ async function cmdExtract(url, indexArg) {
   const evidencePath = new URL("./podcast-extract-evidence.json", import.meta.url);
   await fs.writeFile(evidencePath, JSON.stringify({
     generatedAt: new Date().toISOString(), feedUrl: url, episodeTitle: item.title, episodeDescription: item.description,
-    model: process.env.ER7_PODCAST_MODEL ?? process.env.ER7_NB_MODEL, mouthUrl: process.env.ER7_OLLAMA_URL,
+model: process.env.ER7_PODCAST_MODEL ?? process.env.ER7_NB_MODEL, mouthUrl: process.env.ER7_MOUTH_URL ?? process.env.ER7_OLLAMA_URL,
     claims, conflictsFound: conflicts, finalNotes: notes.fold(log),
   }, null, 2));
   console.log(`\n(claims + cross-check evidence written to ${fileURLToPath(evidencePath)})`);

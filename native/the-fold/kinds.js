@@ -98,7 +98,14 @@ function mode(xs) { const c = new Map(); for (const x of xs) c.set(x, (c.get(x) 
 export function saturatingSpans(ids, draft) {
   const R = draft?.referents ?? null;
   const pts = new Map(drawnParts(draft).flatMap((p) => p.children.map((pt) => [pt.id, pt])));
-  const marks = (pt) => new Set([...(R ? [...R.resolveText(pt.text)].map((x) => `b:${x}`) : []), ...[...figuresOf(pt.text)].map((f) => `f:${f}`)]);
+  // Beings here are PROPER beings only — the same bar statementKinds'
+  // own evidence loop holds two screens up (isProperReferent). Generic
+  // descriptor referents (ref:descriptor:, determiner + recurrence) resolve
+  // asks but never individuate: counting them as quotable novelty lets a
+  // ubiquitous "the exhibit" outbid a proper being for first quote and
+  // demotes the higher-gain statement to redundant (measured 2026-09-30:
+  // [p2.1,p2.2,p2.3] became [p1.1,p2.2,p2.3] with identical saturation).
+  const marks = (pt) => new Set([...(R ? [...R.resolveText(pt.text)].filter((x) => isProperReferent(R, x)).map((x) => `b:${x}`) : []), ...[...figuresOf(pt.text)].map((f) => `f:${f}`)]);
   const shown = new Set();
   const left = ids.filter((id) => pts.has(id));
   const out = [];

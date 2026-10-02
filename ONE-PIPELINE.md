@@ -60,6 +60,18 @@ file resolution (two).
 
 ## The layering this is heading to
 
+> **The mouth is Penelope's (2026-10-01).** Every model draw in this engine
+> enters her mouth first (`../penelope/organs/mouth.mjs` +
+> `../penelope/mouth/server.mjs`, on `PENELOPE_MOUTH_PORT` 11439): her
+> admission (the ration per identity, typed 429/503 + Retry-After), her
+> kind→wire routing. She directs the BRIDGE to execute — Heimdall's channel
+> (11434), the AntiStrauss gate, the host picker, the upstream lanes —
+> which is never forked. The engine addresses her at
+> `native/kernel/mouth.js` (MOUTH_URL/MOUTH_IDENTITY); the proxy's own
+> draws already route through Penelope's generation door
+> (`GENERATION_DOOR` → `organs/generation-door.mjs`, which now draws
+> through the mouth). GL-RR-04 records it with its falsifying control.
+
 - **One core** — every door enters it: clear → intake → ask-back → ground →
   source each part (snip / reason / ask) → hear → reason → assemble → verify
   (+ repair) → type and archons → seal and ledger. One mouth

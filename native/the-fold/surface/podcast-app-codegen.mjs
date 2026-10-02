@@ -24,7 +24,7 @@ import { makeMeasuredLoop } from "../../kernel/measured-loop.js";
 import { readAppLedger, landAppRound, appendAppRound, projectApp } from "../../adapters/build/podcast-app-ledger.js";
 import { extractPlaceholders } from "../../adapters/build/coherence-properties.mjs";
 
-const OLLAMA_URL = process.env.ER7_OLLAMA_URL ?? "http://127.0.0.1:11434";
+const OLLAMA_URL = process.env.ER7_MOUTH_URL ?? process.env.ER7_OLLAMA_URL ?? "http://127.0.0.1:11439";
 const MODEL = process.env.ER7_PODCAST_MODEL ?? process.env.ER7_NB_MODEL ?? "gemma2:2b";
 const CEILING = 6; // the safety floor under the measured stop (P9) — small, because each round is a real ~1-3 minute CPU generation
 

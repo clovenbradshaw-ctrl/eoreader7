@@ -3,6 +3,10 @@ import { colony, walk, TRANSFORMS, STATS, MAX_DEPTH } from "../organs/structure-
 import { deposit } from "../kernel/stigmergy.js";
 import { execFileSync } from "node:child_process";
 
+// The python judges need numpy; ER7_PYTHON points the notebook sandbox at the right interpreter,
+// so the judges honour it too (default `python3`).
+const PY = () => process.env.ER7_PYTHON ?? "python3";
+
 // a fake world: any pipeline that squares then averages then asks for persistence has structure; everything else is noise
 const has = (sp) => sp.includes("sq") && sp.includes("blk64") && sp.at(-1) === "acf8";
 const fake = (specs) => specs.map((sp) => ({ spec: sp, stat: 1, z_shuffle: has(sp) ? 20 : 0.5, z_phase: 0.3, gloss: sp.join(" ") }));
@@ -34,7 +38,7 @@ test("trying more raises the bar; ants never repeat a pipeline; depth is capped;
 });
 
 test("the move names agree with the python judges (a drift here would make ants walk into moves that do not exist)", () => {
-  const out = execFileSync("python3", ["-c", "import sys,json; sys.path.insert(0,'organs/er7py'); import swarm; print(json.dumps([swarm.TRANSFORM_NAMES, swarm.STAT_NAMES]))"], { encoding: "utf8", cwd: new URL("..", import.meta.url).pathname });
+  const out = execFileSync(PY(), ["-c", "import sys,json; sys.path.insert(0,'organs/er7py'); import swarm; print(json.dumps([swarm.TRANSFORM_NAMES, swarm.STAT_NAMES]))"], { encoding: "utf8", cwd: new URL("..", import.meta.url).pathname });
   const [T, S] = JSON.parse(out); assert.deepEqual(T, [...TRANSFORMS]); assert.deepEqual(S, [...STATS]);
 });
 
@@ -46,7 +50,7 @@ spec=["sq","blk64","acf1"]
 rb=swarm.evaluate(b,[spec],10,1)[0]; rg=swarm.evaluate(g,[spec],10,1)[0]
 c=swarm.ceiling(g,[spec,["kurt"],["acf1"]],10,1,2)
 print(json.dumps([rb["z_phase"],rg["z_phase"],rg["z_shuffle"],c["phase"],c["shuffle"]]))`;
-  const [zb, zg, zgs, cp, cs] = JSON.parse(execFileSync("python3", ["-c", py], { encoding: "utf8", cwd: new URL("..", import.meta.url).pathname }));
+  const [zb, zg, zgs, cp, cs] = JSON.parse(execFileSync(PY(), ["-c", py], { encoding: "utf8", cwd: new URL("..", import.meta.url).pathname }));
   assert.ok(zb > 6, `bursty data clears the phase null (z=${zb})`); assert.ok(zg < 3.5, `Gaussian noise does not (z=${zg})`); assert.ok(zgs < 3.5 && cp < 6 && cs < 6, "chance ceilings stay small");
   assert.ok(zb > cp, "the bursts stand above the search-aware ceiling");
 });

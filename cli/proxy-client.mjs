@@ -83,6 +83,18 @@ export async function listSessions() {
   }
 }
 
+/** The territory door (POST /v1/territory): a whole folder mapped, or asked, almost instantly. Body: { root?, k?, q?, territory?, id? }.
+ *  A first open of a large folder reads every file, so the wait is generous; a failure returns { error } for the caller to show. */
+export async function territory(body) {
+  try {
+    const res = await fetch(`${BASE}/v1/territory`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(300000) });
+    const json = await res.json().catch(() => ({}));
+    return res.ok ? json : { error: json?.error?.message ?? `the proxy answered ${res.status}` };
+  } catch (e) {
+    return { error: `the proxy did not answer: ${e.message}` };
+  }
+}
+
 /** The proxy's disclosed model state (GET /heimdall): modelQuirks (a quirk
  *  that says a model "hangs" is why it must never be the default — smollm2
  *  literally never answers on the system role) and the RESIDENT models

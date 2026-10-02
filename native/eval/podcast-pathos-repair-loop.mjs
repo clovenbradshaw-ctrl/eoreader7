@@ -146,7 +146,7 @@ function roundnessConvention() {
   if (ROUNDNESS_CONVENTION) return ROUNDNESS_CONVENTION;
   const refs = [];
   for (const [giver, path] of [
-    ["the-fold/index.html", new URL("../../../the-fold/index.html", import.meta.url)],
+    ["the-fold/index.html", new URL("../../../the-fold-legacy/index.html", import.meta.url)],
     ["heimdall/src/style.css", new URL("../../../heimdall/src/style.css", import.meta.url)],
   ]) {
     try { refs.push({ giver, cssText: fs.readFileSync(path, "utf8") }); } catch { /* sibling checkout not present here — disclosed via n:0 below, never a crash */ }

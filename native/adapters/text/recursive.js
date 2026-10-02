@@ -10,6 +10,7 @@ import { createCompanyIndex } from "../../organs/company-index.js";
 import { classifyWord, dominantClass } from "./wordclass.js";
 import { GRAMMAR_MIN_SHARE } from "./grain-typing.js";
 import { relationExtractorsFor } from "./relations-language.js";
+import { fragmentRelations } from "./fragment-relations.js";
 import { directDescriptorOccurrences, descriptorOccurrence } from "./individuation.js";
 import { createDescriptorAnchoring } from "./anchoring.js";
 import { hyperedge } from "../../kernel/hypergraph.js";
@@ -421,7 +422,7 @@ function witnessRelatedPairs(store, sentences, refs, matcher = null) {
   }
 }
 
-export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 1, reprojectEvery = null, posPrior = null, descriptorAnchoring = null, addresses = "birth", idFactory = null, recipe = null, language = null, roleConfig = null, parseModel = null } = {}) {
+export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 1, reprojectEvery = null, posPrior = null, descriptorAnchoring = null, addresses = "birth", idFactory = null, recipe = null, language = null, roleConfig = null, parseModel = null, fragmentSeam = true } = {}) {
   // `refreshEvery` (2026-09-09): 1 is the default now — batching is an
   // engineering compromise, never a model of how reading works ("people
   // don't read in 25-sentence batches" — user direction, verbatim, the
@@ -705,7 +706,21 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       const encounterRef = `encounter:${sequencePosition}`;
       if (priorSentences.length === 0 || priorSentences.length % refreshEvery === 0) refresh();
 
-      const relations = extractRelations(encounter.material, { verbs: cache.verbs, functionWords: cache.closed, phrasalPredicates: true, figures: cache.figures ?? cache.verbs });
+      const parsedRelations = extractRelations(encounter.material, { verbs: cache.verbs, functionWords: cache.closed, phrasalPredicates: true, figures: cache.figures ?? cache.verbs });
+      // THE TRANSFER (2026-10-01): read good books so we can understand bad
+      // grammar. The fragment seam hears the clause shapes the formal reader
+      // gated on — imperative, intransitive, copula-deleted — in the deformed
+      // registers (SMS fragments, Singlish, IRC) where extractRelations is
+      // deaf. It emits the SAME relation-edge shape (label/end1/end2/offset/
+      // polarity/grain/basis), so the fold gains a relation universe where
+      // organic chat had none. The seam's own gate is the house's one
+      // direction: the received POS prior REFUSES (a prior-attested non-verb
+      // or interjection never heads a relation) and never admits; a form
+      // absent from the prior is a gap, never a refusal.
+      const relations = [
+        ...parsedRelations,
+        ...(fragmentSeam ? fragmentRelations(encounter.material, { prior: posPrior, verbs: cache.verbs }) : []),
+      ];
       // GUID IDENTITY (2026-09-13, S114): a GUID edge id and witness, so
       // the identity is collision-proof across readings. The hyperlexicon's
       // accumulator unions witnesses by id; a position-derived id collided

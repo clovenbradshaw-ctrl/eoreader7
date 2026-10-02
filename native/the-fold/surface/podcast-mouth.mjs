@@ -91,8 +91,10 @@ const describe = (v) => `${v.end1} ${v.label} ${v.end2}`;
  * (ER7_OLLAMA_URL/ER7_NB_MODEL); returns `null` when either is unset, so a
  * caller can fall back to a scripted mouth without a network the same way
  * notebookHandler already does for its own `mouth ?? L.ollamaMouth()`.
+ * 2026-10-01: the DRAW address is the mouth (ER7_MOUTH_URL, Penelope) —
+ * her admission, then the bridge executes; the surface never draws past her.
  */
-export function ollamaPodcastMouth({ url = process.env.ER7_OLLAMA_URL, model = process.env.ER7_PODCAST_MODEL ?? process.env.ER7_NB_MODEL } = {}) {
+export function ollamaPodcastMouth({ url = process.env.ER7_MOUTH_URL ?? process.env.ER7_OLLAMA_URL, model = process.env.ER7_PODCAST_MODEL ?? process.env.ER7_NB_MODEL } = {}) {
   if (!url || !model) return null;
   return {
     async propose({ n, beat, topic, voices }) {

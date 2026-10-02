@@ -27,6 +27,7 @@ import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { loadModel, parseText } from "../../adapters/text/english-parser.js";
 import { parseConllu, toEot, surfaceBytes } from "../../kernel/eot-rich.js";
+import { spellingFromPrior, predict, applyHabits } from "../../adapters/text/spelling-correspondence.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "..", "..", "..");
@@ -62,21 +63,71 @@ function manifestEntry(file) {
   return null;
 }
 
-export function readBook(model, file, { period = null, region = null } = {}) {
+/**
+ * spellingIdentityRead(text, prior, opts) — read a text WITHOUT rewriting its
+ * bytes (the holograph correction, 2026-10-01: identity is never a byte
+ * rewrite — a literal span is a witness, never identity, S113). Every letter
+ * word the parser already knows is left untouched. A word the parser does
+ * not know is NOT replaced: instead the reading emits an identity
+ * HYPOTHESIS (source surface ↔ the correspondence's reference spelling),
+ * adjudicated by the house's four tests (identity-induction.js) FOR A
+ * FOR-WHOM, when the correspondence is confident (word layer bound at >= 0.8
+ * share with support >= 2, or a habit-layer candidate that IS a parser-known
+ * form). The text handed back is the ORIGINAL bytes — the offsets into the
+ * record reproduce the source exactly. The hypotheses are the reading's
+ * claim about being, relative to the for-whom, never a change to the shape
+ * of bytes. Returns { text, hypotheses, wordLayer, habitLayer, contested }.
+ */
+export function spellingIdentityRead(text, prior, { forWhom = null, token = /[\p{L}'’]+/gu } = {}) {
+  const hypotheses = [];
+  let wordLayer = 0, habitLayer = 0, contested = 0;
+  const knownWord = (w) => Object.keys(prior.bySource ?? {}).some((k) => k === w) || Object.keys(prior.byReference ?? {}).some((k) => k === w);
+  for (const m of text.matchAll(token)) {
+    const w = m[0].toLowerCase().replace(/[’]/g, "'");
+    if (!/\p{L}/u.test(w)) continue;
+    const dist = prior.bySource?.[w];
+    if (dist) {
+      const entries = Object.entries(dist).sort((a, b) => b[1] - a[1]);
+      const top = entries[0][0], topC = entries[0][1];
+      const share = topC / entries.reduce((a, [, c]) => a + c, 0);
+      if (share >= 0.8 && topC >= 2) { hypotheses.push({ surface: m[0], reference: top, basis: `word:${w}->${top}@${share.toFixed(2)}`, span: [m.index, m.index + m[0].length] }); wordLayer += 1; continue; }
+      contested += 1; continue;
+    }
+    const cands = applyHabits(prior.habits?.cues ?? {}, w);
+    const known = [...new Set([...cands].filter(([cand]) => knownWord(cand)).map(([cand]) => cand))];
+    if (known.length === 1) { hypotheses.push({ surface: m[0], reference: known[0], basis: `habit:${[...cands.get(known[0])][0]}`, span: [m.index, m.index + m[0].length] }); habitLayer += 1; }
+    else if (known.length > 1) contested += 1;
+  }
+  return { text, hypotheses, wordLayer, habitLayer, contested, forWhom };
+}
+
+export function readBook(model, file, { period = null, region = null, spelling = null, forWhom = null } = {}) {
   const raw = fs.readFileSync(file, "utf8");
   const hdr = gutenbergHeader(raw);
   if (!hdr.title) { const m = manifestEntry(file); if (m) { hdr.title = m.title ?? null; hdr.fromManifest = m.manifest; hdr.genre = m.genre ?? null; } }
   const [b0, b1] = hdr.body;
+  const seen = new Set(Object.keys(model.lexicon.form).map((k) => k.split("|")[0]));
+  // An optional spelling read emits IDENTITY HYPOTHESES over the original
+  // bytes — it never rewrites them (the holograph correction: a literal
+  // span is a witness, never identity, S113). The parser reads the shape of
+  // bytes; the hypotheses are the reading's claims about being, for-whom.
+  const body = raw.slice(b0, b1);
+  let bridge = null;
+  if (spelling) {
+    const prior = spellingFromPrior(JSON.parse(spelling));
+    const b = spellingIdentityRead(body, prior, { forWhom });
+    bridge = { schema: "SpellingIdentityRead@1", giver: prior.provenance?.giver?.value ?? null, hypotheses: b.hypotheses, wordLayer: b.wordLayer, habitLayer: b.habitLayer, contested: b.contested, forWhom: b.forWhom ?? "the spelling reader — no for-whom declared" };
+  }
   const t0 = Date.now();
-  const conllu = parseText(model, raw.slice(b0, b1), { idPrefix: `${path.basename(file, ".txt")}#` });
+  const conllu = parseText(model, body, { idPrefix: `${path.basename(file, ".txt")}#` });
   const secs = (Date.now() - t0) / 1000;
   // Offsets were computed on the body slice; shift them back into the raw
   // file's coordinates so raw.slice(start, end) reproduces each sentence.
+  // The body is the ORIGINAL bytes — the offsets reproduce the source.
   const shifted = conllu.replace(/^# offset = (\d+)-(\d+)$/gm, (_, a, b) => `# offset = ${Number(a) + b0}-${Number(b) + b0}`)
     .replace(/Offset=(\d+)/g, (_, a) => `Offset=${Number(a) + b0}`);
   const sents = parseConllu(shifted);
 
-  const seen = new Set(Object.keys(model.lexicon.form).map((k) => k.split("|")[0]));
   let words = 0, oov = 0, gaps = 0, exact = 0, offsetExact = 0;
   const upos = {}, cells = {}, lemmaBasis = { form: 0, ending: 0, "word class": 0 };
   for (const s of sents) {
@@ -115,7 +166,7 @@ export function readBook(model, file, { period = null, region = null } = {}) {
   mismatch.push(hdr.genre ? `genre: material ${hdr.genre} (${hdr.fromManifest}) vs parser ${parserP.genre}` : `material genre undeclared; parser taught on ${parserP.genre}`);
   return {
     schema: "EnglishReading@1",
-    material, parser: model.provenance ?? null, mismatch,
+    material, parser: model.provenance ?? null, mismatch, bridge,
     sentences: sents.length, words, seconds: Number(secs.toFixed(1)), wordsPerSecond: Math.round(words / Math.max(secs, 1e-3)),
     unseenWords: pct(oov, words),
     lemmaBasis: Object.fromEntries(Object.entries(lemmaBasis).map(([k, v]) => [k, pct(v, words)])),
@@ -138,7 +189,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   console.log(`parser: ${p.treebank} — ${p.genre}; ${p.period}; ${p.region}`);
   console.log(`held-out: ${JSON.stringify(model.provenance?.scores ?? {})}\n`);
   for (const f of files) {
-    const r = readBook(model, f, { period: periods[f] ?? null, region: regions[f] ?? null });
+    const r = readBook(model, f, { period: periods[f] ?? null, region: regions[f] ?? null, spelling: arg("spelling") ? fs.readFileSync(arg("spelling"), "utf8") : null, forWhom: arg("for") ? { id: arg("for"), giver: "declared on the command line", question: arg("for"), priors: ["the spelling correspondence"], medium: "text", knowing: "perturbation" } : null });
     const base = path.basename(f, ".txt");
     fs.writeFileSync(path.join(OUTDIR, `${base}.conllu`), r.conllu);
     const { conllu, ...summary } = r;
@@ -147,6 +198,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     console.log(`   ${r.sentences} sentences, ${r.words} words in ${r.seconds}s (${r.wordsPerSecond}/s)`);
     console.log(`   unseen word forms: ${r.unseenWords}% | lemma by form ${r.lemmaBasis.form}%, by ending ${r.lemmaBasis.ending}%`);
     console.log(`   rich EOT: gaps ${r.eot.gaps}, surface exact ${r.eot.surfaceExact}%, offsets reproduce the sentence ${r.eot.offsetsReproduceSentence}%`);
+    if (r.bridge) console.log(`   spelling bridge: ${r.bridge.rewrites} words rewritten (word ${r.bridge.wordLayer}, habit ${r.bridge.habitLayer}, contested ${r.bridge.contested}) — ${r.bridge.giver}`);
     console.log(`   provenance mismatch: ${r.mismatch.join("; ")}\n`);
   }
 }

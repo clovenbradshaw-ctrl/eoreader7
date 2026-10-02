@@ -90,7 +90,7 @@ import { antistrauss } from "./native/the-fold/antistrauss.mjs";
 // package.json (added alongside this wiring) rather than left as a
 // disclosed absence: `checkArithmetic`/`checkShaped`/`checkComparison` all
 // need an injected engine, and until now this proxy had none to give them.
-import { checkQuantity } from "../the-fold/arithmetic.js";
+import { checkQuantity } from "./native/the-fold/arithmetic.js";
 import { create, all } from "mathjs";
 const math = create(all);
 // Knights-and-knaves: a closed, enumerable boolean-consistency puzzle,
@@ -99,12 +99,12 @@ const math = create(all);
 // stalled mid-puzzle and, where it did finish, applied Knight/Knave
 // polarity backwards. Same shared-pipeline reasoning as `checkQuantity`
 // above — one fix here reaches every caller of this endpoint.
-import { checkLogicPuzzle } from "../the-fold/logic-puzzle.js";
+import { checkLogicPuzzle } from "./native/the-fold/logic-puzzle.js";
 // A second, unrelated puzzle kind — attribute assignment (the zebra-puzzle
 // family), no truth-tellers, no self-referential statements — sharing
 // reasoning-core.js's solver with logic-puzzle.js and changing nothing
 // there. Proves the search itself is general, not tuned to one puzzle.
-import { checkPreferencePuzzle } from "../the-fold/preference-puzzle.js";
+import { checkPreferencePuzzle } from "./native/the-fold/preference-puzzle.js";
 import { runMechanical, precisionWinner, CONCLUSION } from "./native/organs/precision-race.js";
 // Archons on a Matrix homeserver (the-fold/archon-hyphae.mjs): one account +
 // one EOT room per worktree-archon, the operator always an admin of every

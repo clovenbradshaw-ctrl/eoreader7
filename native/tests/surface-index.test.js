@@ -21,8 +21,8 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 function resolveBook() {
   const candidates = [
     process.env.EOREADER7_WAR_AND_PEACE_FIXTURE,
-    path.join(here, "../../../the-fold/pg2600.txt"),
-    decodeURIComponent(new URL("../../../the-fold/pg2600.txt", import.meta.url).pathname),
+    path.join(here, "../../native/the-fold/fixtures/pg2600.txt"),
+    "/Users/mlacy/Documents/3.0/eoreader7/native/the-fold/fixtures/pg2600.txt",
   ].filter(Boolean);
   return candidates.find((p) => fs.existsSync(p)) ?? null;
 }

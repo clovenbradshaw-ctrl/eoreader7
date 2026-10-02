@@ -37,7 +37,9 @@ async function toolsText(st) { if (toolsCache) return toolsCache; const r = runP
 
 // A model may only POINT here (choose among methods already learned). WRITING a new method is `mouth`, and goes through the gate.
 async function askModel({ question, skills, columns }) {
-  const url = process.env.ER7_OLLAMA_URL, model = process.env.ER7_NB_MODEL;
+  // 2026-10-01: the draw address is the mouth (ER7_MOUTH_URL, Penelope) — her
+  // admission, then the bridge executes; the surface never draws past her.
+  const url = process.env.ER7_MOUTH_URL ?? process.env.ER7_OLLAMA_URL, model = process.env.ER7_NB_MODEL;
   if (!url || !model) throw new Error("no model configured (ER7_OLLAMA_URL / ER7_NB_MODEL)");
   const schema = { type: "object", properties: { skills: { type: "array", items: { enum: skills.map((r) => r.id) } }, columns: { type: "array", items: { enum: columns } } }, required: ["skills", "columns"] };
   const r = await fetch(`${url}/api/chat`, { method: "POST", body: JSON.stringify({ model, stream: false, format: schema, options: { temperature: 0 }, messages: [{ role: "user", content: `Choose which learned methods answer the question, and which columns. Question: ${question}\nMethods:\n${skills.map((x) => `${x.id}: ${x.desc}`).join("\n")}\nColumns: ${columns.join(", ")}` }] }) });

@@ -39,7 +39,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { MODEL_SERVER_URL } from "../kernel/model-server.js";
+import { MOUTH_URL, MOUTH_IDENTITY } from "../kernel/mouth.js";
 import { detectVisualStructure, toLedgerLines, foldVisual } from "../eval/lavar/visual-rec.mjs";
 // AntiStrauss, wired IN (2026-09-20, falsification F1): the vision sense was
 // the one model output the safety-and-ethics gate never saw — completeVision
@@ -51,7 +51,7 @@ import { detectVisualStructure, toLedgerLines, foldVisual } from "../eval/lavar/
 import { gate as antistraussGate, reviewBlock as antistraussReviewBlock } from "../the-fold/antistrauss.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-export const OLLAMA = MODEL_SERVER_URL; // the daemon's private address, one derivation for the whole box
+export const OLLAMA = MOUTH_URL; // the mouth — every vision draw enters there, never the daemon past her
 const VISION_BLOCKED_TEXT = "This reading's vision sense was withheld by the safety-and-ethics gate (AntiStrauss).";
 
 // ── the child: a fast-path memory read BEFORE any CV model runs ────────────
@@ -183,7 +183,7 @@ async function completeVision(messages, { model = VISION_LADDER[0].model, maxTok
   try {
     const res = await fetch(`${OLLAMA}/api/chat`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", ...MOUTH_IDENTITY, "x-er7-kind": "vision" },
       signal: ctrl.signal,
       body: JSON.stringify({ model, messages, stream: false, options: { num_predict: maxTokens, temperature } }),
     });

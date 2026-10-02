@@ -95,3 +95,26 @@ test("an out-of-range --pvalue is rejected with exit 2, never silently clamped o
     assert.match(r.stderr, /--pvalue must be a number strictly between 0 and 1/);
   });
 });
+
+
+test("--for reads the same fold for someone: what touches their question, what folds away, what the document never says", () => {
+  withFixture((file) => {
+    const list = spawnSync(process.execPath, [CLI, file, "list"], { encoding: "utf8" });
+    const address = list.stdout.match(/\/whole\/p\d+\/\d+/)[0];
+    const r = spawnSync(process.execPath, [CLI, file, address, "--for", "A reader | Della counting pennies and zebras"], { encoding: "utf8" });
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(r.stdout, /for A reader, who asks about "Della counting pennies and zebras" \(terms: della, counting, pennies, zebras\)/);
+    assert.match(r.stdout, /this address: (KEEPS|FOLDS) /);
+    assert.match(r.stdout, /the document never says: (counting, )?zebras|the document never says: zebras/, "a word the text never uses is named, not papered over");
+    const twice = r.stdout.split("\n").filter((l) => l.startsWith("  touches")).map((l) => l.replace(/^  touches \([^)]*\): /, ""));
+    assert.equal(new Set(twice).size, twice.length, "a claim is listed once, however many ways it is related to the cursor");
+  });
+});
+
+test("--for with no question is refused: a for-whom reads FOR something, never from nowhere", () => {
+  withFixture((file) => {
+    const r = spawnSync(process.execPath, [CLI, file, "/whole/p1/1", "--for", "someone with no question"], { encoding: "utf8" });
+    assert.equal(r.status, 2);
+    assert.match(r.stderr, /never from nowhere/);
+  });
+});

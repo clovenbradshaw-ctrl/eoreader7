@@ -35,7 +35,7 @@ import TextInput from "ink-text-input";
 import path from "node:path";
 import * as proxyClient from "./proxy-client.mjs";
 import { AGENT_MAX_TURNS } from "../native/the-fold/sandboxed-agent.js";
-import { wrapText, snipLine, stripCitationAppendix } from "./format.mjs";
+import { wrapText, snipLine, stripCitationAppendix, territoryLines } from "./format.mjs";
 // stripCitationAppendix lives in format.mjs (pure, no Ink/React) so its tests
 // can import it without the TUI's runtime dependencies; re-exported here so
 // the TUI module's public surface is unchanged.
@@ -185,6 +185,7 @@ const HELP_SECTIONS = [
   { bold: true, marginTop: 1, text: "Slash commands" },
   { text: "/new  /close  /model [n|name]  /code  /chat  /swarm <pointing> [:: material]  /help  /quit" },
   { text: "/browser  (toggle to the browser surface)  /sessions  (see live reader folds)  /matrix [...]  /github [...]" },
+  { text: "/map [folder] [? question]  (make sense of a whole folder at once; ask all of it)" },
   { bold: true, marginTop: 1, text: "Modes" },
   { text: "chat — sent to the fold proxy's grounded reading pipeline." },
   { text: "code — an open-ended coding loop over the SAME proxy, sandboxed:" },
@@ -533,6 +534,18 @@ function App() {
             pushMessage(tabId, "note", `live sessions (${list.length}):\n${lines.join("\n")}`);
           })
           .catch((e) => pushMessage(tabId, "error", `sessions failed: ${e.message}`));
+        break;
+      }
+      case "map": {
+        // /map [folder] [? question] — make sense of a whole folder almost instantly (the proxy's territory door). No folder
+        // means the directory the TUI was started in; a question after "?" asks all of it instead of drawing the map.
+        const [folderPart, ...qPart] = arg.split("?");
+        const root = folderPart.trim() ? path.resolve(folderPart.trim().replace(/^~(?=$|\/)/, process.env.HOME ?? "~")) : process.cwd();
+        const q = qPart.join("?").trim();
+        pushMessage(tabId, "note", `${q ? "asking" : "mapping"} ${root}…`);
+        proxyClient.territory(q ? { root, q } : { root })
+          .then((a) => pushMessage(tabId, a?.error ? "error" : "note", territoryLines(a).join("\n")))
+          .catch((e) => pushMessage(tabId, "error", `map failed: ${e.message}`));
         break;
       }
       case "help":

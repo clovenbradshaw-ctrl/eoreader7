@@ -32,7 +32,8 @@
 // alone can produce, and a real task's best match must clear it. Archon
 // embeddings and the null's own ceiling are computed once per process
 // and cached — the compendium and the calibration set are both static.
-const OLLAMA = process.env.ER7_OLLAMA_URL ?? "http://localhost:11434";
+import { MOUTH_URL, MOUTH_IDENTITY } from "../kernel/mouth.js";
+const OLLAMA = MOUTH_URL; // the mouth — embeddings enter there, never the daemon past her
 const EMBED_MODEL = process.env.ER7_EMBED_MODEL ?? "nomic-embed-text";
 
 // A fixed, disclosed calibration set — deliberately ordinary, off-topic
@@ -58,7 +59,7 @@ export const NULL_QUERIES = Object.freeze([
 export async function embed(inputs, { ollamaUrl = OLLAMA, model = EMBED_MODEL } = {}) {
   const res = await fetch(`${ollamaUrl}/api/embed`, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", ...MOUTH_IDENTITY, "x-er7-kind": "embed" },
     body: JSON.stringify({ model, input: inputs }),
   });
   if (!res.ok) throw new Error(`corpus-resonance: embedding request failed (${res.status})`);

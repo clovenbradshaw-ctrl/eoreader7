@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { wrapText, facingRows, snipLine } from "../format.mjs";
+import { wrapText, facingRows, snipLine, territoryLines } from "../format.mjs";
 import { loadHolograph } from "../holograph.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -65,4 +65,22 @@ test("snipLine names the non-model standing, with or without a source", () => {
   assert.ok(!withUrl.includes("[er7:"), "never a model tag");
   const bare = snipLine(null);
   assert.ok(bare.includes("non-model"), "standing named even with no address");
+});
+
+// ── territoryLines: the territory door's answers as plain lines ──────────────
+test("territoryLines draws the map with the price of each split, and is honest when every territory is coherent", () => {
+  const leaf = (id, docs, terms, coherent = false) => ({ id, docs, tokens: docs * 100, leaf: { id, docs, terms, coherent } });
+  const a = { root: "/drive", files: { found: 120 }, map: { K: 2, exhausted: true, stats: { docs: 100, words: 9000, redundant: 4 }, tree: { id: 0, docs: 100, split: { gain: 5000.4, jsd: 0.91 }, children: [leaf(1, 60, ["grantee", "grantor"]), leaf(2, 40, ["simmer"], true)] } } };
+  const lines = territoryLines(a);
+  assert.ok(lines[0] === "/drive" && lines[1].includes("100 documents of 120 files"));
+  assert.ok(lines.some((l) => l.includes("a split saves 5,000 bits") && l.includes("0.91 apart")));
+  assert.ok(lines.some((l) => l.includes("[2] 40 docs, coherent: simmer")));
+  assert.ok(lines.at(-1).includes("every one is coherent"));
+});
+
+test("territoryLines shows an answer with its passages, what the folder never says, and a refusal as a refusal", () => {
+  const ask = territoryLines({ q: "grantee zzz", matched: 3, ms: 1.2, absent: ["zzz"], hits: [{ name: "a/b.txt", territory: 4, snippet: "the grantee shall" }], territories: [{ id: 4, hits: 3 }] });
+  assert.ok(ask[0].includes('3 documents match "grantee zzz"') && ask[0].includes("never says: zzz"));
+  assert.ok(ask.some((l) => l.includes("a/b.txt") && l.includes("territory 4")));
+  assert.deepEqual(territoryLines({ error: "x is not a folder" }), ["territory: x is not a folder"]);
 });

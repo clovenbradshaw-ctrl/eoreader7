@@ -7,7 +7,7 @@
 // path taken here is the other disclosed option: a genuinely new capability,
 // not a retrofit into logic that already works its own way.
 //
-//   node cli/fold-at.mjs FILE.md ADDRESS [--task "..."]
+//   node cli/fold-at.mjs FILE.md ADDRESS [--task "..."] [--for "WHO | what they ask"]
 //
 // Runs the real pipeline (buildDraft -> attachReferents -> attachEot ->
 // arrangeEssay) on FILE.md, then calls the real foldAt(ADDRESS, outline.claims)
@@ -25,12 +25,15 @@ import { foldAt, slotsFromClaims } from "../native/the-fold/fold-at.js";
 import { createHolograph, admit } from "../native/kernel/bayes-surprise.js";
 import { holon } from "../native/kernel/gfp-claim.js";
 import { claimDependencyIndex, seedsOfClaimFiller } from "../native/the-fold/claim-dependencies.js";
+import { tokenize } from "../native/organs/source.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 function usage() {
-  console.error("usage: node cli/fold-at.mjs FILE.md ADDRESS [--task \"...\"] [--pvalue N]");
+  console.error("usage: node cli/fold-at.mjs FILE.md ADDRESS [--task \"...\"] [--pvalue N] [--for \"WHO | what they ask\"]");
   console.error("  ADDRESS is a holon path (e.g. /whole/p4/2), or 'list' to print every real address this file produces.");
+  console.error("  --for \"WHO | what they ask\" reads the same fold FOR someone: what at this address touches what they ask (the engine's own");
+  console.error("    term matching, no stemming), what folds away, and where else in the document their question lives. No model.");
   console.error("  --pvalue N (0 < N < 1) additionally wires the load-bearing consequential-surprise layer.");
   console.error("    Never defaulted here -- consequential-surprise.js's own guard requires a caller-declared");
   console.error("    pValue, and this project's standing rule forbids a hand-set default. You choose it.");
@@ -48,6 +51,12 @@ if (pValueFlagIdx >= 0 && !(pValue > 0 && pValue < 1)) {
   process.exit(2);
 }
 
+const forFlagIdx = rest.indexOf("--for");
+const forWhom = forFlagIdx >= 0 ? String(rest[forFlagIdx + 1] ?? "") : null;
+if (forWhom !== null && !forWhom.includes("|")) {
+  console.error(`--for needs "WHO | what they ask", got: ${forWhom} (a for-whom reads FOR something, never from nowhere)`);
+  process.exit(2);
+}
 const ground = fs.readFileSync(path.resolve(process.cwd(), file), "utf8");
 const parser = await loadEotParser();
 const d = attachReferents(buildDraft({ task, ground }), buildReferents(ground));
@@ -109,3 +118,32 @@ if (fold.significance.wired) {
   }
 }
 console.log(`paradigm: gap: ${fold.paradigm.reason}`);
+
+// FOR WHOM (kernel/for-whom.js's frame, read with no model): the same fold, through one person's question. A claim or sentence TOUCHES
+// the question when it holds one of its words, matched exactly as the engine's own retrieval matches (source.js tokenize: case and
+// diacritics folded, stopwords dropped, no stemming, so "closing" does not find "closure"). What touches nothing is FOLDED AWAY, never
+// deleted: it is still listed above. Nothing here is a verdict about the person, only about the text.
+if (forWhom !== null) {
+  const [who, ...askParts] = forWhom.split("|");
+  const asks = askParts.join("|").trim();
+  const want = [...new Set(tokenize(asks))];
+  const sentences = new Map(drawnParts(d).flatMap((p) => p.children).map((pt) => [`/${pt.path}`, pt.text]));
+  const touch = (text) => { const have = new Set(tokenize(text)); return want.filter((t) => have.has(t)); };
+  const mark = (c) => touch(`${c.rel} ${Object.values(c.roles ?? {}).join(" ")}`);
+  console.log(`\nfor ${who.trim() || "someone"}, who asks about "${asks}" (terms: ${want.join(", ") || "none"}):`);
+  if (!want.length) console.log("  the question has no content words the matcher keeps, so nothing can touch it.");
+  else {
+    const buckets = [["here", fold.here], ["above", fold.ancestors], ["around", fold.siblings], ["below", fold.descendants], ["same being", fold.contacts.wired ? fold.contacts.rows.map((r) => r.claim) : []]];
+    let kept = 0, away = 0; const seen = new Set();
+    for (const [name, list] of buckets) for (const c of list) { const key = c.id ?? `${c.ground}|${line(c)}`; if (seen.has(key)) continue; seen.add(key); const t = mark(c); if (t.length) { kept++; console.log(`  touches (${name}): ${line(c)}   [${t.join(", ")}]`); } else away++; }
+    const hereText = sentences.get(fold.address);
+    const hereTouch = hereText ? touch(hereText) : [];
+    console.log(`  this address: ${kept || hereTouch.length ? "KEEPS it" : "FOLDS it away"} (${kept} claim(s) touch, ${away} fold away${hereText ? `; the sentence ${hereTouch.length ? "holds " + hereTouch.join(", ") : "holds none of the question's words"}` : ""})`);
+    const never = want.filter((t) => ![...sentences.values()].some((x) => tokenize(x).includes(t)));
+    if (never.length) console.log(`  the document never says: ${never.join(", ")}`);
+    const order = [...sentences.keys()], at = Math.max(0, order.indexOf(fold.address));
+    const elsewhere = order.map((k, i) => ({ k, i, t: touch(sentences.get(k)) })).filter((x) => x.t.length && x.k !== fold.address).sort((x, y) => Math.abs(x.i - at) - Math.abs(y.i - at)).slice(0, 4);
+    if (elsewhere.length) { console.log("  where their question lives, nearest first:"); for (const x of elsewhere) console.log(`    ${x.k}  ${sentences.get(x.k).slice(0, 100)}${sentences.get(x.k).length > 100 ? "..." : ""}  [${x.t.join(", ")}]`); }
+    else if (!never.length) console.log("  nowhere else in this document.");
+  }
+}

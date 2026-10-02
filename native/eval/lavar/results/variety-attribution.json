@@ -1,5 +1,5 @@
 {
-  "at": "2026-09-23",
+  "at": "2026-10-02",
   "segmentWords": 100,
   "sizes": {
     "web": {
@@ -567,60 +567,6 @@
         "force": "default",
         "id": null,
         "basis": "margin 11.200 bits/word over haitian"
-      }
-    }
-  },
-  "embeddingArm": {
-    "model": "nomic-embed-text (Ollama, local)",
-    "segments": 1931,
-    "embeddingAccuracy": 0.8441,
-    "lensAccuracyIgnoringVoid": 0.9757,
-    "agreement": 0.84,
-    "accuracyWhereTheyAgree": 0.9908,
-    "perVariety": {
-      "web": {
-        "segments": 172,
-        "embeddingAccuracy": 0.9128
-      },
-      "us-legal": {
-        "segments": 99,
-        "embeddingAccuracy": 0.9697
-      },
-      "british-19c": {
-        "segments": 738,
-        "embeddingAccuracy": 0.8306
-      },
-      "american-19c": {
-        "segments": 408,
-        "embeddingAccuracy": 0.6618
-      },
-      "early-modern-folio": {
-        "segments": 24,
-        "embeddingAccuracy": 0.8333
-      },
-      "early-modern-modernized": {
-        "segments": 37,
-        "embeddingAccuracy": 0.8649
-      },
-      "aave": {
-        "segments": 202,
-        "embeddingAccuracy": 0.9554
-      },
-      "naija": {
-        "segments": 184,
-        "embeddingAccuracy": 0.9891
-      },
-      "singlish": {
-        "segments": 3,
-        "embeddingAccuracy": 1
-      },
-      "haitian": {
-        "segments": 36,
-        "embeddingAccuracy": 1
-      },
-      "mauritian": {
-        "segments": 28,
-        "embeddingAccuracy": 1
       }
     }
   }

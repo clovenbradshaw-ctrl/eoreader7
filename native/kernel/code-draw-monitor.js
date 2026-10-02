@@ -33,7 +33,7 @@
 // native/eval/the-fold/code-draw-standing-calibrate.mjs already use.
 
 import { readRows } from "../organs/lang-competency.js";
-import { makeMetacognition } from "../../../the-fold/metacognition.js";
+import { makeMetacognition } from "../the-fold/metacognition.js";
 import * as taskLog from "./task-log.js";
 import { observeRows, makeCodeDrawMonitor } from "./code-draw-standing.js";
 

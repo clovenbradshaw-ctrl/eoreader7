@@ -91,7 +91,7 @@ export function learnFrom({ name, desc, claim, checkCode, controlCode, usedFile,
 }
 
 // ── the mouth: Ollama, pointing nowhere — it WRITES, so everything it writes goes through the gate ──
-export function ollamaMouth({ url = process.env.ER7_OLLAMA_URL, model = process.env.ER7_NB_MODEL } = {}) {
+export function ollamaMouth({ url = process.env.ER7_MOUTH_URL ?? process.env.ER7_OLLAMA_URL, model = process.env.ER7_NB_MODEL } = {}) {
   if (!url || !model) return null;
   const schema = { type: "object", properties: Object.fromEntries(["name", "desc", "claim", "check", "control"].map((k) => [k, { type: "string" }])), required: ["name", "desc", "claim", "check", "control"] };
   return async ({ question, columns, file: F, tools, examples, feedback, previous }) => {

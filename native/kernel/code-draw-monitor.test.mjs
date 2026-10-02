@@ -27,7 +27,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { makeMetacognition } from "../../../the-fold/metacognition.js";
+import { makeMetacognition } from "../the-fold/metacognition.js";
 import * as taskLog from "./task-log.js";
 import { signatureFor, disclosureFor, monitorFires } from "./code-draw-standing.js";
 import {

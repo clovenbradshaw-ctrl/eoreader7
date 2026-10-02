@@ -29,10 +29,57 @@
 import { makeReferentIndex } from "../organs/cast.js";
 import { splitSentences } from "../adapters/text/spans.js";
 import { extractSurfaces, discoverReferents, namesCorefer, diaNorm, extractLeadingSurfaces } from "../adapters/text/surfaces.js";
+import { directDescriptorOccurrences } from "../adapters/text/individuation.js";
 import { nameRuns } from "./referent-verify.js";
-import { dominantClass } from "./pos-prior.js";
+import { dominantClass, isFunctionWord } from "./pos-prior.js";
 
 const stripPossessive = (s) => String(s).replace(/['’]s\b/g, "").replace(/s['’](?=\s|$)/g, "s");
+
+const descSlug = (s) => String(s ?? "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
+
+/**
+ * descriptorReferents(text) → [{ id, surface, bare, head }] — the
+ * common-nominal tier capitalisation cannot see. One entry per recurrent
+ * definite/possessive descriptor ("the pawl", "the wheel"): the SAME
+ * closed-determiner rule individuation.js states
+ * (directDescriptorOccurrences — lowercased, no capitals anywhere),
+ * promoted to a provisional referent only on recurrence across distinct
+ * sentences (never a singleton) and only when the head is not a settled
+ * function word (the asymmetric polarity: the prior refuses where it has
+ * coverage, stays silent where it has none — an unseen head like "pawl"
+ * is admitted, "the same" never recurs and "theirs" never emits).
+ * Returns [] on grounds that earn none.
+ */
+export function descriptorReferents(text) {
+  const src = String(text ?? "");
+  if (!src.trim()) return [];
+  let sents;
+  try { sents = splitSentences(src); } catch { return []; }
+  const groups = new Map();
+  sents.forEach((s, i) => {
+    let occs;
+    try { occs = directDescriptorOccurrences(s?.text ?? "", { encounterRef: `sent:${s?.order ?? i}` }); } catch { return; }
+    for (const o of occs ?? []) {
+      const canon = String(o?.canonicalSurface ?? "").trim();
+      if (!canon) continue;
+      let g = groups.get(canon);
+      if (!g) { g = { canonical: canon, determinations: new Set(), sents: new Set() }; groups.set(canon, g); }
+      if (o.determination) g.determinations.add(o.determination);
+      g.sents.add(s?.order ?? i);
+    }
+  });
+  const out = [];
+  for (const g of groups.values()) {
+    if (g.sents.size < 2) continue;
+    if (!g.determinations.has("definite") && !g.determinations.has("possessive")) continue;
+    const bare = g.canonical.replace(/^(the|a|an|my|your|his|her|our|their)\s+/i, "").trim();
+    const head = bare.split(/\s+/).pop() ?? "";
+    if (head.length < 3) continue;
+    if (isFunctionWord(head)) continue;
+    out.push({ id: `ref:descriptor:${descSlug(g.canonical)}`, surface: g.canonical, bare, head });
+  }
+  return out.sort((a, b) => a.id < b.id ? -1 : 1);
+}
 
 /**
  * buildReferents(ground) → { resolveText, resolveName, represent, size }
@@ -43,6 +90,25 @@ const stripPossessive = (s) => String(s).replace(/['’]s\b/g, "").replace(/s['�
 export function buildReferents(ground) {
   const indexFor = makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, leadingSurfaces: extractLeadingSurfaces });
   const idx = indexFor([{ text: String(ground ?? "") }]);
+  // THE DESCRIPTOR TIER (2026-09-30, Freewheel mechanism ground). The organ
+  // above admits by capitalisation and by nothing else: on lowercase
+  // mechanism prose it found nothing (or a sentence-initial singleton like
+  // "Rotating"), while individuation.js's determiner rule — lowercased,
+  // no capitals — held live hypotheses for the pawl, the cassette, the
+  // cyclist, the wheel and the teeth. Capitalisation keeps its narrow,
+  // contextual job (proper names in cased scripts); recurrent definite /
+  // possessive descriptors do the common-nominal job here, by the same
+  // rule individuation.js already states: a closed-class determiner plus a
+  // witnessed lexical form, recurring across distinct sentences. Same
+  // recurrence bar the name tier earns by (distinct sentences, not raw
+  // mentions), the same article-stripped norm this file already folds
+  // with, and the same conservative polarity the POS gate holds elsewhere:
+  // a head the prior SETTLES as a function word is refused; a head it has
+  // never seen is admitted — the determiner plus the recurrence is the
+  // evidence, never the prior's silence. Omitted from every map when the
+  // ground earns none, so grounds without descriptors read byte-identical
+  // to before this tier existed.
+  const descriptors = descriptorReferents(String(ground ?? ""));
   // ONE BEING, ONE ID, FOR THE TWO CASES THAT ARE NOT NAMING AT ALL. The organ
   // made "The Cumberland River" and "Cumberland River" two referents, and
   // "Nashville's" a referent beside "Nashville". A leading article and a
@@ -59,12 +125,45 @@ export function buildReferents(ground) {
     canon.set(id, byNorm.get(n));
   }
   const cache = new Map();
+  // Filled by the descriptor admission below (after theHeadNoun is known,
+  // so a descriptor the name tier already claims never mints a second id).
+  // Maps (mutated once at admission, read per call) so resolveName needs
+  // no reorder — including the counts tally below, which resolves before
+  // admission has filled them (empty maps then, never TDZ).
+  const descByNorm = new Map();
+  const descById = new Map();
   const resolveName = (name) => {
     const key = String(name ?? "").trim();
     if (!key) return new Set();
     if (cache.has(key)) return cache.get(key);
     let ids = idx.resolve(key);
     if (!ids.size) ids = idx.resolve(stripPossessive(key));
+    // A NAME THE PRIOR SETTLES AS NON-NOMINAL IS NEVER ASSERTED (2026-09-30).
+    // The organ admits sentence-initial singletons on position plus
+    // lowercase absence, which on a small window lets "When", "May", "Old"
+    // through as referents of their own (this file's own header names
+    // that class). The oneWord map below already refuses them its
+    // lowercase assertion (noun, proper noun, or unseen only); resolveName
+    // now holds the SAME bar — never a new rule, the same contextual rule
+    // on both paths, so exact-case and lowercase queries agree. ONLY where
+    // the prior settles (the asymmetric polarity: an unseen word like
+    // "Napoleon" or "Rotating" still resolves; the prior's silence is
+    // never evidence). Descriptor ids are exempt: their heads passed this
+    // bar at admission.
+    if (ids.size) {
+      const kept = [...ids].filter((id) => {
+        if (descById.has(id)) return true;
+        const n = norm(idx.represent(id) ?? "");
+        if (n.includes(" ")) return true;
+        const cls = dominantClass(n);
+        return cls === null || cls === "NOUN" || cls === "PROPN";
+      });
+      ids = new Set(kept);
+    }
+    if (!ids.size) {
+      const did = descByNorm.get(norm(key)) ?? descByNorm.get(norm(stripPossessive(key)));
+      if (did) ids = new Set([did]);
+    }
     // WHEN A NAME REACHES SEVERAL BEINGS, THE ONE IT NAMES EXACTLY WINS.
     // "Cumberland" reached Cumberland, Cumberland River, Cumberland Park and
     // Lake Cumberland at once, and arrangement then chained unrelated parts
@@ -145,6 +244,36 @@ export function buildReferents(ground) {
     const total = scored.reduce((s, x) => s + x.n, 0);
     if (scored[0].n > 0 && scored[0].n * 2 > total) theHeadNoun.set(tail, scored[0].id);
   }
+  // DESCRIPTOR ADMISSION — one being, one id, the name tier wins. A
+  // descriptor whose bare head the name tier already asserts ("warehouses",
+  // a one-word name referent) aliases to that referent instead of minting
+  // a second id; one whose head ends ANY multi-word name ("the river"
+  // beside Cumberland River) is left to the name tier and its "the <head
+  // noun>" rule alone — never a competing generic id that would join
+  // parts the name tier kept apart. What remains mints ref:descriptor:
+  // ids — the Freewheel tier (the pawl, the cassette, the cyclist, the
+  // wheel, the teeth), each resolvable in any case, each represented by
+  // its canonical descriptor.
+  const nameTails = new Set();
+  for (const id of idx.referents) {
+    const words = norm(idx.represent(id)).split(" ").filter(Boolean);
+    if (words.length > 1) nameTails.add(sing(words[words.length - 1]));
+  }
+  for (const d of descriptors) {
+    const key = norm(d.surface);
+    if (!key) continue;
+    // Possessive-folded before any comparison: "the river's" is "river"
+    // the same way oneWord's and nameTails' own keys are (their norms
+    // strip the clitic) — otherwise the clitic spells a second being.
+    const headKey = sing(norm(d.bare));
+    const named = oneWord.get(headKey);
+    if (named) { descByNorm.set(key, named); continue; }
+    if (nameTails.has(headKey)) continue;
+    if (descByNorm.has(key)) continue;
+    descByNorm.set(key, d.id);
+    descById.set(d.id, d);
+    if (!oneWord.has(headKey)) oneWord.set(headKey, d.id);
+  }
   const resolveText = (text) => {
     const out = new Set();
     const stripped = stripPossessive(String(text ?? ""));
@@ -164,6 +293,19 @@ export function buildReferents(ground) {
       const id = theHeadNoun.get(sing(m[1]));
       if (id) out.add(id);
     }
+    // Descriptor occurrences, by the SAME determiner rule that admitted
+    // them — a lowercase ask ("how does the pawl catch") resolves through
+    // its own occurrences, never through a capital scan. The oneWord loop
+    // above already catches bare heads ("pawl"); this catches the full
+    // canonical form and any head the tokenizer split differently.
+    if (descById.size) {
+      let occs;
+      try { occs = directDescriptorOccurrences(stripped); } catch { occs = null; }
+      for (const o of occs ?? []) {
+        const id = o?.canonicalSurface && descByNorm.get(norm(o.canonicalSurface));
+        if (id) out.add(id);
+      }
+    }
     for (const run of nameRuns(stripPossessive(text))) {
       // Try the whole run, then each tail of it, so "Before Dr. Thomas Walker"
       // or "While the Cumberland River" still reach the name inside.
@@ -177,7 +319,8 @@ export function buildReferents(ground) {
     }
     return out;
   };
-  return { resolveName, resolveText, represent: (id) => idx.represent(id), size: idx.referents.size, index: idx };
+  const represent = (id) => descById.has(id) ? descById.get(id).surface : idx.represent(id);
+  return { resolveName, resolveText, represent, size: idx.referents.size + descById.size, descriptors: descById.size, index: idx };
 }
 
 /**
@@ -219,8 +362,16 @@ export function attachReferents(draft, R) {
 /** Is this referent a PROPER being (a multi-word name, or one word the prior
  *  does not read as a common noun)? Common-noun referents the organ admitted
  *  from sentence openings ("Warehouses", "Steamboats") are real things of the
- *  material but too general to join parts across sources. */
+ *  material but too general to join parts across sources. Descriptor-tier
+ *  referents (ref:descriptor: — admitted by determiner + recurrence, never
+ *  by naming) are that class BY CONSTRUCTION: the determiner itself marks
+ *  the head common, stronger evidence than the prior's silence about it —
+ *  so they never count as proper even when the prior has never seen the
+ *  head ("pawl"). They still resolve asks and name ask-drawn parts; they
+ *  just never join parts across sources through the guard/hop arithmetic.
+ */
 export function isProperReferent(R, id) {
+  if (String(id ?? "").startsWith("ref:descriptor:")) return false;
   const surface = String(R.represent(id) ?? "").replace(/^(the|a|an)\s+/i, "");
   if (!surface) return false;
   if (surface.includes(" ")) return true;

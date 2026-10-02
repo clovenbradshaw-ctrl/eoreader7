@@ -152,7 +152,7 @@ export const claimKey = (c) => `${String(c.end1 ?? c.subject ?? "").toLowerCase(
  * @param {object} turn — { question, answer, model, frame, recipe, sections, unsupported, unbacked, unread, sources, constitution, cursor }
  * @returns {object} the record
  */
-export function answerRecord({ question, answer = "", model = null, frame = null, recipe = null, sections = [], unsupported = [], unbacked = [], unread = [], sources = [], constitution = null, cursor = null, voids = [], witness = [], sameForm = null, satisfaction = null, logos = null, ledgerLint = null, ungrounded = null, expectation = null, open = [], mechanical = false, trails = null, readers = [] } = {}) {
+export function answerRecord({ question, answer = "", model = null, frame = null, recipe = null, sections = [], unsupported = [], unbacked = [], unread = [], sources = [], constitution = null, cursor = null, voids = [], witness = [], sameForm = null, satisfaction = null, logos = null, ledgerLint = null, ungrounded = null, expectation = null, open = [], mechanical = false, trails = null, readers = [], skills = null } = {}) {
   const claims = [];
   const retrieved = [];
   for (const s of sections ?? []) {
@@ -201,6 +201,13 @@ export function answerRecord({ question, answer = "", model = null, frame = null
     // (mechanicalAnswer/mechanicalCompetingAnswer, holon.js) rather than
     // drafted by the model — the caller's own aggregate over its parts.
     mechanical: !!mechanical,
+    // THE SKILLS THAT REPORTED THIS TURN (2026-10-02): the linked disclosure
+    // list (skill-usage.js::linkSkills) — each skill used this turn, how many
+    // times it fired, over which sources, with its surface link by skill id.
+    // Carried only when something reported; the set it can speak for is
+    // INSTRUMENTED's, and a skill absent here means "not reported", never
+    // "not used". Disclosure only — never used to edit or withhold anything.
+    ...(Array.isArray(skills) && skills.length ? { skills: skills.map((s) => ({ id: s.id, ref: s.ref, href: s.href, fired: s.fired ?? 0, accepted: s.accepted ?? 0, refused: s.refused ?? 0, sources: s.sources ?? [] })) } : {}),
     retrieved,
     // THE SOURCES OF WHAT WAS RETRIEVED (2026-09-10, user direction: "this
     // should disclose sources" — found live, a materialless preflight turn

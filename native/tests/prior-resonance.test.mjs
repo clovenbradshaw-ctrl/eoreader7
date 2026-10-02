@@ -1,9 +1,11 @@
 // native/tests/prior-resonance.test.mjs — the-fold/prior-resonance.js's own
-// coverage. Live-embedding cases require a real, local Ollama with
-// nomic-embed-text pulled (this module makes no non-embedding fallback, on
-// purpose — see corpus-resonance.js's own header). Skips cleanly, the same
-// pattern corpus-resonance.test.js already established, when that real
-// dependency is not present, rather than failing the run.
+// coverage. Live-embedding cases require a real mouth (Penelope, with
+// nomic-embed-text pulled on the bridge behind her) — this module makes no
+// non-embedding fallback, on purpose — see corpus-resonance.js's own header).
+// Skips cleanly, the same pattern corpus-resonance.test.js already
+// established, when that real dependency is not present, rather than failing
+// the run. The probe hits the MOUTH — the engine's draws never touch the
+// channel or the daemon past her (2026-10-01).
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -15,17 +17,17 @@ import {
   resonantCorpusEntries,
   resonantLivePriorsCategories,
 } from "../the-fold/prior-resonance.js";
+import { MOUTH_URL, MOUTH_IDENTITY } from "../kernel/mouth.js";
 
-const OLLAMA = process.env.ER7_OLLAMA_URL ?? "http://localhost:11434";
 let embeddingAvailable = false;
 try {
-  const res = await fetch(`${OLLAMA}/api/embed`, {
+  const res = await fetch(`${MOUTH_URL}/api/embed`, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", ...MOUTH_IDENTITY },
     body: JSON.stringify({ model: "nomic-embed-text", input: "ping" }),
   });
   embeddingAvailable = res.ok;
-} catch { /* no local Ollama reachable — skip below */ }
+} catch { /* no mouth reachable — skip below */ }
 
 const HANDBOOK = path.resolve(import.meta.dirname, "..", "..", "..", "eoreaderhandbook");
 const LIVE_PRIORS = path.resolve(import.meta.dirname, "..", "..", "..", "live_priors");

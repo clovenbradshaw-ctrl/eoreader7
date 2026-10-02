@@ -19,12 +19,23 @@ const NON_BEING = /\b(?:what|which|who|whom|whose|where|when|why|how|do|does|did
  * castTexts({ texts }) -> { schema, referents, resolve, represent, resolveIn }
  * `texts` = [{ name, text }] — one passage per retained document. The index
  * resolves over the union; resolveIn projects the production fold's contract
- * (never a scan — the engine's own identity organs, function words refused).
+ * (never a capital scan — the index's own caseless resolveIn: maximal munch
+ * over the fold, so a lowercase ask resolves the same beings a capitalized
+ * one does). The old /\b[A-Z].../ scan returned nothing on lowercase prose
+ * while the beings sat established; capitals keep resolving through the
+ * same path (the fold is case-insensitive), with the NON_BEING guard kept
+ * for single capitalized stopwords the munch would otherwise offer up.
  */
 export function castTexts({ texts }) {
   const indexFor = makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm });
   const index = indexFor(texts.map((t) => ({ text: `${t.name}\n${t.text}` })));
+  // A run made ONLY of stopwords names nothing ("what", "it is", "how
+  // does") — the old capital scan's NON_BEING guard, kept as a run-level
+  // refusal so the munch still reaches a real name inside a longer run
+  // ("what Cumberland" reaches "Cumberland").
+  const refuseStopwords = (run) => run.split(/\s+/).every((w) => NON_BEING.test(w));
   const resolveIn = (text) => {
+    if (typeof index.resolveIn === "function") return new Set(index.resolveIn(text, { refuse: refuseStopwords }));
     const ids = new Set();
     for (const w of String(text).match(/\b[A-Z][A-Za-z']{2,}\b/g) ?? []) {
       if (NON_BEING.test(w)) continue;

@@ -188,3 +188,39 @@ test("NAME-VARIANT FOLD: refused, never guessed, when a near-miss query is equid
   // design exists for.
   assert.deepEqual([...idx.resolve("Rexd")], [], "equidistant between two real, distinct referents — refused, not guessed");
 });
+
+// RESOLVEIN (2026-09-30): the index's caseless token-run face. Callers used
+// to reimplement this as a capital-only scan and returned nothing on
+// lowercase prose; the organ now carries the munch itself — same resolve()
+// underneath, so case never decides identity.
+test("RESOLVEIN: a lowercase ask resolves the same established beings as the capitalized one", () => {
+  const passages = [{ ref: "p", text: "Pierre Bezukhov walked into the salon. Natasha Rostova greeted Pierre Bezukhov there." }];
+  const idx = makeReferentIndex(ORGANS)(passages);
+  const lower = [...idx.resolveIn("pierre walked into the salon")].map((id) => idx.represent(id));
+  const upper = [...idx.resolveIn("Pierre walked into the salon")].map((id) => idx.represent(id));
+  assert.deepEqual(lower.sort(), upper.sort(), "case never decides identity");
+  assert.ok(lower.includes("Pierre Bezukhov"), `lowercase run reaches the full name: ${lower}`);
+});
+
+test("RESOLVEIN: maximal munch — one full name, never its fragments as extra beings", () => {
+  const passages = [{ ref: "p", text: "Pierre Bezukhov walked into the salon. Natasha Rostova greeted Pierre Bezukhov there." }];
+  const idx = makeReferentIndex(ORGANS)(passages);
+  const ids = idx.resolveIn("Pierre Bezukhov walked");
+  assert.equal(ids.size, 1, `one being, not fragments: ${[...ids].map((id) => idx.represent(id))}`);
+});
+
+test("RESOLVEIN: a never-mentioned being resolves to nothing, in any case", () => {
+  const passages = [{ ref: "p", text: "Pierre Bezukhov walked into the salon." }];
+  const idx = makeReferentIndex(ORGANS)(passages);
+  assert.equal(idx.resolveIn("the bongo rhino will inspect the levee").size, 0);
+  assert.equal(idx.resolveIn("Bongo Rhino inspects").size, 0);
+});
+
+test("RESOLVEIN: a caller-refused run never resolves, but shorter runs inside it still do", () => {
+  const passages = [{ ref: "p", text: "Pierre Bezukhov walked into the salon. Natasha Rostova greeted Pierre Bezukhov there." }];
+  const idx = makeReferentIndex(ORGANS)(passages);
+  const refuseStopwords = (run) => run.split(/\s+/).every((w) => /^(what|which|who|it|its|he|she|they)$/i.test(w));
+  assert.equal(idx.resolveIn("what is it", { refuse: refuseStopwords }).size, 0, "stopword-only runs name nothing");
+  const ids = [...idx.resolveIn("what Pierre did", { refuse: refuseStopwords })].map((id) => idx.represent(id));
+  assert.ok(ids.includes("Pierre Bezukhov"), `refusal yields to the name inside: ${ids}`);
+});
