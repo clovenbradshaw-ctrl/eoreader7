@@ -38,18 +38,68 @@ export function measurePiece(piece, { draft, ground = "", task = "", parse = nul
   const present = new Set(piece.filter((p) => (p.pieces ?? []).length).map((p) => drawnParts(draft).find((d) => d.id === p.id)?.answers).filter(Boolean));
   const read = readPiece({ piece, draft, ground, task, parse });
   const licensed = read.findings.filter((f) => f.licenses).length;
+  // THE DEDUPE (error-corrected 2026-10-02, chasing the boundary-eulogy run):
+  // the mouth repeated one invented sentence seven times and the measure
+  // called the piece "20 facts carried." Two corrections:
+  //   (1) DISTINCT, NOT OCCURRENCES — `carried` already counts ids (distinct),
+  //       so the repetition does not inflate the fact count; but the FOLD
+  //       that collapses the repeats was UNDONE as "worse" because the piece
+  //       still stood with them. The sentence count must not reward
+  //       repetition either — repetitionPenalty names it.
+  //   (2) ORIGINATION MUST NOT COUNT AS CARRIED — a mouth sentence that
+  //       reuses the ground's vocabulary ("wheel", "figure", "boundary")
+  //       passes carries()'s overlap test even when the fact's content is
+  //       never stated. A fact is CARRIED only when a sentence in the piece
+  //       is an admitted flesh of that fact — the mouth may phrase, never
+  //       originate (the admission law this file already cites). The
+  //       repetition the boundary run ate WAS such an origination: seven
+  //       sentences, none in the ground, each counted "carried." The carried
+  //       count is now the DISTINCT set of draft statements the piece's
+  //       admitted sentences anchor, and originated sentences are counted.
+  const repetitionPenalty = said.length - new Set(said.map((s) => s.trim())).size;
+  const { carried: carriedUnique, originated } = measureOrigination(piece, draft, A, said);
   return {
-    carried, of: ids.length,
+    carried: carriedUnique, of: ids.length,
+    originated,
+    repetitionPenalty,
     answered: questions.length ? questions.filter((q) => present.has(q)).length : null, questions: questions.length,
     licensed,
     sentences: said.length, words: said.join(" ").split(/\s+/).filter(Boolean).length,
-    // PASSTHROUGH ONLY (2026-09-26): the caller's own already-computed
-    // arrangeEssay loadBearing value, carried through to this measurement
-    // and its ledger line so it is visible at the loop-quality stage --
-    // never computed here, never read by judgeLoop's decision below, and
-    // null (the existing default) on every caller that does not supply it.
     loadBearing,
   };
+}
+
+/** THE ORIGINATION CHECK — a fact is carried only by an admitted flesh of
+ *  that fact, never by a mouth sentence that merely reuses its vocabulary.
+ *  The piece's sentences are matched back to the draft statements they were
+ *  admitted from (prosify's onRecord carries `carries` per sentence); a
+ *  sentence the mouth wrote that anchors no draft statement is ORIGINATED —
+ *  a fabrication by the admission law, and it must not count the fact carried.
+ *  Fallback: when the piece lacks carry-metadata, dedupe identical sentences
+ *  and flag any sentence that shares >half its words with no draft statement
+ *  as originated (a nomination, disclosed, never a proof). */
+function measureOrigination(piece, draft, A) {
+  const ids = drawnParts(draft).flatMap((p) => p.children.map((pt) => pt.id));
+  const byId = new Map(ids.map((id) => [id, A.get(id)]));
+  const carried = new Set();
+  const originated = [];
+  for (const p of piece) {
+    const seenHere = new Set();
+    for (const pc of p.pieces ?? []) {
+      const text = String(pc.text ?? "").trim();
+      if (!text || seenHere.has(text)) { if (seenHere.has(text)) originated.push({ text, why: "repeated verbatim" }); continue; }
+      seenHere.add(text);
+      if (Array.isArray(pc.carries) && pc.carries.length) {
+        for (const id of pc.carries) if (byId.has(id)) carried.add(id);
+        continue;
+      }
+      // no carry metadata: does the sentence anchor a draft statement?
+      const hits = [...byId.entries()].filter(([, a]) => carries(a, [text]).ok).map(([id]) => id);
+      if (hits.length) hits.forEach((id) => carried.add(id));
+      else originated.push({ text, why: "no draft statement it anchors" });
+    }
+  }
+  return { carried: carried.size, originated };
 }
 
 /** Did this loop leave the piece at least as useful as the last one? Truth
@@ -63,6 +113,12 @@ export function measurePiece(piece, { draft, ground = "", task = "", parse = nul
 //  not add any either.
 export function judgeLoop(prev, now, { addsFindings = false } = {}) {
   if (!prev) return { verdict: "first", keep: true, why: "loop zero: the floor, true by construction" };
+  // ORIGINATION IS WORSE, WHATEVER ELSE IMPROVED (error-corrected 2026-10-02):
+  // the mouth may phrase, never originate (admission law). A loop that adds
+  // a sentence anchoring no draft statement has fabricated; it is undone
+  // even if the fact count looks fine — the fabrication was counted carried
+  // before this correction, which is precisely the boundary-eulogy defect.
+  if ((now.originated?.length ?? 0) > (prev.originated?.length ?? 0)) return { verdict: "worse", keep: false, why: `originated ${now.originated.length} sentence(s) anchoring no draft statement — the mouth may phrase, never originate` };
   if (now.carried < prev.carried) return { verdict: "worse", keep: false, why: `carries ${now.carried} of ${now.of} facts, the last loop carried ${prev.carried}` };
   if (now.answered != null && prev.answered != null && now.answered < prev.answered) return { verdict: "worse", keep: false, why: `answers ${now.answered} of ${now.questions} questions, the last loop answered ${prev.answered}` };
   if (now.licensed > prev.licensed && addsFindings) return { verdict: "kept", keep: true, why: `loses nothing it may not; ${now.licensed - prev.licensed} new finding(s) are for the loops after it to read` };
@@ -73,5 +129,7 @@ export function judgeLoop(prev, now, { addsFindings = false } = {}) {
 
 export function loopLine(name, m, j) {
   const loadBearingNote = m.loadBearing != null ? ` · thesis load-bearing: ${m.loadBearing}` : "";
-  return `${name}: ${j.verdict}${j.keep ? "" : " — UNDONE"}\ncarries ${m.carried} of ${m.of} facts${m.questions ? ` · answers ${m.answered} of ${m.questions} questions` : ""} · ${m.licensed} finding(s) licensing a revision · ${m.sentences} sentences, ${m.words} words${loadBearingNote}\n${j.why}`;
+  const originationNote = (m.originated?.length ?? 0) ? ` · originated ${m.originated.length} (${m.originated.map((o) => (o.text ?? "").slice(0, 24) || o.why).join(" | ")})` : "";
+  const repetitionNote = m.repetitionPenalty ? ` · ${m.repetitionPenalty} verbatim repeat(s)` : "";
+  return `${name}: ${j.verdict}${j.keep ? "" : " — UNDONE"}\ncarries ${m.carried} of ${m.of} facts${m.questions ? ` · answers ${m.answered} of ${m.questions} questions` : ""}${originationNote}${repetitionNote} · ${m.licensed} finding(s) licensing a revision · ${m.sentences} sentences, ${m.words} words${loadBearingNote}\n${j.why}`;
 }

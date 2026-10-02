@@ -62,3 +62,32 @@ test("a question the ask asked and no part answers is counted as unanswered", as
   assert.equal(m.questions, 2);
   assert.equal(m.answered, 1);
 });
+
+// THE ORIGINATION GUARD (error-corrected 2026-10-02, chasing the
+// boundary-eulogy run): the mouth repeated one invented sentence seven times
+// and the measure called the piece "20 facts carried." A mouth sentence that
+// reuses the ground's vocabulary passes carries()'s overlap test even when
+// the fact's content is never stated. Two falsifying controls:
+test("a loop that ADDS an originated sentence is undone, whatever it gained", () => {
+  assert.equal(judgeLoop(m(), m({ originated: [{ text: "The wheel spins, the ground becomes a figure.", why: "no draft statement it anchors" }] })).keep, false, "the mouth may phrase, never originate — an invented sentence is worse, not neutral");
+});
+test("a loop that REMOVES an originated sentence is better", () => {
+  const before = m({ originated: [{ text: "The wheel spins, the ground becomes a figure.", why: "no draft statement it anchors" }] });
+  const after = m({ originated: [] });
+  assert.equal(judgeLoop(before, after).keep, true, "folding the fabrication gains on truth and loses nothing");
+});
+test("repetition is measured, not hidden: identical sentences are counted as repeats", async () => {
+  const { measurePiece } = await import("./loop-check.js");
+  const { buildDraft } = await import("./eot-draft.js");
+  const { arrangedDraft, arrangeEssay } = await import("./arrange.js");
+  const task = "Write an essay on the audit.";
+  const ground = "The audit found a gap in 2024.";
+  const d0 = buildDraft({ task, ground });
+  const o = arrangeEssay({ draft: d0 });
+  const d = arrangedDraft(d0, o);
+  const one = d.root.children[0].children[0];
+  const piece = [{ id: d.root.children[0].id, pieces: [0, 1, 2, 3, 4].map(() => ({ text: one.text, carries: [one.id] })) }];
+  const m = measurePiece(piece, { draft: d, ground, task });
+  assert.ok(m.repetitionPenalty >= 4, `five identical sentences are four repeats, got ${m.repetitionPenalty}`);
+  assert.equal(m.carried, 1, "a statement carried once is carried — five identical sentences are ONE fact");
+});

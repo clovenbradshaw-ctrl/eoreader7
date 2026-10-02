@@ -2290,6 +2290,60 @@ section count itself is still set by the plan, not by the ground (the remaining 
 is keyed to an EMPTY window, which can also mean the section's terms matched nothing in a ground that still has unspent sentences (the
 window's term gate, not exhaustion) — measured, not separated.
 
+
+## 86. Making sense of a whole collection is an index and a tree above the reader, not a cheaper reader (2026-09-30)
+
+**Ask.** "Our whole Google Drive loaded; it has to make sense of it almost instantly." Built as a practice page first (paste content, click
+anywhere, read it for a given person, extract a cast and a logline), then cut back to what the engine should keep.
+
+**Measured: the reader is quadratic, so the collection needs a tier above it.** `createSessionReader` stepped one sentence at a time:
+62 encounters 0.5 s, 232 1.4 s, 465 2.6 s, 1,078 12.4 s, 1,743 33.6 s (8k to 350k characters). The thin draft-and-arrange path is worse
+for claims alone: `arrangeEssay` 131 ms at 20k characters, 1.1 s at 60k, 15 s at 142k (855 points); claims are per point (`notesOf`), so
+arranging the parts in windows of 30 kept every claim at its whole-document address and avoided the blow-up (not compared claim for claim against the unwindowed run). A Drive is tens of
+thousands of documents: nothing that reads each one can be instant.
+
+**Built: `organs/territory.js` (Rissanen) and `adapters/sources/folder-index.js`.** One parallel pass keeps each document's 200 most
+frequent words as hashed buckets, a 64-bit near-duplicate fingerprint, a title and a snippet. On this repository (11,552 files, 19.1M
+words, 8 cores, load average 40 to 120 from other sessions, so upper bounds): cold open 3.4 s, reopen with nothing changed 1.3 s, a
+question about all of it 0.3 to 4 ms. The map is a tree built best-first: a territory is split only when the two-part description is
+SHORTER than one (Dirichlet-multinomial per half, plus n·H bits to say which document went where). No threshold. Each split carries its
+price and the Jensen-Shannon distance between its halves: far apart and expensive to merge is two things BESIDE each other; near and
+cheap is sections of one thing, with the parent ON TOP. The reader stays the deep tier: `/v1/territory` hands a territory's central
+documents to `/v1/documents` as `{ name, text }`.
+
+**What failed on the way, so it is not retried.**
+- *A shuffle null cannot say "unrelated".* Shuffling words across paragraphs makes every segment look like the whole corpus, so sections
+  of one subject (README 7 sections, this file 25) and six unrelated documents both fell under the 95th percentile. What separated them
+  was the ratio of cross-topic to within-topic similarity (0.02 for six unrelated documents, 0.47 to 0.49 for sections of one subject),
+  but the bar (0.1) was chosen, which the rule against hand-set bars forbids. The MDL tree shows the price instead of drawing the line.
+- *Add-half smoothing in the JSD capped it at 0.87* however unrelated the halves were (it leaks about 2% of mass across). JSD needs no
+  smoothing; `territory.test.mjs` asserts > 0.9 for disjoint vocabularies.
+- *Labelling a territory against the whole collection* showed "(no distinctive words)" for the biggest one, which is most of the collection
+  and so the baseline. Labels contrast a territory with everything outside it.
+- *Only ASCII was lowercased on the document side while the question lowercased everything*, so "Совет" at the start of a sentence never
+  matched a search for "совет", and an accented name never matched its plain spelling (the Bezúkhov class of P11). Found by reading the
+  tokenizer under the Dijkstra lens, not by a test. Both sides now use `foldDiacritics` and Unicode lowercasing; a test fails without it.
+- *Mutation controls.* Removing the `gain > 0` rule, or making the assignment free, makes one homogeneous corpus split into territories;
+  `territory.test.mjs` test 1 fails both ways. Without that control the other tests passed on the first run and proved nothing.
+- *A stall is an error, not a hang.* One Drive open through the server took 646 s under load average 121 and was not reproduced in
+  later opens; workers silent for 60 s now fail the open with the batch they were on.
+
+**Measured, not yet acted on: the proxy reads every language with the English reader.** `createSessionReader` passes `language: "eng"`, the
+English role config and the English parser. On ten-sentence notes, English gave 9 claims, Spanish 1, French 1, Russian 0 (READING-SPEC S103
+measured the same sparseness in French, Turkish, Greek, Korean and Hebrew). `adapters/text/language-rank.js` ranks the thirteen POS priors by how much of the text's vocabulary each knows (Spanish
+0.91 against French 0.51 and English 0.37; Russian 0.63 against 0); it does not make the reader read them better, and it is not wired into
+`proxy-runner.mjs`.
+
+**Reached through the surfaces.** Door `POST /v1/territory` (`territory-door.mjs`, mounted in `proxy.mjs`; takes `x-er7-workspace` as the
+root), `cli/territory.mjs`, the TUI's `/map [folder] [? question]`, the browser surface's folder row, and `eo-map` with the `map` skill in
+the Claude Code plugin. `cli/fold-at.mjs --for "WHO | what they ask"` reads a fold for someone with the engine's own term matching (no
+stemming: "closing" does not find "closure"); what touches nothing is folded away, never deleted.
+
+**Still open.** Docs, Sheets and Slides must be exported to text first; audio, image and PDF are counted as unread. Each document keeps
+its head (64 KB) and tail (16 KB) only, flagged. Whether a corpus of unrelated things should refuse a single answer (one abstract) is not
+decided by the tree: it shows the price, and the call on how high a parent must cost is still a person's. The live proxy must be restarted
+to serve the door.
+
 ## 87. The window is a share of the ground with no upper limit; the plan folds by terrain (2026-09-30)
 
 User direction: "no upper limit"; "we fold terrains so we can have a compressed bucket" (my first reading of "fold" as sentence dedup was
@@ -2311,3 +2365,47 @@ buckets, so the Cells view shows them.
 **Not solved.** The shipped piece is still one linked sentence and still the disc-tooth description, not the pedals or the pawl; "It
 states that…" links by overlap although its "It" refers to nothing. Compression fixed the starvation, not answer-hood. The mouth's
 refused drafts still carry the model's own prefaces ("This seemingly simple change…").
+
+
+## 88. A coding edit is an operator at a grain — the record admits (INS) while the act defines (DEF) (2026-10-01)
+Learned aiming the loop at a real GH code stack: the round's flat `action: patch`
+was a category error against the bare-metal fold's own operator algebra
+(`bare-metal-eo-matrix-app/src/operators.js` + `fold.js`). A patch is not one
+operator; it is several at different holonic levels, and the levels must be
+disclosed separately:
+- **Record grain** — bytes enter the audit trail: `INS` (admit).
+- **Ground grain** — the byte op, derived mechanically from the bytes
+  (`patch.js`: SEG/INS/SYN). Never labeled by the model.
+- **Figure grain** — what the edit *does* to the code's own slots, derived
+  from the declaration diff (`figureOpFor`): a slot redefined is **DEF**
+  (`def(anchor, path, value)` — set a value within the current frame), a born
+  declaration is **INS**, a removed one is **SEG**, a recomposition is **SYN**.
+The fixed-INS label put an entity's helix high-water mark at 2 when it really
+took a DEF(6), and the test gate (EVA) would then fire `criterionless_judgment`
+— the fold's own structural violation. Gary holds: the model faces only plain
+`read`/`patch`; the operators stay in the round records, never the prompt.
+
+## 89. A measure that counts vocabulary overlap cannot see a fabrication; a measure that counts distinct anchored statements can (2026-10-02)
+Chasing the boundary-eulogy run: the mouth repeated one invented sentence seven
+times ("the wheel spins, the ground becomes a figure" — zero occurrences in
+the ground, zero in the draft), and the loop-check measured the piece as "20
+facts carried." The defect was in `measurePiece`/`carries`: a fact is
+"carried" when the joined text shares its numbers, names, or own words — so a
+mouth sentence that reuses the ground's vocabulary ("wheel", "figure",
+"boundary") passes the overlap test even when the fact's content is never
+stated. The fabrication was not merely tolerated; it was counted as a carried
+fact, and the fold that would have collapsed the repetition was undone as
+"worse" because the measure could not distinguish one fact from five
+occurrences of it.
+Fix (loop-check.js, 2026-10-02): `carried` is now the DISTINCT set of draft
+statements the piece's admitted sentences anchor; a sentence anchoring no
+draft statement is counted `originated` (the mouth may phrase, never
+originate — the admission law, now enforced at the measure); identical
+sentences are counted as `repetitionPenalty`. judgeLoop undoes a loop that
+adds an originated sentence, whatever else it gained. Three falsifying
+controls added (loop-check-falsify.test.mjs): adding an originated sentence
+is undone, removing one is better, five identical sentences are four repeats
+and one fact.
+Falsifying control on the fix: a loop that folds the fabrication but is still
+undone, or a piece of five identical grounded sentences measured as five
+facts, contradicts this.
