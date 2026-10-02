@@ -12,7 +12,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { PROPOSAL_FORMAT } from "../the-fold/code-loop.js";
+import { PROPOSAL_FORMAT, LOCATED_PROPOSAL_FORMAT } from "../the-fold/code-loop.js";
 import { ACTION_FORMAT } from "../the-fold/sandboxed-agent.js";
 import { generationBriefFor } from "../adapters/code/language.js";
 
@@ -22,6 +22,7 @@ const JSON_ASK = /\bjson\s+(?:object|only|format)\b/i;
 
 const MOUTHS = {
   "code-loop PROPOSAL_FORMAT": PROPOSAL_FORMAT,
+  "code-loop LOCATED_PROPOSAL_FORMAT": LOCATED_PROPOSAL_FORMAT,
   "sandboxed-agent ACTION_FORMAT": ACTION_FORMAT,
   "brief python": generationBriefFor("python") ?? "",
   "brief javascript": generationBriefFor("javascript") ?? "",

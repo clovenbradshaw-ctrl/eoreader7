@@ -896,3 +896,36 @@ fast: 6 files · 20 affected tests pass (lowercase-lane-falsify 10/10, nominal-b
 | Simon/Chekhov | S87 | descriptor-lane.js | noted | ships OPT-IN and UNWIRED from every production path, on purpose (resolveIn/referents feed document-ledger, essay-shape-register, synonymPool, groundSeed); the same shape referentFromDescriptorHypothesis sat in for months — disclosed in S137, the memory note and the commit; wiring is a product decision, ask-side first |
 | Marshall | S86–S89, S24, S37, II.13 | READING-SPEC.md S137 | clean | new entry, not an amendment; carries **Generality:**; its enforcement test is in the same diff; the S89 quote is verbatim |
 clean: none claimed
+
+## 2026-10-01 — coding loop action grammar renamed to the nine operators: SIG·read / INS·admit at record grain, Figure-grain act derived as DEF/INS/SEG/SYN from the declaration diff (branch main, staged diff, 2 files)
+fast: 2 files · affected tests 50/51 pass (1 FAIL is pre-existing, verified identical on baseline: runCodeLoop requireReasoning shells to the real cli/reason.mjs which answers UNREAD in this environment — not this diff) · law: ok (P55 cited, verified against the context entry; pre-existing dup-header WARNs P115/P116/P117/P19/P233, S17/S96 untouched)
+| lens | citation | file:line | verdict | one line |
+| Diaconis | code-loop.test.mjs figureOpFor pins | the-fold/code-loop.js figureOpFor | clean | effect real: six falsify pins derive DEF/INS/SEG/SYN from real parseDeclarations byte-diffs, never a fake null |
+| Feynman | figureOpFor | code-loop.js:484 | clean | structural born/cut/redefined sets, no constant tuned against a golden; per-text-offset slice compare disclosed |
+| Dijkstra | three op levels | code-loop.js:516,691-697 | clean | action (parseProposal) / figureOp (declaration diff) / op (patch.js bytes) each derived from its own base; `op` untouched so forecast stays keyed |
+| Simon/Chekhov | figureOpFor | code-loop.js:484 | clean | exported, imported, called at all three applied-round sites, unit-pinned — not unwired |
+| Frankfurt | DEF = set value in frame | bare-metal-eo-matrix-app/src/operators.js def() | clean | the mapping is the app's real operator semantics, not a placeholder |
+| Ostrom | born/removed scoping | code-loop.test.mjs | clean | DEF only for slot-redefinition; born→INS and removed→SEG named, absence not misattributed |
+| Holmes | INS·record vs DEF·Figure | code-loop.js:516 | clean | two holonic levels of one event, disclosed and kept separate, never alias-merged |
+| Pearl | born/cut/redefined | figureOpFor | clean | three distinct structural facts, no shared hidden cause |
+| Alexander | EVA needs prior DEF | bare-metal fold.js criterionless_judgment | clean | three-level attribution lines up with the fold's dependency order |
+| Marshall | P55 | code-loop.js:516 comment | clean | operators stay in round records (thinking), never PROPOSAL_FORMAT (talking) — citation accurate |
+| Greenberg | parseDeclarations RECIPES | adapters/text/code-structure.js | clean | extension-routed per language; no English-as-universal |
+| Kondo | sandboxed-agent.js | the-fold/sandboxed-agent.js | noted | separate /v1/agent open-loop grammar (list/read/write/run) left as its own scope, not swept |
+| Lévi-Strauss | bare-metal def(anchor,path,value) | bare-metal-eo-matrix-app/src/fold.js | clean | stash insight re-wired into figureOpFor and re-tested in its new seat |
+clean: none claimed
+
+## 2026-10-01 — chase: whole-codebase ground wired into /v1/code (`ground:true`) and aimed at a real GH code stack (bare-metal-eo-matrix-app)
+- **Wired and live:** `/v1/code` now ingests the whole workspace via `openFolder` (territory, model-free) before the loop; round 1 renders the task-resolved files + the top file's real bytes (renderTerritoryGround, Gary-safe — no apparatus names). Measured live: "code ground → whole-workspace territory indexed: 63 files in 27–202 ms".
+- **The target:** the bare-metal app's own suite had 5 real pre-existing failures — WORKDAY/DAY build UTC-midnight dates but read the weekday in local time, so on this box (west of UTC) a Friday reads as Thursday and the step lands on Saturday. Scoped real gate `test-workday.cjs` fails red (3 of 7).
+- **Blocked, honestly:** the live end-to-end draw could not get a code-loop slot — heimdall's family lane persistently `not_your_turn` (position #2, workAhead 4–5) behind other work on this shared box; chat probes passed while the code loop sat. The earlier ungrounded run (old proxy) had already shown gemma2:2b hallucinating `solution.py` even with real files listed. Two independent constraints stand: the only resident mouth (2b) is below the bar for a UTC/local-date fix, and the 8b reasoning mouth cannot load under memory pressure.
+- **Learning:** the pre-model SEG is necessary but not sufficient when the mouth is below the bar — the loop's gates still refuse rather than corrupt (no disk touched, stuck verdict, disclosed). The full-codebase-edit chase needs the located slot (SEG) + a mouth that can draw a real patch (8b+) on a quieter box.
+
+## 2026-10-01 — making the coding system smarter than the models (Gary's levers, chase session 2)
+Measured live against the bare-metal app with the only resident mouth (gemma2:2b): the model, shown a located file, STILL emitted `PATH: solution.py` — it imitates the taught `PATH: file` shape over any instruction. The system fix is to make the wrong move structurally impossible, not to prompt better:
+1. **Path-less located mode** — when the territory SEG has located the file, the proposal grammar has no PATH field; any other explicit path is the typed gap `unexpected_path`, never a hunt for a real one. Live: `solution.py` disappeared entirely.
+2. **No reads in located mode** — the located file's real bytes are fully shown; a read is `unexpected_read` (live: the mouth read real names with wrong prefixes instead of editing).
+3. **Source-first SEG** — the task's literal expectations ranked the test file above the implementation (test/formula.test.cjs 67.6 > public/formula.js 64.4); the located file now prefers a source file over a test/doc.
+4. **Scoped fold** — when located, the fold covers ONLY the located file's declarations (the slot view); on the 63-file fold a 2b mouth degraded to echoing its own model name.
+5. **Full chain unit-proven**: a path-less patch resolves to the located file, applies, runs the real declared test, passes, and attributes `figureOp: "DEF"` (the fold's slot-level operator).
+The residual wall is the mouth: the 2b can no longer hallucinate a path (attractor closed) but still cannot emit the exact path-less FIND/ADD bytes; the 8b reasoning mouth cannot load under memory pressure, and the box is shared with penelope (`apps/weaves`) so the live loop's turn was held to the deadline. The machinery is complete; a live full-codebase edit now needs only a mouth that can generate the bytes.

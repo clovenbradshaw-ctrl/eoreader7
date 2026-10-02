@@ -39,12 +39,14 @@ import { execSync, execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { readOps, applyOps } from "./patch.js";
 import { detectCodeLanguage, generationBriefFor, mismatchNoteFor } from "../adapters/code/language.js";
-import { loadCodeKeywordPrior, keywordSetOf, buildCodeIndex, codeGist, loadCodeNamePriorSplits } from "../adapters/text/code-structure.js";
+import { loadCodeKeywordPrior, keywordSetOf, buildCodeIndex, codeGist, loadCodeNamePriorSplits, parseDeclarations } from "../adapters/text/code-structure.js";
 import { dmdCut } from "./resolutions.js";
 import { declaresKeyword, suggestWiderFind, suggestWholeFile, arityCoverage } from "../adapters/code/mechanical.js";
 import { pyCheckSyntax, jsCheckSyntax, tsCheckSyntax, hasTsc, suggestImportFix, pyDiagnose } from "../adapters/code/py-engine.js";
 import { emptyForecast, forecastKey, forecast, observe, forecastError } from "./forecast.js";
 import { runProxyTurn } from "../../proxy-runner.mjs";
+import { ask } from "../organs/territory.js";
+import { readDocument } from "../adapters/sources/folder-index.js";
 
 const SKIP_DIRS = new Set([".git", "node_modules", ".venv", "venv", "dist", "build", ".next", "__pycache__", ".cache", "coverage"]);
 const MAX_LISTED_FILES = 200;
@@ -225,8 +227,34 @@ FIND and ADD are raw file bytes, copied exactly as shown above — backticks
 around them mean the text was authored, not copied, and such a proposal is
 refused without touching disk. The worked example above is the shape to follow.`;
 
+// LOCATED_PROPOSAL_FORMAT — used when the machine has located the target
+// file (territory SEG). The model proposes the edit with NO PATH line at
+// all: it cannot echo a fake path it never saw (the 2026-10-01 live
+// lesson: a 2b mouth imitates `PATH: solution.py` from the worked example
+// instead of reading the real listing). Gary-minimal: the file decision
+// is the machine's, the model only supplies FIND/ADD bytes.
+export const LOCATED_PROPOSAL_FORMAT = `The file you are editing is already located for you (named above) and its real bytes are shown — there is nothing to read. Propose exactly one edit in this shape, with no PATH line and no read:
+
+<<<FIND>>>
+<the exact existing text to change — copy it byte for byte from the real bytes shown above>
+<<<ADD>>>
+<the replacement text — leave this section empty to delete the FIND text>
+<<<END>>>
+
+Worked example (SHAPES only — every name below is fake; copy YOUR file's real bytes instead):
+<<<FIND>>>
+    raise NotImplementedError
+<<<ADD>>>
+    return 1
+<<<END>>>
+
+FIND and ADD are raw file bytes, copied exactly as shown above — backticks around them mean the text was authored, not copied, and such a proposal is refused without touching disk.`;
+
 const READ_RE = /ACTION:\s*read\s*\nPATH:\s*(\S+)/i;
 const PATCH_RE = /(?:ACTION:\s*patch\s*\n)?PATH:\s*(\S+)\s*\n<<<FIND>>>\n([\s\S]*?)\n<<<ADD>>>\n([\s\S]*?)(?:\n<<<END>>>|$)/i;
+// PATH-less patch: no PATH line at all — resolves to the machine-located
+// file (`impliedPath`). The model never names a path it cannot see.
+const PATHLESS_PATCH_RE = /<<<FIND>>>\n([\s\S]*?)\n<<<ADD>>>\n([\s\S]*?)(?:\n<<<END>>>|$)/i;
 
 /**
  * checkFenced(path, find, add) -> { ok:true } | { ok:false, gap }.
@@ -244,17 +272,98 @@ export function checkFenced(path, find, add) {
   return { ok: true };
 }
 
+/**
+ * figureOpFor(before, after, fileName) -> "INS" | "SEG" | "DEF" | "SYN" | null
+ *
+ * THE SLOT-LEVEL OPERATOR — what the edit is DOING to the code's own
+ * structure, at the Figure grain, in the bare-metal fold's own semantics
+ * (src/operators.js + src/fold.js: INS instantiates a new entity, DEF sets
+ * a value within the current frame, SEG moves across a partition boundary,
+ * SYN merges parts into a synthesized whole). Derived mechanically from
+ * the real declaration sets before and after — never labeled by the model,
+ * and never a fixed DEF: a patch that redefines an existing slot is DEF
+ * (def(anchor, path, value)), a patch that births a new declaration is INS,
+ * one that removes a declaration is SEG, one that does several of these is
+ * SYN. null when the edit touches no declaration at all (prose, whitespace,
+ * a non-code file) — the byte-level op (patch.js) is all there is then.
+ */
+export function figureOpFor(before, after, fileName) {
+  if (typeof before !== "string" || typeof after !== "string") return null;
+  const beforeDecls = parseDeclarations(before, fileName);
+  const afterDecls = parseDeclarations(after, fileName);
+  const beforeByName = new Map(beforeDecls.map((d) => [d.name, d]));
+  const afterByName = new Map(afterDecls.map((d) => [d.name, d]));
+  const born = afterDecls.filter((d) => !beforeByName.has(d.name));
+  const cut = beforeDecls.filter((d) => !afterByName.has(d.name));
+  const redefined = afterDecls.filter((d) => {
+    const b = beforeByName.get(d.name);
+    if (!b) return false;
+    return before.slice(b.start, b.end) !== after.slice(d.start, d.end);
+  });
+  const changed = born.length + cut.length + redefined.length;
+  if (!changed) return null;
+  if (born.length && (cut.length || redefined.length)) return "SYN";
+  if (cut.length && redefined.length) return "SYN";
+  if (born.length) return "INS";
+  if (cut.length) return "SEG";
+  if (redefined.length > 1) return "SYN";
+  return "DEF";
+}
+
 /** Mechanical extraction only — a narrow, declared grammar, never JSON the * model authored. A proposal that doesn't match either shape is a typed
  * gap, not a guess at what was meant. `ACTION:` may be omitted for a patch
- * (backward compatible with the original single-action grammar). */
-export function parseProposal(text) {
+ * (backward compatible with the original single-action grammar).
+ *
+ * THE OPERATORS STAY IN THE MACHINE, NOT THE MOUTH (Gary/P55): the model
+ * faces only the plain `read` / `patch` verbs below; it never names this
+ * instrument's operators. This function maps the plain verb onto the
+ * operator the round discloses — read → SIG · scout (direct attention,
+ * bring the addressed unit to the reader), patch → INS · admit at the
+ * RECORD grain (bytes enter the audit trail), while the edit's act on the
+ * code's own slots — DEF · set a value within the current frame for the
+ * common fix-the-slot edit, INS for a born declaration, SEG for a removed
+ * one, SYN for a recomposition — is derived separately by figureOpFor from
+ * the declaration diff, never labeled by the model (bare-metal fold
+ * semantics: EVA without prior DEF is criterionless_judgment).
+ *
+ * PATH-LESS MODE (2026-10-01, the solution.py lesson): when `impliedPath`
+ * is given, the machine has already located the file (the territory SEG);
+ * the model must NOT name a path — a 2b mouth imitates the taught shape
+ * and echoes the worked example's fake `solution.py` instead of reading
+ * the real listing. A PATH-less FIND/ADD block then resolves to the
+ * located file; an explicit PATH (a real file the model read) still wins. */
+export function parseProposal(text, { impliedPath = null } = {}) {
   const raw = String(text ?? "");
   const read = READ_RE.exec(raw);
-  if (read) return { ok: true, action: "read", path: read[1].trim() };
+  if (read) {
+    if (impliedPath) {
+      // Located mode has nothing to read: the located file's real bytes are
+      // already shown. A read only invites path-guessing (measured live:
+      // the mouth read real names with wrong prefixes instead of editing).
+      return { ok: false, gap: { kind: "unexpected_read", reason: `you are editing ${impliedPath} and its real bytes are already shown above — there is nothing to read; emit only <<<FIND>>> and <<<ADD>>> against them` } };
+    }
+    return { ok: true, action: "SIG", path: read[1].trim() };
+  }
   const patch = PATCH_RE.exec(raw);
   if (patch) {
     const [, relPath, find, add] = patch;
-    return { ok: true, action: "patch", path: relPath.trim(), find, add: add.replace(/\n$/, "") };
+    const file = relPath.trim();
+    if (impliedPath && file !== impliedPath) {
+      // Located mode: the machine chose the file. Any OTHER explicit path is
+      // a typed gap, never a hunt for a real one — a 2b mouth imitates the
+      // `PATH: solution.py` shape instead of the located file (measured live
+      // 2026-10-01 twice), and inviting "a real path from the listing"
+      // reinforces the attractor instead of closing it.
+      return { ok: false, gap: { kind: "unexpected_path", reason: `you are editing ${impliedPath} — this round has no PATH field for any other file; emit only <<<FIND>>> and <<<ADD>>> against it` } };
+    }
+    return { ok: true, action: "INS", path: file, find, add: add.replace(/\n$/, "") };
+  }
+  if (impliedPath) {
+    const pathless = PATHLESS_PATCH_RE.exec(raw);
+    if (pathless) {
+      const [, find, add] = pathless;
+      return { ok: true, action: "INS", path: impliedPath, find, add: add.replace(/\n$/, ""), pathless: true };
+    }
   }
   return { ok: false, gap: { kind: "unparsed_proposal", reason: "the answer did not contain an ACTION: read/patch block" } };
 }
@@ -402,11 +511,77 @@ function renderReadFiles(reads) {
 }
 
 /**
+ * renderTerritoryGround(territory, task) — the whole-workspace SEG, done
+ * BEFORE the model (folder-index + organs/territory.js, no model): the task's
+ * words are resolved against the real index of the whole code base, the
+ * files they actually live in are named, the top one's real bytes are shown,
+ * and words the workspace never says are named as facts. Gary-safe: this is
+ * model-facing text, so it names no instrument parts (no operator, no
+ * territory id, no apparatus) — only located files, real bytes, absences.
+ * Empty string when there is no territory or the ask fails (fail-open).
+ */
+function renderTerritoryGround(territory, task) {
+  if (!territory?.index) return "";
+  try {
+    const d = territory.index;
+    const a = ask(d, task, 8, 10);
+    const hits = a.hits.slice(0, 3);
+    if (!hits.length) {
+      const absent = a.absent.slice(0, 6).join(", ") || "none of your task's words";
+      return `The whole workspace was read and indexed for your task, but no file's content carries your task's words (${absent}). The real files are still listed below — read whichever you need.`;
+    }
+    const lines = [
+      `The whole workspace was read and indexed for your task — these are the files whose real content your task's words resolve to (${a.matched} of ${d.n} files match):`,
+      ...hits.map((h) => `  ${h.name}`),
+    ];
+    if (a.absent.length) lines.push(`The workspace never says: ${a.absent.slice(0, 6).join(", ")}.`);
+    const top = hits[0];
+    if (top) {
+      lines.push(`You are editing: ${top.name} — propose your edit with no PATH line (the file is already located for you; an explicit PATH is only for another file you read).`);
+      const doc = readDocument(territory, top.n, 12000);
+      if (doc) {
+        lines.push(`--- ${doc.name} (real bytes, the top located file) ---`);
+        lines.push(doc.text + (doc.truncated ? "\n[...truncated...]" : ""));
+      }
+    }
+    return lines.join("\n");
+  } catch {
+    return "";
+  }
+}
+
+/** locatedFileFor(territory, task) -> the file the task's own words
+ * resolve to, or null. The machine's SEG answer: the model is aimed here and
+ * never names a path (parseProposal's `impliedPath`). SOURCE-FIRST: the
+ * task's expectations often quote the test file verbatim, so among the hits
+ * the top SOURCE file is preferred over a test or doc — the edit must land in
+ * the implementation, never in the test that asserts it (measured live
+ * 2026-10-01: the WORKDAY task ranked test/formula.test.cjs above
+ * public/formula.js because the expected dates appear in the assertions). */
+function locatedFileFor(territory, task) {
+  if (!territory?.index) return null;
+  try {
+    const a = ask(territory.index, task, 8, 10);
+    const isSource = (name) => {
+      const n = String(name ?? "");
+      if (/\.(md|markdown|txt|json|jsonl|log|html|css)$/i.test(n)) return false;
+      if (/(^|\/)(test|tests|spec|docs?|__tests__)\//i.test(n)) return false;
+      if (/\.(test|spec)\./i.test(n)) return false;
+      return true;
+    };
+    const source = a.hits.find((h) => isSource(h.name));
+    return (source ?? a.hits[0])?.name ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Run the loop. Returns { done, rounds, finalTestOutput }. Never throws for
  * an ordinary failed attempt — only for a malformed call (no workspace, no
  * testCommand).
  */
-export async function runCodeLoop({ sessionId, userId = null, model, task, workspace, testCommand, maxRounds = DEFAULT_MAX_ROUNDS, testTimeoutMs = DEFAULT_TEST_TIMEOUT_MS, caller = null, signal = null, candidates = 1, turn = defaultTurn, contextMode = "raw", requireReasoning = false }) {
+export async function runCodeLoop({ sessionId, userId = null, model, task, workspace, testCommand, maxRounds = DEFAULT_MAX_ROUNDS, testTimeoutMs = DEFAULT_TEST_TIMEOUT_MS, caller = null, signal = null, candidates = 1, turn = defaultTurn, contextMode = "raw", requireReasoning = false, territory = null }) {
   if (!workspace || !fs.existsSync(workspace)) throw new Error("workspace must be an existing directory");
   if (!testCommand || typeof testCommand !== "string") throw new Error("testCommand must be a declared, real command string");
 
@@ -416,6 +591,10 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
   const reads = new Map(); // real content of every file read on request so far
   let lastNote = null; // what actually happened last round, stated plainly — never a fabricated "it failed" when nothing was even tried
   let finalTestOutput = null;
+  // The machine's located file (territory SEG, once): the model edits it
+  // path-less — no PATH line to hallucinate (2026-10-01: a 2b mouth echoed
+  // the worked example's fake `solution.py` instead of the real listing).
+  const locatedFile = locatedFileFor(territory, task);
   // Predictive processing, session-scoped: the loop predicts P(green)
   // from (op, language, syntax) BEFORE spending each test round, then the
   // real exit code disposes and the error updates the tally for the next
@@ -471,21 +650,28 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
     const kelsen = draws === 1 && round === 1 ? null
       : Math.min(0.95, Math.max(0.1, 0.9 - (draw - 1) * (draws > 1 ? 0.7 / (draws - 1) : 0) - 0.05 * (round - 1)));
     const firstSight = round === 1 && draw === 1;
-    const baseContent = contextMode === "fold" ? renderFoldedContext(root, files, task) : renderFiles(root, files);
+    const effectiveContext = locatedFile ? "fold" : contextMode;
+    // Gary: as little as possible. When the machine has located the file,
+    // the fold covers ONLY that file's declarations (the slot view), never
+    // the whole workspace — a 2b mouth degraded to echoing its own name
+    // when handed the full 63-file fold (measured live 2026-10-01).
+    const foldFiles = locatedFile ? [locatedFile] : files;
+    const baseContent = effectiveContext === "fold" ? renderFoldedContext(root, foldFiles, task) : renderFiles(root, files);
+    const ground = firstSight ? renderTerritoryGround(territory, task) : "";
     const roundContent =
       firstSight
-        ? baseContent
+        ? (ground ? `${ground}\n\n${baseContent}` : baseContent)
         : `${baseContent}${renderReadFiles(reads)}`;
     const roundTask =
       firstSight
-        ? `${task}\n\nFiles in the workspace (${root}):\n${listedFiles.join("\n")}${languageBlock}\n\n${PROPOSAL_FORMAT}`
-        : `${task}\n\n${lastNote}\n\n${PROPOSAL_FORMAT}`;
+        ? `${task}\n\nFiles in the workspace (${root}):\n${listedFiles.join("\n")}${languageBlock}\n\n${locatedFile ? LOCATED_PROPOSAL_FORMAT : PROPOSAL_FORMAT}`
+        : `${task}\n\n${lastNote}\n\n${locatedFile ? LOCATED_PROPOSAL_FORMAT : PROPOSAL_FORMAT}`;
 
     // a draw-only turn: the core's clearance and gate, not its prose
     // machinery (no encyclopedia enrichment per round, no holograph typing
     // of patch text as prose)
     const turned = await turn({ sessionId, userId, model, task: roundTask, chatHistory: [{ role: "user", content: roundContent }], workspace: root, mode: "chat", drawOnly: true, caller, signal, ...(kelsen === null ? null : { kelsen }) });
-    const proposal = parseProposal(turned.text);
+    const proposal = parseProposal(turned.text, { impliedPath: locatedFile });
     if (!proposal.ok) {
       // A cut stream is not a model stop: kind stays unparsed_proposal and
       // the round gains a sibling witness (pure parseProposal untouched).
@@ -493,7 +679,9 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
       rounds.push({ round, draw, kelsen, gap: proposal.gap, raw: turned.text, ...(cut ? { streamCut: cut } : {}) });
       lastNote = cut
         ? `Your last reply was cut off mid-stream (no done frame${cut.doneReason ? `: ${cut.doneReason}` : ""}${cut.streamErr ? `; server error: ${cut.streamErr}` : ""}${cut.leftoverChars ? `; ${cut.leftoverChars} chars stranded` : ""}) — not a complete answer. Resend the full action in exactly one of the two formats below.`
-        : `Your last reply did not follow the required format (${proposal.gap.reason}). Use exactly one of the two formats below.`;
+        : proposal.gap.kind === "unexpected_path" || proposal.gap.kind === "unexpected_read"
+          ? `No PATH line and no read. The file you are editing is ${locatedFile}; its real bytes are above. Emit only <<<FIND>>> (copied byte-for-byte from those bytes) and <<<ADD>>> — nothing else.`
+          : `Your last reply did not follow the required format (${proposal.gap.reason}). Use exactly one of the two formats below.`;
       continue;
     }
 
@@ -506,10 +694,10 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
       continue;
     }
 
-    if (proposal.action === "read") {
+    if (proposal.action === "SIG") {
       if (reads.has(proposal.path)) {
         const stuck = repeatsLastGap(rounds, "already_read", proposal.path);
-        rounds.push({ round, draw, kelsen, action: "read", path: proposal.path, gap: { kind: "already_read", reason: "this file's content was already shown" } });
+        rounds.push({ round, draw, kelsen, action: "SIG", path: proposal.path, gap: { kind: "already_read", reason: "this file's content was already shown" } });
         if (stuck) return { done: false, rounds, finalTestOutput, stuck: { kind: "already_read", reason: `re-requested the already-shown "${proposal.path}" twice in a row — continuing would not help without new information` } };
         lastNote = `You already have "${proposal.path}"'s content below — re-reading it won't tell you anything new. Propose a PATCH now, or read a DIFFERENT file.`;
         continue;
@@ -519,7 +707,7 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
       const content = fs.readFileSync(located.resolved, "utf8");
       const truncated = content.length > MAX_READ_CHARS_SHOWN;
       reads.set(proposal.path, content.slice(0, MAX_READ_CHARS_SHOWN) + (truncated ? "\n[...truncated...]" : ""));
-      rounds.push({ round, draw, kelsen, action: "read", path: proposal.path, truncated });
+      rounds.push({ round, draw, kelsen, action: "SIG", path: proposal.path, truncated });
       lastNote = `Here is the real content of "${proposal.path}" you asked to read (below). Now propose a PATCH, or read another file if you still need to.`;
       continue;
     }
@@ -531,7 +719,7 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
     // bytes hold fences; strangers admitted as before). See checkFenced.
     const fenced = checkFenced(proposal.path, proposal.find, proposal.add);
     if (!fenced.ok) {
-      rounds.push({ round, draw, kelsen, action: "patch", path: proposal.path, gap: fenced.gap });
+      rounds.push({ round, draw, kelsen, action: "INS", path: proposal.path, gap: fenced.gap });
       lastNote = `Your proposed patch on "${proposal.path}" did not apply (${fenced.gap.reason}). Nothing was changed on disk.`;
       continue;
     }
@@ -543,14 +731,14 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
     const refusedNames = declaresKeyword(proposal.add, proposal.path, keywordSetOf(kwPrior));
     if (refusedNames.length) {
       const gap = { kind: "keyword_declaration", names: refusedNames, reason: `"${refusedNames.join('", "')}" cannot be declared in ${detectCodeLanguage(proposal.path) || "this file"} (received closed class) — nothing was changed on disk` };
-      rounds.push({ round, draw, kelsen, action: "patch", path: proposal.path, gap });
+      rounds.push({ round, draw, kelsen, action: "INS", path: proposal.path, gap });
       lastNote = `Your proposed patch on "${proposal.path}" did not apply (${gap.reason}). Propose different names, with find text copied exactly from the file.`;
       continue;
     }
     const ops = readOps([{ find: proposal.find, add: proposal.add }]);
     const applied = ops ? applyOps(before, ops) : { ok: false, gap: { kind: "malformed", reason: "find/add did not resolve to a real op" } };
     if (!applied.ok) {
-      rounds.push({ round, draw, kelsen, action: "patch", path: proposal.path, gap: applied.gap });
+      rounds.push({ round, draw, kelsen, action: "INS", path: proposal.path, gap: applied.gap });
       // Language-shaped remedy note (Thea-usable shape: a witnessed,
       // mechanical fact + the received prior that names it). Only when the
       // proposal's own bytes carry another language's declaration shape;
@@ -586,13 +774,21 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
     if (requireReasoning) {
       const verify = verifyPatchReasoning(located.resolved, proposal.find, proposal.add);
       if (!verify.ok) {
-        rounds.push({ round, draw, kelsen, action: "patch", path: proposal.path, find: proposal.find, add: proposal.add, applied: false, reverted: false, gap: { kind: "reasoning_refused", reason: `the eoreader7 reasoning gate did not pass this patch: ${verify.output}` } });
+        rounds.push({ round, draw, kelsen, action: "INS", path: proposal.path, find: proposal.find, add: proposal.add, applied: false, reverted: false, gap: { kind: "reasoning_refused", reason: `the eoreader7 reasoning gate did not pass this patch: ${verify.output}` } });
         lastNote = `Your proposed patch on "${proposal.path}" did not pass the reasoning gate (requireReasoning is on for this run): ${verify.output}\n\nNothing was changed on disk. Reconsider the change.`;
         continue;
       }
     }
     fs.writeFileSync(located.resolved, applied.code);
     const op = ops[0].op;
+    // The slot-level operator (Figure grain, bare-metal fold semantics): what
+    // the edit is DOING to the code's own declarations — DEF for the common
+    // fix-the-slot edit (set a value within the current frame), INS for a born
+    // declaration, SEG for a removed one, SYN for a recomposition. Derived
+    // from the real declaration diff; null when no declaration is touched.
+    // Recorded beside the byte-level op so the round discloses both holonic
+    // levels. Purely additive — `op` keeps feeding the forecast prior.
+    const figureOp = figureOpFor(before, applied.code, proposal.path);
     // Syntax pre-check (the file's own engine on the patched bytes,
     // never a regex — Python via ast, JavaScript via node --check,
     // TypeScript via tsc only when tsc proves present, never node
@@ -604,7 +800,7 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
     const gate = precheckSyntax(proposal.path, applied.code);
     if (gate.gap) {
       fs.writeFileSync(located.resolved, before); // nothing unparseable is ever left on disk
-      rounds.push({ round, draw, kelsen, action: "patch", path: proposal.path, op, find: proposal.find, add: proposal.add, applied: false, reverted: false, gap: gate.gap });
+      rounds.push({ round, draw, kelsen, action: "INS", path: proposal.path, op, figureOp, find: proposal.find, add: proposal.add, applied: false, reverted: false, gap: gate.gap });
       lastNote = `Your proposed patch on "${proposal.path}" ${gate.gap.reason}. Fix the syntax with find text copied exactly from the file.`;
       continue;
     }
@@ -684,7 +880,7 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
       : "";
 
     if (won) {
-      rounds.push({ round, draw, kelsen, action: "patch", path: proposal.path, op, find: proposal.find, add: proposal.add, applied: true, reverted: false, syntax, forecast: fcRecord, ...(coverageSkipped ? { coverageSkipped: true } : null), testExitCode: 0, testOutput: test.output });
+      rounds.push({ round, draw, kelsen, action: "INS", path: proposal.path, op, figureOp, find: proposal.find, add: proposal.add, applied: true, reverted: false, syntax, forecast: fcRecord, ...(coverageSkipped ? { coverageSkipped: true } : null), testExitCode: 0, testOutput: test.output });
       return { done: true, rounds, finalTestOutput: test.output };
     }
 
@@ -694,7 +890,7 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
     // the current entry shadows its own history and the cycle stays silent).
     const priorBody = normBody ? testedBodies.get(normBody) : null;
     if (normBody) testedBodies.set(normBody, { round, draw });
-    rounds.push({ round, draw, kelsen, action: "patch", path: proposal.path, op, find: proposal.find, add: proposal.add, applied: true, reverted: true, syntax, forecast: fcRecord, ...(coverageSkipped ? { coverageSkipped: true } : null), ...(diagnosisSkipped ? { diagnosisSkipped: true } : null), testExitCode: test.exitCode, testOutput: test.output });
+    rounds.push({ round, draw, kelsen, action: "INS", path: proposal.path, op, figureOp, find: proposal.find, add: proposal.add, applied: true, reverted: true, syntax, forecast: fcRecord, ...(coverageSkipped ? { coverageSkipped: true } : null), ...(diagnosisSkipped ? { diagnosisSkipped: true } : null), testExitCode: test.exitCode, testOutput: test.output });
     // NameError remedy (first remedy-table row, end to end): the failure
     // names its own fix when the name is a stdlib module — suggest the
     // exact find/add for the next round, derived not invented. Anything
