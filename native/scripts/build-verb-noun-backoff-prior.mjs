@@ -11,7 +11,7 @@
 // exactly the low-margin half. The motivating real failure -- "Photosynthesis
 // converts light energy into..." mistagging "converts" as NOUN (margin
 // 4.627) -- traces to a real data gap: `grep -c "^converts\t"
-// legacy-eoreader6.1/scripts/corpus/en_ewt-ud-train.conllu` returns 0, and
+// legacy-legacy-engine.1/scripts/corpus/en_ewt-ud-train.conllu` returns 0, and
 // the lemma "convert" occurs only 3 times total in the whole training
 // treebank (too sparse to build anything from alone).
 //
@@ -66,7 +66,7 @@ const MODEL_PATH = path.join(ROOT, "native", "priors", "parser-eng-ewt.json");
 // held-out tenth in margin-calibration.test.mjs.
 export const MEDIAN_MARGIN = 26.886;
 
-const liveriorsRoot = process.argv[2] || "/Users/mlacy/Documents/3.0/live_priors";
+const liveriorsRoot = process.argv[2] || decodeURIComponent(new URL("../../../live_priors", import.meta.url).pathname);
 const charBudgetPerCategory = Number(process.argv[3] || 3000000);
 const OUT_PATH = process.argv[4] || path.join(ROOT, "native", "priors", "verb-noun-backoff-en.json");
 

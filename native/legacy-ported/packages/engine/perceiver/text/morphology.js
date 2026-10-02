@@ -1,4 +1,4 @@
-// eoreader6 · perceiver/text/morphology — inflected form → lemma, from UniMorph.
+// the legacy engine · perceiver/text/morphology — inflected form → lemma, from UniMorph.
 //
 // Ported from eoreader5's packages/def/morphology.js, which had already
 // earned the two decisions I got wrong building this from scratch:

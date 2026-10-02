@@ -13,7 +13,7 @@ import { parseGatedNames } from "./parse-gated-names.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const MODEL_PATH = path.join(here, "../../priors/parser-eng-ewt.json");
-const HENRY_PATH = "/Users/mlacy/Documents/3.0/live_priors/15-western-canon/first-folio/henry-iv-part-1-modern.txt";
+const HENRY_PATH = decodeURIComponent(new URL("../../../../live_priors/15-western-canon/first-folio/henry-iv-part-1-modern.txt", import.meta.url).pathname);
 const GOLD_PATH = path.join(here, "../../eval/lavar/results/henry-iv-modern-name-gold.json");
 const CANDIDATES_PATH = path.join(here, "../../eval/lavar/results/henry-iv-modern-name-candidates.json");
 

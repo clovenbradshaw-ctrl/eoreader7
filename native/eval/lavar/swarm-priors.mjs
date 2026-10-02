@@ -19,7 +19,7 @@ import { harden, thingName, readBreakthroughs, REGISTRY } from "./swarm-things.m
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SHARED = process.argv.find((a) => a.startsWith("--out="))?.slice(6) ??
-  "/Users/mlacy/Documents/3.0/live_priors/derived-priors/swarm-priors";
+  decodeURIComponent(new URL("../../../../live_priors/derived-priors/swarm-priors", import.meta.url).pathname);
 
 const LOCAL = path.join(HERE, "results", "swarm-breakthroughs.jsonl");
 

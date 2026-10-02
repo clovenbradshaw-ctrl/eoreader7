@@ -1582,7 +1582,7 @@ The rich EOT could round-trip a treebank but could not read a page of English
 it was handed. `adapters/text/english-parser.js` closes that: raw text in, a
 full Universal Dependencies analysis per sentence out, in the shape the rich
 record already takes. No language model and no download — the English Web
-Treebank was already on disk, left by eoreader6.1. Four small learned parts:
+Treebank was already on disk, left by the legacy engine.1. Four small learned parts:
 a tokenizer on the treebank's own conventions, an averaged-perceptron tagger,
 an arc-eager parser learning from a static oracle, a relation labeller, and
 lemmas and features from the treebank's own tallies backing off to the word's

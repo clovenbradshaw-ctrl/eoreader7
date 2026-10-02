@@ -1,4 +1,4 @@
-// eoreader6 · engine/operators — the 9 operators as the app's verb grid.
+// the legacy engine · engine/operators — the 9 operators as the app's verb grid.
 //
 // Every verb of the app is one of these, aimed at some target, at some
 // holonic height. The verb is the act; the target is a document or a passage

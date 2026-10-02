@@ -10,7 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 
-const RAW = "/Users/mlacy/Documents/3.0/metro-code/raw";
+const RAW = decodeURIComponent(new URL("../../../metro-code/raw", import.meta.url).pathname);
 const GROUND = new URL("./ground/", import.meta.url);
 
 const ENTITIES = {

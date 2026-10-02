@@ -1,4 +1,4 @@
-// eoreader6 · nul — the only module.
+// the legacy engine · nul — the only module.
 //
 // One operation: difference against a nothing constructed by perturbing what is
 // present. Three uses, distinguished only by what the difference is measured
@@ -31,7 +31,7 @@ export const CELLS = Object.freeze([
   Object.freeze({ op: "REC", grain: "Ground" }),
 ]);
 
-const GAP = Symbol.for("eoreader6.gap");
+const GAP = Symbol.for("the legacy engine.gap");
 
 // Every entry below is the same act at a different grain: refusing a claim.
 // See CUBE.md, "why this instrument earns its keep" — checked against real
@@ -450,7 +450,7 @@ export const irreversibility = (series, { window }) => {
  * OUTLIER. Max absolute deviation from the material's own median.
  *
  * None of the four statistics above see a single point sitting far from its
- * neighbours, and that gap was measured, not assumed (eoreader6.1's
+ * neighbours, and that gap was measured, not assumed (the legacy engine.1's
  * check-real-ground-full.mjs, run against this engine's real `ground`/
  * `difference` live): a planted magnitude anomaly, otherwise-ordinary
  * material around it, ranks 0.42-0.91 against every one of
@@ -518,7 +518,7 @@ export const LICENSED = Object.freeze({
     where: "scripts/turbulence-growth-rule.mjs — level() returns `above` on 84/96 real DNS lines, mean displacement +0.361",
   }),
   "maxDeviation/resample": Object.freeze({
-    where: "scripts/verify-maxdeviation-candidate.mjs — a planted single-point magnitude outlier (97 against an otherwise-ordinary series) is none of burstiness/windowMean/permutationEntropy/irreversibility's business (ranks 0.415-0.910 against shuffle and phase, none flagged; see the correction in eoreader6.1's PARITY.md, checked against this file directly). Held out of its own material and tested leave-one-out against the rest: exceeds_witness above, reZero true. A matched control (deviation 0.55, held out the same way) reads exceeds_witness below — regularity per Amendment II, not a hazard",
+    where: "scripts/verify-maxdeviation-candidate.mjs — a planted single-point magnitude outlier (97 against an otherwise-ordinary series) is none of burstiness/windowMean/permutationEntropy/irreversibility's business (ranks 0.415-0.910 against shuffle and phase, none flagged; see the correction in the legacy engine.1's PARITY.md, checked against this file directly). Held out of its own material and tested leave-one-out against the rest: exceeds_witness above, reZero true. A matched control (deviation 0.55, held out the same way) reads exceeds_witness below — regularity per Amendment II, not a hazard",
   }),
   "maxDeviation/phase": Object.freeze({
     where: "scripts/check-shuffle-maxdev.mjs — same outlier, same leave-one-out construction, phase in place of resample: exceeds_witness above, reZero true, on a wider support ([0.93, 1.90] vs resample's [0.79, 1.44])",

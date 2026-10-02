@@ -1,4 +1,4 @@
-// eoreader6 · emergence/binding — THE MODALITY-BLIND LINK (CON·Figure).
+// the legacy engine · emergence/binding — THE MODALITY-BLIND LINK (CON·Figure).
 //
 // Structure·Figure's mouth. This organ reads the entity register
 // (referents/entity.js::carryEntities) and binds pairs whose arrivals

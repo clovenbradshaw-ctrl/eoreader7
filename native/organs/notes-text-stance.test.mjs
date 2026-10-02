@@ -1,7 +1,7 @@
 // The admitting act's cell, and its sedimentation into cross-work memory.
 //
 // SEPARATE FILE, ON PURPOSE. `notes-text.test.mjs` reaches the engine through
-// `legacy-eoreader6.1`, an uninitialised submodule in some checkouts (this one
+// `legacy-legacy-engine.1`, an uninitialised submodule in some checkouts (this one
 // included) — so that whole file cannot load here and a test appended to it
 // would never run. `void-loop.test.mjs`/`void-shape.test.mjs` already set the
 // precedent: import eoreader7's NATIVE kernel, which is a real sibling, so the

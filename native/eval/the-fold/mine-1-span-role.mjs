@@ -10,7 +10,7 @@
 // features weren't insensitive to grammatical category, they just weren't
 // asking a question with an answer.
 //
-// eoreader6.1's own prior research (scripts/experiments/FINDINGS.md, a
+// the legacy engine.1's own prior research (scripts/experiments/FINDINGS.md, a
 // stripped-out but findable line of work) already diagnosed exactly this
 // shape of mistake for a related problem (agent-role resolution) and named
 // the fix: "a surface span is never the thing with a part of speech — the

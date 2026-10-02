@@ -1,4 +1,4 @@
-// eoreader6 · emergence/surprise — the two lanes, kept apart, and the one
+// the legacy engine · emergence/surprise — the two lanes, kept apart, and the one
 // boundary where they provably coincide.
 //
 //   NOVELTY / SHANNON SURPRISAL   -log2 P(outcome)
@@ -37,7 +37,7 @@
 //
 // CORRECTED (2026-09-26): this used to claim |amplitude|^2 weighting "does
 // NOT do formal work anywhere in this repo" — true when this file was ported
-// from eoreader6.1 (2026-09-10), false the very next day. adapters/text/
+// from the legacy engine.1 (2026-09-10), false the very next day. adapters/text/
 // anchoring.js's born mode (`bornOf`) computes p_i = a_i^2 / Sum(a^2) to bind
 // a descriptor to a referent, and eval/lavar/elenchus-bar.mjs's
 // `bornAcceptance` gates an evolutionary candidate on its delta^2 against the

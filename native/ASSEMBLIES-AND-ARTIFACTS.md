@@ -6,7 +6,7 @@ migration** at the end — steps 6–9 are deliberately not attempted, each with
 its reason). Nothing below changes reading behavior by itself; every
 behavioral change lands under V7-CUT's compatibility law (native replaces
 legacy only under conformance) and every rule states what would refute it.
-Written against eoreader7@18b4280 with the frozen `legacy-eoreader6.1`
+Written against eoreader7@18b4280 with the frozen `legacy-legacy-engine.1`
 submodule at e20e441.
 
 Givers, named up front. The subassembly criterion is Herbert Simon's ("The

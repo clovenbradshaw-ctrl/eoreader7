@@ -3,7 +3,7 @@
 // reads past.
 //
 // WHY THIS EXISTS, stated precisely so the existing prior is not maligned.
-// scripts/build-pos-prior.mjs (eoreader6.1) is faithful to its own stated
+// scripts/build-pos-prior.mjs (the legacy engine.1) is faithful to its own stated
 // discipline — "AMBIGUITY IS PRESERVED, NEVER RESOLVED... a form keeps every
 // UPOS tag the treebank ever gave it, with real counts, never collapsed to
 // one majority verdict here." That is right, and this file does not change

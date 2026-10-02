@@ -1,4 +1,4 @@
-// eoreader6 · perceiver/text/segments — structural boundaries, found not named.
+// the legacy engine · perceiver/text/segments — structural boundaries, found not named.
 //
 // A reader has to know where one stretch of a source ends and the next begins
 // before it can be asked for "the next chapter" or "the scene where". This
@@ -9,7 +9,7 @@
 // words at all — the omnimodal commitment, same as material.js and spans.js.
 //
 // RE-EARNED, NOT PORTED. eoreader-chat carried this machinery for eoreader5's
-// corpus; it is brought here under eoreader6's terms, with the measured
+// corpus; it is brought here under the legacy engine's terms, with the measured
 // lessons carried as design rather than copied as code:
 //
 //  1. A heading is form, not content. A short line, followed by a blank line,

@@ -61,7 +61,7 @@ import { createSwarmGate, stanceOf, specialistsOf } from "./swarm-gate.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CH = Number(process.argv[2] ?? 1);
-const BOOK = (process.argv.find((a) => a.startsWith("--book=")) ?? "--book=/Users/mlacy/Documents/3.0/live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt").replace("--book=", "");
+const BOOK = (process.argv.find((a) => a.startsWith("--book=")) ?? `--book=${decodeURIComponent(new URL("../../../../live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt", import.meta.url).pathname)}`).replace("--book=", "");
 const GENS = Number((process.argv.find((a) => a.startsWith("--gens=")) ?? "--gens=3").replace("--gens=", ""));
 const LANG = (process.argv.find((a) => a.startsWith("--lang=")) ?? "--lang=eng").replace("--lang=", "");
 // THE MODALITY AXIS (2026-09-17): the cube is the same algebra across every
@@ -307,7 +307,7 @@ function maybeStartle(f, gen) {
   // smaller than what the read itself varies by is not a surprise, it is
   // noise). Set from the seed's rerun-null before the storm; the old
   // `> 0.01` was the class of hand-set threshold this file's own laws
-  // forbid (eoreader6.1/CLAUDE.md: never tune a number by checking what it
+  // forbid (the legacy engine.1/CLAUDE.md: never tune a number by checking what it
   // does to a golden).
   const startled = d > 2 * sd && d > (startle.floor ?? 0.01);
   if (startled) startle.fired += 1;

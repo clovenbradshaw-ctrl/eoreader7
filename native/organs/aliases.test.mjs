@@ -9,7 +9,7 @@ import { readFileSync, existsSync } from "node:fs";
 // The REAL prior, as live_priors built it — never a fixture written here.
 // Portable, module-relative (S65/P95: a driver refuses what it lacks rather
 // than throwing on a path good for one machine only) — live_priors is a
-// sibling checkout of this repo, same as the-fold and eoreader6.
+// sibling checkout of this repo, same as the-fold and the legacy engine.
 const PRIOR_PATH = new URL("../../../live_priors/derived-priors/alias-priors/alias-declaration-en.json", import.meta.url);
 const SKIP = existsSync(PRIOR_PATH) ? undefined : `live_priors is not checked out as a sibling of this repo: ${PRIOR_PATH}`;
 const PRIOR = SKIP ? null : JSON.parse(readFileSync(PRIOR_PATH, "utf8"));

@@ -1,4 +1,4 @@
-// eoreader6 · perceiver/audio — promoted verbatim from eoreader5's
+// the legacy engine · perceiver/audio — promoted verbatim from eoreader5's
 // perceiver/audio/resample.js. Channel collapse to mono + linear resampling.
 // Perceiver-side only; the collapse is reported as a discard in Reading@1.
 

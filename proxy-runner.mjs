@@ -2106,7 +2106,7 @@ const buildVoidFields = (task) => {
 };
 
 // THE GROUND ATTENTION's declared null parameters (II.23 — a threshold
-// nobody chose is not a threshold). Cites legacy-eoreader6.1's
+// nobody chose is not a threshold). Cites legacy-legacy-engine.1's
 // population.js::LINK_SPEC as the convention's giver (a declared-
 // parameters SHAPE to follow: window/draws/seed/alpha, not literal numbers
 // copied from a different organ's own question).
@@ -2806,7 +2806,7 @@ const isConversationSource = (sourceId) => String(sourceId ?? "").startsWith("ch
 // NATIVE ONLY (2026-09-23, user direction: "rip out all the surf thats not
 // happening in eoreader7... the fold is just a surface" — eoreader7 IS the
 // engine, and a call into the frozen legacy submodule is not "happening in
-// eoreader7"). The exact-term ladder used to be legacy-eoreader6.1/packages/
+// eoreader7"). The exact-term ladder used to be legacy-legacy-engine.1/packages/
 // host/surfer.js's executePrompt. Found live, minimally reproduced (a
 // standalone script, no mocks, the real executePrompt and the real
 // engineRelationsFor over a two-paragraph Hamlin/Johnson specimen): its

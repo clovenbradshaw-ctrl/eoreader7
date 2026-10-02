@@ -1,5 +1,5 @@
 // eval/referent-patch-eval.mjs — the rebuilt patch ladder, run live against
-// a real local model and real eoreader6.1 code. The prior driver
+// a real local model and real the legacy engine.1 code. The prior driver
 // (eval/local-llm-patch-nul-index.mjs) measured 4/4 landed, 0/4 genuine —
 // every failure was model-authored POSITIONAL metadata: a JSON {find, add}
 // whose find named an ambiguous referent, corrupted by the every:true
@@ -378,7 +378,7 @@ async function runCase(session, docText, byteOf, baseline, { name, instruction, 
         turn: 1,
         caption: SOURCE_ID,
         seg: { type: "code", lang: "js", code: docText },
-        instruction: "the real eoreader6.1 nul/index.js source, as a build to iterate on",
+        instruction: "the real the legacy engine.1 nul/index.js source, as a build to iterate on",
       }),
     };
     const strict = buildLog.applyOps(docText, [{ op: "SYN", find: op.find, add: op.add }], { within: scout.span });

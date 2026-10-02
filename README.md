@@ -211,9 +211,9 @@ Priors may condition orientation, nominate perceptions, and focus interrogation.
 ## Compatibility
 
 EOReader 7 began from frozen EOReader 6.1 commit
-`e20e441d3cdfb735d605c75037e6d73892e707c0`. The `legacy-eoreader6.1`
+`e20e441d3cdfb735d605c75037e6d73892e707c0`. The `legacy-legacy-engine.1`
 submodule and the root compatibility symlinks that exposed its historical
-paths are **retired** — see [`LEGACY-EOREADER6.1.md`](LEGACY-EOREADER6.1.md),
+paths are **retired** — see [`LEGACY-ENGINE.md`](LEGACY-ENGINE.md),
 the pointer that replaces them. This repo's v7 architecture is `kernel.js`
 and `native/`; nothing in `native/` imports the legacy surface (the
 boundary is pinned by `native/conformance/native-boundary.test.mjs`).
@@ -241,7 +241,7 @@ experiencer, quotes — crossed on 2026-09-02 (S42), moved together so no
 organ imports the surface; the-fold keeps one-line shims at the old paths.
 The assertion ledger is `native/kernel/notes.js`, medium-blind and born with
 its frame; `native/organs/hyperlexicon.js` is its text face. This repo's `CLAUDE.md` is a symlink
-into the frozen 6.1 submodule and is not where this repo's own rules go —
+into the frozen legacy submodule and is not where this repo's own rules go —
 this file is.
 
 ## Handles (Amendment XVII)

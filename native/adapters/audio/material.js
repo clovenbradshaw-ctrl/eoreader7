@@ -1,4 +1,4 @@
-// eoreader6 · perceiver/audio — real PCM in, per-frame material out.
+// the legacy engine · perceiver/audio — real PCM in, per-frame material out.
 // Decodes with the system ffmpeg (no bundled decoder, no synthetic waveform).
 // See perceiver/text/material.js for the shared load/reduce contract.
 //

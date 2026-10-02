@@ -327,11 +327,11 @@ all).
 
 ## Environment note, disclosed rather than glossed over
 
-This sandbox had no checkout at the `../eoreader6.1` compatibility mount
+This sandbox had no checkout at the `../legacy-engine.1` compatibility mount
 the repo's own `./fold` script creates (it clones EOReader 7 *into* that
 mount name — see the script's own header). It was reconstructed the way
 `./fold` does: `git submodule update --init` inside the sibling
-`eoreader7` checkout, then a symlink at `../eoreader6.1`. `npm install`
+`eoreader7` checkout, then a symlink at `../legacy-engine.1`. `npm install`
 was never run here, so vendored-package tests cannot pass either.
 
 Measured against that, via `git stash` on exactly this pass's source

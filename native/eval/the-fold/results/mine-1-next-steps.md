@@ -124,7 +124,7 @@ pronoun, a negation, plus the word's own suffix shape. `induceKinds(...,
 {minPrevalence: 0.03, minKindSize: 5, permutations: 30, quantile: 0.95,
 seed: 0, reseeds: 3})` — an engineering starting point on every number,
 disclosed as exactly that, not walked against this fixture's own MINE-1
-score (the eoreader6.1 house rule this session has followed all night).
+score (the legacy engine.1 house rule this session has followed all night).
 
 **Result: the mechanism is real and it DOES find structure — just not
 yet the structure asked for.** `con()`'s clustering step found four

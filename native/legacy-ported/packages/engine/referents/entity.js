@@ -1,4 +1,4 @@
-// eoreader6 · referents/entity — THE EXISTENCE · FIGURE COLUMN.
+// the legacy engine · referents/entity — THE EXISTENCE · FIGURE COLUMN.
 //
 // The registry (engine/operators.js) had four empty cells where a being should
 // be, and the emptiness was load-bearing rather than incidental:

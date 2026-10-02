@@ -60,7 +60,7 @@ export function loadAnchorArtifacts(specs) {
 
 // The canonical four-artifact spec for the STR work — the same set every
 // anchoring run in this engagement reads, so anchors are comparable across runs.
-export function strArtifactSpecs(root = "/Users/mlacy/Documents/3.0") {
+export function strArtifactSpecs(root = decodeURIComponent(new URL("../../../../", import.meta.url).pathname).replace(/\/$/, "")) {
   return [
     { id: "swarm", kind: "introspection", path: `${root}/swarm_graphql_schema.json` },
     { id: "slate", kind: "field-index", path: `${root}/slate_api_key_types.json` },

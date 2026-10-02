@@ -1,4 +1,4 @@
-// eoreader6 · perceiver/text/roles — binding an AMBIGUOUS SPAN OCCURRENCE
+// the legacy engine · perceiver/text/roles — binding an AMBIGUOUS SPAN OCCURRENCE
 // to a role BY ACTIVATION, never by an averaged tag over all its occurrences.
 //
 // The general sibling of pronouns.js::resolvePronouns, at the same

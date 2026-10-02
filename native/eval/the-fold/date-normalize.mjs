@@ -5,7 +5,7 @@
 // on finding this needed the-fold's own vendored pyodide: "why not" give
 // eoreader7 its own copy. `package.json` beside this file is an isolated
 // dependency, same reasoning `cli/package.json` already established: npm
-// install here never touches the shared, symlinked legacy-eoreader6.1/
+// install here never touches the shared, symlinked legacy-legacy-engine.1/
 // package.json the repo root points at.
 //
 // `regime.js`'s (native/organs/regime.js) `parseValidityWindow` ships a

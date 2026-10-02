@@ -14,11 +14,11 @@ import { discoverNominalBeings, nominalClass, beingRefOf, NAMING_CLASSES } from 
 import { extractReadable } from "../../organs/web.js";
 
 const POS_HEB = fileURLToPath(new URL("../../priors/pos-heb.json", import.meta.url));
-const HEB_WIKI_ARTICLE = "/Users/mlacy/Documents/3.0/live_priors/11-multi-language/wikipedia-lang/he/_________.txt";
+const HEB_WIKI_ARTICLE = decodeURIComponent(new URL("../../../../live_priors/11-multi-language/wikipedia-lang/he/_________.txt", import.meta.url).pathname);
 // English's own POS prior lives in the sibling the-fold repo (priors-data/),
 // not under eoreader7 — an absolute path, the same one every other reading
 // organ that consumes it uses (there is no relative path across repos).
-const POS_ENG = "/Users/mlacy/Documents/3.0/the-fold/priors-data/pos-prior-eng.json";
+const POS_ENG = decodeURIComponent(new URL("../../../../the-fold/priors-data/pos-prior-eng.json", import.meta.url).pathname);
 const LINCOLN_HTML = fileURLToPath(new URL("../../eval/the-fold/fixtures/wikipedia-abraham-lincoln.html", import.meta.url));
 
 const posHeb = existsSync(POS_HEB) ? JSON.parse(readFileSync(POS_HEB, "utf8")) : null;

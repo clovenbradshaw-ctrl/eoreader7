@@ -27,7 +27,7 @@ import { pyDiagnose } from "../../adapters/code/py-engine.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 // ER7_HARNESS_DIR points the driver at a battery checked out anywhere else.
-const HARNESS_DIR = process.env.ER7_HARNESS_DIR ?? "/Users/mlacy/Documents/3.0/ai-code-harness";
+const HARNESS_DIR = process.env.ER7_HARNESS_DIR ?? decodeURIComponent(new URL("../../../../ai-code-harness", import.meta.url).pathname);
 const RESULTS_DIR = path.join(HERE, "results");
 
 const args = process.argv.slice(2);

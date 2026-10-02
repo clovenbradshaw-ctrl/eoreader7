@@ -6,7 +6,7 @@ import {
 } from "../organs/data-integration.js";
 import { cellOf } from "../kernel/cube.js";
 
-const REPO_ROOT = "/Users/mlacy/Documents/3.0/eoreader7";
+const REPO_ROOT = decodeURIComponent(new URL("../../../eoreader7", import.meta.url).pathname);
 
 test("registers a URL resource and folds it", () => {
   const { log, refused } = registerResource(createResourceLog(), "ohs:ground-reading", {
@@ -24,18 +24,18 @@ test("registers a URL resource and folds it", () => {
 
 test("registers a local path OUTSIDE repoRoot", () => {
   const { log, refused } = registerResource(createResourceLog(), "ohs:ground-reading", {
-    address: "/Users/mlacy/Documents/3.0/ohs-custody/ground-readings/f3affd2e.jsonl.zst",
+    address: decodeURIComponent(new URL("../../../ohs-custody/ground-readings/f3affd2e.jsonl.zst", import.meta.url).pathname),
     hash: "sha256:abc123", corpus: "OHS custody ground", recipe: "causalTextPerceiver+reviseTextFold@refresh25",
     giver: "michael", repoRoot: REPO_ROOT,
   });
   assert.equal(refused, null);
-  assert.equal(foldRegistry(log)[0].address, "/Users/mlacy/Documents/3.0/ohs-custody/ground-readings/f3affd2e.jsonl.zst");
+  assert.equal(foldRegistry(log)[0].address, decodeURIComponent(new URL("../../../ohs-custody/ground-readings/f3affd2e.jsonl.zst", import.meta.url).pathname));
 });
 
 test("THE WALL: refuses an address resolving inside repoRoot — the exact shape of this session's own mistake", () => {
   const before = createResourceLog();
   const { log, refused } = registerResource(before, "ohs:ground-reading", {
-    address: "/Users/mlacy/Documents/3.0/eoreader7/native/eval/the-fold/results/readings/f3affd2e11370118-causalTextPerceiver_reviseTextFold_refresh25.jsonl.zst",
+    address: decodeURIComponent(new URL("../../../eoreader7/native/eval/the-fold/results/readings/f3affd2e11370118-causalTextPerceiver_reviseTextFold_refresh25.jsonl.zst", import.meta.url).pathname),
     hash: "sha256:abc123", corpus: "OHS custody ground", recipe: "causalTextPerceiver+reviseTextFold@refresh25",
     giver: "michael", repoRoot: REPO_ROOT,
   });
@@ -54,7 +54,7 @@ test("THE WALL: repoRoot itself, exactly, is also inside", () => {
 
 test("THE WALL: a sibling directory that merely shares a prefix is NOT inside", () => {
   const { refused } = registerResource(createResourceLog(), "x", {
-    address: "/Users/mlacy/Documents/3.0/eoreader7-essay-prep.md", hash: "h", corpus: "c", recipe: "r", giver: "g",
+    address: decodeURIComponent(new URL("../../../eoreader7-essay-prep.md", import.meta.url).pathname), hash: "h", corpus: "c", recipe: "r", giver: "g",
     repoRoot: REPO_ROOT,
   });
   assert.equal(refused, null, "eoreader7-essay-prep.md is a different path, not inside eoreader7/ despite the shared prefix");
@@ -65,7 +65,7 @@ test("THE WALL applies to reviseResource too", () => {
     address: "https://example.com/data.jsonl", hash: "h1", corpus: "c", recipe: "r", giver: "g", repoRoot: REPO_ROOT,
   });
   const { refused } = reviseResource(log, "x", {
-    address: "/Users/mlacy/Documents/3.0/eoreader7/scratch.jsonl", hash: "h2", corpus: "c", recipe: "r", giver: "g",
+    address: decodeURIComponent(new URL("../../../eoreader7/scratch.jsonl", import.meta.url).pathname), hash: "h2", corpus: "c", recipe: "r", giver: "g",
     repoRoot: REPO_ROOT, because: "moved",
   });
   assert.equal(refused.reason, "resolves_inside_repo_root");

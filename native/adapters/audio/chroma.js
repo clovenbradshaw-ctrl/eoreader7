@@ -1,4 +1,4 @@
-// eoreader6 · perceiver/audio — promoted verbatim from eoreader5's
+// the legacy engine · perceiver/audio — promoted verbatim from eoreader5's
 // perceiver/audio/chroma.js. Pitch-class profile over a magnitude spectrum.
 
 export function computeChroma(mags, sampleRate, fftSize) {

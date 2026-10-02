@@ -39,7 +39,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const FIX = path.join(HERE, "fixtures", "wikidata");
-const { parseEntity } = await import("/Users/mlacy/Documents/3.0/the-fold/wikidata.js");
+const { parseEntity } = await import(decodeURIComponent(new URL("../../../../the-fold/wikidata.js", import.meta.url).pathname));
 
 const files = fs.readdirSync(FIX).filter((f) => f.endsWith(".json")).sort();
 const entities = files.map((f) => parseEntity(JSON.parse(fs.readFileSync(path.join(FIX, f), "utf8")))).filter(Boolean);

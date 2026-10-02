@@ -1,4 +1,4 @@
-# Until 2026-09-04 this file was a SYMLINK to legacy-eoreader6.1/.gitignore.
+# Until 2026-09-04 this file was a SYMLINK to legacy-legacy-engine.1/.gitignore.
 # Git could not resolve it — every command printed
 #   warning: unable to access '.gitignore': Too many levels of symbolic links
 # — and so honored NO ignore rules at all, not even node_modules/. That is
@@ -98,10 +98,10 @@ native/moral-shadows/
 # Claude Code local tool/session state (worktree scratch, not project content)
 .claude/
 
-# Retired legacy-eoreader6.1 submodule left on disk after the retirement
+# Retired legacy-legacy-engine.1 submodule left on disk after the retirement
 # commit (8445a84); its own nested .git makes it appear as one opaque
 # untracked entry here. Not new work — leftover debris, never re-add.
-legacy-eoreader6.1/
+legacy-legacy-engine.1/
 
 # UD_English-EWT train treebank, fetched (curl, see build-pos-prior.mjs's own
 # header) for the prior-build scripts and the parser tests. Same category as

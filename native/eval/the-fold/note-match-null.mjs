@@ -7,7 +7,7 @@
 // that has a readable cited face — and a seeded-derangement null drawn 20
 // times, the discipline the slicer's null already uses.
 import { readFileSync, existsSync } from "node:fs";
-const HERE = "/Users/mlacy/Documents/3.0/eoreader7/native/eval/the-fold/";
+const HERE = decodeURIComponent(new URL("../../../../eoreader7/native/eval/the-fold/", import.meta.url).pathname);
 const FIX = HERE + "fixtures/";
 process.env.FINE = "1"; process.env.VERBS = "both"; process.env.ATTEST = "1";
 const { reader, chunkSource, sameAct, textFeatures } = await import(HERE + "note-match-zero.mjs");

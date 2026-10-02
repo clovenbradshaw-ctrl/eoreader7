@@ -1,4 +1,4 @@
-// eoreader6 · perceiver/audio — promoted verbatim from eoreader5's
+// the legacy engine · perceiver/audio — promoted verbatim from eoreader5's
 // perceiver/audio/moments.js. Per-frame spectral moments: centroid, flux,
 // rolloff, flatness, RMS.
 

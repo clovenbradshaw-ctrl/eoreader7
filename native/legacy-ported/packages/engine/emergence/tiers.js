@@ -1,4 +1,4 @@
-// eoreader6 · emergence/tiers — MEANING FOLDS ON ITSELF.
+// the legacy engine · emergence/tiers — MEANING FOLDS ON ITSELF.
 //
 // Surprise is not computed differently at each altitude. It is the same
 // operation — how far did the prior move — applied to priors that surprise

@@ -3,7 +3,7 @@
   "schema": "AbbreviationPrior@2",
   "language": "en",
   "provenance": {
-    "source": "eoreader6 bin/priors/lang/en.json — hand-curated English abbreviation list, measured against Pride and Prejudice and Frankenstein (see notes below)",
+    "source": "the legacy engine bin/priors/lang/en.json — hand-curated English abbreviation list, measured against Pride and Prejudice and Frankenstein (see notes below)",
     "built_by": "hand-authored, staged for eventual transfer to eoPriors"
   },
   "attested": {

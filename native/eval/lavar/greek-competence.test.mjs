@@ -18,7 +18,7 @@ import { caseOf, paradigmOf } from "./greek.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CONLLU = path.join(HERE, "../fixtures/ud-greek-proiel/grc_proiel-ud-test.conllu");
-const PRIOR = JSON.parse(fs.readFileSync("/Users/mlacy/Documents/3.0/live_priors/derived-priors/case-priors/case-marking-grc.json", "utf8"));
+const PRIOR = JSON.parse(fs.readFileSync(decodeURIComponent(new URL("../../../../live_priors/derived-priors/case-priors/case-marking-grc.json", import.meta.url).pathname), "utf8"));
 
 function audit() {
   let nominal = 0, caseAgree = 0, caseClassified = 0;

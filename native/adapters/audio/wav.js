@@ -1,4 +1,4 @@
-// eoreader6 · perceiver/audio — promoted verbatim from eoreader5's
+// the legacy engine · perceiver/audio — promoted verbatim from eoreader5's
 // perceiver/audio/wav.js. Minimal RIFF/WAVE decoder: no dependency, runs in
 // browser and plain node. Multi-channel stays separated; the perceiver
 // collapses to mono and records it as a discard.

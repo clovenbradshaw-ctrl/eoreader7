@@ -22,7 +22,7 @@
 // Every entry has to name its giver — the module it actually lives in — so
 // a capacity reference resolves to a real place in this codebase, never a
 // promise. `terrain` and `op` are taken from this repo's own operators.js
-// cells (packages/engine/operators.js, ../eoreader6.1), the same source
+// cells (packages/engine/operators.js, ../legacy-engine.1), the same source
 // grid.js reuses, so a capacity's typing can never drift from the algebra's.
 //
 // A domain is fixed by the OPERATOR LETTER alone (never by grain or by

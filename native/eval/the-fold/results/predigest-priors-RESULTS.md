@@ -26,7 +26,7 @@ efficiency law aimed at priors).
 - **Received inventory**, manifested with schema + giver + path, never
   copied: ConstructionPrior@1 (UD_English-EWT), MorphologyPrior@1
   (UniMorph) ×2 locations, and a **named gap** for POSPrior@1
-  (`legacy-eoreader6.1` submodule uninitialized in this checkout — the
+  (`legacy-legacy-engine.1` submodule uninitialized in this checkout — the
   reader ran without it, disclosed).
 
 ## The honest quality note

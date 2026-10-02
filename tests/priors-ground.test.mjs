@@ -11,7 +11,7 @@ import os from "node:os";
 import path from "node:path";
 import { findPriorsGround, passagesOf, listEligible, fingerprintOf, sectionOf, persistEarnedGround, makeAskEvidence } from "../native/the-fold/priors-ground.js";
 
-const REAL = process.env.ER7_PRIORS_DIR || "/Users/mlacy/Documents/3.0/live_priors";
+const REAL = process.env.ER7_PRIORS_DIR || decodeURIComponent(new URL("../../live_priors", import.meta.url).pathname);
 const haveReal = fs.existsSync(path.join(REAL, "02-encyclopedic"));
 
 // a small corpus with the shapes that matter: a true carrier in paragraphs, a big blob that holds every word scattered,

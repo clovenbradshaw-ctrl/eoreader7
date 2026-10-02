@@ -48,7 +48,7 @@ const ROOT = path.resolve(NATIVE, "../..");
 const OUT = process.env.OUT_PATH ?? path.join(HERE, "results", "unwired-organs.json");
 const MIN_NAME = Number(process.env.MIN_NAME ?? 4);
 
-// The trees an organ can legitimately be called from. `legacy-eoreader6.1` is
+// The trees an organ can legitimately be called from. `legacy-legacy-engine.1` is
 // deliberately included: the native kernel is consumed from there through the
 // shim layer, so an export called only from legacy is WIRED, not dead.
 const SEARCH_ROOTS = [

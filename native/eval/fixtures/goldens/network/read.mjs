@@ -1,4 +1,4 @@
-// eoreader6 · goldens/network/read — a full reading of each fixture book,
+// the legacy engine · goldens/network/read — a full reading of each fixture book,
 // scored against its frozen third-party character co-occurrence network.
 //
 // A FULL reading, not a co-occurrence-shaped one. Organs this repo already
@@ -330,7 +330,7 @@ export const readBook = (text, book, spec = SPEC) => {
   const { pairs, nulls } = bindLinks(register, { window: LINK_WINDOW, draws: LINK_DRAWS, seed: LINK_SEED });
   const edges = pairs
     .map((p) => {
-      const key = `${p.a.id} ${p.b.id}`;
+      const key = `${p.a.id}the legacy engine${p.b.id}`;
       const n = nulls.get(key);
       return { a: p.a.id, b: p.b.id, weight: p.overlap, pValue: n.pValue };
     })

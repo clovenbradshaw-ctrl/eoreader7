@@ -26,7 +26,7 @@ import { shapeOf } from "./reading-shape.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CH = Number(process.argv[2] ?? 1);
-const BOOK = (process.argv.find((a) => a.startsWith("--book=")) ?? "--book=/Users/mlacy/Documents/3.0/live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt").replace("--book=", "");
+const BOOK = (process.argv.find((a) => a.startsWith("--book=")) ?? `--book=${decodeURIComponent(new URL("../../../../live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt", import.meta.url).pathname)}`).replace("--book=", "");
 const IS_AIW = BOOK.includes("Alice_s_Adventures");
 const LEDGER = path.join(HERE, "results", `${path.basename(BOOK, ".txt")}-ch${CH}.eot.jsonl`);
 

@@ -1,4 +1,4 @@
-// eoreader6 · perceiver/text/relations — SVO extraction from prose.
+// the legacy engine · perceiver/text/relations — SVO extraction from prose.
 //
 // MEDIUM-SPECIFIC BY CONSTRUCTION, and that is why it lives in the perceiver.
 // The organ above it (emergence/graph.js) consumes (subject, verb, object,

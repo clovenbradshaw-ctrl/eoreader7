@@ -1,4 +1,4 @@
-// eoreader6 · packages/host/surfer — the no-model NL-prompt surfer.
+// the legacy engine · packages/host/surfer — the no-model NL-prompt surfer.
 //
 // A reader says what they want in words and the surfer does it: snips the
 // segment the words address. No model, no statistics, no clock — the prompt

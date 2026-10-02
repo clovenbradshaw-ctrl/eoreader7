@@ -7,7 +7,7 @@ three passes of theorizing about extraction.**
 ## The check that should have come first
 
 `native/adapters/text/relations.js` is **byte-identical** to
-`legacy-eoreader6.1/packages/engine/perceiver/text/relations.js`. Its own
+`legacy-legacy-engine.1/packages/engine/perceiver/text/relations.js`. Its own
 header records what 6.1 measured on Frankenstein: *165 candidates, 33
 recurring across ≥2 distinct surfaces*. Reproduced here:
 

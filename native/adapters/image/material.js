@@ -1,4 +1,4 @@
-// eoreader6 · perceiver/image — a still image has no time, but it has scan
+// the legacy engine · perceiver/image — a still image has no time, but it has scan
 // order. Material is mean luminance per scanline, read top-to-bottom — the
 // same "growing fraction of the real thing" pattern as every other
 // perceiver, with adjacency in space instead of in time.

@@ -1,4 +1,4 @@
-// eoreader6 · goldens/shared/fuzzy-match — a discovered surface against a
+// the legacy engine · goldens/shared/fuzzy-match — a discovered surface against a
 // third-party reference name, scored, so the BEST match wins rather than
 // whichever reference entry happens to sit first in the list.
 //

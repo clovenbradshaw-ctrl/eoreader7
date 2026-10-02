@@ -5,7 +5,7 @@
 // REAL, already-disclosed defect edges — copied verbatim from this repo's
 // own committed eval/results/asserted-crosslingual.md — for the mismatch
 // side. Every POS_PRIOR count below is copied verbatim from a real run of
-// eoreader6.1's scripts/build-pos-prior.mjs against the real UD_English-EWT
+// the legacy engine.1's scripts/build-pos-prior.mjs against the real UD_English-EWT
 // training file, the same way wordclass.test.mjs's own fixture is sourced.
 
 import { test } from "node:test";
@@ -62,7 +62,7 @@ const organs = async () => {
 // Ordinary majority (>50%) — a plain, defensible floor for this
 // demonstration, chosen before any example below was checked against it,
 // not walked to whatever value makes these particular words settle
-// (eoreader6.1's own CLAUDE.md rule against tuning a parameter on a
+// (the legacy engine.1's own CLAUDE.md rule against tuning a parameter on a
 // golden's score, applied to this file's own fixture).
 const MIN_SHARE = 0.5;
 

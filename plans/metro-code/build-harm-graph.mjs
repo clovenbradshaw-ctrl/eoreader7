@@ -9,7 +9,7 @@
 // declared matrix (this file) plus keyword corroboration against the ledger text.
 
 import fs from "node:fs";
-import { hyperedge, buildHypergraph, indexHypergraphEntries } from "/Users/mlacy/Documents/3.0/eoreader7/native/kernel/hypergraph.js";
+import { hyperedge, buildHypergraph, indexHypergraphEntries } from "../../native/kernel/hypergraph.js";
 
 const ROOT = new URL("./", import.meta.url);
 const rows = fs.readFileSync(new URL("./ledger/metro-code-departments.jsonl", import.meta.url), "utf8")

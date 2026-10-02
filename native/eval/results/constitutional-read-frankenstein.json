@@ -1,6 +1,6 @@
 {
  "schema": "EOConstitutionalRead@1",
- "assembly": "legacy-eoreader6.1 packages/host — createSession / admitChunked / sessionReferents (discoveredCast: surfaces -> witnessed referents -> pronoun binding -> relation vocabulary) / sessionRelations",
+ "assembly": "legacy-legacy-engine.1 packages/host — createSession / admitChunked / sessionReferents (discoveredCast: surfaces -> witnessed referents -> pronoun binding -> relation vocabulary) / sessionRelations",
  "source": "file:pg84-frankenstein.txt",
  "priorsInjected": [
   {

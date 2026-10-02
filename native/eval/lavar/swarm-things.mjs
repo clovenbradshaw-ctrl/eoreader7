@@ -171,7 +171,7 @@ export function findThings(query = {}, surfaces = defaultSurfaces()) {
  * Matrix surface (no bridge yet -> empty). The corpus surface is a manifest
  * lookup, declared below. */
 export function defaultSurfaces() {
-  const shared = "/Users/mlacy/Documents/3.0/live_priors/derived-priors/swarm-priors";
+  const shared = decodeURIComponent(new URL("../../../../live_priors/derived-priors/swarm-priors", import.meta.url).pathname);
   return [
     { name: "device", breakthroughs: path.join(RESULTS, "swarm-breakthroughs.jsonl"), lineage: (v) => lineageOf(v) },
     { name: "github", breakthroughs: path.join(shared, "swarm-breakthroughs.jsonl"), lineage: () => [] },

@@ -1,5 +1,5 @@
 // eval/surf-fold-local-llm.mjs — a real local model, tested against real
-// complex code (eoreader6.1's nul/index.js), fed through the REAL surf
+// complex code (the legacy engine.1's nul/index.js), fed through the REAL surf
 // (packages/host/surfer.js::executePrompt — the mechanical, model-free
 // SOURCE→HEADING→CONTENT→WINDOW address ladder) and the REAL fold
 // (packages/engine/emergence/tiers.js::createTierStack/foldThrough — the

@@ -11,7 +11,7 @@
 // Interpretation as the most fragmented domain in the whole registry (29
 // of 62 organs, nine separate hand-rolled EVA-Pattern checkers) with no
 // shared judgment engine underneath any of them. HL is that engine,
-// landed where the gap already was. Full account: eoreader6.1/CLAUDE.md,
+// landed where the gap already was. Full account: the legacy engine.1/CLAUDE.md,
 // "HL — the logic over hypergraph stages."
 //
 // What's left here is exactly what's the-fold's to own: turning THIS

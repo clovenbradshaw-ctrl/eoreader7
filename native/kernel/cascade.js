@@ -10,7 +10,7 @@
 // frontier id" — O(rounds * liveSize) instead of O(edges). reaction.js's
 // own copy was worse again: it rebuilt its whole candidate array
 // (`allDerived()`) fresh on every single frontier item, not just once per
-// round. Per eoreader6.1's own CLAUDE.md ("When two goldens grow the same
+// round. Per the legacy engine.1's own CLAUDE.md ("When two goldens grow the same
 // tool independently, reconcile them — don't just dedupe"): both were read
 // in full, neither was strictly superior — derivation.js's version already
 // used a `seen` set correctly and never rescanned per item; reaction.js's

@@ -1,4 +1,4 @@
-// eoreader6 · referents/consequence — CON · Pattern: binding surfaces that
+// the legacy engine · referents/consequence — CON · Pattern: binding surfaces that
 // point at one being.
 //
 // entity.js admits a being from ONE surface's arrivals. But a real being

@@ -82,7 +82,7 @@ numbers are the honest zero against which that work can be scored.
    the material earns, not the sentence.
 
 Reproduce: `node native/eval/understanding-scoreboard.mjs
-legacy-eoreader6.1/scripts/adversarial/fixtures/pg84-frankenstein.txt`
+legacy-legacy-engine.1/scripts/adversarial/fixtures/pg84-frankenstein.txt`
 (full output committed beside this file).
 
 ---

@@ -1,10 +1,10 @@
-# Can a real local LLM improve real eoreader6.1 code? — measured, not assumed
+# Can a real local LLM improve real the legacy engine.1 code? — measured, not assumed
 
 Ask: load a real local model (not Ollama — `ollama.com`'s installer is
 outside this session's GitHub repo scope, so this ran `llama-cpp-python` +
 a real downloaded `qwen2.5-coder-1.5b-instruct-q4_k_m.gguf` behind a thin
 Ollama-wire-shape shim) and test it against real complex code
-(`eoreader6.1/nul/index.js`, the flagship statistical engine
+(`the legacy engine.1/nul/index.js`, the flagship statistical engine
 CLAUDE.md's "measuring door" section describes), using the-fold's OWN
 already-proven build-iteration ladder — `build-log.js` + `widget.js::scoutSpan`
 + `witness.js` — never a lighter reimplementation. Two things were measured

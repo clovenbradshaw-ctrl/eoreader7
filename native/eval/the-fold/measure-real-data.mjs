@@ -17,7 +17,7 @@
 //
 // THE DECLARATIONS, AND WHY EACH NUMBER IS WHAT IT IS. Every one of these was
 // fixed BEFORE the run and none was revisited after seeing an output — the
-// eoreader6 rule ("never tune a parameter by checking what it does to a
+// the legacy engine rule ("never tune a parameter by checking what it does to a
 // golden's own score") applies to a number that shapes a measurement just as
 // hard as to one that shapes a reading:
 //
@@ -43,8 +43,8 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import * as nul from "../../eoreader6/nul/index.js";
-import { bindLinks } from "../../eoreader6/packages/engine/emergence/binding.js";
+import * as nul from "../../legacy-ported/nul/index.js";
+import { bindLinks } from "../../legacy-ported/packages/engine/emergence/binding.js";
 import { delimitedRows } from "../../the-fold/tables.js";
 import { parseMeasure, phrase, runMeasurement } from "../../organs/measure.js";
 

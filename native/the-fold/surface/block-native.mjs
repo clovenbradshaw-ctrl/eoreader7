@@ -18,7 +18,7 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 
 const PDFJS_PATHS = [
-  "/Users/mlacy/Documents/3.0/eoWebLLM/node_modules/pdfjs-dist/legacy/build/pdf.js",
+  decodeURIComponent(new URL("../../../../eoWebLLM/node_modules/pdfjs-dist/legacy/build/pdf.js", import.meta.url).pathname),
   "pdfjs-dist/legacy/build/pdf.js",
 ];
 let pdfjsLib = null;

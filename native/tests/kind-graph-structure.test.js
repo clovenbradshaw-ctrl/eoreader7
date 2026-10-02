@@ -139,7 +139,7 @@ function resolveClearance() {
   const candidates = [
     process.env.EOREADER7_THE_FOLD_CHECKOUT ? path.join(process.env.EOREADER7_THE_FOLD_CHECKOUT, "clearance.js") : null,
     path.join(here, "../../../the-fold/clearance.js"),
-    "/Users/mlacy/Documents/3.0/the-fold/clearance.js",
+    decodeURIComponent(new URL("../../../the-fold/clearance.js", import.meta.url).pathname),
   ].filter(Boolean);
   return candidates.find((p) => fs.existsSync(p)) ?? null;
 }
