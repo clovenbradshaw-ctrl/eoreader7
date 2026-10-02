@@ -30,7 +30,7 @@ import * as K from "../../organs/index.js";
 import * as H from "../../organs/notes-text.js";
 import * as TL from "../../kernel/task-log.js";
 import { distinctSources, distinctRecipes } from "../../organs/index.js";
-import { runMeasurement, parseMeasure } from "../../../../the-fold/measure.js";
+import { runMeasurement, parseMeasure } from "../../organs/measure.js";
 import * as nul from "../../eoreader7/nul/index.js";
 
 const OUT = "/tmp/turbulence";

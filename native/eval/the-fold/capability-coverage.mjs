@@ -60,7 +60,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { makeMoves } from "../../../../the-fold/moves.js";
+import { makeMoves } from "../../the-fold/moves.js";
 import { CAPACITIES } from "../../organs/index.js";
 import * as cube from "../../kernel/cube.js";
 import { OPERATOR_ORDER } from "../../kernel/task-log.js";

@@ -47,8 +47,8 @@ import {
   checkPrior,
   foldPriors,
   PRIORS_DOCS_CONSULTED,
-} from "../../../../the-fold/priors.js";
-import { wordSet, CLAIM_STOPWORDS } from "../../../../the-fold/grounding.js";
+} from "../../the-fold/priors.js";
+import { wordSet, CLAIM_STOPWORDS } from "../../organs/grounding.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PRIORS_ROOT = resolve(here, "..", "..", "live_priors");

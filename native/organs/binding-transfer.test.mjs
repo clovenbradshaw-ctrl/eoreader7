@@ -9,7 +9,7 @@ import { bind, BINDING_CORE_REFUSALS as REFUSALS } from "./index.js";
 import { FoldUnavailableError, resolveFoldSibling } from "../eval/the-fold/lib/fold-sibling.mjs";
 import { foldSelect, buildSelectMessages } from "./index.js";
 
-const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../the-fold/");
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../organs/");
 const SKIP = FOLD_OK ? undefined : `the sibling the-fold checkout is not available: cast.js/hypergraph.js (looked for ${FOLD_PATH})`;
 const throwUnavailable = () => { throw new FoldUnavailableError(SKIP); };
 const { makeReferentIndex } = FOLD_OK ? await import(`${FOLD_PATH}cast.js`) : { makeReferentIndex: throwUnavailable };

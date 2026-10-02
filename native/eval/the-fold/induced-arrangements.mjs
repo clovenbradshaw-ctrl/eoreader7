@@ -10,8 +10,8 @@
 //   node eval/induced-arrangements.mjs [maxPages]
 
 import { readFileSync, readdirSync, statSync } from "node:fs";
-import { signature, periodOf } from "../../../../the-fold/periodicity.js";
-import { makeNetworkBinder, extentShape, surfaceShape } from "../../../../the-fold/network.js";
+import { signature, periodOf } from "../../the-fold/periodicity.js";
+import { makeNetworkBinder, extentShape, surfaceShape } from "../../the-fold/network.js";
 
 const { extractSurfaces } = await import("../../adapters/text/surfaces.js");
 

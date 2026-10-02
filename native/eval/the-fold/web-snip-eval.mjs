@@ -46,13 +46,13 @@ import * as enginePriors from "../../adapters/text/priors.js";
 import { splitSentences as engineSentences } from "../../adapters/text/spans.js";
 import { extractSurfaces, discoverReferents, namesCorefer, diaNorm } from "../../adapters/text/surfaces.js";
 import { discoverRelationVocab, extractRelations } from "../../adapters/text/relations.js";
-import { tokenize } from "../../../../the-fold/source.js";
-import { makeRelationReader } from "../../../../the-fold/hypergraph.js";
-import { chunkSource } from "../../../../the-fold/source.js";
-import { makeGrid } from "../../../../the-fold/grid.js";
+import { tokenize } from "../../the-fold/source.js";
+import { makeRelationReader } from "../../organs/hypergraph.js";
+import { chunkSource } from "../../the-fold/source.js";
+import { makeGrid } from "../../the-fold/grid.js";
 import { CAPACITIES, findCapacity, unresolvedCapacity } from "../../organs/index.js";
-import { declaredSlotShape } from "../../../../the-fold/web-claim.js";
-import { rankResults } from "../../../../the-fold/proof.js";
+import { declaredSlotShape } from "../../the-fold/web-claim.js";
+import { rankResults } from "../../the-fold/proof.js";
 
 const EXPLORE = "http://localhost:8812";
 

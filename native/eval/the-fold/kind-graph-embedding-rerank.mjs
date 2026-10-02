@@ -56,7 +56,7 @@ const { extractReadable } = await import(`${NATIVE}organs/web.js`);
 const { hyperedge } = await import(`${NATIVE}kernel/hypergraph.js`);
 const { createKindGraphStructureLedger } = await import(`${NATIVE}kernel/kind-graph-structure.js`);
 const { createLemmatizer, morphologyFromPrior } = await import(`${NATIVE}adapters/text/morphology.js`);
-const clearanceUrl = new URL("../../../../the-fold/clearance.js", import.meta.url).pathname;
+const clearanceUrl = new URL("../../the-fold/clearance.js", import.meta.url).pathname;
 const { makeClearance } = await import(clearanceUrl);
 
 const OLLAMA = "http://localhost:11434";

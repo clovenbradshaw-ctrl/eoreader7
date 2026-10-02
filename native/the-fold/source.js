@@ -1,66 +1,72 @@
-// source.js — VENDORED COPY, NOT A LINK. The one fold (`tokenize`) that the
-// vendored the-fold organs here use, copied verbatim from
-// eoreader7/native/organs/source.js (the upstream the-fold file is a 6-line
-// re-export shim: `export * from "../eoreader7/native/organs/source.js"`).
+// source.js — SHIM. The organ lives in eoreader7/native/organs (Phase 3 of the
+// organ migration, 2026-09-02; absorbed into eoreader7 2026-10-01); this file
+// only forwards it so a stale importer keeps resolving. New code imports the
+// seam, ../organs/index.js, never this file.
+// Handle: Nadim — after Ibn al-Nadim's Fihrist, an addressed catalogue of every known work; retrieval by where it sits, never by judgment of what it says. Amendment XVII.
 //
-// Copied, not linked, so this block is INDEPENDENT: it must keep running
-// (e.g. in an eval checkout, or moved) without dragging the organs module in.
-// The cost of independence is a second copy of the fold; the original
-// discipline of P7.1 ("the same one, by import") applies WITHIN a repo, and
-// the note below is how we intend to get back to one copy.
-//
-// FUTURE (do this): REMOVE resolutions.js, dialogue.js, firewall.js,
-// ground-ladder.js, answer-record.js, reading-log.js and source.js from the
-// upstream the-fold repo and MAKE THE FOLD DEPENDENT on these eoreader7
-// copies — the dependency flips to the-fold → eoreader7. These blocks are computed by the
-// reading's own organs (no model compression), so eoreader7 is their home;
-// upstream the-fold is a client/UI over the engine and should import them
-// from here. When that lands, this file can return to being the shared
-// organs `tokenize` by import and the second copy disappears.
-//
-// Source this was copied from: eoreader7/native/organs/source.js (tokenize,
-// foldDiacritics, isNumeral, STOPWORDS), vendored 2026-09-11.
-
-// The engine's own stopword list (native/organs/source.js). A token in this
-// list is a function word, not vocabulary for identity.
-const STOPWORDS = new Set(
-  ("a an and are as at be but by for from had has have he her his i in into is it its of on or " +
-    "our she that the their them there these they this to was were what when where which who why " +
-    "will with would you your do does did can could should about would're not no if then than so " +
-    "how me my we us been being over under after before also just like more most some such only").split(" "),
-);
+// ONE name is wrapped rather than forwarded, and this is deliberate:
+// retrieve()'s shape-cue tie-fallback (shape-fallback.js) is a the-fold
+// concern — relative.js, which it is built on, is kept apart from eoreader7's
+// organs — so the engine's own retrieve() never grew the `shapeFallback`
+// option. The seam is where the caller-side wiring (holon.js, app.js) already
+// hands it in; without the wrap here it was silently dropped and the whole
+// mechanism was dead code. The wrap is byte-identical to the engine's own
+// retrieve() whenever `shapeFallback` is omitted.
+import { tokenize } from "../organs/source.js";
+export * from "../organs/source.js";
 
 /**
- * Diacritic folding, the same fold everywhere: a corpus that writes Bezúkhov
- * must answer a question that writes Bezukhov, in RETRIEVAL and in the CHECKS
- * alike. Widened beyond the Latin/Greek/Cyrillic combining-marks block to
- * Hebrew nikud (U+0591–U+05C7) and Arabic tashkil (U+064B–U+065F, plus
- * U+0670's superscript alef) — folding a vowel mark away can only WIDEN what
- * matches, never narrow a real distinction into a false one.
+ * Mechanical retrieval, with the shape-cue tie-fallback wired (see
+ * shape-fallback.js's own header for the mechanism and the one incident it is
+ * built from). Same scoring and ranking as the engine's own retrieve(); the
+ * only addition is a tie at the TOP score: when two or more chunks share it
+ * and `shapeFallback` is a function, the fallback is handed that tied group,
+ * the question, and the full chunk list, and may name one tied member to
+ * promote. Promotion only ever reorders within the tied group (the promoted
+ * chunk moves to its front; the rest keep their original relative order) and
+ * can therefore change WHICH chunks are returned when `limit` is smaller than
+ * the group. A fallback that declines, throws, or names a chunk outside the
+ * tied group leaves the untouched baseline. "Tied" is exact `===` on the
+ * integer-or-half score — never an epsilon (see shape-fallback.js's header).
  */
-function foldDiacritics(s) {
-  return String(s || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f\u0591-\u05c7\u064b-\u065f\u0670]/g, "");
-}
-
-/** A numeral by shape: digits, or roman. The engine's own test, not a list. */
-function isNumeral(t) {
-  return /^\d+$/.test(t) || /^[ivxlcdm]+$/.test(t);
-}
-
-/**
- * A text reduced to its words, under the session's one fold: diacritics
- * folded, case folded, split on Unicode word/number classes (a Cyrillic or
- * CJK corpus must fold to its words and not to nothing), dots and dashes
- * kept inside a token so "12.5" and "hit-and-run" survive, and short tokens
- * dropped — except numerals, which are form rather than vocabulary. Copied
- * verbatim from the organs.
- */
-export function tokenize(text) {
-  return foldDiacritics(text)
-    .toLowerCase()
-    .split(/[^\p{L}\p{N}%.\-]+/u)
-    .map((t) => t.replace(/^[.\-]+|[.\-]+$/g, ""))
-    .filter((t) => (t.length > 2 || isNumeral(t)) && !STOPWORDS.has(t));
+export function retrieve(chunks, question, limit = 3, foldedRefs = [], { shapeFallback = null } = {}) {
+  const qTerms = [...new Set(tokenize(question))];
+  if (!qTerms.length) return [];
+  const folded = new Set(foldedRefs);
+  const scored = chunks
+    .map((c) => {
+      const hits = qTerms.filter((t) => c.terms.has(t)).length;
+      // A passage already folded into an earlier turn's record is
+      // deprioritized, not excluded: it has been read once already, and a turn
+      // that keeps re-reading the same paragraph is not making progress. Half
+      // its own score rather than a fixed subtraction, so the penalty stays
+      // proportional to how relevant the passage was in the first place.
+      const score = folded.has(c.ref) ? hits / 2 : hits;
+      return { chunk: c, hits, score };
+    })
+    .filter((s) => s.hits > 0)
+    .sort((a, b) => b.score - a.score || a.chunk.start - b.chunk.start);
+  if (scored.length) {
+    const topScore = scored[0].score;
+    const tieEnd = scored.findIndex((s) => s.score !== topScore);
+    const tieLen = tieEnd < 0 ? scored.length : tieEnd;
+    if (tieLen >= 2 && typeof shapeFallback === "function") {
+      const tied = scored.slice(0, tieLen).map((s) => s.chunk);
+      // A throwing fallback is a decline, not a crash — the same posture as
+      // a fallback that returns nothing: retrieve() is the only thing that
+      // ever touches the result, and the reader is never held hostage to a
+      // tie-break organ's own defects.
+      let pick = null;
+      try {
+        pick = shapeFallback(tied, question, chunks);
+      } catch {
+        pick = null;
+      }
+      if (pick && tied.includes(pick)) {
+        const ordered = [pick, ...tied.filter((c) => c !== pick)].map((c) => ({ chunk: c }));
+        scored.splice(0, tieLen, ...ordered);
+      }
+    }
+  }
+  return scored.slice(0, limit).map((s) => s.chunk);
 }

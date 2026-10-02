@@ -8,7 +8,7 @@
 const OLLAMA = process.env.FOLD_OLLAMA_URL ?? "http://localhost:11434";
 
 // The production prompts under test come from the real source — never a copy.
-const { FLAT_EXECUTE_SYSTEM_PROMPT, CHAT_SYSTEM_PROMPT } = await import("../../../../../the-fold/holon.js");
+const { FLAT_EXECUTE_SYSTEM_PROMPT, CHAT_SYSTEM_PROMPT } = await import("../../../the-fold/holon.js");
 
 export { FLAT_EXECUTE_SYSTEM_PROMPT, CHAT_SYSTEM_PROMPT };
 

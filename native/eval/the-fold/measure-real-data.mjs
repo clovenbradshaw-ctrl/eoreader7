@@ -45,8 +45,8 @@ import { dirname, join } from "node:path";
 
 import * as nul from "../../eoreader6/nul/index.js";
 import { bindLinks } from "../../eoreader6/packages/engine/emergence/binding.js";
-import { delimitedRows } from "../../../../the-fold/tables.js";
-import { parseMeasure, phrase, runMeasurement } from "../../../../the-fold/measure.js";
+import { delimitedRows } from "../../the-fold/tables.js";
+import { parseMeasure, phrase, runMeasurement } from "../../organs/measure.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const table = delimitedRows(readFileSync(join(here, "fixtures", "santa-ana-flight-hours.csv"), "utf8"));

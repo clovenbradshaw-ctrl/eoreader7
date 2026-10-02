@@ -68,8 +68,8 @@ import { GRAINS } from "../../kernel/cube.js";
 import { acquireCompositionCandidates } from "../../kernel/relation-composition.js";
 
 import { makeNotesText } from "../../organs/notes-text.js";
-import { adaptTaskLog } from "../../../../the-fold/consequence.js";
-import { assertionEdges } from "../../../../the-fold/predigest.js";
+import { adaptTaskLog } from "../../the-fold/consequence.js";
+import { assertionEdges } from "../../the-fold/predigest.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES = path.join(HERE, "fixtures", "falsification");

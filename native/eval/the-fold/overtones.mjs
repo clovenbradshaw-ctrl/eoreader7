@@ -16,7 +16,7 @@
 // Plus the control built to fail: seeded white noise, which has no
 // harmonics and must not "hear" them beyond alpha.
 import fs from "node:fs";
-import { wavSamples } from "../../../../the-fold/measure.js";
+import { wavSamples } from "../../organs/measure.js";
 import { discoverHarmonics, overtoneOverlap } from "../../adapters/audio/overtones.js";
 import { parseMidi } from "../../adapters/midi/midi.js";
 import { sedimentPrior, expertOf, smoothedExpertOf, runMixture, lcg, shuffled } from "../../kernel/continuation.js";

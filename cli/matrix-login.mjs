@@ -5,7 +5,7 @@
 // matrix-client.js already has to it, browser-side). No new login logic,
 // no new request shape — just Node's own fetch where the browser has DOM.
 
-import { homeserverBase, loginBody, paths } from "../../the-fold/matrix.js";
+import { homeserverBase, loginBody, paths } from "../native/the-fold/matrix.js";
 import { loadCredentials, saveMatrixCredentials, clearMatrixCredentials } from "./credentials.mjs";
 
 /** Password login — the SAME m.login.password flow matrix-client.js sends,

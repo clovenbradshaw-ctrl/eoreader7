@@ -17,9 +17,9 @@
 
 import * as taskLog from "../../legacy-ported/packages/engine/holon/task-log.js";
 import * as enginePriors from "../../adapters/text/priors.js";
-import { makeBuildLog } from "../../../../the-fold/build-log.js";
-import { scoutSpan, makeWidgetRouter, capture } from "../../../../the-fold/widget.js";
-import { witnessCode, witnessRegressed } from "../../../../the-fold/witness.js";
+import { makeBuildLog } from "../../the-fold/build-log.js";
+import { scoutSpan, makeWidgetRouter, capture } from "../../the-fold/widget.js";
+import { witnessCode, witnessRegressed } from "../../the-fold/witness.js";
 import { runFold, fire, typeInto } from "./dom-stub.mjs";
 import fs from "node:fs";
 import path from "node:path";

@@ -125,7 +125,7 @@ async function main() {
   let buildLog = null, taskLog = null;
   try {
     taskLog = await import("../../kernel/task-log.js");
-    const bl = await import("../../../../the-fold/build-log.js");
+    const bl = await import("../../the-fold/build-log.js");
     buildLog = bl.makeBuildLog(taskLog);
   } catch (e) {
     console.log(`build-log organ unavailable (${String(e.message).slice(0, 60)}) — proceeding, disclosed\n`);

@@ -76,10 +76,10 @@ import { acquireCompositionCandidates } from "../../kernel/relation-composition.
 import { createReactionSubstrate, closureAffordances, nominateFromExperience } from "../../kernel/reaction.js";
 import { refuteRelation, auditChemistry, vetoedPairs, afterVeto } from "../../kernel/refutation.js";
 
-import { parseEntity } from "../../../../the-fold/wikidata.js";
+import { parseEntity } from "../../the-fold/wikidata.js";
 import { makeNotesText } from "../../organs/notes-text.js";
-import { adaptTaskLog } from "../../../../the-fold/consequence.js";
-import { assertionEdges, loadCompiledPriors } from "../../../../the-fold/predigest.js";
+import { adaptTaskLog } from "../../the-fold/consequence.js";
+import { assertionEdges, loadCompiledPriors } from "../../the-fold/predigest.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES = path.join(HERE, "fixtures", "wikidata");

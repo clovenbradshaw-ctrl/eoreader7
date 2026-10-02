@@ -62,9 +62,9 @@ import { createReactionSubstrate } from "../../kernel/reaction.js";
 import { auditChemistry } from "../../kernel/refutation.js";
 
 import { makeNotesText } from "../../organs/notes-text.js";
-import { adaptTaskLog } from "../../../../the-fold/consequence.js";
-import { assertionEdges } from "../../../../the-fold/predigest.js";
-import { entityUrl, isQid } from "../../../../the-fold/wikidata.js";
+import { adaptTaskLog } from "../../the-fold/consequence.js";
+import { assertionEdges } from "../../the-fold/predigest.js";
+import { entityUrl, isQid } from "../../the-fold/wikidata.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(HERE, "results", "kinship-reasoning.json");

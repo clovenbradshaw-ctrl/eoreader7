@@ -35,14 +35,14 @@ import { resolveFoldSibling, FoldUnavailableError } from "./fold-sibling.mjs";
 // `FOLD_UNAVAILABLE` is exported so a caller can check up front and skip
 // a whole test before ever reaching that throw, the same posture
 // `product-assay.mjs`/`frontier-25.mjs` hold.
-const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../../../the-fold/");
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../the-fold/");
 export const FOLD_UNAVAILABLE = FOLD_OK ? null : `snip-check.js/grounding.js not found under ${FOLD_PATH} — is a sibling the-fold checkout present?`;
 const throwUnavailable = () => { throw new FoldUnavailableError(FOLD_UNAVAILABLE); };
 export const { atomsOf, checkSentence } = FOLD_OK
   ? await import(`${FOLD_PATH}snip-check.js`)
   : { atomsOf: throwUnavailable, checkSentence: throwUnavailable };
 export const { numberSet } = FOLD_OK
-  ? await import(`${FOLD_PATH}grounding.js`)
+  ? await import("../../../organs/grounding.js")
   : { numberSet: throwUnavailable };
 
 export const PROBE_KINDS = Object.freeze(["recall", "memory", "injection", "reasoning"]);

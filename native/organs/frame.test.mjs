@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 import { declareFrame, framed, comparable, FRAME_REFUSALS as REFUSALS } from "./index.js";
 import { FoldUnavailableError, resolveFoldSibling } from "../eval/the-fold/lib/fold-sibling.mjs";
 
-const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../the-fold/");
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../organs/");
 const SKIP = FOLD_OK ? undefined : `the sibling the-fold checkout is not available: hypergraph.js (looked for ${FOLD_PATH})`;
 const { makeRelationReader } = FOLD_OK
   ? await import(`${FOLD_PATH}hypergraph.js`)

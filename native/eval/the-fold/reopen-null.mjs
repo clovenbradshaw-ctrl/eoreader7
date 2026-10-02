@@ -5,8 +5,8 @@
 // score over the record's open rows in shuffled order. A real rate at the
 // null median is chance-level and is said so.
 import { readFileSync } from "node:fs";
-import { lastOpened, OPEN_EVENTS } from "../../../../the-fold/reopen.js";
-const rows = readFileSync(new URL("../../../../the-fold/record/explore-record.jsonl", import.meta.url), "utf8").split("\n").filter(Boolean)
+import { lastOpened, OPEN_EVENTS } from "../../the-fold/reopen.js";
+const rows = readFileSync(new URL("../../../../the-fold-legacy/record/explore-record.jsonl", import.meta.url), "utf8").split("\n").filter(Boolean)
   .map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter((r) => r && OPEN_EVENTS[r.event]);
 const score = (rs) => { let hit = 0, n = 0; for (let i = 1; i < rs.length; i++) { const p = lastOpened(rs, { before: i }); if (p.refused) continue; n++; const cur = lastOpened(rs, { before: i + 1 }); if (cur.kind === p.kind && cur.address === p.address) hit++; } return { hit, n, rate: n ? hit / n : 0 }; };
 const mulberry = (a) => () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };

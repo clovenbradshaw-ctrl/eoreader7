@@ -19,7 +19,7 @@ import { FoldUnavailableError, resolveFoldSibling } from "../eval/the-fold/lib/f
 import * as cube from "../kernel/cube.js";
 import * as nativeTaskLog from "../kernel/task-log.js";
 
-const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../the-fold/");
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../the-fold/");
 const SKIP = FOLD_OK ? undefined : `the sibling the-fold checkout is not available: consequence.js (looked for ${FOLD_PATH})`;
 const { adaptTaskLog } = FOLD_OK
   ? await import(`${FOLD_PATH}consequence.js`)

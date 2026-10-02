@@ -23,7 +23,7 @@ import { execFileSync } from "node:child_process";
 import * as K from "../../organs/index.js";
 import * as H from "../../organs/notes-text.js";
 import * as TL from "../../kernel/task-log.js";
-import { wavSamples } from "../../../../the-fold/measure.js";
+import { wavSamples } from "../../organs/measure.js";
 import { distinctSources, distinctRecipes, independentReadings } from "../../organs/index.js";
 
 // THE INSTRUMENTS, named — every decode declares which decoder read it, so

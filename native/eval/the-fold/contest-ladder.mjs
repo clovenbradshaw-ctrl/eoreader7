@@ -35,9 +35,9 @@ import { fileURLToPath } from "node:url";
 
 import { createTaskLog, append, projectTasks, ENTRY_KINDS, OPERATOR_BASIS } from "../../kernel/task-log.js";
 import { GRAINS } from "../../kernel/cube.js";
-import { parseEntity } from "../../../../the-fold/wikidata.js";
+import { parseEntity } from "../../the-fold/wikidata.js";
 import { makeNotesText } from "../../organs/notes-text.js";
-import { adaptTaskLog } from "../../../../the-fold/consequence.js";
+import { adaptTaskLog } from "../../the-fold/consequence.js";
 import { makeDerivation, premisesOf } from "../../organs/derivation.js";
 import { contestedSearch } from "../../organs/corroboration.js";
 import { createDeclarationLog, proposeCandidate, promote } from "../../interpretation/declarations.js";

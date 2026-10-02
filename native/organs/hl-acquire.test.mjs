@@ -22,7 +22,7 @@ import { resolveFoldSibling } from "../eval/the-fold/lib/fold-sibling.mjs";
 
 const edge = (subject, verb, object, ref) => ({ subject, verb, object, polarity: "+", refs: [ref] });
 
-const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../the-fold/");
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../organs/");
 const E2E_SKIP = !FOLD_OK
     ? `the sibling the-fold checkout is not available: hypergraph.js (looked for ${FOLD_PATH})`
     : undefined;
@@ -185,10 +185,10 @@ test("end to end, adversarial: real reader + real grammar lens over INVENTED pro
   );
   const { classifyWord, dominantClass } = await import("../adapters/text/wordclass.js");
   const { makeGrammarLens } = await import("./grammar-lens.js");
-  const { makeRelationReader } = await import("../../../the-fold/hypergraph.js");
+  const { makeRelationReader } = await import("./hypergraph.js");
   const { readFileSync } = await import("node:fs");
 
-  const posPrior = JSON.parse(readFileSync(new URL("../eval/fixtures/corpus/pos-prior-eng.json", import.meta.url), "utf8"));
+  const posPrior = JSON.parse(readFileSync(new URL("../eval/the-fold/fixtures/pos-prior-eng.json", import.meta.url), "utf8"));
   const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior });
 
   const organs = {

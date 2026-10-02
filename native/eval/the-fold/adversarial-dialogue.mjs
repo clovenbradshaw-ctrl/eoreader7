@@ -47,11 +47,11 @@ import {
   mechanicalFoldLine,
   updateSummaryWithFold,
   advanceSummaryFold,
-} from "../../../../the-fold/fold.js";
-import { buildSourceBlock, retrieve, tokenize as sourceTokenize } from "../../../../the-fold/source.js";
-import { makeRelationReader } from "../../../../the-fold/hypergraph.js";
-import { ROUTE_KINDS, routeModel } from "../../../../the-fold/model-routing.js";
-import { classifyCrossGraphEdges, activeWindow, makeReferentIndex, edgesMatch } from "../../../../the-fold/dialogue-graph.js";
+} from "../../the-fold/fold.js";
+import { buildSourceBlock, retrieve, tokenize as sourceTokenize } from "../../the-fold/source.js";
+import { makeRelationReader } from "../../organs/hypergraph.js";
+import { ROUTE_KINDS, routeModel } from "../../the-fold/model-routing.js";
+import { classifyCrossGraphEdges, activeWindow, makeReferentIndex, edgesMatch } from "../../the-fold/dialogue-graph.js";
 
 // Same organs, same relative path, dialogue.mjs's own precedent (the
 // cast.js injection pattern: engine functions arrive as arguments so this

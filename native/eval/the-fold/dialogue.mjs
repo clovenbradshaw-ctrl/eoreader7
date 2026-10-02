@@ -47,13 +47,13 @@ import {
   emptySummary,
   mechanicalFoldLine,
   updateSummaryWithFold,
-} from "../../../../the-fold/fold.js";
-import { buildSourceBlock, checkCitations, chunkSource, openQuestions, retrieve } from "../../../../the-fold/source.js";
-import { checkGrounding, unsupportedClaims } from "../../../../the-fold/grounding.js";
-import { attribute, attributedRefs } from "../../../../the-fold/cite.js";
-import { CONSTITUTION_PROMPT } from "../../../../the-fold/constitution.js";
-import { makeCastResolver } from "../../../../the-fold/cast.js";
-import { ROUTE_KINDS, routeModel } from "../../../../the-fold/model-routing.js";
+} from "../../the-fold/fold.js";
+import { buildSourceBlock, checkCitations, chunkSource, openQuestions, retrieve } from "../../the-fold/source.js";
+import { checkGrounding, unsupportedClaims } from "../../organs/grounding.js";
+import { attribute, attributedRefs } from "../../organs/cite.js";
+import { CONSTITUTION_PROMPT } from "../../the-fold/constitution.js";
+import { makeCastResolver } from "../../organs/cast.js";
+import { ROUTE_KINDS, routeModel } from "../../the-fold/model-routing.js";
 
 // The engine's own organs, by relative path — same organs the page loads
 // from /engine, same boundary discovery app.js runs.

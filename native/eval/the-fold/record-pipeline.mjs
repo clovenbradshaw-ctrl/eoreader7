@@ -21,7 +21,7 @@ import fs from "node:fs";
 import { findSignal, phrase } from "../../organs/index.js";
 import { discoverCompanyKinds } from "../../organs/index.js";
 
-const rows = fs.readFileSync(new URL("../../../../the-fold/record/explore-record.jsonl", import.meta.url), "utf8")
+const rows = fs.readFileSync(new URL("../../../../the-fold-legacy/record/explore-record.jsonl", import.meta.url), "utf8")
   .split("\n").filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean)
   .map((r) => ({ at: String(r.at ?? ""), event: String(r.event ?? "unknown") }))
   .filter((r) => r.at);

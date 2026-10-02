@@ -63,7 +63,7 @@
 import { writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
-import { proofQuery, PROOF_PAGES_CONSULTED } from "../../../../the-fold/proof.js";
+import { proofQuery, PROOF_PAGES_CONSULTED } from "../../the-fold/proof.js";
 import {
   WITNESS_SCHEMA,
   buildWitnessMessages,

@@ -17,7 +17,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import { makeRelationReader } from "../../../../the-fold/hypergraph.js";
+import { makeRelationReader } from "../../organs/hypergraph.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 

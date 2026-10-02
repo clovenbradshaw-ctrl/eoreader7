@@ -21,8 +21,8 @@ import { splitSentences } from "../../adapters/text/spans.js";
 import { extractSurfaces, discoverReferents, diaNorm } from "../../adapters/text/surfaces.js";
 import { resolvePronouns } from "../../adapters/text/pronouns.js";
 import { discoverRelationVocab, extractRelations } from "../../adapters/text/relations.js";
-import { makeClearance } from "../../../../the-fold/clearance.js";
-import { unravel } from "../../../../the-fold/unravel.js";
+import { makeClearance } from "../../the-fold/clearance.js";
+import { unravel } from "../../the-fold/unravel.js";
 import { createKindInductionIndex, indexKindEntries, kindEvidence } from "../../kernel/kind-induction.js";
 import { induceEntityKindCandidates, testKindMembers } from "../../kernel/entity-kind-induction.js";
 

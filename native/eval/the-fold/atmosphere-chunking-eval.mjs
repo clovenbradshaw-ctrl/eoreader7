@@ -19,7 +19,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { chunkSource } from "../../../../the-fold/source.js";
+import { chunkSource } from "../../the-fold/source.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const TEXT = join(HERE, "..", "..", "adapters", "text");

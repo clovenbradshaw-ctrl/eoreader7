@@ -22,9 +22,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createTaskLog, append, projectTasks, ENTRY_KINDS, OPERATOR_BASIS } from "../../kernel/task-log.js";
 import { GRAINS } from "../../kernel/cube.js";
-import { parseEntity } from "../../../../the-fold/wikidata.js";
+import { parseEntity } from "../../the-fold/wikidata.js";
 import { makeNotesText } from "../../organs/notes-text.js";
-import { adaptTaskLog } from "../../../../the-fold/consequence.js";
+import { adaptTaskLog } from "../../the-fold/consequence.js";
 import { distinctSources } from "../../organs/corroboration.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));

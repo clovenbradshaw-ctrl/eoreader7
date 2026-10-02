@@ -34,10 +34,10 @@
 
 import * as operators from "../../kernel/cube.js";
 import * as taskLog from "../../kernel/task-log.js";
-import { makeGrid } from "../../../../the-fold/grid.js";
-import { declareVoid, yearSpansIn } from "../../../../the-fold/void-shape.js";
-import { openLoop, proposeFrom, admit, foldLoop, descend, closeLoop, reshapeTriggers, reshape, currentRung, whatWouldSettle, placeFiller } from "../../../../the-fold/void-loop.js";
-import { stageFromReadings, admissionOf } from "../../../../the-fold/void-hl.js";
+import { makeGrid } from "../../the-fold/grid.js";
+import { declareVoid, yearSpansIn } from "../../the-fold/void-shape.js";
+import { openLoop, proposeFrom, admit, foldLoop, descend, closeLoop, reshapeTriggers, reshape, currentRung, whatWouldSettle, placeFiller } from "../../the-fold/void-loop.js";
+import { stageFromReadings, admissionOf } from "../../the-fold/void-hl.js";
 
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";

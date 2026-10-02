@@ -25,8 +25,8 @@ import { dirname, join } from "node:path";
 import { createSession, admitChunked } from "../../legacy-ported/packages/host/corpus.js";
 import { executePrompt } from "../../legacy-ported/packages/host/surfer.js";
 import { createTierStack, foldThrough } from "../../legacy-ported/packages/engine/emergence/tiers.js";
-import { tokenize } from "../../../../the-fold/source.js";
-import { checkGrounding } from "../../../../the-fold/grounding.js";
+import { tokenize } from "../../the-fold/source.js";
+import { checkGrounding } from "../../organs/grounding.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MODEL = process.argv[2] ?? "qwen2.5-coder-1.5b-instruct (real local GGUF via llama-cpp-python)";

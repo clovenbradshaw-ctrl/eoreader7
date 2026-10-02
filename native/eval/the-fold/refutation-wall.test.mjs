@@ -23,7 +23,7 @@ const OUT = path.join(HERE, "results", "falsification-probe.json");
 // (consequence.js, predigest.js) — check before spawning rather than let an
 // uncaught subprocess crash surface one layer removed from the real import
 // failure (S65/P95, same posture as derivation-filter.test.mjs).
-const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../../the-fold/");
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../the-fold/");
 const SKIP = FOLD_OK ? undefined : `the sibling the-fold checkout is not available: consequence.js/predigest.js (looked for ${FOLD_PATH})`;
 
 if (FOLD_OK) execFileSync(process.execPath, [PROBE], { cwd: path.join(HERE, "..", "..", ".."), stdio: "ignore" });

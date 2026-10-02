@@ -23,9 +23,9 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import { makeRelationReader } from "../../../../the-fold/hypergraph.js";
-import { makeReferentIndex } from "../../../../the-fold/cast.js";
-import { commonTerms } from "../../../../the-fold/cite.js";
+import { makeRelationReader } from "../../organs/hypergraph.js";
+import { makeReferentIndex } from "../../organs/cast.js";
+import { commonTerms } from "../../organs/cite.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 

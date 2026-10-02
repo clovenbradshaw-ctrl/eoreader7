@@ -24,9 +24,9 @@
 
 import * as taskLog from "../../legacy-ported/packages/engine/holon/task-log.js";
 import * as enginePriors from "../../adapters/text/priors.js";
-import { makeBuildLog } from "../../../../the-fold/build-log.js";
-import { scoutSpan } from "../../../../the-fold/widget.js";
-import { witnessCode } from "../../../../the-fold/witness.js";
+import { makeBuildLog } from "../../the-fold/build-log.js";
+import { scoutSpan } from "../../the-fold/widget.js";
+import { witnessCode } from "../../the-fold/witness.js";
 
 const buildLog = makeBuildLog(taskLog);
 // scoutSpan's suffixes arg is mandatory (widget.js:606-610) — the received

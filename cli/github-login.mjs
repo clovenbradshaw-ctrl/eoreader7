@@ -12,7 +12,7 @@ import {
   GITHUB_DEVICE_CODE_URL, GITHUB_ACCESS_TOKEN_URL,
   buildDeviceCodeBody, parseDeviceCodeResponse, buildAccessTokenBody,
   parseAccessTokenResponse, nextPollIntervalMs, deviceFlowExpired, DeviceFlowError,
-} from "../../the-fold/github.js";
+} from "../native/the-fold/github.js";
 import { loadCredentials, saveGithubCredentials, clearGithubCredentials } from "./credentials.mjs";
 
 async function postForm(url, body) {

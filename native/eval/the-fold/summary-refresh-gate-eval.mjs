@@ -26,8 +26,8 @@ import {
   emptySummary,
   mechanicalFoldLine,
   updateSummaryWithFold,
-} from "../../../../the-fold/fold.js";
-import { exchangeHeldGround, makeApertureMeter, meterSnapshot } from "../../../../the-fold/aperture.js";
+} from "../../the-fold/fold.js";
+import { exchangeHeldGround, makeApertureMeter, meterSnapshot } from "../../the-fold/aperture.js";
 import { createTierStack, foldThrough } from "../../legacy-ported/packages/engine/emergence/tiers.js";
 
 const OLLAMA = "http://localhost:11434";

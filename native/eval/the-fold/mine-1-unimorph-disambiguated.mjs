@@ -29,7 +29,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import { makeRelationReader } from "../../../../the-fold/hypergraph.js";
+import { makeRelationReader } from "../../organs/hypergraph.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -121,7 +121,7 @@ async function main() {
   const ambiguousList = JSON.parse(readFileSync(join(here, "fixtures", "unimorph-eng-ambiguous-nv.json"), "utf8"));
   const VERB_SET = new Set(verbFormsList);
   const AMBIGUOUS_SET = new Set(ambiguousList);
-  const { commonTerms } = await import("../../../../the-fold/cite.js");
+  const { commonTerms } = await import("../../organs/cite.js");
 
   const base = { ...(await organs()), commonTerms };
 

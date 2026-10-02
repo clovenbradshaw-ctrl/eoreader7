@@ -128,7 +128,7 @@ const { sameAct } = createLemmatizer(morph.forms, { language: morph.language });
 let embed = null, embedGap = null;
 if (WANT.includes("embedding") && process.env.EMB !== "0") {
   try {
-    const { pipeline } = await import(new URL("../../../../the-fold/node_modules/@huggingface/transformers/dist/transformers.node.cjs", import.meta.url).pathname);
+    const { pipeline } = await import(new URL("../../../../the-fold-legacy/node_modules/@huggingface/transformers/dist/transformers.node.cjs", import.meta.url).pathname);
     // the NODE build specifically: the bare dist/transformers.js entry
     // resolves localModelPath to "/models" and cannot fall back to remote,
     // so it throws "Unable to get model file path or buffer" — measured,

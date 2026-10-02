@@ -21,8 +21,8 @@ import { writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import { extractReadable, hostOf, looksLikeChallenge } from "../../../../the-fold/web.js";
-import { assessPage, foldProof, proofQuery } from "../../../../the-fold/proof.js";
+import { extractReadable, hostOf, looksLikeChallenge } from "../../organs/web.js";
+import { assessPage, foldProof, proofQuery } from "../../the-fold/proof.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const UA = "the-fold-adversarial-dialogue-eval/0.1 (research instrument; one page per claim check)";

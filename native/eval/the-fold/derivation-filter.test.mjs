@@ -27,7 +27,7 @@ const OUT = path.join(HERE, "results", "derivation-precision.json");
 // that sibling is absent would surface an uncaught subprocess crash one
 // layer removed from the import that actually fails. Same refusal posture
 // as every other driver here: check before spawning (S65/P95).
-const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../../the-fold/");
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../the-fold/");
 const SKIP = FOLD_OK ? undefined : `the sibling the-fold checkout is not available: wikidata.js/consequence.js/predigest.js (looked for ${FOLD_PATH})`;
 
 // run the real driver rather than trusting a committed artifact — a stale file

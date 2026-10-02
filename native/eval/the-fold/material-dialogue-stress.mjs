@@ -110,15 +110,15 @@ import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import { runHolonicTask, needsDecomposition } from "../../../../the-fold/holon.js";
-import { makeCastResolver, makeReferentIndex } from "../../../../the-fold/cast.js";
-import { makeRelationReader } from "../../../../the-fold/hypergraph.js";
-import { makeGrid } from "../../../../the-fold/grid.js";
+import { runHolonicTask, needsDecomposition } from "../../the-fold/holon.js";
+import { makeCastResolver, makeReferentIndex } from "../../organs/cast.js";
+import { makeRelationReader } from "../../organs/hypergraph.js";
+import { makeGrid } from "../../the-fold/grid.js";
 import { makeCapacityRunner, landAct, perSourceReadings, mergeTestimony } from "../../organs/index.js";
-import { renderCrown } from "../../../../the-fold/crown.js";
-import { stripNarrationSentences, stripScaffoldNarration, classifySentences } from "../../../../the-fold/provenance.js";
-import { chunkSource, tokenize } from "../../../../the-fold/source.js";
-import { mechanicalFoldLine } from "../../../../the-fold/fold.js";
+import { renderCrown } from "../../the-fold/crown.js";
+import { stripNarrationSentences, stripScaffoldNarration, classifySentences } from "../../organs/provenance.js";
+import { chunkSource, tokenize } from "../../the-fold/source.js";
+import { mechanicalFoldLine } from "../../the-fold/fold.js";
 
 import * as engineOperators from "../../legacy-ported/packages/engine/operators.js";
 import * as engineTaskLog from "../../legacy-ported/packages/engine/holon/task-log.js";

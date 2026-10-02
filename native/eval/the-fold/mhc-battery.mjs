@@ -42,13 +42,13 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { runBattery, stageFrom, contentIndependence, SYMBOLIC_FLOOR, ORDERS, orderOf } from "../../../../the-fold/mhc.js";
-import { makeRelationReader, queryFillers, queryEdges } from "../../../../the-fold/hypergraph.js";
-import { makeReferentIndex } from "../../../../the-fold/cast.js";
-import { verificationTasksFor, verificationSummary } from "../../../../the-fold/verification.js";
+import { runBattery, stageFrom, contentIndependence, SYMBOLIC_FLOOR, ORDERS, orderOf } from "../../the-fold/mhc.js";
+import { makeRelationReader, queryFillers, queryEdges } from "../../organs/hypergraph.js";
+import { makeReferentIndex } from "../../organs/cast.js";
+import { verificationTasksFor, verificationSummary } from "../../the-fold/verification.js";
 import { mergeTestimony } from "../../organs/index.js";
-import { seededShuffle, shuffleSentenceWords, WITNESS_FLOOR } from "../../../../the-fold/asserted.js";
-import { extractReadable } from "../../../../the-fold/web.js";
+import { seededShuffle, shuffleSentenceWords, WITNESS_FLOOR } from "../../organs/asserted.js";
+import { extractReadable } from "../../organs/web.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 

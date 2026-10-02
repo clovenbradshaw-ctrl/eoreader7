@@ -40,7 +40,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import { makeRelationReader } from "../../../../the-fold/hypergraph.js";
+import { makeRelationReader } from "../../organs/hypergraph.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const SPAN_ROLE_OPTS = { minActivation: 0.05, minMargin: 0.2 };

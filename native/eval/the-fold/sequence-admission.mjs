@@ -51,7 +51,7 @@ import { hyperedge } from "../../kernel/hypergraph.js";
 import { createHyperlexicon, giveHyperlexiconAffordance } from "../../kernel/hyperlexicon.js";
 import { createReactionSubstrate, closureAffordances } from "../../kernel/reaction.js";
 
-import { declareSequence, readSequence, predictNeighbour, refuteLocus, locusOf } from "../../../../the-fold/sequence.js";
+import { declareSequence, readSequence, predictNeighbour, refuteLocus, locusOf } from "../../the-fold/sequence.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(HERE, "results", "sequence-admission.json");

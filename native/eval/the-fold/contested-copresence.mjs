@@ -23,7 +23,7 @@ import { fileURLToPath } from "node:url";
 import { splitSentences } from "../../adapters/text/spans.js";
 import { extractSurfaces, discoverReferents } from "../../adapters/text/surfaces.js";
 import { resolvePronouns } from "../../adapters/text/pronouns.js";
-import { extractReadable } from "../../../../the-fold/web.js";
+import { extractReadable } from "../../organs/web.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 

@@ -44,13 +44,13 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import { makeRelationReader } from "../../../../the-fold/hypergraph.js";
+import { makeRelationReader } from "../../organs/hypergraph.js";
 import { makeNotesText } from "../../organs/notes-text.js";
 import { makeGrammarLens } from "../../organs/grammar-lens.js";
-import { GRAMMAR_MIN_SHARE } from "../../../../the-fold/hypergraph.js";
-import { makeReferentIndex } from "../../../../the-fold/cast.js";
-import { chunkSource, retrieve, tokenize, blankLabelRows } from "../../../../the-fold/source.js";
-import { extractReadable } from "../../../../the-fold/web.js";
+import { GRAMMAR_MIN_SHARE } from "../../organs/hypergraph.js";
+import { makeReferentIndex } from "../../organs/cast.js";
+import { chunkSource, retrieve, tokenize, blankLabelRows } from "../../the-fold/source.js";
+import { extractReadable } from "../../organs/web.js";
 
 import { splitSentences as engineSentences } from "../../adapters/text/spans.js";
 import { extractSurfaces, discoverReferents, namesCorefer, diaNorm } from "../../adapters/text/surfaces.js";
@@ -60,7 +60,7 @@ import * as enginePriors from "../../adapters/text/priors.js";
 import { classifyWord, dominantClass } from "../../adapters/text/wordclass.js";
 import * as nativeTaskLog from "../../kernel/task-log.js";
 import * as cube from "../../kernel/cube.js";
-import { adaptTaskLog } from "../../../../the-fold/consequence.js";
+import { adaptTaskLog } from "../../the-fold/consequence.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 

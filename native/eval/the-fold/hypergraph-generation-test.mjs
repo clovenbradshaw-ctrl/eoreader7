@@ -13,7 +13,7 @@ import { dirname, join } from "node:path";
 
 import { resolveFoldSibling } from "./lib/fold-sibling.mjs";
 
-const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../../the-fold/");
+const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../the-fold/");
 // The perceiver organs moved to native/adapters/text/ (the legacy-provider retirement branch,
 // repointed at the 2026-09-25 consolidation).
 const NATIVE_TEXT = new URL("../../adapters/text/", import.meta.url).href;
@@ -26,8 +26,8 @@ if (!FOLD_OK) {
 } else {
 
 const { runHolonicTask, needsDecomposition } = await import(`${FOLD_PATH}holon.js`);
-const { makeCastResolver } = await import(`${FOLD_PATH}cast.js`);
-const { makeRelationReader, relationFindings, relationsClean } = await import(`${FOLD_PATH}hypergraph.js`);
+const { makeCastResolver } = await import("../../organs/cast.js");
+const { makeRelationReader, relationFindings, relationsClean } = await import("../../organs/hypergraph.js");
 const {
   FOLD_SCHEMA, FOLD_SYSTEM_PROMPT, RECENCY_WINDOW,
   addWarrantRecord, buildRecordSystemMessage, buildSummarySystemMessage,
@@ -35,8 +35,8 @@ const {
   charCount, emptySummary, mechanicalFoldLine, updateSummaryWithFold,
 } = await import(`${FOLD_PATH}fold.js`);
 const { buildSourceBlock, checkCitations, chunkSource, openQuestions, retrieve } = await import(`${FOLD_PATH}source.js`);
-const { checkGrounding, unsupportedClaims } = await import(`${FOLD_PATH}grounding.js`);
-const { attribute, attributedRefs } = await import(`${FOLD_PATH}cite.js`);
+const { checkGrounding, unsupportedClaims } = await import("../../organs/grounding.js");
+const { attribute, attributedRefs } = await import("../../organs/cite.js");
 const { CONSTITUTION_PROMPT } = await import(`${FOLD_PATH}constitution.js`);
 
 const { lineIndex, outlineOfIndex } = await import(`${NATIVE_TEXT}segments.js`);
@@ -69,7 +69,7 @@ const { tokenize } = await import(`${FOLD_PATH}source.js`);
   // ── material ────────────────────────────────────────────────────────────────
 
   const SOURCE_NAME = "pg2600.txt";
-  const text = readFileSync(join(HERE, "..", SOURCE_NAME), "utf8");
+  const text = readFileSync(join(HERE, "..", "..", "the-fold", "fixtures", "pg2600.txt"), "utf8");
   const discoverBoundaries = (t) => {
     try {
       const out = outlineOfIndex(lineIndex(t), { max: 5000 });

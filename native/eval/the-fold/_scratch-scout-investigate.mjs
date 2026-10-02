@@ -13,7 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as enginePriors from "../../adapters/text/priors.js";
-import { scoutSpan } from "../../../../the-fold/widget.js";
+import { scoutSpan } from "../../the-fold/widget.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

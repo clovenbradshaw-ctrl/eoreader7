@@ -26,8 +26,8 @@
 import { createActivation, dmdWindow } from "../../kernel/activation.js";
 import { returnCurve } from "../../kernel/return-curve.js";
 import { tokens, codeOf, recall, encodeFrame } from "../../memory/activation.js";
-import { createRetrievalIndex, encodeRecord, recallCandidates, recordCitation } from "../../../../the-fold/retrieval.js";
-import { deriveRecordWindow, buildWarrantRecord } from "../../../../the-fold/fold.js";
+import { createRetrievalIndex, encodeRecord, recallCandidates, recordCitation } from "../../the-fold/retrieval.js";
+import { deriveRecordWindow, buildWarrantRecord } from "../../the-fold/fold.js";
 
 const SEED = 20260826;
 const mulberry = (a) => () => {

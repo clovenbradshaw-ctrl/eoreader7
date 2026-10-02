@@ -15,7 +15,7 @@
 // with the Browser pane's javascript_tool — see the brief).
 
 import { readFileSync } from "node:fs";
-import { scriptBodies, witnessCode } from "../../../../the-fold/witness.js";
+import { scriptBodies, witnessCode } from "../../the-fold/witness.js";
 import { loadHTML, fire, typeInto } from "./ledger-dom.mjs";
 
 /** Run every <script> the fold's html carries against a fresh stub document.

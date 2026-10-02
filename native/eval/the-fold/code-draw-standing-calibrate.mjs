@@ -12,7 +12,7 @@
 // runs, so its numbers are a report of one run over the ledger as it stood,
 // not a frozen assertion.
 import { readRows } from "../../organs/lang-competency.js";
-import { makeMetacognition } from "../../../../the-fold/metacognition.js";
+import { makeMetacognition } from "../../the-fold/metacognition.js";
 import * as taskLog from "../../kernel/task-log.js";
 import { observeRows, validate, cellFor, featuresFromRow } from "../../kernel/code-draw-standing.js";
 

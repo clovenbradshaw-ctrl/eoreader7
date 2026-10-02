@@ -64,7 +64,7 @@ const OUTCOMES_PATH = path.join(RESULTS_DIR, "mouth-minimal-feed-outcomes.jsonl"
 // The production prompts under test come from the real source — holon.js,
 // never a copy — so the "current*" arms measure what the fold actually feeds
 // the mouth, not a restatement of it.
-const { FLAT_EXECUTE_SYSTEM_PROMPT, CHAT_SYSTEM_PROMPT } = await import("../../../../the-fold/holon.js");
+const { FLAT_EXECUTE_SYSTEM_PROMPT, CHAT_SYSTEM_PROMPT } = await import("../../the-fold/holon.js");
 
 // The fold's own routing ladder is small instruct models only (model-routing
 // / the sentence-witness note: gemma2:2b, llama3.2, phi3:mini, the 14b

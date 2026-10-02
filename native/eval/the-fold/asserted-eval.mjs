@@ -53,9 +53,9 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { makeRelationReader } from "../../../../the-fold/hypergraph.js";
-import { extractReadable } from "../../../../the-fold/web.js";
-import { seededShuffle, seedFrom } from "../../../../the-fold/asserted.js";
+import { makeRelationReader } from "../../organs/hypergraph.js";
+import { extractReadable } from "../../organs/web.js";
+import { seededShuffle, seedFrom } from "../../organs/asserted.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ENGINE = join(HERE, "..", "..", "adapters", "text");

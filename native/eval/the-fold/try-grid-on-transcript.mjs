@@ -18,9 +18,9 @@
 // my ad hoc edge-novelty gate does not.
 
 import { readFileSync } from "node:fs";
-import { makeRelationReader } from "../../../../the-fold/hypergraph.js";
-import { makeReferentIndex, activeWindow } from "../../../../the-fold/dialogue-graph.js";
-import { makeGrid } from "../../../../the-fold/grid.js";
+import { makeRelationReader } from "../../organs/hypergraph.js";
+import { makeReferentIndex, activeWindow } from "../../the-fold/dialogue-graph.js";
+import { makeGrid } from "../../the-fold/grid.js";
 
 import { splitSentences as engineSentences } from "../../adapters/text/spans.js";
 import { extractSurfaces, discoverReferents, namesCorefer, diaNorm } from "../../adapters/text/surfaces.js";

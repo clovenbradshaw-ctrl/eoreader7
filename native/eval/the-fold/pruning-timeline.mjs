@@ -39,10 +39,10 @@ import { createReactionSubstrate, affordancesFromDeclarations } from "../../kern
 import { auditChemistry, vetoedPairs } from "../../kernel/refutation.js";
 import { createDeclarationLog, proposeCandidate, promote, concede, foldDeclarations } from "../../interpretation/declarations.js";
 
-import { parseEntity } from "../../../../the-fold/wikidata.js";
+import { parseEntity } from "../../the-fold/wikidata.js";
 import { makeNotesText } from "../../organs/notes-text.js";
-import { adaptTaskLog } from "../../../../the-fold/consequence.js";
-import { assertionEdges } from "../../../../the-fold/predigest.js";
+import { adaptTaskLog } from "../../the-fold/consequence.js";
+import { assertionEdges } from "../../the-fold/predigest.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES = path.join(HERE, "fixtures", "wikidata");

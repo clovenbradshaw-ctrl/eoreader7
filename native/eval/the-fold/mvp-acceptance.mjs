@@ -25,7 +25,7 @@ import { requireFoldAvailable } from "./lib/fold-sibling.mjs";
 
 const NATIVE = new URL("../..", import.meta.url).pathname;
 const FIX = new URL("./fixtures/", import.meta.url).pathname;
-const FOLD = requireFoldAvailable(import.meta.url, "../../../../the-fold/", "mvp-acceptance.mjs needs holon.js, answer-record.js and read-on-arrival.js from it");
+const FOLD = requireFoldAvailable(import.meta.url, "../../the-fold/", "mvp-acceptance.mjs needs holon.js, answer-record.js and read-on-arrival.js from it");
 const OLLAMA = process.env.OLLAMA ?? "http://127.0.0.1:11434";
 const MODEL = process.env.MODEL ?? "gemma2:2b";
 

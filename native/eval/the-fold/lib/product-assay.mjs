@@ -28,7 +28,7 @@ import { createHash } from "node:crypto";
 import { requireFoldAvailable } from "./fold-sibling.mjs";
 
 const NATIVE = new URL("../../..", import.meta.url).pathname;
-const FOLD = new URL("../../../../../the-fold/", import.meta.url).pathname;
+const FOLD = new URL("../../../the-fold-legacy/", import.meta.url).pathname;
 const FIX = new URL("../fixtures/", import.meta.url).pathname;
 const ROOT = new URL("../../../../../", import.meta.url).pathname;
 
@@ -100,7 +100,7 @@ export async function organs({ language = "eng" } = {}) {
   // refuse THAT typed, before any of the native imports below even run,
   // rather than let node's own uncaught MODULE_NOT_FOUND take the whole
   // caller down.
-  requireFoldAvailable(import.meta.url, "../../../../../the-fold/", "product-assay.mjs::organs needs grid.js and reader-frame.js from it");
+  requireFoldAvailable(import.meta.url, "../../../the-fold-legacy/", "product-assay.mjs::organs needs grid.js and reader-frame.js from it");
   const { makeRelationReader } = await import(`${NATIVE}/organs/hypergraph.js`);
   const { makeNotesText } = await import(`${NATIVE}/organs/notes-text.js`);
   const { makeDerivation } = await import(`${NATIVE}/organs/derivation.js`);

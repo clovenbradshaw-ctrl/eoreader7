@@ -15,7 +15,7 @@ const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), "er7-github-test-"));
 process.env.HOME = tmpHome;
 
 const { startGithubDeviceFlow, githubStatus, githubLogout } = await import("../github-login.mjs");
-const { GITHUB_DEVICE_CODE_URL, GITHUB_ACCESS_TOKEN_URL } = await import("../../../the-fold/github.js");
+const { GITHUB_DEVICE_CODE_URL, GITHUB_ACCESS_TOKEN_URL } = await import("../../native/the-fold/github.js");
 
 const realFetch = globalThis.fetch;
 let tokenPollCount = 0;

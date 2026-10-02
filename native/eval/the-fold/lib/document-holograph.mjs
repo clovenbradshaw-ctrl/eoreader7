@@ -11,9 +11,16 @@ import { resolveFoldSibling, requireFoldAvailable } from "./fold-sibling.mjs";
 // only when the sibling is present, and computeDocumentHolograph refuses,
 // typed (FoldUnavailableError), when it is not — lib/fold-sibling.mjs's one
 // posture, shared with product-assay.mjs, frontier-25.mjs and long-stream.mjs.
-const FOLD_UP = "../../../../../the-fold/";
+const FOLD_UP = "../../../the-fold/";
 const { available: FOLD_OK } = resolveFoldSibling(import.meta.url, FOLD_UP);
-const foldModule = (name) => (FOLD_OK ? import(new URL(`${FOLD_UP}${name}`, import.meta.url).href) : {});
+const foldModule = async (name) => {
+  if (!FOLD_OK) return {};
+  try {
+    return await import(new URL(`${FOLD_UP}${name}`, import.meta.url).href);
+  } catch {
+    return {}; // a named module genuinely absent from the fold (e.g. activation-wiring.js) is a soft miss, never a crash
+  }
+};
 const { foldReading, readingIndexFromLog, mentionBookFromLog } = await foldModule("reading-log.js");
 const { activate } = await foldModule("activation-wiring.js");
 const { activeReferents, lensBlock, lensCut } = await foldModule("resolutions.js");

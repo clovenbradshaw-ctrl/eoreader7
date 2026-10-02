@@ -57,10 +57,10 @@ import * as taskLog from "../../legacy-ported/packages/engine/holon/task-log.js"
 import * as enginePriors from "../../adapters/text/priors.js";
 import { createSession, admitChunked } from "../../legacy-ported/packages/host/corpus.js";
 import { snipRange } from "../../legacy-ported/packages/host/corpus.js";
-import { makeBuildLog } from "../../../../the-fold/build-log.js";
-import { scoutSpan } from "../../../../the-fold/widget.js";
-import { scoutDefinition, deltaOps, extractDeclaration } from "../../../../the-fold/code-scout.js";
-import { witnessCode } from "../../../../the-fold/witness.js";
+import { makeBuildLog } from "../../the-fold/build-log.js";
+import { scoutSpan } from "../../the-fold/widget.js";
+import { scoutDefinition, deltaOps, extractDeclaration } from "../../the-fold/code-scout.js";
+import { witnessCode } from "../../the-fold/witness.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const buildLog = makeBuildLog(taskLog);
