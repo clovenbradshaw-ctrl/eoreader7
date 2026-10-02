@@ -8,13 +8,7 @@ body {
   overflow-x: hidden;
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  /* Real, well-supported CSS: tells the browser to draw its NATIVE form
-     and media controls (audio, input, scrollbars) in dark mode, so
-     <audio controls> doesn't render as a bright white bar in a dark app. */
   color-scheme: dark;
-
-  background-color: #0d0f13;
-  color: #ffffff;
 }
 
 html {
@@ -22,98 +16,128 @@ html {
 }
 
 h1 {
-  font-weight: bold;
+  
 }
 
 .container {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  width: 100%;
   max-width: 640px;
-  margin: 0 auto;
   padding: 24px 16px;
-  box-sizing: border-box;
-}
-
-input[type="text"] {
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-button {
-background-color: #1DB954;
-
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  color: rgb(0, 0, 0);
 }
 
 .episode {
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
+  flex-direction: row;
   width: 100%;
-  padding: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 4px;
   border-radius: 8px;
   background-color: #191919;
 }
 
-.episode-meta {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
+.episode img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  flex-shrink: 0;
+  margin-right: 16px;
 }
 
 .episode h3 {
   width: 100%;
-  text-align: left;
-  margin: 0 0 4px;
-  font-size: 16px;
+  margin-bottom: 4px;
+  
 }
 
 .episode p {
-  margin: 0;
-  text-align: left;
-  color: #b3b3b3;
-  font-size: 13px;
-  white-space: nowrap;
+  
 }
 
 .ethos-badge {
-display: inline-block;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  flex-shrink: 0;
-  color: rgb(0, 0, 0);
+  background-color: #1DB954;
+  margin-left: 8px;
 }
 
-.episode audio {
-  width: 100%;
-  box-sizing: border-box;
+#now-playing {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #191919;
+  padding: 16px;
 }
 
-.episode:first-of-type h3 {
-  color: #1db954;
+#now-playing img {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  background-color: #191919;
+  margin-bottom: 8px;
 }
+
+#now-playing-title {
+  margin-bottom: 8px;
+}
+
+#now-playing audio {
+  
+}
+
+.container input[type="text"], 
+.container button {
+  
+}
+body, html { background-color: #0d0f13; color: #ffffff; }
+#now-playing[hidden] { display: none !important; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Podcast List</h1>
-    <input type="text" placeholder="Enter feed URL" />
+    <input type="text" id="feed-url" placeholder="Enter feed URL" />
     <button onclick="subscribe()">Subscribe</button>
   </div>
   <div id="episodes"></div>
+  <div id="now-playing" class="now-playing" hidden>
+    <img id="now-playing-art" alt="">
+    <div class="now-playing-info">
+      <div id="now-playing-title"></div>
+      <audio id="now-playing-audio" controls></audio>
+    </div>
+  </div>
   <script>
+    function playEpisode(url, title, art) {
+      const bar = document.getElementById("now-playing");
+      const audio = document.getElementById("now-playing-audio");
+      const titleEl = document.getElementById("now-playing-title");
+      const artEl = document.getElementById("now-playing-art");
+      audio.src = url;
+      titleEl.textContent = title;
+      if (art) artEl.src = art;
+      bar.hidden = false;
+      audio.play();
+    }
+
+    // CLICK-TO-PLAY IS FIXED SKELETON TOO, NOT LEFT TO renderEpisodes —
+    // found live this pass: asking the model to wire an inline
+    // onclick="playEpisode(...)" string risked an unescaped-interpolation
+    // vulnerability (a real gemma2:2b round shipped exactly that,
+    // correctly caught by this file's own coherenceGate lint); asking it
+    // to instead call addEventListener itself, in the SAME prompt turn,
+    // measurably cost the wiring entirely — the very next round's
+    // renderEpisodes rendered a clean, fully escaped row with no play
+    // wiring at all. One delegated listener here removes BOTH hazards:
+    // renderEpisodes only ever needs to set three plain DOM properties
+    // (data-audio/data-title/data-art), which — like .textContent — is a
+    // property assignment with no escaping question to get right, ever.
+    document.getElementById("episodes").addEventListener("click", (e) => {
+      const el = e.target.closest("[data-audio]");
+      if (el) playEpisode(el.dataset.audio, el.dataset.title, el.dataset.art);
+    });
+
 function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
@@ -122,35 +146,57 @@ function renderEpisodes(episodes) {
   const episodesContainer = document.getElementById("episodes");
   episodesContainer.innerHTML = ""; // Clear the container
 
-  episodes.forEach(episode => {
-    const episodeDiv = document.createElement("div");
-    episodeDiv.className = "episode";
-    const ethosLabel = episode.ethos === "pass" ? "clears the ethos check" : episode.ethos === "conflict" ? "flagged by the ethos check" : "ethos check not run";
-    episodeDiv.innerHTML = `<h3>${escapeHtml(episode.title)}</h3><div class="episode-meta"><span class="ethos-badge" title="${escapeHtml(ethosLabel)}" style="background-color: ${episode.ethos === "pass" ? "green" : episode.ethos === "conflict" ? "red" : "gray"}"></span><p>Published: ${escapeHtml(episode.pubDate)}</p></div><audio controls src="${episode.audioUrl}"></audio>`;
-    episodesContainer.appendChild(episodeDiv);
+  episodes.forEach((episode) => {
+    const row = document.createElement("div");
+    row.className = "episode"; // Use the exact class name
+    row.dataset.audio = episode.audioUrl;
+    row.dataset.title = episode.title;
+    row.dataset.art = episode.imageUrl;
+
+    const img = document.createElement("img");
+    img.src = episode.imageUrl;
+    img.alt = ""; // Decorative image, not a text alternative
+
+    row.appendChild(img);
+
+    const title = document.createElement("h3");
+    title.textContent = episode.title;
+
+    const pubDate = document.createElement("p");
+    pubDate.textContent = "Published: " + episode.pubDate;
+
+    const ethosBadge = document.createElement("span");
+    ethosBadge.className = "ethos-badge";
+    ethosBadge.style.backgroundColor = episode.ethos === "pass" ? "green" : episode.ethos === "conflict" ? "red" : "gray";
+
+    row.appendChild(title);
+    row.appendChild(pubDate);
+    row.appendChild(ethosBadge);
+    episodesContainer.appendChild(row);
   });
-  return episodesContainer;
 }
 
 function subscribe() {
-  const urlInput = document.querySelector('input[type="text"]');
-  const url = urlInput.value;
-  
-  fetch(`/api/subscribe?url=${encodeURIComponent(url)}`)
+  const feedUrl = document.getElementById("feed-url").value;
+  fetch(`/api/subscribe?url=${encodeURIComponent(feedUrl)}`)
     .then(response => {
-      if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.status}`);
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
-      return response.json();
     })
     .then(data => {
       if (data.show) {
         renderEpisodes(data.episodes);
+      } else {
+        // Show an error message
+        document.getElementById("episodes").textContent = "Error: Unable to subscribe to the feed.";
       }
     })
     .catch(error => {
-      const errorMessage = `Error subscribing to podcast: ${error.message}`;
-      document.getElementById('episodes').textContent = errorMessage;
+      console.error("Error fetching data:", error);
+      document.getElementById("episodes").textContent = "Error: Unable to subscribe to the feed.";
     });
 }
   </script>

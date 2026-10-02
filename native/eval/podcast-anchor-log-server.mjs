@@ -33,9 +33,19 @@ function episodesJson(showTitle) {
   return lib.episodesOf(log, showTitle).map((note) => {
     const item = byTitle.get(note.end2);
     const assessed = assessEpisode(item?.description ?? "");
+    // Every field defaults to "" rather than null: measured live, the
+    // model's own isolated renderEpisodes anchor calls escapeHtml(field)
+    // on pubDate/title/imageUrl unconditionally (a reasonable, uninstructed
+    // choice for a small model to make), and escapeHtml's own contract
+    // (escapeHtmlContract, in podcast-anchor-log-drive.mjs) never tests a
+    // null/undefined input — so a genuinely missing field crashed the
+    // WHOLE render loop on episode 0, silently discarding every other
+    // episode. "" is a safe, honest empty value everywhere it lands
+    // (<img src="">, an empty title/date cell); null is not, for code
+    // this pipeline does not control the internals of.
     return {
-      title: note.end2, pubDate: item?.pubDate ?? null, description: item?.description ?? null,
-      audioUrl: item?.enclosureUrl ?? null, ethos: assessed.ethos, ethosBasis: assessed.ethosBasis,
+      title: note.end2, pubDate: item?.pubDate ?? "", description: item?.description ?? "",
+      audioUrl: item?.enclosureUrl ?? "", imageUrl: item?.imageUrl ?? "", ethos: assessed.ethos, ethosBasis: assessed.ethosBasis,
     };
   });
 }
