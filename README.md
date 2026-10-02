@@ -1,16 +1,13 @@
-# EOReader 7
+# Khora (formerly EOReader 7)
 
-EOReader 7 now has a native canonical recursive-reading kernel.
+The perceiver and the ground-producer. [KHORA.md](KHORA.md) is the re-claim —
+the triad (khora → penelope → the surfaces), the discipline, what was stripped.
+This README tracks what got built and measured: the machine, never the self.
 
-## kleeneUp — the regex-eviction archon (this worktree, 2026-09-21)
+## Byte addressing — the physics system (2026-09-21)
 
-This worktree is the **kleeneUp** archon. Its mission: remove regex-based
-FINDING and SNIPPING across the codebase and re-seat it on the physics system
-— a thing is found by its **byte address** in the field, never by a pattern
-guessed over it, and a thing is snipped at its **permanent address**, never
-by a match. Named for Stephen Kleene, the founder of regular languages — the
-house it evicts by name.
-
+A thing is found by its **byte address** in the field, never by a pattern
+guessed over it, and snipped at its **permanent address**, never by a match.
 The physics primitives live in the kernel:
 
 - `native/kernel/kleene-up.js` — **Handle: Kleene**. `findNeedle` /
