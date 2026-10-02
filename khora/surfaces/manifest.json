@@ -1,14 +1,14 @@
 {
   "schema": "Surfaces@1",
-  "note": "the folds — every app a person interacts through. Surfaces present ground, and they COMPOSE: each surface delegates the parts it does not own to the surface that does, so no surface re-implements a seam. One Ground@1 contract, many dream-surfaces.",
+  "note": "the folds — every app a person interacts through. Surfaces present ground, and they COMPOSE: each surface delegates the parts it does not own to the surface that does, so no surface re-implements a seam. One Ground@1 contract, many dream-surfaces. NAMING (2026-10-01): The Fold is the whole system; the reading/research surface is 'the fold' (the holodeck repo, renamed). The former 'the-fold' repo is being absorbed by plane and will be archived; it no longer names a surface.",
   "surfaces": [
     {
-      "name": "the-fold",
-      "kind": "reading surface",
-      "presents": "the folded world — beings, relations, the reading's ground",
+      "name": "the fold",
+      "kind": "reading / research surface",
+      "presents": "the reading surface — ingest, grounded statements, records, ask",
       "renders": "Ground@1 via the fold's facing pages",
-      "delegates": { "run-record": "the-holograph", "addressed-bytes": "khora:perceive" },
-      "host": "the-fold (the constitutional reader)"
+      "delegates": { "run-record": "the-holograph", "addressed-bytes": "khora:perceive", "generation": "penelope:loom" },
+      "host": "the holodeck repo (renamed the fold)"
     },
     {
       "name": "the-holograph",

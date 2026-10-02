@@ -1,5 +1,9 @@
 # KHORA — the perceiver and the ground-producer
 
+**The Fold is the whole system (naming, 2026-10-01).** This repo is its core,
+the khora. The surfaces present; penelope keeps; the khora perceives and
+produces ground.
+
 This repo *is* the khora. It was formerly called eoreader7; the name was a
 self-portrait it wore, and the khora wears nothing. What remains is the body:
 the omnimodal kernel that reads music, text, image, video and code through
@@ -33,9 +37,9 @@ economy, the typed gaps, the falsifiers, the omnimodal kernel.
    PENELOPE (the keeper — the record · the night · the judgment)   ../penelope/
      │  every artifact is sealed with a facing page — a surface
      ▼
-   SURFACES (the folds · the apps)   the holodeck · the fold · the holograph ·
-                                     the chat · the TUI — where the hand comes
-                                     back to the loom
+   SURFACES (the folds · the apps)   the fold (the holodeck) · the holograph ·
+                                      the chat · the TUI — where the hand comes
+                                      back to the loom
 ```
 
 Material crosses each seam as addressed record, never assertion. The khora's

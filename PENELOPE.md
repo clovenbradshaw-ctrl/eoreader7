@@ -79,5 +79,7 @@ same way it talks to any server, and the bridge machinery is never forked.
 
 - **TUI** (`cli/`): surfaces Penelope output through the same proxy
   doors; build requests route per above, never pasted as turns.
-- **The Fold**: generation policy pointer in its GENERATION-POLICIES.md.
-- **Holodeck**: README pointer; ingest unaffected.
+- **the fold** (the holodeck repo, renamed — the reading/research surface):
+  generation routes through Penelope's doors.
+- The former `the-fold` repo (being absorbed): generation policy pointer
+  still in its GENERATION-POLICIES.md until the absorption lands.
