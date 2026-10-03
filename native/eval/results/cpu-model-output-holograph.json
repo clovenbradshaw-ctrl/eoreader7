@@ -1,0 +1,2117 @@
+{
+  "schema": "EOCPUModelOutputHolograph@1",
+  "model": {
+    "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+  },
+  "experimentHash": "295676c5732e9866b03074c32ba98f4604c83aa35b5f1fb35d09b0cc1d7703d6",
+  "assembly": "native causal recursive text reader -> reading-log projection -> computeDocumentHolograph; proposition-holograph + output-holograph",
+  "priorsInjected": [
+    "cli/priors/pos-prior-en.json"
+  ],
+  "corefPrior": null,
+  "modelCalls": 0,
+  "truncated": false,
+  "stagesNotRun": [
+    "constitutional HOST stage-parity assay",
+    "proposition chase/equation to independently read record",
+    "general code-semantics verification",
+    "production Heimdall integration"
+  ],
+  "distinction": "Model output bytes witness what the model said. They cannot independently witness the truth of its claim. Code acceptance is separately scoped and tied to prior execution evidence.",
+  "summary": {
+    "outputs": 10,
+    "encounters": 16,
+    "exactAnchors": 16,
+    "atoms": 16,
+    "extractedRelations": 5,
+    "unresolvedQueries": 10,
+    "scopedAcceptedCodeAtoms": 1
+  },
+  "outputs": [
+    {
+      "source": "cpu-model:SmolLM2-135M/generation-0",
+      "text": "```python\ndef solve(text):\n    return sum(int(char) for char in text if char.isalnum())\n```\n\nThis function uses a generator expression to iterate over each character in the input text, converting it to an integer using the `isalnum()` method. It then uses the built-in `sum()` function to add up all the integers. The `isalnum()` method returns `True` if a character is alphanumeric (either a letter or a number), and `False` otherwise.",
+      "sourceHash": "989b538f1e96c563bc7b65709533879e7a393fdd50732e2d85d626a72538168f",
+      "prompt": "Write only Python code, no explanation. Define solve(text) returning the sum of whitespace-separated signed integers in text. Empty or whitespace-only text returns 0. Use no imports. Use exactly one return statement.",
+      "encounters": 4,
+      "byteChecks": [
+        {
+          "start": 0,
+          "end": 91,
+          "utf8Start": 0,
+          "utf8End": 91,
+          "exact": true
+        },
+        {
+          "start": 93,
+          "end": 242,
+          "utf8Start": 93,
+          "utf8End": 242,
+          "exact": true
+        },
+        {
+          "start": 243,
+          "end": 313,
+          "utf8Start": 243,
+          "utf8End": 313,
+          "exact": true
+        },
+        {
+          "start": 314,
+          "end": 436,
+          "utf8Start": 314,
+          "utf8End": 436,
+          "exact": true
+        }
+      ],
+      "referents": 0,
+      "relationCount": 5,
+      "relations": [
+        {
+          "end1": "This function",
+          "label": "uses",
+          "end2": "a generator expression to iterate over each character in the input text",
+          "witnesses": [
+            "cpu-model:SmolLM2-135M/generation-0#93-242"
+          ],
+          "spans": [
+            {
+              "at": "cpu-model:SmolLM2-135M/generation-0#93-242",
+              "text": "This function uses a generator expression to iterate over each character in the input text, converting it to an integer using the `isalnum()` method."
+            }
+          ],
+          "source": "cpu-model:SmolLM2-135M/generation-0",
+          "standing": "model_testimony_only",
+          "edgeId": "4aee70bd4d17193def319794481412eb"
+        },
+        {
+          "end1": "an integer",
+          "label": "using",
+          "end2": "the `isalnum()` method",
+          "witnesses": [
+            "cpu-model:SmolLM2-135M/generation-0#93-242"
+          ],
+          "spans": [
+            {
+              "at": "cpu-model:SmolLM2-135M/generation-0#93-242",
+              "text": "This function uses a generator expression to iterate over each character in the input text, converting it to an integer using the `isalnum()` method."
+            }
+          ],
+          "source": "cpu-model:SmolLM2-135M/generation-0",
+          "standing": "model_testimony_only",
+          "edgeId": "97081bb0b6eef0398a5fde7d758a3ba0"
+        },
+        {
+          "end1": "an integer",
+          "label": "converting",
+          "end2": "it to an integer using the `isalnum()` method.",
+          "witnesses": [
+            "cpu-model:SmolLM2-135M/generation-0#93-242"
+          ],
+          "spans": [
+            {
+              "at": "cpu-model:SmolLM2-135M/generation-0#93-242",
+              "text": "This function uses a generator expression to iterate over each character in the input text, converting it to an integer using the `isalnum()` method."
+            }
+          ],
+          "source": "cpu-model:SmolLM2-135M/generation-0",
+          "standing": "model_testimony_only",
+          "edgeId": "9096593448c6f4fb0a83e2cb239dab44"
+        },
+        {
+          "end1": "It then",
+          "label": "uses",
+          "end2": "the built-in `sum()` function to add up all the integers",
+          "witnesses": [
+            "cpu-model:SmolLM2-135M/generation-0#243-313"
+          ],
+          "spans": [
+            {
+              "at": "cpu-model:SmolLM2-135M/generation-0#243-313",
+              "text": "It then uses the built-in `sum()` function to add up all the integers."
+            }
+          ],
+          "source": "cpu-model:SmolLM2-135M/generation-0",
+          "standing": "model_testimony_only",
+          "edgeId": "6545d82ce898c255d5703682768687eb"
+        },
+        {
+          "end1": "method",
+          "label": "returns",
+          "end2": "`True` if a character is alphanumeric (either a letter or a number)",
+          "witnesses": [
+            "cpu-model:SmolLM2-135M/generation-0#314-436"
+          ],
+          "spans": [
+            {
+              "at": "cpu-model:SmolLM2-135M/generation-0#314-436",
+              "text": "The `isalnum()` method returns `True` if a character is alphanumeric (either a letter or a number), and `False` otherwise."
+            }
+          ],
+          "source": "cpu-model:SmolLM2-135M/generation-0",
+          "standing": "model_testimony_only",
+          "edgeId": "f608aac87eae6d985f9313a6ec37016f"
+        }
+      ],
+      "documentHolograph": {
+        "basis": "typed_gap",
+        "gap": "question_unresolved",
+        "question": "What does the model say about the function and the integer answer?",
+        "identity": {
+          "beings": 0,
+          "fragments": 0,
+          "mergedByRecord": 0,
+          "mergedByContainment": 0,
+          "reassignments": 0,
+          "ambiguousForms": 0,
+          "descriptorBeings": 0,
+          "descriptorsSkipped": 0,
+          "descriptorLane": "off"
+        },
+        "referents": 0,
+        "addressedSentences": 0
+      },
+      "propositions": [
+        {
+          "atomId": "0",
+          "text": "```python\ndef solve(text):\n    return sum(int(char) for char in text if char.isalnum())\n```",
+          "receipt": {
+            "source": "cpu-model:SmolLM2-135M/generation-0",
+            "start": 0,
+            "end": 91,
+            "utf8Start": 0,
+            "utf8End": 91,
+            "sha256": "e81ffab06c9197b4bf0ca59e8e09500defc2e917384cf499783d1e79b2dce000",
+            "at": "cpu-model:SmolLM2-135M/generation-0#0-91"
+          },
+          "typing": "invent",
+          "adjudication": {
+            "status": "unverified_model_testimony",
+            "gap": "external_claim_not_checked"
+          }
+        },
+        {
+          "atomId": "1",
+          "text": "This function uses a generator expression to iterate over each character in the input text, converting it to an integer using the `isalnum()` method.",
+          "receipt": {
+            "source": "cpu-model:SmolLM2-135M/generation-0",
+            "start": 93,
+            "end": 242,
+            "utf8Start": 93,
+            "utf8End": 242,
+            "sha256": "640a786c52121ccc204fcfd444e7e8c0ea0c7d57983f3f59b8573c628a50f703",
+            "at": "cpu-model:SmolLM2-135M/generation-0#93-242"
+          },
+          "typing": "invent",
+          "adjudication": {
+            "status": "unverified_model_testimony",
+            "gap": "external_claim_not_checked"
+          }
+        },
+        {
+          "atomId": "2",
+          "text": "It then uses the built-in `sum()` function to add up all the integers.",
+          "receipt": {
+            "source": "cpu-model:SmolLM2-135M/generation-0",
+            "start": 243,
+            "end": 313,
+            "utf8Start": 243,
+            "utf8End": 313,
+            "sha256": "4943a17e4ef839e3c21181d4b03f6fff5bda23641865f294a8badb7d047b47de",
+            "at": "cpu-model:SmolLM2-135M/generation-0#243-313"
+          },
+          "typing": "invent",
+          "adjudication": {
+            "status": "unverified_model_testimony",
+            "gap": "external_claim_not_checked"
+          }
+        },
+        {
+          "atomId": "3",
+          "text": "The `isalnum()` method returns `True` if a character is alphanumeric (either a letter or a number), and `False` otherwise.",
+          "receipt": {
+            "source": "cpu-model:SmolLM2-135M/generation-0",
+            "start": 314,
+            "end": 436,
+            "utf8Start": 314,
+            "utf8End": 436,
+            "sha256": "f9790820c2f767c43e226d435b382389d1b8921b816a89c965ea0a8986ab33cd",
+            "at": "cpu-model:SmolLM2-135M/generation-0#314-436"
+          },
+          "typing": "invent",
+          "adjudication": {
+            "status": "unverified_model_testimony",
+            "gap": "external_claim_not_checked"
+          }
+        }
+      ],
+      "outputTyping": {
+        "schema": "EOHolographOutput@1",
+        "prose": [
+          {
+            "text": "```python\ndef solve(text):\n    return sum(int(char) for char in text if char.isalnum())\n```",
+            "ground": "self:model",
+            "source": "the mouth",
+            "carry": 0
+          },
+          {
+            "text": "This function uses a generator expression to iterate over each character in the input text, converting it to an integer using the `isalnum()` method.",
+            "ground": "self:model",
+            "source": "the mouth",
+            "carry": 0
+          },
+          {
+            "text": "It then uses the built-in `sum()` function to add up all the integers.",
+            "ground": "self:model",
+            "source": "the mouth",
+            "carry": 0
+          },
+          {
+            "text": "The `isalnum()` method returns `True` if a character is alphanumeric (either a letter or a number), and `False` otherwise.",
+            "ground": "self:model",
+            "source": "the mouth",
+            "carry": 0
+          }
+        ],
+        "tiers": {
+          "holograph": [
+            {
+              "text": "```python\ndef solve(text):\n    return sum(int(char) for char in text if char.isalnum())\n```",
+              "ground": "self:model",
+              "ref": null
+            },
+            {
+              "text": "This function uses a generator expression to iterate over each character in the input text, converting it to an integer using the `isalnum()` method.",
+              "ground": "self:model",
+              "ref": null
+            },
+            {
+              "text": "It then uses the built-in `sum()` function to add up all the integers.",
+              "ground": "self:model",
+              "ref": null
+            },
+            {
+              "text": "The `isalnum()` method returns `True` if a character is alphanumeric (either a letter or a number), and `False` otherwise.",
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "shadow": [
+            {
+              "ground": "self:model",
+              "ref": null
+            },
+            {
+              "ground": "self:model",
+              "ref": null
+            },
+            {
+              "ground": "self:model",
+              "ref": null
+            },
+            {
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "echo": {
+            "at": "something like this was said here",
+            "sentences": 0,
+            "model": 4
+          }
+        },
+        "verdict": {
+          "total": 4,
+          "material": 0,
+          "model": 4,
+          "line": "0 of 4 sentence(s) grounded in the record; 4 are the mouth's own prose, marked self:model."
+        }
+      }
+    },
+    {
+      "source": "cpu-model:SmolLM2-135M/generation-1",
+      "text": "```python\ndef solve(text):\n    return sum(int(x) for x in text.split())\n```\n\nExample usage:\n\n```python\nprint(solve(\"1 2 3\"))  # Output: 6\nprint(solve(\"4 5\"))  # Output: 9\n```",
+      "sourceHash": "5f2516c2251859bd50070acfae2bc9d192c5ddf7831bfd9d9264ecad2ee21d3d",
+      "prompt": "Write only Python code, no explanation. Define solve(text) returning the sum of whitespace-separated signed integers in text. Empty or whitespace-only text returns 0. Use no imports. Use exactly one return statement.\nExamples: solve(\"1 2 3\") == 6; solve(\"4 5\") == 9.",
+      "encounters": 3,
+      "byteChecks": [
+        {
+          "start": 0,
+          "end": 75,
+          "utf8Start": 0,
+          "utf8End": 75,
+          "exact": true
+        },
+        {
+          "start": 77,
+          "end": 91,
+          "utf8Start": 77,
+          "utf8End": 91,
+          "exact": true
+        },
+        {
+          "start": 93,
+          "end": 174,
+          "utf8Start": 93,
+          "utf8End": 174,
+          "exact": true
+        }
+      ],
+      "referents": 0,
+      "relationCount": 0,
+      "relations": [],
+      "documentHolograph": {
+        "basis": "typed_gap",
+        "gap": "question_unresolved",
+        "question": "What does the model say about the function and the integer answer?",
+        "identity": {
+          "beings": 0,
+          "fragments": 0,
+          "mergedByRecord": 0,
+          "mergedByContainment": 0,
+          "reassignments": 0,
+          "ambiguousForms": 0,
+          "descriptorBeings": 0,
+          "descriptorsSkipped": 0,
+          "descriptorLane": "off"
+        },
+        "referents": 0,
+        "addressedSentences": 0
+      },
+      "propositions": [
+        {
+          "atomId": "4",
+          "text": "```python\ndef solve(text):\n    return sum(int(x) for x in text.split())\n```",
+          "receipt": {
+            "source": "cpu-model:SmolLM2-135M/generation-1",
+            "start": 0,
+            "end": 75,
+            "utf8Start": 0,
+            "utf8End": 75,
+            "sha256": "b1c9b4cbe6762fb0580bc0ad42fd58cfd4b920eea33d52957d85e3f48f3447d9",
+            "at": "cpu-model:SmolLM2-135M/generation-1#0-75"
+          },
+          "typing": "invent",
+          "adjudication": {
+            "status": "accepted_in_executable_task_scope",
+            "context": "executable-task:whitespace-separated-signed-integer-sum",
+            "evidence": "cpu-llm-learning-falsify.json#/proposals/1",
+            "transferEvidence": "cpu-llm-learning-falsify.json#/heldout/learnedProcedure",
+            "evidenceHash": "295676c5732e9866b03074c32ba98f4604c83aa35b5f1fb35d09b0cc1d7703d6",
+            "tests": 14,
+            "standing": "ACCEPTED"
+          }
+        },
+        {
+          "atomId": "5",
+          "text": "Example usage:",
+          "receipt": {
+            "source": "cpu-model:SmolLM2-135M/generation-1",
+            "start": 77,
+            "end": 91,
+            "utf8Start": 77,
+            "utf8End": 91,
+            "sha256": "21eddf0bab8eb72f66078a107da27d93c6221bf506374c84a693bb4b5f15983c",
+            "at": "cpu-model:SmolLM2-135M/generation-1#77-91"
+          },
+          "typing": "invent",
+          "adjudication": {
+            "status": "unverified_model_testimony",
+            "gap": "external_claim_not_checked"
+          }
+        },
+        {
+          "atomId": "6",
+          "text": "```python\nprint(solve(\"1 2 3\"))  # Output: 6\nprint(solve(\"4 5\"))  # Output: 9\n```",
+          "receipt": {
+            "source": "cpu-model:SmolLM2-135M/generation-1",
+            "start": 93,
+            "end": 174,
+            "utf8Start": 93,
+            "utf8End": 174,
+            "sha256": "cb05f721ce2d96f54b00ca8bf6e7713eaa4dd92cbb39768a2c9226355803fe8a",
+            "at": "cpu-model:SmolLM2-135M/generation-1#93-174"
+          },
+          "typing": "invent",
+          "adjudication": {
+            "status": "unverified_model_testimony",
+            "gap": "external_claim_not_checked"
+          }
+        }
+      ],
+      "outputTyping": {
+        "schema": "EOHolographOutput@1",
+        "prose": [
+          {
+            "text": "```python\ndef solve(text):\n    return sum(int(x) for x in text.split())\n```",
+            "ground": "self:model",
+            "source": "the mouth",
+            "carry": 0
+          },
+          {
+            "text": "Example usage:",
+            "ground": "self:model",
+            "source": "the mouth",
+            "carry": 0
+          },
+          {
+            "text": "```python\nprint(solve(\"1 2 3\"))  # Output: 6\nprint(solve(\"4 5\"))  # Output: 9\n```",
+            "ground": "self:model",
+            "source": "the mouth",
+            "carry": 0
+          }
+        ],
+        "tiers": {
+          "holograph": [
+            {
+              "text": "```python\ndef solve(text):\n    return sum(int(x) for x in text.split())\n```",
+              "ground": "self:model",
+              "ref": null
+            },
+            {
+              "text": "Example usage:",
+              "ground": "self:model",
+              "ref": null
+            },
+            {
+              "text": "```python\nprint(solve(\"1 2 3\"))  # Output: 6\nprint(solve(\"4 5\"))  # Output: 9\n```",
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "shadow": [
+            {
+              "ground": "self:model",
+              "ref": null
+            },
+            {
+              "ground": "self:model",
+              "ref": null
+            },
+            {
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "echo": {
+            "at": "something like this was said here",
+            "sentences": 0,
+            "model": 3
+          }
+        },
+        "verdict": {
+          "total": 3,
+          "material": 0,
+          "model": 3,
+          "line": "0 of 3 sentence(s) grounded in the record; 3 are the mouth's own prose, marked self:model."
+        }
+      }
+    },
+    {
+      "source": "cpu-model:SmolLM2-135M/generation-2",
+      "text": "\"8 + 11 = 19\"",
+      "sourceHash": "3947e585a25a1dd896eb2cd623cc92dd4a68e376f78ec531990fad877bd807c1",
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"8 11\"",
+      "encounters": 1,
+      "byteChecks": [
+        {
+          "start": 0,
+          "end": 13,
+          "utf8Start": 0,
+          "utf8End": 13,
+          "exact": true
+        }
+      ],
+      "referents": 0,
+      "relationCount": 0,
+      "relations": [],
+      "documentHolograph": {
+        "basis": "typed_gap",
+        "gap": "question_unresolved",
+        "question": "What does the model say about the function and the integer answer?",
+        "identity": {
+          "beings": 0,
+          "fragments": 0,
+          "mergedByRecord": 0,
+          "mergedByContainment": 0,
+          "reassignments": 0,
+          "ambiguousForms": 0,
+          "descriptorBeings": 0,
+          "descriptorsSkipped": 0,
+          "descriptorLane": "off"
+        },
+        "referents": 0,
+        "addressedSentences": 0
+      },
+      "propositions": [
+        {
+          "atomId": "7",
+          "text": "\"8 + 11 = 19\"",
+          "receipt": {
+            "source": "cpu-model:SmolLM2-135M/generation-2",
+            "start": 0,
+            "end": 13,
+            "utf8Start": 0,
+            "utf8End": 13,
+            "sha256": "3947e585a25a1dd896eb2cd623cc92dd4a68e376f78ec531990fad877bd807c1",
+            "at": "cpu-model:SmolLM2-135M/generation-2#0-13"
+          },
+          "typing": "invent",
+          "adjudication": {
+            "status": "unverified_model_testimony",
+            "gap": "external_claim_not_checked"
+          }
+        }
+      ],
+      "outputTyping": {
+        "schema": "EOHolographOutput@1",
+        "prose": [
+          {
+            "text": "\"8 + 11 = 19\"",
+            "ground": "self:model",
+            "source": "the mouth",
+            "carry": 0
+          }
+        ],
+        "tiers": {
+          "holograph": [
+            {
+              "text": "\"8 + 11 = 19\"",
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "shadow": [
+            {
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "echo": {
+            "at": "something like this was said here",
+            "sentences": 0,
+            "model": 1
+          }
+        },
+        "verdict": {
+          "total": 1,
+          "material": 0,
+          "model": 1,
+          "line": "0 of 1 sentence(s) grounded in the record; 1 are the mouth's own prose, marked self:model."
+        }
+      }
+    },
+    {
+      "source": "cpu-model:SmolLM2-135M/generation-3",
+      "text": "-9 - 4 = 3",
+      "sourceHash": "6071b28f127213b310be6fad2d20c243725187df8570229abf2cffc372bc5aaa",
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"-9 -4\"",
+      "encounters": 1,
+      "byteChecks": [
+        {
+          "start": 0,
+          "end": 10,
+          "utf8Start": 0,
+          "utf8End": 10,
+          "exact": true
+        }
+      ],
+      "referents": 0,
+      "relationCount": 0,
+      "relations": [],
+      "documentHolograph": {
+        "basis": "typed_gap",
+        "gap": "question_unresolved",
+        "question": "What does the model say about the function and the integer answer?",
+        "identity": {
+          "beings": 0,
+          "fragments": 0,
+          "mergedByRecord": 0,
+          "mergedByContainment": 0,
+          "reassignments": 0,
+          "ambiguousForms": 0,
+          "descriptorBeings": 0,
+          "descriptorsSkipped": 0,
+          "descriptorLane": "off"
+        },
+        "referents": 0,
+        "addressedSentences": 0
+      },
+      "propositions": [
+        {
+          "atomId": "8",
+          "text": "-9 - 4 = 3",
+          "receipt": {
+            "source": "cpu-model:SmolLM2-135M/generation-3",
+            "start": 0,
+            "end": 10,
+            "utf8Start": 0,
+            "utf8End": 10,
+            "sha256": "6071b28f127213b310be6fad2d20c243725187df8570229abf2cffc372bc5aaa",
+            "at": "cpu-model:SmolLM2-135M/generation-3#0-10"
+          },
+          "typing": "invent",
+          "adjudication": {
+            "status": "unverified_model_testimony",
+            "gap": "external_claim_not_checked"
+          }
+        }
+      ],
+      "outputTyping": {
+        "schema": "EOHolographOutput@1",
+        "prose": [
+          {
+            "text": "-9 - 4 = 3",
+            "ground": "self:model",
+            "source": "the mouth",
+            "carry": 0
+          }
+        ],
+        "tiers": {
+          "holograph": [
+            {
+              "text": "-9 - 4 = 3",
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "shadow": [
+            {
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "echo": {
+            "at": "something like this was said here",
+            "sentences": 0,
+            "model": 1
+          }
+        },
+        "verdict": {
+          "total": 1,
+          "material": 0,
+          "model": 1,
+          "line": "0 of 1 sentence(s) grounded in the record; 1 are the mouth's own prose, marked self:model."
+        }
+      }
+    },
+    {
+      "source": "cpu-model:SmolLM2-135M/generation-4",
+      "text": "12 - 12 = 0",
+      "sourceHash": "5d38b3adf1a840e5c2eb8bd64a635d972cdb58342aca8f71c6c1d6df32b28c26",
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"12 -12\"",
+      "encounters": 1,
+      "byteChecks": [
+        {
+          "start": 0,
+          "end": 11,
+          "utf8Start": 0,
+          "utf8End": 11,
+          "exact": true
+        }
+      ],
+      "referents": 0,
+      "relationCount": 0,
+      "relations": [],
+      "documentHolograph": {
+        "basis": "typed_gap",
+        "gap": "question_unresolved",
+        "question": "What does the model say about the function and the integer answer?",
+        "identity": {
+          "beings": 0,
+          "fragments": 0,
+          "mergedByRecord": 0,
+          "mergedByContainment": 0,
+          "reassignments": 0,
+          "ambiguousForms": 0,
+          "descriptorBeings": 0,
+          "descriptorsSkipped": 0,
+          "descriptorLane": "off"
+        },
+        "referents": 0,
+        "addressedSentences": 0
+      },
+      "propositions": [
+        {
+          "atomId": "9",
+          "text": "12 - 12 = 0",
+          "receipt": {
+            "source": "cpu-model:SmolLM2-135M/generation-4",
+            "start": 0,
+            "end": 11,
+            "utf8Start": 0,
+            "utf8End": 11,
+            "sha256": "5d38b3adf1a840e5c2eb8bd64a635d972cdb58342aca8f71c6c1d6df32b28c26",
+            "at": "cpu-model:SmolLM2-135M/generation-4#0-11"
+          },
+          "typing": "invent",
+          "adjudication": {
+            "status": "unverified_model_testimony",
+            "gap": "external_claim_not_checked"
+          }
+        }
+      ],
+      "outputTyping": {
+        "schema": "EOHolographOutput@1",
+        "prose": [
+          {
+            "text": "12 - 12 = 0",
+            "ground": "self:model",
+            "source": "the mouth",
+            "carry": 0
+          }
+        ],
+        "tiers": {
+          "holograph": [
+            {
+              "text": "12 - 12 = 0",
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "shadow": [
+            {
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "echo": {
+            "at": "something like this was said here",
+            "sentences": 0,
+            "model": 1
+          }
+        },
+        "verdict": {
+          "total": 1,
+          "material": 0,
+          "model": 1,
+          "line": "0 of 1 sentence(s) grounded in the record; 1 are the mouth's own prose, marked self:model."
+        }
+      }
+    },
+    {
+      "source": "cpu-model:SmolLM2-135M/generation-5",
+      "text": "The integer answer is 7.",
+      "sourceHash": "b8f9f2cbf9887d0a7d53b32566eba2faaef14019bd84e9216af05bcf8b9cbc76",
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"7\\n8\\n9\"",
+      "encounters": 1,
+      "byteChecks": [
+        {
+          "start": 0,
+          "end": 24,
+          "utf8Start": 0,
+          "utf8End": 24,
+          "exact": true
+        }
+      ],
+      "referents": 0,
+      "relationCount": 0,
+      "relations": [],
+      "documentHolograph": {
+        "basis": "typed_gap",
+        "gap": "question_unresolved",
+        "question": "What does the model say about the function and the integer answer?",
+        "identity": {
+          "beings": 0,
+          "fragments": 0,
+          "mergedByRecord": 0,
+          "mergedByContainment": 0,
+          "reassignments": 0,
+          "ambiguousForms": 0,
+          "descriptorBeings": 0,
+          "descriptorsSkipped": 0,
+          "descriptorLane": "off"
+        },
+        "referents": 0,
+        "addressedSentences": 0
+      },
+      "propositions": [
+        {
+          "atomId": "10",
+          "text": "The integer answer is 7.",
+          "receipt": {
+            "source": "cpu-model:SmolLM2-135M/generation-5",
+            "start": 0,
+            "end": 24,
+            "utf8Start": 0,
+            "utf8End": 24,
+            "sha256": "b8f9f2cbf9887d0a7d53b32566eba2faaef14019bd84e9216af05bcf8b9cbc76",
+            "at": "cpu-model:SmolLM2-135M/generation-5#0-24"
+          },
+          "typing": "invent",
+          "adjudication": {
+            "status": "unverified_model_testimony",
+            "gap": "external_claim_not_checked"
+          }
+        }
+      ],
+      "outputTyping": {
+        "schema": "EOHolographOutput@1",
+        "prose": [
+          {
+            "text": "The integer answer is 7.",
+            "ground": "self:model",
+            "source": "the mouth",
+            "carry": 0
+          }
+        ],
+        "tiers": {
+          "holograph": [
+            {
+              "text": "The integer answer is 7.",
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "shadow": [
+            {
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "echo": {
+            "at": "something like this was said here",
+            "sentences": 0,
+            "model": 1
+          }
+        },
+        "verdict": {
+          "total": 1,
+          "material": 0,
+          "model": 1,
+          "line": "0 of 1 sentence(s) grounded in the record; 1 are the mouth's own prose, marked self:model."
+        }
+      }
+    },
+    {
+      "source": "cpu-model:SmolLM2-135M/generation-6",
+      "text": "The integer answer is 10.",
+      "sourceHash": "ec970f2b59e05df83dca65b738e24ed192598b5ae652e13c1c576164a0f4eb75",
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"  -3\\t10  \"",
+      "encounters": 1,
+      "byteChecks": [
+        {
+          "start": 0,
+          "end": 25,
+          "utf8Start": 0,
+          "utf8End": 25,
+          "exact": true
+        }
+      ],
+      "referents": 0,
+      "relationCount": 0,
+      "relations": [],
+      "documentHolograph": {
+        "basis": "typed_gap",
+        "gap": "question_unresolved",
+        "question": "What does the model say about the function and the integer answer?",
+        "identity": {
+          "beings": 0,
+          "fragments": 0,
+          "mergedByRecord": 0,
+          "mergedByContainment": 0,
+          "reassignments": 0,
+          "ambiguousForms": 0,
+          "descriptorBeings": 0,
+          "descriptorsSkipped": 0,
+          "descriptorLane": "off"
+        },
+        "referents": 0,
+        "addressedSentences": 0
+      },
+      "propositions": [
+        {
+          "atomId": "11",
+          "text": "The integer answer is 10.",
+          "receipt": {
+            "source": "cpu-model:SmolLM2-135M/generation-6",
+            "start": 0,
+            "end": 25,
+            "utf8Start": 0,
+            "utf8End": 25,
+            "sha256": "ec970f2b59e05df83dca65b738e24ed192598b5ae652e13c1c576164a0f4eb75",
+            "at": "cpu-model:SmolLM2-135M/generation-6#0-25"
+          },
+          "typing": "invent",
+          "adjudication": {
+            "status": "unverified_model_testimony",
+            "gap": "external_claim_not_checked"
+          }
+        }
+      ],
+      "outputTyping": {
+        "schema": "EOHolographOutput@1",
+        "prose": [
+          {
+            "text": "The integer answer is 10.",
+            "ground": "self:model",
+            "source": "the mouth",
+            "carry": 0
+          }
+        ],
+        "tiers": {
+          "holograph": [
+            {
+              "text": "The integer answer is 10.",
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "shadow": [
+            {
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "echo": {
+            "at": "something like this was said here",
+            "sentences": 0,
+            "model": 1
+          }
+        },
+        "verdict": {
+          "total": 1,
+          "material": 0,
+          "model": 1,
+          "line": "0 of 1 sentence(s) grounded in the record; 1 are the mouth's own prose, marked self:model."
+        }
+      }
+    },
+    {
+      "source": "cpu-model:SmolLM2-135M/generation-7",
+      "text": "1000 23",
+      "sourceHash": "0946580df2167dd633b7045332f5db9f7f818b5389ed6ba3e9e73a18eb71eb2f",
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"1000 23\"",
+      "encounters": 1,
+      "byteChecks": [
+        {
+          "start": 0,
+          "end": 7,
+          "utf8Start": 0,
+          "utf8End": 7,
+          "exact": true
+        }
+      ],
+      "referents": 0,
+      "relationCount": 0,
+      "relations": [],
+      "documentHolograph": {
+        "basis": "typed_gap",
+        "gap": "question_unresolved",
+        "question": "What does the model say about the function and the integer answer?",
+        "identity": {
+          "beings": 0,
+          "fragments": 0,
+          "mergedByRecord": 0,
+          "mergedByContainment": 0,
+          "reassignments": 0,
+          "ambiguousForms": 0,
+          "descriptorBeings": 0,
+          "descriptorsSkipped": 0,
+          "descriptorLane": "off"
+        },
+        "referents": 0,
+        "addressedSentences": 0
+      },
+      "propositions": [
+        {
+          "atomId": "12",
+          "text": "1000 23",
+          "receipt": {
+            "source": "cpu-model:SmolLM2-135M/generation-7",
+            "start": 0,
+            "end": 7,
+            "utf8Start": 0,
+            "utf8End": 7,
+            "sha256": "0946580df2167dd633b7045332f5db9f7f818b5389ed6ba3e9e73a18eb71eb2f",
+            "at": "cpu-model:SmolLM2-135M/generation-7#0-7"
+          },
+          "typing": "invent",
+          "adjudication": {
+            "status": "unverified_model_testimony",
+            "gap": "external_claim_not_checked"
+          }
+        }
+      ],
+      "outputTyping": {
+        "schema": "EOHolographOutput@1",
+        "prose": [
+          {
+            "text": "1000 23",
+            "ground": "self:model",
+            "source": "the mouth",
+            "carry": 0
+          }
+        ],
+        "tiers": {
+          "holograph": [
+            {
+              "text": "1000 23",
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "shadow": [
+            {
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "echo": {
+            "at": "something like this was said here",
+            "sentences": 0,
+            "model": 1
+          }
+        },
+        "verdict": {
+          "total": 1,
+          "material": 0,
+          "model": 1,
+          "line": "0 of 1 sentence(s) grounded in the record; 1 are the mouth's own prose, marked self:model."
+        }
+      }
+    },
+    {
+      "source": "cpu-model:SmolLM2-135M/generation-8",
+      "text": "```python\ndef sum_empty_input_sums(input_sums):\n    return sum(input_sums)\n\n# Test the",
+      "sourceHash": "e992e8a333d016a751e26a12e3fbad74870515802ad6345bfeb7fe53554a63b2",
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"0\"",
+      "encounters": 2,
+      "byteChecks": [
+        {
+          "start": 0,
+          "end": 74,
+          "utf8Start": 0,
+          "utf8End": 74,
+          "exact": true
+        },
+        {
+          "start": 76,
+          "end": 86,
+          "utf8Start": 76,
+          "utf8End": 86,
+          "exact": true
+        }
+      ],
+      "referents": 0,
+      "relationCount": 0,
+      "relations": [],
+      "documentHolograph": {
+        "basis": "typed_gap",
+        "gap": "question_unresolved",
+        "question": "What does the model say about the function and the integer answer?",
+        "identity": {
+          "beings": 0,
+          "fragments": 0,
+          "mergedByRecord": 0,
+          "mergedByContainment": 0,
+          "reassignments": 0,
+          "ambiguousForms": 0,
+          "descriptorBeings": 0,
+          "descriptorsSkipped": 0,
+          "descriptorLane": "off"
+        },
+        "referents": 0,
+        "addressedSentences": 0
+      },
+      "propositions": [
+        {
+          "atomId": "13",
+          "text": "```python\ndef sum_empty_input_sums(input_sums):\n    return sum(input_sums)",
+          "receipt": {
+            "source": "cpu-model:SmolLM2-135M/generation-8",
+            "start": 0,
+            "end": 74,
+            "utf8Start": 0,
+            "utf8End": 74,
+            "sha256": "1f2b217e06e0b7f213324b00c344f9071a80578a45f78cde5fdca309926c1739",
+            "at": "cpu-model:SmolLM2-135M/generation-8#0-74"
+          },
+          "typing": "invent",
+          "adjudication": {
+            "status": "unverified_model_testimony",
+            "gap": "external_claim_not_checked"
+          }
+        },
+        {
+          "atomId": "14",
+          "text": "# Test the",
+          "receipt": {
+            "source": "cpu-model:SmolLM2-135M/generation-8",
+            "start": 76,
+            "end": 86,
+            "utf8Start": 76,
+            "utf8End": 86,
+            "sha256": "4f2cbbd358a872b952666e95b47f09f5424d6927837d36e494aec7fe99cdf7a8",
+            "at": "cpu-model:SmolLM2-135M/generation-8#76-86"
+          },
+          "typing": "invent",
+          "adjudication": {
+            "status": "unverified_model_testimony",
+            "gap": "external_claim_not_checked"
+          }
+        }
+      ],
+      "outputTyping": {
+        "schema": "EOHolographOutput@1",
+        "prose": [
+          {
+            "text": "```python\ndef sum_empty_input_sums(input_sums):\n    return sum(input_sums)",
+            "ground": "self:model",
+            "source": "the mouth",
+            "carry": 0
+          },
+          {
+            "text": "# Test the",
+            "ground": "self:model",
+            "source": "the mouth",
+            "carry": 0
+          }
+        ],
+        "tiers": {
+          "holograph": [
+            {
+              "text": "```python\ndef sum_empty_input_sums(input_sums):\n    return sum(input_sums)",
+              "ground": "self:model",
+              "ref": null
+            },
+            {
+              "text": "# Test the",
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "shadow": [
+            {
+              "ground": "self:model",
+              "ref": null
+            },
+            {
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "echo": {
+            "at": "something like this was said here",
+            "sentences": 0,
+            "model": 2
+          }
+        },
+        "verdict": {
+          "total": 2,
+          "material": 0,
+          "model": 2,
+          "line": "0 of 2 sentence(s) grounded in the record; 2 are the mouth's own prose, marked self:model."
+        }
+      }
+    },
+    {
+      "source": "cpu-model:SmolLM2-135M/generation-9",
+      "text": "The sum of the integers is 0.",
+      "sourceHash": "640157740e67ade5d3602f408f69aad14b8c97274b5a1bad0b62a20c4ba637bf",
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"  \"",
+      "encounters": 1,
+      "byteChecks": [
+        {
+          "start": 0,
+          "end": 29,
+          "utf8Start": 0,
+          "utf8End": 29,
+          "exact": true
+        }
+      ],
+      "referents": 0,
+      "relationCount": 0,
+      "relations": [],
+      "documentHolograph": {
+        "basis": "typed_gap",
+        "gap": "question_unresolved",
+        "question": "What does the model say about the function and the integer answer?",
+        "identity": {
+          "beings": 0,
+          "fragments": 0,
+          "mergedByRecord": 0,
+          "mergedByContainment": 0,
+          "reassignments": 0,
+          "ambiguousForms": 0,
+          "descriptorBeings": 0,
+          "descriptorsSkipped": 0,
+          "descriptorLane": "off"
+        },
+        "referents": 0,
+        "addressedSentences": 0
+      },
+      "propositions": [
+        {
+          "atomId": "15",
+          "text": "The sum of the integers is 0.",
+          "receipt": {
+            "source": "cpu-model:SmolLM2-135M/generation-9",
+            "start": 0,
+            "end": 29,
+            "utf8Start": 0,
+            "utf8End": 29,
+            "sha256": "640157740e67ade5d3602f408f69aad14b8c97274b5a1bad0b62a20c4ba637bf",
+            "at": "cpu-model:SmolLM2-135M/generation-9#0-29"
+          },
+          "typing": "invent",
+          "adjudication": {
+            "status": "unverified_model_testimony",
+            "gap": "external_claim_not_checked"
+          }
+        }
+      ],
+      "outputTyping": {
+        "schema": "EOHolographOutput@1",
+        "prose": [
+          {
+            "text": "The sum of the integers is 0.",
+            "ground": "self:model",
+            "source": "the mouth",
+            "carry": 0
+          }
+        ],
+        "tiers": {
+          "holograph": [
+            {
+              "text": "The sum of the integers is 0.",
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "shadow": [
+            {
+              "ground": "self:model",
+              "ref": null
+            }
+          ],
+          "echo": {
+            "at": "something like this was said here",
+            "sentences": 0,
+            "model": 1
+          }
+        },
+        "verdict": {
+          "total": 1,
+          "material": 0,
+          "model": 1,
+          "line": "0 of 1 sentence(s) grounded in the record; 1 are the mouth's own prose, marked self:model."
+        }
+      }
+    }
+  ],
+  "atoms": [
+    {
+      "schema": "EOPropositionHolograph@1",
+      "id": "0",
+      "core": "python solve text return char char",
+      "identity": "python solve text return char char@",
+      "frame": {
+        "source": "cpu-model:SmolLM2-135M/generation-0",
+        "model": {
+          "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+          "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+        },
+        "scope": "model utterance; external truth not inferred"
+      },
+      "text": "```python\ndef solve(text):\n    return sum(int(char) for char in text if char.isalnum())\n```",
+      "synthetic": true,
+      "typing": "invent",
+      "derivation": "Invent",
+      "grain": null,
+      "cell": null,
+      "chase": null,
+      "inspiredBy": "Write only Python code, no explanation. Define solve(text) returning the sum of whitespace-separated signed integers in text. Empty or whitespace-only text returns 0. Use no imports. Use exactly one return statement.",
+      "groundsOn": [],
+      "entailRef": null,
+      "entailFact": null,
+      "placement": "cpu-model:SmolLM2-135M/generation-0",
+      "parsing": null,
+      "register": null,
+      "giver": "cpu-model:SmolLM2-135M/generation-0",
+      "at": "2026-10-03T19:28:53.404Z",
+      "history": [
+        {
+          "state": "CANDIDATE",
+          "context": "cpu-model:SmolLM2-135M/generation-0",
+          "at": "2026-10-03T19:28:53.404Z"
+        }
+      ],
+      "receipt": {
+        "source": "cpu-model:SmolLM2-135M/generation-0",
+        "start": 0,
+        "end": 91,
+        "utf8Start": 0,
+        "utf8End": 91,
+        "sha256": "e81ffab06c9197b4bf0ca59e8e09500defc2e917384cf499783d1e79b2dce000",
+        "at": "cpu-model:SmolLM2-135M/generation-0#0-91"
+      },
+      "adjudication": {
+        "status": "unverified_model_testimony",
+        "gap": "external_claim_not_checked"
+      }
+    },
+    {
+      "schema": "EOPropositionHolograph@1",
+      "id": "1",
+      "core": "function uses generator expression iterate over",
+      "identity": "function uses generator expression iterate over@",
+      "frame": {
+        "source": "cpu-model:SmolLM2-135M/generation-0",
+        "model": {
+          "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+          "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+        },
+        "scope": "model utterance; external truth not inferred"
+      },
+      "text": "This function uses a generator expression to iterate over each character in the input text, converting it to an integer using the `isalnum()` method.",
+      "synthetic": true,
+      "typing": "invent",
+      "derivation": "Invent",
+      "grain": null,
+      "cell": null,
+      "chase": null,
+      "inspiredBy": "Write only Python code, no explanation. Define solve(text) returning the sum of whitespace-separated signed integers in text. Empty or whitespace-only text returns 0. Use no imports. Use exactly one return statement.",
+      "groundsOn": [],
+      "entailRef": null,
+      "entailFact": null,
+      "placement": "cpu-model:SmolLM2-135M/generation-0",
+      "parsing": null,
+      "register": null,
+      "giver": "cpu-model:SmolLM2-135M/generation-0",
+      "at": "2026-10-03T19:28:53.404Z",
+      "history": [
+        {
+          "state": "CANDIDATE",
+          "context": "cpu-model:SmolLM2-135M/generation-0",
+          "at": "2026-10-03T19:28:53.404Z"
+        }
+      ],
+      "receipt": {
+        "source": "cpu-model:SmolLM2-135M/generation-0",
+        "start": 93,
+        "end": 242,
+        "utf8Start": 93,
+        "utf8End": 242,
+        "sha256": "640a786c52121ccc204fcfd444e7e8c0ea0c7d57983f3f59b8573c628a50f703",
+        "at": "cpu-model:SmolLM2-135M/generation-0#93-242"
+      },
+      "adjudication": {
+        "status": "unverified_model_testimony",
+        "gap": "external_claim_not_checked"
+      }
+    },
+    {
+      "schema": "EOPropositionHolograph@1",
+      "id": "2",
+      "core": "uses built function integers",
+      "identity": "uses built function integers@",
+      "frame": {
+        "source": "cpu-model:SmolLM2-135M/generation-0",
+        "model": {
+          "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+          "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+        },
+        "scope": "model utterance; external truth not inferred"
+      },
+      "text": "It then uses the built-in `sum()` function to add up all the integers.",
+      "synthetic": true,
+      "typing": "invent",
+      "derivation": "Invent",
+      "grain": null,
+      "cell": null,
+      "chase": null,
+      "inspiredBy": "Write only Python code, no explanation. Define solve(text) returning the sum of whitespace-separated signed integers in text. Empty or whitespace-only text returns 0. Use no imports. Use exactly one return statement.",
+      "groundsOn": [],
+      "entailRef": null,
+      "entailFact": null,
+      "placement": "cpu-model:SmolLM2-135M/generation-0",
+      "parsing": null,
+      "register": null,
+      "giver": "cpu-model:SmolLM2-135M/generation-0",
+      "at": "2026-10-03T19:28:53.404Z",
+      "history": [
+        {
+          "state": "CANDIDATE",
+          "context": "cpu-model:SmolLM2-135M/generation-0",
+          "at": "2026-10-03T19:28:53.404Z"
+        }
+      ],
+      "receipt": {
+        "source": "cpu-model:SmolLM2-135M/generation-0",
+        "start": 243,
+        "end": 313,
+        "utf8Start": 243,
+        "utf8End": 313,
+        "sha256": "4943a17e4ef839e3c21181d4b03f6fff5bda23641865f294a8badb7d047b47de",
+        "at": "cpu-model:SmolLM2-135M/generation-0#243-313"
+      },
+      "adjudication": {
+        "status": "unverified_model_testimony",
+        "gap": "external_claim_not_checked"
+      }
+    },
+    {
+      "schema": "EOPropositionHolograph@1",
+      "id": "3",
+      "core": "isalnum method returns true character alphanumeric",
+      "identity": "isalnum method returns true character alphanumeric@",
+      "frame": {
+        "source": "cpu-model:SmolLM2-135M/generation-0",
+        "model": {
+          "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+          "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+        },
+        "scope": "model utterance; external truth not inferred"
+      },
+      "text": "The `isalnum()` method returns `True` if a character is alphanumeric (either a letter or a number), and `False` otherwise.",
+      "synthetic": true,
+      "typing": "invent",
+      "derivation": "Invent",
+      "grain": null,
+      "cell": null,
+      "chase": null,
+      "inspiredBy": "Write only Python code, no explanation. Define solve(text) returning the sum of whitespace-separated signed integers in text. Empty or whitespace-only text returns 0. Use no imports. Use exactly one return statement.",
+      "groundsOn": [],
+      "entailRef": null,
+      "entailFact": null,
+      "placement": "cpu-model:SmolLM2-135M/generation-0",
+      "parsing": null,
+      "register": null,
+      "giver": "cpu-model:SmolLM2-135M/generation-0",
+      "at": "2026-10-03T19:28:53.405Z",
+      "history": [
+        {
+          "state": "CANDIDATE",
+          "context": "cpu-model:SmolLM2-135M/generation-0",
+          "at": "2026-10-03T19:28:53.405Z"
+        }
+      ],
+      "receipt": {
+        "source": "cpu-model:SmolLM2-135M/generation-0",
+        "start": 314,
+        "end": 436,
+        "utf8Start": 314,
+        "utf8End": 436,
+        "sha256": "f9790820c2f767c43e226d435b382389d1b8921b816a89c965ea0a8986ab33cd",
+        "at": "cpu-model:SmolLM2-135M/generation-0#314-436"
+      },
+      "adjudication": {
+        "status": "unverified_model_testimony",
+        "gap": "external_claim_not_checked"
+      }
+    },
+    {
+      "schema": "EOPropositionHolograph@1",
+      "id": "4",
+      "core": "python solve text return text split",
+      "identity": "python solve text return text split@",
+      "frame": {
+        "source": "cpu-model:SmolLM2-135M/generation-1",
+        "model": {
+          "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+          "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+        },
+        "scope": "model utterance; external truth not inferred"
+      },
+      "text": "```python\ndef solve(text):\n    return sum(int(x) for x in text.split())\n```",
+      "synthetic": true,
+      "typing": "invent",
+      "derivation": "Invent",
+      "grain": null,
+      "cell": null,
+      "chase": null,
+      "inspiredBy": "Write only Python code, no explanation. Define solve(text) returning the sum of whitespace-separated signed integers in text. Empty or whitespace-only text returns 0. Use no imports. Use exactly one return statement.\nExamples: solve(\"1 2 3\") == 6; solve(\"4 5\") == 9.",
+      "groundsOn": [],
+      "entailRef": null,
+      "entailFact": null,
+      "placement": "cpu-model:SmolLM2-135M/generation-1",
+      "parsing": null,
+      "register": null,
+      "giver": "cpu-model:SmolLM2-135M/generation-1",
+      "at": "2026-10-03T19:28:53.412Z",
+      "history": [
+        {
+          "state": "CANDIDATE",
+          "context": "cpu-model:SmolLM2-135M/generation-1",
+          "at": "2026-10-03T19:28:53.412Z"
+        },
+        {
+          "state": "ACCEPTED",
+          "context": "executable-task:whitespace-separated-signed-integer-sum",
+          "specimen": "independent Python tests: 2 training, 4 validation, 8 withheld",
+          "at": "2026-10-03T19:28:53.412Z"
+        }
+      ],
+      "receipt": {
+        "source": "cpu-model:SmolLM2-135M/generation-1",
+        "start": 0,
+        "end": 75,
+        "utf8Start": 0,
+        "utf8End": 75,
+        "sha256": "b1c9b4cbe6762fb0580bc0ad42fd58cfd4b920eea33d52957d85e3f48f3447d9",
+        "at": "cpu-model:SmolLM2-135M/generation-1#0-75"
+      },
+      "adjudication": {
+        "status": "accepted_in_executable_task_scope",
+        "context": "executable-task:whitespace-separated-signed-integer-sum",
+        "evidence": "cpu-llm-learning-falsify.json#/proposals/1",
+        "transferEvidence": "cpu-llm-learning-falsify.json#/heldout/learnedProcedure",
+        "evidenceHash": "295676c5732e9866b03074c32ba98f4604c83aa35b5f1fb35d09b0cc1d7703d6",
+        "tests": 14,
+        "standing": "ACCEPTED"
+      }
+    },
+    {
+      "schema": "EOPropositionHolograph@1",
+      "id": "5",
+      "core": "example usage",
+      "identity": "example usage@",
+      "frame": {
+        "source": "cpu-model:SmolLM2-135M/generation-1",
+        "model": {
+          "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+          "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+        },
+        "scope": "model utterance; external truth not inferred"
+      },
+      "text": "Example usage:",
+      "synthetic": true,
+      "typing": "invent",
+      "derivation": "Invent",
+      "grain": null,
+      "cell": null,
+      "chase": null,
+      "inspiredBy": "Write only Python code, no explanation. Define solve(text) returning the sum of whitespace-separated signed integers in text. Empty or whitespace-only text returns 0. Use no imports. Use exactly one return statement.\nExamples: solve(\"1 2 3\") == 6; solve(\"4 5\") == 9.",
+      "groundsOn": [],
+      "entailRef": null,
+      "entailFact": null,
+      "placement": "cpu-model:SmolLM2-135M/generation-1",
+      "parsing": null,
+      "register": null,
+      "giver": "cpu-model:SmolLM2-135M/generation-1",
+      "at": "2026-10-03T19:28:53.412Z",
+      "history": [
+        {
+          "state": "CANDIDATE",
+          "context": "cpu-model:SmolLM2-135M/generation-1",
+          "at": "2026-10-03T19:28:53.412Z"
+        }
+      ],
+      "receipt": {
+        "source": "cpu-model:SmolLM2-135M/generation-1",
+        "start": 77,
+        "end": 91,
+        "utf8Start": 77,
+        "utf8End": 91,
+        "sha256": "21eddf0bab8eb72f66078a107da27d93c6221bf506374c84a693bb4b5f15983c",
+        "at": "cpu-model:SmolLM2-135M/generation-1#77-91"
+      },
+      "adjudication": {
+        "status": "unverified_model_testimony",
+        "gap": "external_claim_not_checked"
+      }
+    },
+    {
+      "schema": "EOPropositionHolograph@1",
+      "id": "6",
+      "core": "python print solve output print solve",
+      "identity": "python print solve output print solve@",
+      "frame": {
+        "source": "cpu-model:SmolLM2-135M/generation-1",
+        "model": {
+          "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+          "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+        },
+        "scope": "model utterance; external truth not inferred"
+      },
+      "text": "```python\nprint(solve(\"1 2 3\"))  # Output: 6\nprint(solve(\"4 5\"))  # Output: 9\n```",
+      "synthetic": true,
+      "typing": "invent",
+      "derivation": "Invent",
+      "grain": null,
+      "cell": null,
+      "chase": null,
+      "inspiredBy": "Write only Python code, no explanation. Define solve(text) returning the sum of whitespace-separated signed integers in text. Empty or whitespace-only text returns 0. Use no imports. Use exactly one return statement.\nExamples: solve(\"1 2 3\") == 6; solve(\"4 5\") == 9.",
+      "groundsOn": [],
+      "entailRef": null,
+      "entailFact": null,
+      "placement": "cpu-model:SmolLM2-135M/generation-1",
+      "parsing": null,
+      "register": null,
+      "giver": "cpu-model:SmolLM2-135M/generation-1",
+      "at": "2026-10-03T19:28:53.412Z",
+      "history": [
+        {
+          "state": "CANDIDATE",
+          "context": "cpu-model:SmolLM2-135M/generation-1",
+          "at": "2026-10-03T19:28:53.412Z"
+        }
+      ],
+      "receipt": {
+        "source": "cpu-model:SmolLM2-135M/generation-1",
+        "start": 93,
+        "end": 174,
+        "utf8Start": 93,
+        "utf8End": 174,
+        "sha256": "cb05f721ce2d96f54b00ca8bf6e7713eaa4dd92cbb39768a2c9226355803fe8a",
+        "at": "cpu-model:SmolLM2-135M/generation-1#93-174"
+      },
+      "adjudication": {
+        "status": "unverified_model_testimony",
+        "gap": "external_claim_not_checked"
+      }
+    },
+    {
+      "schema": "EOPropositionHolograph@1",
+      "id": "7",
+      "core": "\"8 + 11 = 19\"",
+      "identity": "@",
+      "frame": {
+        "source": "cpu-model:SmolLM2-135M/generation-2",
+        "model": {
+          "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+          "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+        },
+        "scope": "model utterance; external truth not inferred"
+      },
+      "text": "\"8 + 11 = 19\"",
+      "synthetic": true,
+      "typing": "invent",
+      "derivation": "Invent",
+      "grain": null,
+      "cell": null,
+      "chase": null,
+      "inspiredBy": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"8 11\"",
+      "groundsOn": [],
+      "entailRef": null,
+      "entailFact": null,
+      "placement": "cpu-model:SmolLM2-135M/generation-2",
+      "parsing": null,
+      "register": null,
+      "giver": "cpu-model:SmolLM2-135M/generation-2",
+      "at": "2026-10-03T19:28:53.414Z",
+      "history": [
+        {
+          "state": "CANDIDATE",
+          "context": "cpu-model:SmolLM2-135M/generation-2",
+          "at": "2026-10-03T19:28:53.414Z"
+        }
+      ],
+      "receipt": {
+        "source": "cpu-model:SmolLM2-135M/generation-2",
+        "start": 0,
+        "end": 13,
+        "utf8Start": 0,
+        "utf8End": 13,
+        "sha256": "3947e585a25a1dd896eb2cd623cc92dd4a68e376f78ec531990fad877bd807c1",
+        "at": "cpu-model:SmolLM2-135M/generation-2#0-13"
+      },
+      "adjudication": {
+        "status": "unverified_model_testimony",
+        "gap": "external_claim_not_checked"
+      }
+    },
+    {
+      "schema": "EOPropositionHolograph@1",
+      "id": "8",
+      "core": "-9 - 4 = 3",
+      "identity": "@",
+      "frame": {
+        "source": "cpu-model:SmolLM2-135M/generation-3",
+        "model": {
+          "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+          "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+        },
+        "scope": "model utterance; external truth not inferred"
+      },
+      "text": "-9 - 4 = 3",
+      "synthetic": true,
+      "typing": "invent",
+      "derivation": "Invent",
+      "grain": null,
+      "cell": null,
+      "chase": null,
+      "inspiredBy": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"-9 -4\"",
+      "groundsOn": [],
+      "entailRef": null,
+      "entailFact": null,
+      "placement": "cpu-model:SmolLM2-135M/generation-3",
+      "parsing": null,
+      "register": null,
+      "giver": "cpu-model:SmolLM2-135M/generation-3",
+      "at": "2026-10-03T19:28:53.416Z",
+      "history": [
+        {
+          "state": "CANDIDATE",
+          "context": "cpu-model:SmolLM2-135M/generation-3",
+          "at": "2026-10-03T19:28:53.416Z"
+        }
+      ],
+      "receipt": {
+        "source": "cpu-model:SmolLM2-135M/generation-3",
+        "start": 0,
+        "end": 10,
+        "utf8Start": 0,
+        "utf8End": 10,
+        "sha256": "6071b28f127213b310be6fad2d20c243725187df8570229abf2cffc372bc5aaa",
+        "at": "cpu-model:SmolLM2-135M/generation-3#0-10"
+      },
+      "adjudication": {
+        "status": "unverified_model_testimony",
+        "gap": "external_claim_not_checked"
+      }
+    },
+    {
+      "schema": "EOPropositionHolograph@1",
+      "id": "9",
+      "core": "12 - 12 = 0",
+      "identity": "@",
+      "frame": {
+        "source": "cpu-model:SmolLM2-135M/generation-4",
+        "model": {
+          "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+          "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+        },
+        "scope": "model utterance; external truth not inferred"
+      },
+      "text": "12 - 12 = 0",
+      "synthetic": true,
+      "typing": "invent",
+      "derivation": "Invent",
+      "grain": null,
+      "cell": null,
+      "chase": null,
+      "inspiredBy": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"12 -12\"",
+      "groundsOn": [],
+      "entailRef": null,
+      "entailFact": null,
+      "placement": "cpu-model:SmolLM2-135M/generation-4",
+      "parsing": null,
+      "register": null,
+      "giver": "cpu-model:SmolLM2-135M/generation-4",
+      "at": "2026-10-03T19:28:53.419Z",
+      "history": [
+        {
+          "state": "CANDIDATE",
+          "context": "cpu-model:SmolLM2-135M/generation-4",
+          "at": "2026-10-03T19:28:53.419Z"
+        }
+      ],
+      "receipt": {
+        "source": "cpu-model:SmolLM2-135M/generation-4",
+        "start": 0,
+        "end": 11,
+        "utf8Start": 0,
+        "utf8End": 11,
+        "sha256": "5d38b3adf1a840e5c2eb8bd64a635d972cdb58342aca8f71c6c1d6df32b28c26",
+        "at": "cpu-model:SmolLM2-135M/generation-4#0-11"
+      },
+      "adjudication": {
+        "status": "unverified_model_testimony",
+        "gap": "external_claim_not_checked"
+      }
+    },
+    {
+      "schema": "EOPropositionHolograph@1",
+      "id": "10",
+      "core": "integer answer",
+      "identity": "integer answer@",
+      "frame": {
+        "source": "cpu-model:SmolLM2-135M/generation-5",
+        "model": {
+          "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+          "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+        },
+        "scope": "model utterance; external truth not inferred"
+      },
+      "text": "The integer answer is 7.",
+      "synthetic": true,
+      "typing": "invent",
+      "derivation": "Invent",
+      "grain": null,
+      "cell": null,
+      "chase": null,
+      "inspiredBy": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"7\\n8\\n9\"",
+      "groundsOn": [],
+      "entailRef": null,
+      "entailFact": null,
+      "placement": "cpu-model:SmolLM2-135M/generation-5",
+      "parsing": null,
+      "register": null,
+      "giver": "cpu-model:SmolLM2-135M/generation-5",
+      "at": "2026-10-03T19:28:53.421Z",
+      "history": [
+        {
+          "state": "CANDIDATE",
+          "context": "cpu-model:SmolLM2-135M/generation-5",
+          "at": "2026-10-03T19:28:53.421Z"
+        }
+      ],
+      "receipt": {
+        "source": "cpu-model:SmolLM2-135M/generation-5",
+        "start": 0,
+        "end": 24,
+        "utf8Start": 0,
+        "utf8End": 24,
+        "sha256": "b8f9f2cbf9887d0a7d53b32566eba2faaef14019bd84e9216af05bcf8b9cbc76",
+        "at": "cpu-model:SmolLM2-135M/generation-5#0-24"
+      },
+      "adjudication": {
+        "status": "unverified_model_testimony",
+        "gap": "external_claim_not_checked"
+      }
+    },
+    {
+      "schema": "EOPropositionHolograph@1",
+      "id": "11",
+      "core": "integer answer",
+      "identity": "integer answer@",
+      "frame": {
+        "source": "cpu-model:SmolLM2-135M/generation-6",
+        "model": {
+          "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+          "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+        },
+        "scope": "model utterance; external truth not inferred"
+      },
+      "text": "The integer answer is 10.",
+      "synthetic": true,
+      "typing": "invent",
+      "derivation": "Invent",
+      "grain": null,
+      "cell": null,
+      "chase": null,
+      "inspiredBy": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"  -3\\t10  \"",
+      "groundsOn": [],
+      "entailRef": null,
+      "entailFact": null,
+      "placement": "cpu-model:SmolLM2-135M/generation-6",
+      "parsing": null,
+      "register": null,
+      "giver": "cpu-model:SmolLM2-135M/generation-6",
+      "at": "2026-10-03T19:28:53.423Z",
+      "history": [
+        {
+          "state": "CANDIDATE",
+          "context": "cpu-model:SmolLM2-135M/generation-6",
+          "at": "2026-10-03T19:28:53.423Z"
+        }
+      ],
+      "receipt": {
+        "source": "cpu-model:SmolLM2-135M/generation-6",
+        "start": 0,
+        "end": 25,
+        "utf8Start": 0,
+        "utf8End": 25,
+        "sha256": "ec970f2b59e05df83dca65b738e24ed192598b5ae652e13c1c576164a0f4eb75",
+        "at": "cpu-model:SmolLM2-135M/generation-6#0-25"
+      },
+      "adjudication": {
+        "status": "unverified_model_testimony",
+        "gap": "external_claim_not_checked"
+      }
+    },
+    {
+      "schema": "EOPropositionHolograph@1",
+      "id": "12",
+      "core": "1000 23",
+      "identity": "@",
+      "frame": {
+        "source": "cpu-model:SmolLM2-135M/generation-7",
+        "model": {
+          "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+          "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+        },
+        "scope": "model utterance; external truth not inferred"
+      },
+      "text": "1000 23",
+      "synthetic": true,
+      "typing": "invent",
+      "derivation": "Invent",
+      "grain": null,
+      "cell": null,
+      "chase": null,
+      "inspiredBy": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"1000 23\"",
+      "groundsOn": [],
+      "entailRef": null,
+      "entailFact": null,
+      "placement": "cpu-model:SmolLM2-135M/generation-7",
+      "parsing": null,
+      "register": null,
+      "giver": "cpu-model:SmolLM2-135M/generation-7",
+      "at": "2026-10-03T19:28:53.425Z",
+      "history": [
+        {
+          "state": "CANDIDATE",
+          "context": "cpu-model:SmolLM2-135M/generation-7",
+          "at": "2026-10-03T19:28:53.425Z"
+        }
+      ],
+      "receipt": {
+        "source": "cpu-model:SmolLM2-135M/generation-7",
+        "start": 0,
+        "end": 7,
+        "utf8Start": 0,
+        "utf8End": 7,
+        "sha256": "0946580df2167dd633b7045332f5db9f7f818b5389ed6ba3e9e73a18eb71eb2f",
+        "at": "cpu-model:SmolLM2-135M/generation-7#0-7"
+      },
+      "adjudication": {
+        "status": "unverified_model_testimony",
+        "gap": "external_claim_not_checked"
+      }
+    },
+    {
+      "schema": "EOPropositionHolograph@1",
+      "id": "13",
+      "core": "python empty input sums input sums",
+      "identity": "python empty input sums input sums@",
+      "frame": {
+        "source": "cpu-model:SmolLM2-135M/generation-8",
+        "model": {
+          "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+          "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+        },
+        "scope": "model utterance; external truth not inferred"
+      },
+      "text": "```python\ndef sum_empty_input_sums(input_sums):\n    return sum(input_sums)",
+      "synthetic": true,
+      "typing": "invent",
+      "derivation": "Invent",
+      "grain": null,
+      "cell": null,
+      "chase": null,
+      "inspiredBy": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"0\"",
+      "groundsOn": [],
+      "entailRef": null,
+      "entailFact": null,
+      "placement": "cpu-model:SmolLM2-135M/generation-8",
+      "parsing": null,
+      "register": null,
+      "giver": "cpu-model:SmolLM2-135M/generation-8",
+      "at": "2026-10-03T19:28:53.428Z",
+      "history": [
+        {
+          "state": "CANDIDATE",
+          "context": "cpu-model:SmolLM2-135M/generation-8",
+          "at": "2026-10-03T19:28:53.428Z"
+        }
+      ],
+      "receipt": {
+        "source": "cpu-model:SmolLM2-135M/generation-8",
+        "start": 0,
+        "end": 74,
+        "utf8Start": 0,
+        "utf8End": 74,
+        "sha256": "1f2b217e06e0b7f213324b00c344f9071a80578a45f78cde5fdca309926c1739",
+        "at": "cpu-model:SmolLM2-135M/generation-8#0-74"
+      },
+      "adjudication": {
+        "status": "unverified_model_testimony",
+        "gap": "external_claim_not_checked"
+      }
+    },
+    {
+      "schema": "EOPropositionHolograph@1",
+      "id": "14",
+      "core": "test",
+      "identity": "test@",
+      "frame": {
+        "source": "cpu-model:SmolLM2-135M/generation-8",
+        "model": {
+          "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+          "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+        },
+        "scope": "model utterance; external truth not inferred"
+      },
+      "text": "# Test the",
+      "synthetic": true,
+      "typing": "invent",
+      "derivation": "Invent",
+      "grain": null,
+      "cell": null,
+      "chase": null,
+      "inspiredBy": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"0\"",
+      "groundsOn": [],
+      "entailRef": null,
+      "entailFact": null,
+      "placement": "cpu-model:SmolLM2-135M/generation-8",
+      "parsing": null,
+      "register": null,
+      "giver": "cpu-model:SmolLM2-135M/generation-8",
+      "at": "2026-10-03T19:28:53.428Z",
+      "history": [
+        {
+          "state": "CANDIDATE",
+          "context": "cpu-model:SmolLM2-135M/generation-8",
+          "at": "2026-10-03T19:28:53.428Z"
+        }
+      ],
+      "receipt": {
+        "source": "cpu-model:SmolLM2-135M/generation-8",
+        "start": 76,
+        "end": 86,
+        "utf8Start": 76,
+        "utf8End": 86,
+        "sha256": "4f2cbbd358a872b952666e95b47f09f5424d6927837d36e494aec7fe99cdf7a8",
+        "at": "cpu-model:SmolLM2-135M/generation-8#76-86"
+      },
+      "adjudication": {
+        "status": "unverified_model_testimony",
+        "gap": "external_claim_not_checked"
+      }
+    },
+    {
+      "schema": "EOPropositionHolograph@1",
+      "id": "15",
+      "core": "integers",
+      "identity": "integers@",
+      "frame": {
+        "source": "cpu-model:SmolLM2-135M/generation-9",
+        "model": {
+          "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+          "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+        },
+        "scope": "model utterance; external truth not inferred"
+      },
+      "text": "The sum of the integers is 0.",
+      "synthetic": true,
+      "typing": "invent",
+      "derivation": "Invent",
+      "grain": null,
+      "cell": null,
+      "chase": null,
+      "inspiredBy": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"  \"",
+      "groundsOn": [],
+      "entailRef": null,
+      "entailFact": null,
+      "placement": "cpu-model:SmolLM2-135M/generation-9",
+      "parsing": null,
+      "register": null,
+      "giver": "cpu-model:SmolLM2-135M/generation-9",
+      "at": "2026-10-03T19:28:53.431Z",
+      "history": [
+        {
+          "state": "CANDIDATE",
+          "context": "cpu-model:SmolLM2-135M/generation-9",
+          "at": "2026-10-03T19:28:53.431Z"
+        }
+      ],
+      "receipt": {
+        "source": "cpu-model:SmolLM2-135M/generation-9",
+        "start": 0,
+        "end": 29,
+        "utf8Start": 0,
+        "utf8End": 29,
+        "sha256": "640157740e67ade5d3602f408f69aad14b8c97274b5a1bad0b62a20c4ba637bf",
+        "at": "cpu-model:SmolLM2-135M/generation-9#0-29"
+      },
+      "adjudication": {
+        "status": "unverified_model_testimony",
+        "gap": "external_claim_not_checked"
+      }
+    }
+  ]
+}
