@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { parseProposal, checkFenced, runCodeLoop, figureOpFor, PROPOSAL_FORMAT as PROPOSAL_FORMAT_FOR_TESTS } from "./code-loop.js";
+import { parseProposal, checkFenced, runCodeLoop, figureOpFor, locateMissingUnit, PROPOSAL_FORMAT as PROPOSAL_FORMAT_FOR_TESTS } from "./code-loop.js";
 import { openFolder } from "../adapters/sources/folder-index.js";
 
 // First pins on the loop's proposal grammar (previously entirely
@@ -35,6 +35,27 @@ test("parseProposal: empty ADD is a delete (trailing newline trimmed)", () => {
   const r = parseProposal("PATH: x.py\n<<<FIND>>>\nold_line\n<<<ADD>>>\n\n<<<END>>>");
   assert.equal(r.ok, true);
   assert.equal(r.add, "");
+});
+
+test("parseProposal: a fenced read block is absorbed (the frontier mouth's natural shape, 2026-10-03)", () => {
+  const r = parseProposal("I need to see the actual content before I propose anything.\n\n```read\nsrc/route.js\n```\n");
+  assert.equal(r.ok, true);
+  assert.equal(r.action, "SIG");
+  assert.equal(r.path, "src/route.js");
+  assert.equal(r.absorbed, "fenced-read");
+});
+
+test("parseProposal: several fenced reads in one answer are all honored (one round, not N)", () => {
+  const r = parseProposal("```read\nsrc/a.js\nsrc/b.js\n```\n");
+  assert.equal(r.ok, true);
+  assert.equal(r.action, "SIG");
+  assert.deepEqual(r.paths, ["src/a.js", "src/b.js"]);
+});
+
+test("parseProposal: a fenced read in located mode is still the typed unexpected_read, never a silent path", () => {
+  const r = parseProposal("```read\nsrc/route.js\n```\n", { impliedPath: "src/route.js" });
+  assert.equal(r.ok, false);
+  assert.equal(r.gap.kind, "unexpected_read");
 });
 
 test("parseProposal: prose with no block is a typed gap, never a guess", () => {
@@ -157,7 +178,7 @@ test("runCodeLoop: the territory ground aims round 1 at the task's own files —
   await runCodeLoop({
     sessionId: "test-ground", userId: null, model: "fake",
     task: "make the add function return a * b instead of a + b",
-    workspace: dir, testCommand: "node -e \"console.log('ok')\"", maxRounds: 1, testTimeoutMs: 15000,
+    workspace: dir, testCommand: "node -e \"process.exit(1)\"", maxRounds: 1, testTimeoutMs: 15000,
     candidates: 1, turn: mouth, territory: handle,
   });
   assert.match(round1Content, /whole workspace was read and indexed/);
@@ -225,7 +246,7 @@ test("runCodeLoop: a repeated already-refused READ stops the loop early with a s
   // stop as soon as the refusal repeats, not after spending every round on it.
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "loopstuck-"));
   fs.writeFileSync(path.join(dir, "solution.py"), "def f():\n    return 1\n");
-  fs.writeFileSync(path.join(dir, "check.py"), "print('TASK GREEN')\n");
+  fs.writeFileSync(path.join(dir, "check.py"), "raise SystemExit(1)\n");
   let calls = 0;
   const mouth = async () => {
     calls += 1;
@@ -258,4 +279,100 @@ test("runCodeLoop: requireReasoning:true lets a normal patch through, via the RE
   });
   assert.equal(result.done, true, `expected the reasoning-gated patch to apply and pass; rounds: ${JSON.stringify(result.rounds)}`);
   assert.equal(result.rounds[0].gap, undefined, "a mechanical, force:default claim about a normal patch should never be refused by the real reasoning gate");
+});
+
+// ── THE MECHANICAL LOCATES (2026-10-03) ──────────────────────────────────
+// Measured live: a frontier mouth on a JS task whose test imported a missing
+// export (a) burned its whole budget on the wrong file (no stub exists, so
+// the void loop chased `bridge-server.mjs`), and (b) had its natural fenced
+// read shape refused. Both are now mechanical: the missing unit is located
+// from the test's own failure output (pure text, no model), and the fenced
+// read is absorbed. These tests pin both, with falsifying controls.
+
+test("locateMissingUnit: Node ESM 'does not provide an export named' resolves the module relative to the importing test file", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "looplocate-"));
+  fs.mkdirSync(path.join(dir, "src"));
+  fs.writeFileSync(path.join(dir, "src", "route.js"), "export function pickGiver() {\n  return null;\n}\n");
+  fs.writeFileSync(path.join(dir, "src", "token-test.stub.mjs"), 'import { routeDecision } from "./route.js";\n');
+  const output = [
+    `file://${path.join(dir, "src", "token-test.stub.mjs")}:1`,
+    'import { routeDecision } from "./route.js";',
+    "         ^^^^^^^^^^^^^",
+    "SyntaxError: The requested module './route.js' does not provide an export named 'routeDecision'",
+    "    at #_instantiate (node:internal/modules/esm/module_job:254:21)",
+  ].join("\n");
+  const r = locateMissingUnit(output, { root: dir, files: ["src/route.js", "src/token-test.stub.mjs"] });
+  assert.equal(r?.file, "src/route.js");
+  assert.equal(r?.unit, "routeDecision");
+  assert.equal(r?.kind, "missing_export");
+});
+
+test("locateMissingUnit: Python 'cannot import name' resolves the module relative to the failing file", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "looplocate-py-"));
+  fs.writeFileSync(path.join(dir, "solution.py"), "def f():\n    return 1\n");
+  const output = [
+    "Traceback (most recent call last):",
+    `  File "${path.join(dir, "check.py")}", line 1, in <module>`,
+    "    from solution import routeDecision",
+    "ImportError: cannot import name 'routeDecision' from 'solution'",
+  ].join("\n");
+  const r = locateMissingUnit(output, { root: dir, files: ["solution.py", "check.py"] });
+  assert.equal(r?.file, "solution.py");
+  assert.equal(r?.unit, "routeDecision");
+  assert.equal(r?.kind, "missing_import");
+});
+
+test("locateMissingUnit: falsifying control — a target that ALREADY declares the unit is not located (this is some other failure)", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "looplocate-ctl-"));
+  fs.writeFileSync(path.join(dir, "route.js"), "export function routeDecision() {\n  return 1;\n}\n");
+  const output = [
+    `file://${path.join(dir, "test.mjs")}:1`,
+    "SyntaxError: The requested module './route.js' does not provide an export named 'routeDecision'",
+  ].join("\n");
+  assert.equal(locateMissingUnit(output, { root: dir, files: ["route.js", "test.mjs"] }), null);
+});
+
+test("locateMissingUnit: no importer frame and no workspace root is a typed null, never a guess", () => {
+  assert.equal(locateMissingUnit("SyntaxError: The requested module './x.js' does not provide an export named 'y'", {}), null);
+});
+
+test("runCodeLoop: a missing export is located mechanically and the mouth patches the named file path-less (the frontier-task fix, 2026-10-03)", async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "loopmissing-"));
+  fs.mkdirSync(path.join(dir, "src"));
+  fs.writeFileSync(path.join(dir, "src", "route.js"), "export function pickGiver(workers) {\n  return workers[0] ?? null;\n}\n");
+  fs.writeFileSync(path.join(dir, "src", "token-test.stub.mjs"), [
+    'import { test } from "node:test";',
+    'import assert from "node:assert/strict";',
+    'import { routeDecision } from "./route.js";',
+    'test("routeDecision picks the first worker", () => { assert.equal(routeDecision(["a"]), "a"); });',
+  ].join("\n") + "\n");
+  let sawLocated = null;
+  const mouth = async ({ task }) => {
+    sawLocated = task;
+    return { text: "<<<FIND>>>\nexport function pickGiver(workers) {\n  return workers[0] ?? null;\n}\n<<<ADD>>>\nexport function pickGiver(workers) {\n  return workers[0] ?? null;\n}\n\nexport function routeDecision(workers) {\n  return workers[0] ?? null;\n}\n<<<END>>>" };
+  };
+  const result = await runCodeLoop({
+    sessionId: "test-missing", userId: null, model: "fake", task: "implement routeDecision so the test passes",
+    workspace: dir, testCommand: "node src/token-test.stub.mjs", maxRounds: 2, testTimeoutMs: 30000,
+    candidates: 1, turn: mouth,
+  });
+  assert.equal(result.done, true, `expected the located path-less patch to pass; rounds: ${JSON.stringify(result.rounds)}`);
+  assert.equal(result.rounds[0].path, "src/route.js", "the machine must aim at the file the test's import names, never the test file");
+  assert.match(sawLocated ?? "", /routeDecision/, "the missing unit must be named to the mouth");
+  assert.doesNotMatch(sawLocated ?? "", /ACTION: read/, "the located file's bytes are shown; no read round is spent");
+});
+
+test("runCodeLoop: a preflight-green test is done with zero draws (a passing test is not a prompt)", async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "loopgreen-"));
+  fs.writeFileSync(path.join(dir, "check.py"), "print('TASK GREEN')\n");
+  let draws = 0;
+  const mouth = async () => { draws += 1; return { text: "ACTION: read\nPATH: check.py\n" }; };
+  const result = await runCodeLoop({
+    sessionId: "test-green", userId: null, model: "fake", task: "nothing to do",
+    workspace: dir, testCommand: "python3 check.py", maxRounds: 2, testTimeoutMs: 15000,
+    candidates: 1, turn: mouth,
+  });
+  assert.equal(result.done, true);
+  assert.equal(draws, 0, "a green preflight must spend zero model draws");
+  assert.equal(result.rounds[0].by, "preflight");
 });

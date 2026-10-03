@@ -3168,6 +3168,15 @@ const DEFAULT_KELSEN = Number(process.env.ER7_KELSEN ?? 0.9);
 // 4096 - 1024 output = 3072 prompt tokens; at the conservative 3 chars/token
 // used below that is 9216 chars. gemma2:2b's 8192 window was the prior budget.
 const PROMPT_MAX_CHARS = Number(process.env.ER7_MAX_PROMPT_CHARS ?? 9216);
+// THE BUDGET FOLLOWS THE WINDOW (2026-10-03, measured live). The 9216 ceiling
+// above is sized for the SMALLEST local window (OLMo 2 7B, 4096 tokens); a
+// remote lane (anthropic/opencode) carries a 200k-token window, and applying
+// the local ceiling to it silently dropped the code loop's material — an
+// 11,521-char file became a 20-char first-line fragment (the chat-history
+// budget dropped the message, then the corpus fallback reconstructed only
+// its first line), and the mouth answered "I need to see the file" three
+// rounds running. The remote lanes get their own, measured ceiling.
+const REMOTE_PROMPT_MAX_CHARS = Number(process.env.ER7_MAX_REMOTE_PROMPT_CHARS ?? 200000);
 // ONE WINDOW FOR THE WHOLE BOX, DECIDED BY THE SERVER (2026-09-21). The
 // 2026-09-15 attempt made each caller DECLARE the same window — but declared
 // windows only agree while every caller remembers to declare, and the box
@@ -5812,26 +5821,55 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // Chat history precedence: walk from the most recent message backwards and
   // keep as much as the budget permits after the essential system context and
   // the turn's own task. Older messages are the first thing to give way.
+  //
+  // THE BUDGET FOLLOWS THE WINDOW (2026-10-03): the local ceiling above is
+  // sized for the smallest local window; a remote lane (anthropic/opencode)
+  // carries a far larger one, and applying the local ceiling to it silently
+  // dropped a large chat turn whole.
+  //
+  // DRAW-ONLY MATERIAL IS NOT CHAT HISTORY (2026-10-03, measured live): a
+  // specialist loop (the code loop) hands its per-round MATERIAL as the last
+  // chat message. Under the old rule the 11,521-char file was dropped whole
+  // (over budget), and the corpus fallback below reconstructed only its first
+  // line — the mouth saw `--- src/route.js ---` and answered "I need to see
+  // the file" three rounds running, then invented bytes. For a drawOnly turn
+  // the LAST message is the material: it is kept whole up to the caller's own
+  // disclosed cap (never silently dropped), the turns before it take the
+  // normal budget, and the corpus fallback is skipped (the caller already
+  // sent its material; reconstructing a fragment would fabricate context).
+  const promptMax = (anthropicRoute || opencodeRoute) ? REMOTE_PROMPT_MAX_CHARS : PROMPT_MAX_CHARS;
+  const DRAW_MATERIAL_MAX_CHARS = Number(process.env.ER7_MAX_DRAW_MATERIAL_CHARS ?? 60000);
   const taskLen = String(task).length + MSG_OVERHEAD_CHARS;
   const systemLen = systemCore.length + MSG_OVERHEAD_CHARS;
   let chatLen = 0;
   const keptChat = [];
   for (let i = chatHistory.length - 1; i >= 0; i--) {
     const m = chatHistory[i];
-    const cost = String(m?.content ?? "").length + MSG_OVERHEAD_CHARS;
-    if (systemLen + taskLen + chatLen + cost > PROMPT_MAX_CHARS) break;
-    keptChat.unshift({ role: m.role, content: m.content });
+    const isDrawMaterial = drawOnly && i === chatHistory.length - 1;
+    const cap = isDrawMaterial ? Math.max(promptMax, DRAW_MATERIAL_MAX_CHARS) : promptMax;
+    const raw = String(m?.content ?? "");
+    const cost = raw.length + MSG_OVERHEAD_CHARS;
+    if (systemLen + taskLen + chatLen + cost > cap) {
+      if (!isDrawMaterial) break;
+      const room = Math.max(0, cap - systemLen - taskLen - chatLen - MSG_OVERHEAD_CHARS);
+      const content = `${raw.slice(0, room)}\n[...truncated to the draw budget — ask for a read of what you still need...]`;
+      keptChat.unshift({ role: m.role, content });
+      chatLen += content.length + MSG_OVERHEAD_CHARS;
+      break;
+    }
+    keptChat.unshift({ role: m.role, content: raw });
     chatLen += cost;
   }
   // When the client sends no history (stateless API call), reconstruct prior
   // turns from the session corpus so opaque tokens and short prior exchanges
   // reach the model verbatim — the semantic surf may miss them by topic mismatch.
-  if (!keptChat.length && session.corpus?.documents?.size) {
+  // Skipped for drawOnly turns: their material IS the message the caller sent.
+  if (!keptChat.length && !drawOnly && session.corpus?.documents?.size) {
     const priorTurns = transcriptFromSession(session, task);
     for (const t of priorTurns) {
       const qCost = String(t.question ?? "").length + MSG_OVERHEAD_CHARS;
       const aCost = String(t.answer ?? "").length + MSG_OVERHEAD_CHARS;
-      if (systemLen + taskLen + chatLen + qCost + aCost > PROMPT_MAX_CHARS) break;
+      if (systemLen + taskLen + chatLen + qCost + aCost > promptMax) break;
       keptChat.push({ role: "user", content: t.question });
       if (t.answer) keptChat.push({ role: "assistant", content: t.answer });
       chatLen += qCost + aCost;
@@ -5840,7 +5878,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
 
   // Surfed material fills what remains — the most-relevant segments first,
   // truncated only when the budget (not caution) demands it.
-  const materialRoom = Math.max(0, PROMPT_MAX_CHARS - systemLen - taskLen - chatLen);
+  const materialRoom = Math.max(0, promptMax - systemLen - taskLen - chatLen);
   const material = [];
   let used = 0;
   for (const s of surfacedSegments) {
@@ -5923,7 +5961,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       systemContent += `\n\nVerbatim from the sources (quote these where they support your writing, never invent a quote):\n\n"""\n${snips.map((s) => `- "${s.snip}"`).join("\n")}\n"""`;
     }
   }
-  if (onNote) onNote({ move: "prompt_budget", system: systemCore.length, chat: keptChat.length, chatChars: chatLen, materialSegments: runMode === "projection" ? 0 : material.length, materialChars: runMode === "projection" ? 0 : used, taskChars: taskLen, max: PROMPT_MAX_CHARS, projection: runMode === "projection" ? "compact — section briefs carry the claims" : null });
+  if (onNote) onNote({ move: "prompt_budget", system: systemCore.length, chat: keptChat.length, chatChars: chatLen, materialSegments: runMode === "projection" ? 0 : material.length, materialChars: runMode === "projection" ? 0 : used, taskChars: taskLen, max: promptMax, projection: runMode === "projection" ? "compact — section briefs carry the claims" : null });
 
   // TRAJECTORY BOREDOM — "boring is itself a surprise to avoid" (user,
   // 2026-09-17). Not the same thing as pacing.js's flatline (one text's own

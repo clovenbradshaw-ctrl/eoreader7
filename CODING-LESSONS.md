@@ -2434,3 +2434,205 @@ still originated and undone. 33 tests pass.
 Falsifying control on the fix: a bridge that is flagged originated, or a
 mid-part fabrication that the position-exemption lets through, contradicts
 this.
+
+## 91. Residue + machine repair beats redraw-and-drift (2026-10-02)
+The news-RSS wall (GL-WALL, two buggy draws, hunt name-bound, two recursion
+turns re-walled) collapsed by a path the machinery had not tried: keep the
+model's FIRST draw — structurally close, ElementTree, correct shape — and let
+the machine repair the generic gaps: the missing import (name-gap), the None
+where a number is required (type-gap), the truncated return (completion-gap).
+The error-correction REDRAW had collapsed the whole structure (drift): each
+redraw re-rolled the dice over the entire body instead of fixing the one
+named defect. Three generic repairs passed the generic RSS-validity judge with
+zero redraws. The redraw is a drift risk; a repair is not. The same law held
+in the /api/feed/build wiring: the model drew a whole do_GET (wrong frame,
+right body); the machine converted it to the fold's own route frame rather
+than redrawing.
+Falsifying control: a redraw that drifts and still passes (the structure was
+never under repair), or a "collapse" reported without the generic judge's
+pass, contradicts this.
+
+## 92. A small model simulates API interactions in UI draws — diff the drawn JS against the contract (2026-10-02)
+Tasked to add a "mark read" interaction, the 1.5B model drew a button whose
+handler REPLACED the digest with a fabricated card ("This is a new line.",
+score 5) — it simulated the interaction instead of calling /api/read, because
+the UI task's success criterion is visual, and the cheapest way to look right
+is to fake the state change. The machine's guard: grep the drawn JS for the
+API contract's routes and for fake literals ("simulate", hardcoded
+"<div class="card">" bodies), and splice the real call in. Also in the same
+draw: `data.ok` checked on an endpoint that returns no ok key (the render
+never ran) and `lines[prove.span]` — indexing an array with an OBJECT. A UI
+draw is believed only after the contract diff; a faked interaction is a
+fabrication, the doctrine's exact sin.
+Falsifying control: a UI draw whose state transitions all call the real
+routes and render real response data would contradict the "simulates" part;
+a draw that passes the contract diff but still fakes a transition (hardcoded
+values in the handler) contradicts the guard's completeness.
+
+## 93. The adapter layers are where selection noise lives — the machine's own rules gate admission (2026-10-02)
+Folding real NPR titles at a reader identity, the summary engine's law held
+(the fold moved the digest: a read story dropped, another rose; the stance
+flip class outranked the base 1000:40) but the ADAPTERS were noisy: sentence-
+start words entered the identity as names (Will, October, Failed, Cloaked);
+a hyphenated name was missed (Pro-Trump -> Trump); the giver's stance lexicon
+fired on a SURNAME (Renee Good -> stance flip). The tool's own rules exist
+(a capital the doc writes lowercase is not a name; the docLowerSet veto) but
+the adapter fed the tool pre-filtered names and never ran them. Lesson: the
+selection engine's law is only as honest as the layers that translate the
+material into its claim grain — the machine's rules (isalpha for names,
+hyphen-splitting, the stance lexicon's position-sensitivity) must gate
+admission, or the identity accumulates the material's accidents.
+Falsifying control: an identity that never accumulates a sentence-start word,
+and a stance flip that never fires on a surname, would contradict the noise
+claim; a digest whose lines are identical after a read (the fold did not
+move) contradicts the law's survival.
+
+## 94. Falsify the machinery's own claim — the recursion re-walled honestly (2026-10-02)
+The helix's L9 (rule from the wall, field fact, kind re-hunt) ran twice and
+re-walled twice: GitHub's search returned an EMPTY population (a rate-limit
+artifact, not a finding) and the web fallback reached nothing frame-matching.
+The mechanism was proven real (the frame-snip matches a known RSS builder
+5/5) — so the falsification was of the CLAIM "recursion collapses the wall",
+not of the recursion: the reach is short, the wall stands as material (rule +
+field fact), and the rezero was the honest decision. A mechanism is only real
+when its claim can be broken; proving the mechanism without testing the claim
+is belief.
+Falsifying control: a recursion that reports a collapse the generic judge
+does not pass, or a hunt whose empty population is taken as "nothing exists"
+without checking whether the search itself was rate-limited, contradicts
+this.
+
+## 95. The build emits its own trace — the record must not wedge the loom (2026-10-02)
+The mechanical build's per-unit economy was only visible at the end (the
+provenance in the final JSON). Now `buildCodeTask` takes an optional
+`onEvent` observer and emits one GenerationTrace@1 event per unit as the box
+computes it and as each concurrent draw resolves (units, box, draw:start,
+draw:done, mouth, gap, refuse, verify, seal) — the record is written while
+the work happens, and a throwing observer is swallowed so the record can
+never wedge the loom (the swatch discipline: a failed append is a finding,
+never a kill). The proxy's /v1/ask streams it as NDJSON when
+`buildStream: true` (default-off — a plain ask stays byte-identical);
+Penelope's loom consumes the stream and prints the human lines live,
+falling back to the post-hoc provenance when an older door answers JSON.
+Measured model-free: box-computed toCamelCase+toSnakeCase emitted
+units/box/box/verify/seal with 0 draws; consumeBuildStream returned the
+result from a synthetic stream and refused an empty one as a named gap.
+Falsifying control: a build whose stream omits a unit its final provenance
+holds, an observer throw that kills the build, a streamed result line that
+disagrees with the events it streamed, or a default (non-streamed) ask whose
+payload changed — any concedes this.
+
+## 96. The void loop IS the fold — contextMode is dead on the path every real code base takes (2026-10-02)
+Asked whether a mechanical fold of a GIANT code base helps context for a small
+mouth, the recorded harness sweep answered 1-vs-1 every time: raw and fold both
+solve in one round. The reason is structural, not a tie. Any code base holding a
+stub routes `runCodeLoop` to `runVoidLoop` (code-loop.js:1138-1141), whose
+signature (code-loop.js:612) has NO `contextMode` and whose call site omits it.
+The void loop instead does the stricter fold already: it locates the void
+mechanically across the whole code base (`detectVoidUnits` over every file,
+:1134) and hands the mouth exactly one thing — the real stub's own declaration
+(`target.declText`, :883). `renderFoldedContext` (the codeGist call-graph/
+word-relevance cut) and `renderFiles` (the 60k raw dump) both belong to the
+GENERIC branch (`effectiveContext`, :1203), which a stub-bearing code base never
+takes. Measured on a 95KB workspace (25 padded decoys > the 60k raw budget, so
+raw truncates before the target file): RAW 3/3 GREEN in 1 round, FOLD 3/3 GREEN
+in 1 round, no-decoy null 3/3 agree — the modes are indistinguishable because
+both reach the same one-declaration prompt. So folding the context is NOT what
+makes a large code base tractable here; the void loop's whole-code-base scan +
+single-declaration prompt is. The fold feature is not doing work on that path.
+Falsifying control: a stub-bearing code base where raw and fold differ in
+rounds-to-green (the void loop is not reached), or a void-loop prompt that
+carries more than the target declaration, or a `runVoidLoop` signature that
+receives `contextMode` — any supersedes this.
+
+## 97. Extra context HURTS a small mouth — the void loop's single-declaration prompt is right (2026-10-02)
+The void loop shows the mouth exactly one thing: the real stub's own
+declaration (target.declText, code-loop.js:883->958). The proposal was to add
+the target's structural KIN — other declarations whose SHAPE resonates with it,
+found by the child's own sense (kernel/shadow-echo.js: each declaration's body
+bytes become a series; SHADOW = the energy envelope, ECHO = the spectrum; kin =
+descriptors inside the target's own derived self-bound; NO regex, NO name
+matching). `renderVoidNeighbourhood` (code-loop.js:229) does exactly that, wired
+behind an opt-in `contextFold` flag (default false). It works: on the probe
+workspace it emits the real kin (`shout_words` resonates with `capitalize_words`,
+r=0.235 <= bound 0.237). Falsified live (falsify-context-fold.mjs, 5 runs,
+qwen2.5-coder:1.5b): BARE (stub only) solved 5/5 in 1 round; FOLD (stub + kin)
+solved 0/5, every run leaving `raise NotImplementedError` untouched after 7
+rounds. The extra bodies pulled the small mouth OFF the completion anchor — the
+same degradation measured 2026-10-01 ("a 2b mouth degraded to echoing its own
+name when handed the full 63-file fold"). So a large code base is made tractable
+by the void loop's whole-code-base SCAN + single-declaration PROMPT, and adding
+folded context to that prompt makes it worse. The change stays, default-off, as
+a falsified affordance; do not enable it for a small model.
+Falsifying control: a model on which the kin-bearing prompt solves in FEWER
+rounds than the bare stub, or a neighbourhood that is empty when the target
+plainly has structural kin — either supersedes this.
+
+## 98. A frontier mouth speaks its own grammar — the machine absorbs the shape, it does not refuse it (2026-10-03)
+Measured live (claude-sonnet-4-5 on a JS task): the round-1 reply to the
+canonical `ACTION: read / PATH:` grammar was a fenced ```read block naming two
+real files. The old parser refused it as `unparsed_proposal` and burned the
+round; the frontier model then spent every remaining round asking again to see
+the file. The fix is the same doctrine extractBody already runs for patch
+bodies: **absorb the natural shape, validate the path against the real
+workspace** (parseProposal's FENCED_READ_RE, one or many paths per answer, each
+still resolveRealFile-checked). A grammar that only a small model was taught
+is a grammar no frontier model will speak — the parser must meet the model
+where it is, and the physics (real paths, real tests) still decides.
+Falsifying control: a fenced read that passes a non-existent or outside-
+workspace path, or a prose answer absorbed as a read — either supersedes this.
+
+## 99. The test's own failure names the missing unit — locate it mechanically, never let the mouth guess (2026-10-03)
+Measured live: a task whose test imports `routeDecision` from `./route.js`
+(a MISSING export — no stub anywhere). The Python-stub-shaped void loop
+misfired: it chased `bridge-server.mjs` (a file with an unrelated unit whose
+name matched a word in the failure output) and returned `hunt_exhausted`
+after six rounds. Meanwhile the plain FIND/ADD path let the mouth patch the
+TEST file itself. Both failures are one missing capability: the machine was
+not READING the failure. The fix (locateMissingUnit, code-loop.js): parse the
+test's own output — Node ESM `The requested module './route.js' does not
+provide an export named 'routeDecision'` and Python `cannot import name 'X'
+from 'Y'` — resolve the module specifier against the importing file named in
+the same output, and aim the loop at that real file with the unit named. The
+control is built in: a target that ALREADY declares the unit is not located
+(this is some other failure). No model, no guess. Also: run the declared test
+ONCE before any draw — green means done with zero model calls; red gives the
+locate its evidence for free.
+Falsifying control: a missing-export failure whose resolved file is not the
+one the test imports from, or a declared test that cannot be parsed before a
+draw — either supersedes this.
+
+## 100. The prompt budget must follow the model's window — and a draw's material is not chat history (2026-10-03)
+Measured live through the full proxy pipeline (the deepest failure of the
+session): the code loop hands its per-round file bytes as `chatHistory`, but
+the proxy's prompt budget (`PROMPT_MAX_CHARS`, 9216 — sized for the SMALLEST
+local model) silently DROPPED the 11,521-char message; the corpus fallback
+then reconstructed only its first line, so the frontier mouth saw
+`--- src/route.js ---` and answered "I need to see the actual content"
+three rounds running — the bytes never reached the model. Two rules:
+(1) **the budget follows the window** — a remote lane (anthropic/opencode)
+carries a 200k-token window and must not inherit the local ceiling;
+(2) **a drawOnly turn's last message is MATERIAL, not chat history** — it is
+kept whole up to a disclosed cap (never silently dropped), the corpus
+fragment-reconstruction is skipped for it, and truncation (when it happens)
+is marked and askable-around. The scripted-mouth unit tests passed while the
+live pipeline failed because the mouth injection bypasses the budget; the
+driver must be tested through the real runner or the seam hides here.
+Falsifying control: a drawOnly turn whose material is dropped or
+first-line-fragmented, or a remote turn whose budget is still the local
+ceiling — either supersedes this.
+
+## 101. One name, one module — a collision silently kills the other pipeline (2026-10-03)
+The working tree's `native/the-fold/hunt.js` had been repurposed as the code
+hunt (huntCandidates/swarmProbe/computeBody), silently replacing the essay
+pipeline's stage-5 hunt (huntGround/huntLines). `pipeline-run.mjs` and two
+falsify test files imported the essay exports and died at import time — the
+whole generation pipeline was down and no test named the cause (the code
+loop's own tests were green). Split done: the code hunt now lives in
+`code-hunt.js` (code-loop.js imports it), the essay hunt is restored to
+`hunt.js`. The lesson: a module name that two planes both want is a collision
+waiting to happen; when a repurpose lands, the importers of the old shape are
+the first thing to grep.
+Falsifying control: a live importer of either hunt shape that still resolves
+to the wrong module, or a test suite that stays green while one pipeline's
+imports are dead — either supersedes this.
