@@ -33,26 +33,41 @@ Files: `native/eval/the-fold/atomize-lessons.mjs` →
    (operation vs operand) applied to matching, direction disclosed on the atom.
    A stopword filter (closed-class lemmas: be/have/do/that/this…) removes noise.
 
-## Result
+## Result (after two parsing fixes)
 
-| status | count | meaning |
+Two real parser bugs were found and fixed — both about READING, not classifying:
+
+1. **Markdown broke the parser.** Lesson bodies carry `**bold**`, `` `code` ``, `*em*`; the UD parser returned null on every one. Stripping markup first (`deMark`) made the same sentences parse.
+2. **Imperatives have no subject in UD.** "Decompose to one behavior per ask" parses to null; restoring the elided subject mechanically ("You decompose…") recovers the operation (`decompose|you`) — no word match.
+
+With both fixes, **92/93 lessons parse to intent** (was 44/93); only 1 stays unparseable.
+
+The **status** is where the honesty matters. Two measurements, neither is a
+verdict:
+
+| measure | count | trust |
 |---|---|---|
-| **live** | 27 | a code clause shares the lesson's operation/operand |
-| **prose-only** | 17 | the lesson's intent appears in no code clause — the gap |
-| **indexed** | 49 | no parseable clause (imperative rules: "Decompose to one behavior") |
-| falsifier carried | 44/93 | the lesson names its own falsifying control |
+| `candidate-exact` — a code clause parses to the **same core** | 61 | a hint, not proof |
+| `candidate-operand` — shares a **noun** with a code comment | 22 | a weak hint (nouns repeat everywhere) |
+| `gap` — intent touches no code clause | 9 | for these, nothing in the runtime reads |
+| `indexed` — no parseable clause | 1 | — |
+| carries its own falsifier | 44/93 | the raw material for execution |
 
-## The honest limits (disclosed, not hidden)
+**The measured conclusion:** intent-of-comments **cannot classify live/prose**.
+Exact-core equality swings from 1/93 (before the parse fixes) to 61/93 (after) —
+proving the number tracks the *parser's* coverage, not the truth. Shared-noun
+overlap is 83/93 and untrustworthy (patch/gate/find/task appear in comments
+everywhere). So the atomizer ships the atoms + the measured overlap as a
+**hint**, and marks the real live/prose verdict as belonging to the **loop** —
+does the mechanism change the artifact — never to comment similarity.
 
-- **Imperatives parse to no core.** A rule stated as a command ("Decompose to
-  one behavior per ask", "Anchors must be real bytes") has no subject in UD, so
-  `clauseCore` returns null and the lesson is `indexed`. That is 49 of 93 — the
-  imperative form itself is the gap, not the mechanism being absent.
-- **Operation-or-operand overlap is permissive.** It can match on a shared root
-  (`have`, `break`) that is not the real mechanism; the `share` field discloses
-  which, so a reader can reject a bad match instead of trusting it.
-- **The atom is not yet consumed.** This ships the atoms and the map; nothing
-  in `runVoidLoop` reads `coding-lesson-atoms.json` yet.
+## What the atoms ARE (the deliverable)
+
+`results/coding-lesson-atoms.json` — 93 `CodingLessonAtoms@2`, each carrying:
+its **intent** (the clause cores the parser read), its **falsifier** (44 present),
+the **holograph atom id** (all 93 captured via `captureProposition`), and the
+measured **overlap hint** with code. This is what "have them be atoms moving
+forward" means: a record the pipeline can consult, not a paragraph a human reads.
 
 ## What would make it an engine, not an index
 

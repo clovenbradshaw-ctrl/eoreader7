@@ -51,6 +51,24 @@ function parseLessons(md) {
 // split on terminal punctuation (mechanical, language-shape not word-match).
 const sentencesOf = (t) => String(t ?? "").split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter((s) => s.split(/\s+/).length >= 3);
 
+// strip markdown so the parser sees PROSE, not markup (**bold**, `code`, *em*,
+// _under_). Measured: markdown made clauseCore return null on every indexed
+// lesson; stripped, the same sentences parse.
+const deMark = (s) => String(s ?? "").replace(/\*\*|\*|`|_|#/g, "").replace(/\s+/g, " ").trim();
+
+// read a clause's intent. A declarative parses directly; an IMPERATIVE has its
+// subject elided in UD, so a null parse is retried with the subject restored
+// mechanically ("You <verb> …") — never a word-match, the operation recovered.
+function intentOf(parser, sentence) {
+  const s = deMark(sentence);
+  const direct = clauseCore(parser, s);
+  if (direct) return { core: direct, form: "declarative" };
+  const lower = s.charAt(0).toLowerCase() + s.slice(1);
+  const imperative = clauseCore(parser, "You " + lower);
+  if (imperative) return { core: imperative, form: "imperative (subject restored)" };
+  return null;
+}
+
 // code comments: the code's OWN intent, read as clauses. Comments are the
 // code's prose; we harvest their cores through the same parser.
 function codeClauses(text) {
@@ -84,8 +102,8 @@ for (const f of RUNTIME_FILES) {
   for (let i = 0; i < lines.length; i += 1) {
     const m = /\/\/\s*([A-Z][^\n]{15,200})/.exec(lines[i]);
     if (!m) continue;
-    const core = clauseCore(parser, m[1].trim());
-    if (core && !codeCores.has(core)) codeCores.set(core, { file: f, line: i + 1, text: m[1].trim().slice(0, 70) });
+    const core = intentOf(parser, m[1]);
+    if (core && !codeCores.has(core.core)) codeCores.set(core.core, { file: f, line: i + 1, text: m[1].trim().slice(0, 70) });
   }
 }
 
@@ -95,24 +113,33 @@ const atoms = [];
 for (const l of lessons) {
   // the lesson's clause cores — its structural intent, one per sentence
   const cores = [];
-  for (const s of sentencesOf(l.body)) { const c = clauseCore(parser, s); if (c) cores.push({ core: c, text: s.slice(0, 120) }); }
+  for (const s of sentencesOf(l.body)) { const c = intentOf(parser, s); if (c) cores.push({ core: c.core, form: c.form, text: s.slice(0, 120) }); }
   // a lesson is LIVE when a code clause shares the lesson's INTENT — the same
   // operation (root verb) or the same operand (subject) as one of its clauses,
   // never a keyword. Exact core equality is too strict (measured: 1/93);
   // sharing root OR subject is the Lovelace distinction (operation vs
   // operand) applied to matching. The direction is disclosed on the atom.
-  let hit = null;
+  // STATUS. Two facts are measured, and neither is the answer:
+  //   · exact core equality (same clause) — trustworthily strict but near-zero
+  //     (1/93): code comments almost never repeat a lesson's exact clause.
+  //   · shared operand (same noun) — high (83/93) but UNTRUSTWORTHY: a noun
+  //     like patch/gate/find/task appears in comments everywhere.
+  // So intent-of-comments CANNOT classify live/prose. What ships is the
+  // measured OVERLAP (a hint, disclosed) plus a status of "candidate" for any
+  // lesson whose intent touches a code clause, "gap" otherwise. The real
+  // live/prose verdict belongs to the LOOP (does the mechanism change the
+  // artifact), never to comment similarity — recorded here, not faked.
+  let exact = null, operand = null;
   for (const { core } of cores) {
     const [root, subj] = core.split("|");
     for (const [cc, at] of codeCores) {
       const [cr, cs] = cc.split("|");
-      if (cr === root && cs === subj) { hit = { core: cc, share: "operation+operand", ...at }; break; }
-      if (cr === root && contentful(root)) { hit = { core: cc, share: `operation (${root})`, ...at }; break; }
-      if (cs === subj && contentful(subj)) { hit = { core: cc, share: `operand (${subj})`, ...at }; break; }
+      if (!exact && cr === root && cs === subj) exact = { core: cc, share: "exact core", ...at };
+      if (!operand && cs === subj && contentful(subj) && subj !== "you") operand = { core: cc, share: `shared operand "${subj}"`, ...at };
     }
-    if (hit) break;
   }
-  const status = hit ? "live" : (cores.length ? "prose" : "indexed");
+  const hit = exact ?? operand;
+  const status = exact ? "candidate-exact" : (operand ? "candidate-operand" : (cores.length ? "gap" : "indexed"));
   const atom = captureProposition(holograph, l.title, {
     activation: l.body.slice(0, 300),
     groundFacts: cores.map((c) => ({ fact: c.core, ref: hit ? `code:${hit.file}:${hit.line}` : null, end1: c.core.split("|")[1] ?? "", end2: c.core.split("|")[0] ?? "" })),
@@ -127,27 +154,29 @@ for (const l of lessons) {
   });
 }
 
-const live = atoms.filter((a) => a.status === "live");
-const prose = atoms.filter((a) => a.status === "prose");
+const exacts = atoms.filter((a) => a.status === "candidate-exact");
+const cands = atoms.filter((a) => a.status === "candidate-operand");
+const live = exacts;
+const prose = atoms.filter((a) => a.status === "gap");
 const indexed = atoms.filter((a) => a.status === "indexed");
 const withFalsifier = atoms.filter((a) => a.falsifier);
 
 console.log(`\n── ATOMIZE THE CODING LESSONS (by intent, no keywords) ──`);
 console.log(`parser: ${parser.provenance?.name ?? "eng-ewt"} · lessons: ${atoms.length}`);
-console.log(`LIVE (a code clause shares the lesson's intent): ${live.length}  ·  PROSE-only: ${prose.length}  ·  INDEXED: ${indexed.length}`);
+console.log(`candidate-exact (same clause in code): ${exacts.length}  ·  candidate-operand (shared noun, a HINT): ${cands.length}  ·  gap: ${prose.length}  ·  indexed: ${indexed.length}`);
 console.log(`atoms with a FALSIFYING CONTROL: ${withFalsifier.length}/${atoms.length}`);
 console.log(`holograph atoms captured: ${holograph.atoms.length}\n`);
 
-console.log(`LIVE — intent matched to code:`);
+console.log(`CANDIDATE-EXACT — a code clause parses to the SAME core (a hint, not a verdict):`);
 for (const a of live) console.log(`  #${a.n} ${a.title.slice(0, 52).padEnd(52)} → ${a.where}`);
-console.log(`\nPROSE-ONLY — the lesson's intent appears in no code clause (the gap):`);
+console.log(`\nGAP — the lesson's intent touches no code clause:`);
 for (const a of prose) console.log(`  #${a.n} ${a.title.slice(0, 60)}  [intent: ${a.intent.slice(0, 3).join(", ")}]`);
 console.log(`\nINDEXED — no parseable clause (title-only lessons):`);
 for (const a of indexed) console.log(`  #${a.n} ${a.title.slice(0, 60)}`);
 
 const out = { schema: "CodingLessonAtoms@2", method: "intent (clause core) + holograph, no keyword match",
   parser: parser.provenance ?? null, count: atoms.length,
-  summary: { live: live.length, prose: prose.length, indexed: indexed.length, withFalsifier: withFalsifier.length },
+  summary: { candidateExact: exacts.length, candidateOperand: cands.length, gap: prose.length, indexed: indexed.length, withFalsifier: withFalsifier.length },
   atoms };
 fs.writeFileSync(path.join(HERE, "results", "coding-lesson-atoms.json"), JSON.stringify(out, null, 2));
 console.log(`\natoms written → native/eval/the-fold/results/coding-lesson-atoms.json`);
