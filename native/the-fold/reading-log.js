@@ -99,6 +99,7 @@ export function foldReading(entries = [], { reconstruct = null, diaNorm = null, 
     if (isReferent(e)) {
       const r = referents.get(e.id) ?? { id: e.id, surfaces: new Set(), provenance: [], fedBy: new Set() };
       for (const s of e.surfaces ?? []) r.surfaces.add(String(s));
+      for (const k of ["identityScope", "caseSensitive", "grammar", "standing", "kind"]) if (e[k] != null) r[k] = e[k];
       // provenance is an ARRAY on the perceiver's admitted EOReferent@1 and an
       // OBJECT (a single {giver, basis} testimony, eoreader7's discourse-
       // referent organ) on recycled occurrence-level referents — the record
@@ -140,9 +141,10 @@ export function foldReading(entries = [], { reconstruct = null, diaNorm = null, 
   if (typeof namesCorefer === "function") for (let pass = 0; pass < 3; pass++) {
     let changed = false;
     for (const r of referents.values()) {
+      if (r.identityScope) continue;
       const L = longestOf(r); if (!L) continue;
       const mine = find(r.id); const hosts = new Set();
-      for (const o of referents.values()) { const oc = find(o.id); if (oc === mine || hosts.has(oc)) continue; for (const sf of o.surfaces) { if (tokensOf(sf) <= tokensOf(L)) continue; let co = false; try { co = namesCorefer(String(L), String(sf)) || namesCorefer(String(sf), String(L)); } catch { co = false; } if (co) { hosts.add(oc); break; } } }
+      for (const o of referents.values()) { if (o.identityScope) continue; const oc = find(o.id); if (oc === mine || hosts.has(oc)) continue; for (const sf of o.surfaces) { if (tokensOf(sf) <= tokensOf(L)) continue; let co = false; try { co = namesCorefer(String(L), String(sf)) || namesCorefer(String(sf), String(L)); } catch { co = false; } if (co) { hosts.add(oc); break; } } }
       if (hosts.size === 1) { if (union([...hosts][0], r.id)) { mergedByContainment += 1; changed = true; } }
       else if (hosts.size > 1 && pass === 0) ambiguousForms += 1;
     }
@@ -153,7 +155,7 @@ export function foldReading(entries = [], { reconstruct = null, diaNorm = null, 
   const canon = new Map(); const beings = new Map();
   for (const members of classes.values()) {
     const face = members.reduce((a, b) => (b.surfaces.size > a.surfaces.size ? b : a), members[0]);
-    const being = { id: face.id, surfaces: new Set(), provenance: [], fedBy: new Set(), members: members.map((m) => m.id) };
+    const being = { ...Object.fromEntries(["identityScope", "caseSensitive", "grammar", "standing", "kind"].filter(k=>face[k]!=null).map(k=>[k,face[k]])), id: face.id, surfaces: new Set(), provenance: [], fedBy: new Set(), members: members.map((m) => m.id) };
     for (const m of members) { canon.set(m.id, face.id); for (const sf of m.surfaces) being.surfaces.add(sf); being.provenance.push(...m.provenance); for (const f of m.fedBy) being.fedBy.add(f); }
     beings.set(face.id, being);
   }
@@ -263,7 +265,7 @@ export function foldReading(entries = [], { reconstruct = null, diaNorm = null, 
   // with a rule of its own.
   let located = 0;
   if (typeof surfaceIndex === "function" && typeof surfacesIn === "function" && referents.size) {
-    const all = [...new Set([...referents.values()].flatMap((r) => [...r.surfaces]))];
+    const all = [...new Set([...referents.values()].filter(r=>!r.identityScope).flatMap((r) => [...r.surfaces]))];
     let sidx = null; try { sidx = surfaceIndex(all); } catch { sidx = null; }
     if (sidx) for (const enc of encounters.values()) {
       let present = []; try { present = surfacesIn(enc.text, sidx) ?? []; } catch { present = []; }
@@ -284,8 +286,10 @@ export function readingIndexFromLog(entries = [], { diaNorm, namesCorefer, recon
   if (typeof diaNorm !== "function") throw new TypeError("readingIndexFromLog: diaNorm (the session's fold) is injected");
   const { referents, encounters, mentions, reassignments, identity } = foldReadingOnce(entries, { reconstruct, diaNorm, namesCorefer, surfaceIndex, surfacesIn, descriptors });
   const norm = (t) => diaNorm(String(t ?? "")).toLowerCase().trim();
+  const scopedSurface = new Map();
   const bySurface = new Map(); const byFirst = new Map(); let longest = 1;
   for (const r of referents.values()) for (const s of r.surfaces) {
+    if (r.caseSensitive) { const exact=String(s).trim(); if(!scopedSurface.has(exact))scopedSurface.set(exact,new Set());scopedSurface.get(exact).add(r.id);continue; }
     const n = norm(s); if (!n) continue;
     if (!bySurface.has(n)) bySurface.set(n, new Set()); bySurface.get(n).add(r.id);
     const toks = n.split(/\s+/); longest = Math.max(longest, toks.length);
@@ -330,6 +334,9 @@ export function readingIndexFromLog(entries = [], { diaNorm, namesCorefer, recon
   const resolveIn = (text) => {
     const toks = norm(text).split(/[^\p{L}\p{N}'’-]+/u).filter(Boolean);
     const out = new Set();
+    const raw=String(text ?? "");
+    const rawTokens=raw.split(/[^\p{L}\p{N}_$'’-]+/u).filter(Boolean);
+    for(const [surface,ids]of scopedSurface)if(raw===surface || (rawTokens.includes(surface)))for(const id of ids)out.add(id);
     for (let i = 0; i < toks.length; i++) {
       for (let j = Math.min(toks.length, i + longest); j > i; j--) {
         const run = toks.slice(i, j).join(" ");
@@ -351,6 +358,8 @@ export function readingIndexFromLog(entries = [], { diaNorm, namesCorefer, recon
   const resolve = (name) => {
     const key = String(name ?? "");
     const hit = resolveMemo.get(key); if (hit) return hit;
+    if(referents.has(key))return new Set([key]);
+    if(scopedSurface.has(key))return new Set(scopedSurface.get(key));
     const n = norm(name);
     let out;
     if (!n) out = new Set();
@@ -358,11 +367,11 @@ export function readingIndexFromLog(entries = [], { diaNorm, namesCorefer, recon
       const exact = bySurface.get(n);
       if (exact?.size) out = new Set(exact);
       else {
-        const munched = resolveIn(n);
+        const munched = resolveIn(name);
         if (munched.size) out = munched;
         else {
           out = new Set();
-          if (typeof namesCorefer === "function") for (const r of referents.values()) for (const s of r.surfaces) { try { if (namesCorefer(String(name), String(s))) { out.add(r.id); break; } } catch {} }
+          if (typeof namesCorefer === "function") for (const r of referents.values()) if(!r.identityScope) for (const s of r.surfaces) { try { if (namesCorefer(String(name), String(s))) { out.add(r.id); break; } } catch {} }
         }
       }
     }
@@ -373,7 +382,7 @@ export function readingIndexFromLog(entries = [], { diaNorm, namesCorefer, recon
   const vocabulary = new Set(); for (const enc of encounters) for (const t of tokenize(enc.text)) vocabulary.add(t);
   // `events` is the face dialogue.js::surfacesOf reads (one row per registered surface, as the cast index keeps them), so the address check's re-ask hands the reader's own surfaces for a missing referent and not nothing.
   const events = []; for (const r of referents.values()) for (const sf of r.surfaces) events.push({ referent_id: r.id, surface: sf });
-  return Object.freeze({ referents: new Set(referents.keys()), events, resolve, resolveIn, represent, vocabulary, mentions: mentions.length, encounters: encounters.length, caseless: true, descriptorBeings: identity?.descriptorBeings ?? 0, descriptorsSkipped: identity?.descriptorsSkipped ?? 0, descriptorLane: identity?.descriptorLane ?? "off", basis: "readingIndexFromLog: EOReferent@1 surfaces under the session's fold + namesCorefer; no case, no scan" });
+  return Object.freeze({ referents: new Set(referents.keys()), events, resolve, resolveIn, represent, vocabulary, mentions: mentions.length, encounters: encounters.length, caseless: ![...referents.values()].some(r=>r.caseSensitive), descriptorBeings: identity?.descriptorBeings ?? 0, descriptorsSkipped: identity?.descriptorsSkipped ?? 0, descriptorLane: identity?.descriptorLane ?? "off", basis: "readingIndexFromLog: EOReferent@1: scoped exact grammar surfaces, otherwise session fold + namesCorefer; no identity invented" });
 }
 
 /** The address book: one row per encounter carrying a mention, in reading order; byId: referent → rows. Same shape activation-retrieval.js reads. */

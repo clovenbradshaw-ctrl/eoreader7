@@ -416,6 +416,109 @@
                 "native/adapters/image/screen-sidecar.js"
             ],
             "basis": "the screenshot pipeline's Chrome round trip (read, regenerate from the sidecar alone, render in headless Chrome, re-read) — an image-reading organ, no row in the starting reading registry; a .md summary cannot self-stamp (A2.1 forward), so it is declared here as a typed gap"
+        },
+        "cpu-llm-learning-falsify-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/cpu-llm-learning-falsify.py"
+            ],
+            "basis": "Driver imports and disclosed assembly in cpu-llm-learning-falsify; reconstruction preserves the original measurement, without claiming a runtime stamp."
+        },
+        "cpu-llm-learning-falsify.json": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/cpu-llm-learning-falsify.py"
+            ],
+            "basis": "Driver imports and disclosed assembly in cpu-llm-learning-falsify; reconstruction preserves the original measurement, without claiming a runtime stamp."
+        },
+        "cpu-model-host-reading-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/legacy-ported/packages/host/corpus.js",
+                "proxy.mjs"
+            ],
+            "basis": "Driver imports and disclosed assembly in cpu-model-host-reading; reconstruction preserves the original measurement, without claiming a runtime stamp."
+        },
+        "cpu-model-host-reading.json": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/legacy-ported/packages/host/corpus.js",
+                "proxy.mjs"
+            ],
+            "basis": "Driver imports and disclosed assembly in cpu-model-host-reading; reconstruction preserves the original measurement, without claiming a runtime stamp."
+        },
+        "cpu-model-host-session.json": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/legacy-ported/packages/host/corpus.js"
+            ],
+            "basis": "Driver imports and disclosed assembly in cpu-model-host-session; reconstruction preserves the original measurement, without claiming a runtime stamp."
+        },
+        "cpu-model-output-holograph-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/adapters/text/recursive.js",
+                "native/the-fold/proposition-holograph.js",
+                "native/organs/output-holograph.js"
+            ],
+            "basis": "Driver imports and disclosed assembly in cpu-model-output-holograph; reconstruction preserves the original measurement, without claiming a runtime stamp."
+        },
+        "cpu-model-output-holograph.json": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/adapters/text/recursive.js",
+                "native/the-fold/proposition-holograph.js",
+                "native/organs/output-holograph.js"
+            ],
+            "basis": "Driver imports and disclosed assembly in cpu-model-output-holograph; reconstruction preserves the original measurement, without claiming a runtime stamp."
+        },
+        "cpu-model-output-reading.jsonl": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/adapters/text/recursive.js",
+                "native/kernel/reading.js"
+            ],
+            "basis": "Driver imports and disclosed assembly in cpu-model-output-reading; reconstruction preserves the original measurement, without claiming a runtime stamp."
+        },
+        "grounded-learning-falsify-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "kernel/stigmergy.js",
+                "organs/territory.js",
+                "the-fold/forecast.js",
+                "native/adapters/text/recursive.js"
+            ],
+            "basis": "Driver imports and disclosed assembly in grounded-learning-falsify; reconstruction preserves the original measurement, without claiming a runtime stamp."
+        },
+        "grounded-learning-falsify.json": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "kernel/stigmergy.js",
+                "organs/territory.js",
+                "the-fold/forecast.js",
+                "native/adapters/text/recursive.js"
+            ],
+            "basis": "Driver imports and disclosed assembly in grounded-learning-falsify; reconstruction preserves the original measurement, without claiming a runtime stamp."
         }
     }
 }

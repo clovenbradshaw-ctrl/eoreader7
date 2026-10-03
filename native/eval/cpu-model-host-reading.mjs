@@ -57,10 +57,10 @@ try {
   const response=await fetch(`http://127.0.0.1:${port}/v1/read`,{method:'POST',headers:{'content-type':'application/json'},
    body:JSON.stringify({name:`cpu-model-${i}`,text:s.text,maxCharacters:1000000}),signal:AbortSignal.timeout(5000)});
   const data=await response.json();assert.equal(response.status,200);
-  assert.equal(data.assembly,'constitutional-host');assert.equal(data.truncated,false);
+  assert.equal(data.assembly,'constitutional-host + native-grammar-fold');assert.equal(data.truncated,false);
   assert.equal(data.readCharacters,s.characters);assert.equal(data.sourceCharacters,s.characters);
-  assert.deepEqual(data.referents.map(r=>r.surfaces[0]),s.cast.referents.map(r=>r.display));
-  assert.deepEqual(data.relations,s.relations.relations);
+  assert.deepEqual(data.host.referents.map(r=>r.surfaces[0]),s.cast.referents.map(r=>r.display));
+  assert.deepEqual(data.host.relations.relations,s.relations.relations);
   http.push({source:s.source,status:response.status,response:data});
  }
 }catch(err){

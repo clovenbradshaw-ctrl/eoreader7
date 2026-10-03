@@ -208,7 +208,18 @@ export const CONSTITUTIONAL_HOST = assembly({
   note: "S1's baseline: the constitutional reader is runnable and it is the measuring stick — a native path is not \"the reader\" until it reaches stage parity under conformance",
 });
 
-const ROWS = Object.freeze([ENTITY, LINK, NETWORK, KIND, LENS, ATMOSPHERE, SEQUENCE, DYNAMICS, CONSTITUTIONAL_HOST]);
+// Shared grammar reading is a projection of syntax witnesses, not another
+// entity-capacity claim. Providers remain language-scoped and independently limited.
+export const GRAMMAR = assembly({
+ id:"assembly:grammar-material", version:1, layer:"projection", cells:[["CON","Figure"]],
+ organs:["native/reading/material.js","native/adapters/grammar/registry.js","native/adapters/grammar/project.js","native/the-fold/reading-log.js"],
+ regimes:{characters:{value:100000,giver:"shared grammar reader",basis:"declared parser resource budget, not a confidence floor"},segments:{value:256,giver:"shared grammar reader",basis:"declared per-read parser resource budget"}},
+ consumes:[],produces:["EOReferent@1","EOHyperedge@1","Encounter@1","EOMention@1"],
+ stagesNotRun:["full lexical binding","code execution","independent external truth checking","full parsing for partial language readers"],dynamics:[],
+ note:"Syntax occurrence identity and source witnesses; parser candidates remain revisable. Numeric equalities have a separately scoped rational verifier.",
+});
+
+const ROWS = Object.freeze([ENTITY, LINK, NETWORK, KIND, LENS, ATMOSPHERE, SEQUENCE, DYNAMICS, CONSTITUTIONAL_HOST, GRAMMAR]);
 
 /** The populated starting registry — rebuilt fresh on every call, so no
  * caller can mutate a shared one (the register value itself is immutable

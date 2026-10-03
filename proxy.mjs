@@ -1203,34 +1203,14 @@ async function handleRequest(req, res) {
       const truncated = material.length < text.length;
       const t0 = Date.now();
       try {
-        // THE READING DOOR — khora perceives, model-free. The constitutional
-        // reader (legacy host): createSession → admitChunked → sessionReferents.
-        // The mouth is never consulted (GL-RR-04/05; a read is not a draw). The
-        // surface (holodeck) treats the returned referents as a witness beside
-        // its own finder. P2: stages run and not run are named, never implied.
-        const { createSession, admitChunked, sessionReferents, sessionRelations } = await import("./native/legacy-ported/packages/host/corpus.js");
+        const {readMaterial} = await import("./native/reading/material.js");
         const sourceId = `doc:${(name || "unnamed").replace(/[^a-zA-Z0-9_.-]/g, "_")}`;
-        const session = createSession();
-        admitChunked(session, { text: material, sourceId, language: "en" });
-        const cast = sessionReferents(session, { sourceId, priors: [], limit: 200 });
-        const relations = sessionRelations(session, { sourceId });
-        const referents = (cast.referents ?? []).map((r) => ({
-          surfaces: [r.display].filter(Boolean),
-          routes: (r.fromPrior === true ? ["prior"] : ["witnessed"]).concat(r.individuation ? [`grain:${r.individuation}`] : []),
-          grain: r.individuation ?? null,
-        }));
-        log(`read → ${referents.length} referents, ${(relations?.relations ?? relations ?? []).length} relations, ${Date.now() - t0}ms`);
-        res.writeHead(200, { "content-type": "application/json" });
-        res.end(JSON.stringify({
-          schema: "EORead@1", ms: Date.now() - t0,
-          source: sourceId, truncated, sourceCharacters: text.length, readCharacters: material.length, maxCharacters,
-          assembly: "constitutional-host", priorsInjected: ["language:en"], stagesNotRun: ["5b", "6", "7", "8"],
-          basis: "constitutional reader (legacy host): createSession → admitChunked → sessionReferents; model-free; priors: language en (declared — bin/priors/lang/en.json absent, engine floor used, gap disclosed); stages 1-5a run, 5b-8 not run",
-          sentences: [], relations: relations?.relations ?? relations ?? [],
-          referents, descriptorBeings: [],
-          gaps: [...(truncated ? [`input_truncated: read ${material.length} of ${text.length} characters; a prefix is different material (S2)`] : []), ...(cast.gaps ?? []).map((g) => (typeof g === "string" ? g : `${g.reason}`))].slice(0, 8),
-          disclosure: { giver: "heimdall", standing: "disclosed", rule: "a read is not a draw — the mouth is never consulted; the ground is a hypothesis (standing: hypothesis, half-life'd), never asserted (S1/P2/P3, khora)" },
-        }));
+        const reading = await readMaterial({text:material,source:sourceId,name,language:parsed.language,format:parsed.format??"mixed"});
+        log(`read → ${reading.referents.length} grammar referents, ${reading.tuples.length} tuples, ${Date.now()-t0}ms`);
+        res.writeHead(200, {"content-type":"application/json"});
+        res.end(JSON.stringify({...reading,ms:Date.now()-t0,truncated,sourceCharacters:text.length,readCharacters:material.length,maxCharacters,
+          gaps:[...(truncated?[`input_truncated: read ${material.length} of ${text.length} characters; a prefix is different material (S2)`]:[]),...reading.gaps],
+          disclosure:{giver:"heimdall",standing:"disclosed",rule:"a read is not a draw; parsed syntax witnesses structure, not external truth"}}));
       } catch (e) {
         log(`read error: ${String(e.message ?? e).slice(0, 140)}`);
         if (!res.headersSent) res.writeHead(500, { "content-type": "application/json" });
@@ -3030,7 +3010,8 @@ server.listen(PORT, "127.0.0.1", () => {
     log(`driver: PASSIVE — pid ${driver.pid} holds state/heimdall-driver.lock; this proxy is a door only (no watcher, no holon driver, no reaper, no watchdog, no channel)`);
   } else {
     // THE CHANNEL: reconcile the daemons, ensure ours, hold Ollama's port.
-    bootChannel().catch((err) => log(`channel boot error: ${err.message}`));
+    if (process.env.ER7_CHANNEL_PORT === "0") log("channel: disabled by ER7_CHANNEL_PORT=0; reading remains model-free");
+    else bootChannel().catch((err) => log(`channel boot error: ${err.message}`));
   }
   if (!driver.held) {
     // a door only: nothing below drives

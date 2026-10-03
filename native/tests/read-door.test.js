@@ -38,6 +38,11 @@ test("the real proxy starts without a model; its reading door discloses prefix b
     assert.equal(full.data.truncated, false);
     assert.equal(full.data.readCharacters, text.length);
     assert.ok(full.data.stagesNotRun.length);
+    const code=await read({text:'def solve(text):\n    return text.split()\n',language:'python',format:'raw'});
+    assert.equal(code.status,200);assert.equal(code.data.assembly,'constitutional-host + native-grammar-fold');
+    assert.ok(code.data.tuples.some(t=>t.label==='returns_expression'));assert.ok(code.data.readingEntries.some(e=>e.schema==='Observation@1'));
+    const wrong=await read({text:'-9 - 4 = 3',language:'math',format:'raw'});
+    assert.equal(wrong.data.grammarRecords[0].verification.status,'contradicted');
     const prefix = await read({ maxCharacters: 35 });
     assert.equal(prefix.status, 200);
     assert.equal(prefix.data.truncated, true);
