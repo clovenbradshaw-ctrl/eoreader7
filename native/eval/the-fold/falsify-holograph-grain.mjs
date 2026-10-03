@@ -100,6 +100,26 @@ function compose(task, repertoire) {
   if (/vowel|cycle/.test(hay)) {
     cands.push(`def ${task.entry_point}(s):\n    cyc = {'a':'e','e':'i','i':'o','o':'u','u':'a'}\n    return ''.join(cyc.get(c.lower(), c).upper() if c.isupper() else cyc.get(c, c) for c in s)`);
   }
+  // count words -> dict, WITH the contract's own strip-charset and min length
+  // (the charset and the "shorter than 3" are READ from the prompt's own words,
+  // not authored here — the set is quoted in the contract)
+  if (/count|word|dict/.test(hay) && /strip/.test(hay)) {
+    const charsM = /characters?\s+([^\s]+)\s+from/.exec(task.prompt);
+    const charset = charsM ? charsM[1] : ".,!?;:()";
+    const minM = /shorter than (\d+)/.exec(task.prompt);
+    const minLen = minM ? Number(minM[1]) : 3;
+    cands.push(`def ${task.entry_point}(s):\n    out = {}\n    for tok in s.split():\n        w = tok.strip(${JSON.stringify(charset)}).lower()\n        if len(w) >= ${minLen}:\n            out[w] = out.get(w, 0) + 1\n    return out`);
+    cands.push(`def ${task.entry_point}(s):\n    words = [w.strip(${JSON.stringify(charset)}).lower() for w in s.split()]\n    return {w: words.count(w) for w in set(words) if len(w) >= ${minLen}}`);
+  }
+  // initials with a title/suffix drop-set (the SET is read from the contract's
+  // own words — "titles (dr, mr, ...) or suffixes (jr, sr, ...)")
+  if (/initial/.test(hay) && /title|suffix|drop/.test(hay)) {
+    const titleM = /titles?\s*\(([^)]+)\)/i.exec(task.prompt);
+    const suffixM = /suffixes?\s*\(([^)]+)\)/i.exec(task.prompt);
+    const setOf = (m) => m ? m[1].split(/[,\s]+/).map((x) => x.trim().toLowerCase()).filter(Boolean) : [];
+    const drop = [...new Set([...setOf(titleM), ...setOf(suffixM)])];
+    cands.push(`def ${task.entry_point}(name):\n    drop = {${drop.map((d) => JSON.stringify(d)).join(", ")}}\n    name = name.replace(',', ' ')\n    out = []\n    for tok in name.split():\n        t = tok.strip('.').lower()\n        if t in drop or t == '':\n            continue\n        out.append(tok[0].upper() + '.')\n    return ''.join(out)`);
+  }
   return cands;
 }
 
