@@ -256,6 +256,51 @@ export function divergence(projected, a, b) {
 }
 
 /**
+ * THE ORIGIN OF A BELIEF (2026-09-28) — Bukhari's rule (organs/
+ * corroboration.js: "a report stands only on independent chains; a shared
+ * chain is one witness, not two"), applied here to a belief's OWN `via`
+ * chain instead of a witness string's source. `sourceOfWitness` strips a
+ * witness ref down to the source it names so two chunks of one file count
+ * once; `originOf` strips a belief down to the holder it was ultimately
+ * RELAYED FROM, so a holder's assertion and a second holder's relay of that
+ * same assertion count as one origin, not two. Found by running a real
+ * scenario, not designed in advance: `commonGround(mayor, reporter)`
+ * correctly reports they share a claim string — the reporter is holding it,
+ * every bit as much as the mayor is — and a caller that reads "two holders
+ * share this claim" as "two independent witnesses" without first checking
+ * `basis`/`via` reintroduces exactly the relay-inflation Bukhari's own rule
+ * exists to refuse. `commonGround`/`divergence` deliberately do not make
+ * this collapse themselves — they report what IS held, honestly, which
+ * includes the reporter's own real belief — collapsing origins is a
+ * corroboration-counting policy, and a caller that wants raw holder counts
+ * (do these two people believe alike, whatever gave them the belief) still
+ * gets that from `commonGround` unmodified.
+ */
+export function originOf(belief) {
+  if (belief?.basis === BASIS.REPORTED && belief.via?.length) return belief.via[belief.via.length - 1];
+  return belief?.holder ?? null;
+}
+
+/**
+ * The DISTINCT ORIGINS, among `holders`, that hold `claim` (stance HOLDS) —
+ * `distinctSources`'s own discipline (organs/corroboration.js), one layer up:
+ * there, two witness refs collapse to one SOURCE; here, two holders collapse
+ * to one ORIGIN whenever one merely relayed the other's belief. A claim held
+ * by three holders who all relay one original assertion returns a Set of
+ * size 1, exactly as it should — nothing "corroborates" a claim by repeating
+ * it under a new name. Never applies a floor; a caller decides how many
+ * origins make a claim corroborated (askValue's own `settleFloor` pattern).
+ */
+export function independentHolders(projected, holders, claim) {
+  const origins = new Set();
+  for (const h of holders ?? []) {
+    const belief = (projected?.perspectives?.[h]?.beliefs ?? []).find((b) => b.claim === claim && b.stance === STANCE.HOLDS);
+    if (belief) origins.add(originOf(belief));
+  }
+  return origins;
+}
+
+/**
  * `from`'s model of `of`: the beliefs `from` holds ABOUT what `of` holds —
  * one hop of nesting, read off the `via` chain rather than inferred.
  *

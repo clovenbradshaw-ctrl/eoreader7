@@ -38,25 +38,25 @@ try {
 }
 if (server) server.stop();
 
-test("the fixture is twenty-five tasks across five categories, each naming the organ that claims or witnesses it", { skip: SKIP }, () => {
-  assert.equal(TASKS.length, 25);
+test("the fixture is twenty-eight tasks across five categories, each naming the organ that claims or witnesses it", { skip: SKIP }, () => {
+  assert.equal(TASKS.length, 28, "the original 25, plus 3 counting tasks (counting.js) — a tally is computed the same way a sum already was");
   const cats = new Set(TASKS.map((t) => t.category));
   assert.deepEqual([...cats].sort(), ["coding", "creative", "data", "math", "reading"]);
-  for (const t of TASKS) assert.ok(["arithmetic", "numeric", "skill", "run", "sql", "assay", "void", "form"].includes(t.claim), `${t.id} names an organ`);
-  assert.equal(new Set(TASKS.map((t) => t.id)).size, 25);
+  for (const t of TASKS) assert.ok(["arithmetic", "counting", "numeric", "skill", "run", "sql", "assay", "void", "form"].includes(t.claim), `${t.id} names an organ`);
+  assert.equal(new Set(TASKS.map((t) => t.id)).size, 28);
 });
 
 test("every task an organ claims outright is answered with no model — computed, read, or declared absent", { skip: SKIP }, () => {
   const claimed = run.rows.filter((r) => r.mechanical);
-  assert.equal(claimed.length, 13, "9 arithmetic/calendar + 3 assay + 1 void");
+  assert.equal(claimed.length, 16, "9 arithmetic/calendar + 3 counting + 3 assay + 1 void");
   const missed = claimed.filter((r) => !r.mechanical.ok).map((r) => `${r.id}: ${r.mechanical.detail}`);
   assert.deepEqual(missed, []);
   for (const r of claimed) console.log(`  ${r.id} ${r.mechanical.organ.split("::")[0].split(" ")[0]} — ${r.mechanical.detail.slice(0, 100)}`);
 });
 
-test("every witness can fail: the reference passes, the wrong answer fails (skills, python via /api/run, sql, form)", { skip: SKIP }, () => {
+test("every witness can fail: the reference passes, the wrong answer fails (skills, python via /api/run, sql, form, counting)", { skip: SKIP }, () => {
   const witnessed = run.rows.filter((r) => r.control);
-  assert.equal(witnessed.length, 11, "4 skills + 2 python + 1 sql + 4 form");
+  assert.equal(witnessed.length, 14, "4 skills + 2 python + 1 sql + 4 form + 3 counting");
   const skipped = witnessed.filter((r) => r.control.skipped);
   const broken = witnessed.filter((r) => !r.control.skipped && !r.control.ok).map((r) => `${r.id}: ref ${r.control.ref.verdict} (${r.control.ref.detail.slice(0, 80)}) · wrong ${r.control.wrong.verdict}`);
   assert.deepEqual(broken, []);

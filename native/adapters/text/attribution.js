@@ -27,6 +27,12 @@
 //     patched by loosening a gate. With no prior this returns a typed gap
 //     naming what it lacks. It does NOT guess a narrator.
 //
+// A THIRD MECHANISM, added later (below, near rayaFrames/raySpans): the
+// two above are English's own quote-mark grammar, and Spanish (and much
+// French/Catalan) literary prose marks dialogue with the raya — an
+// em-dash — instead, a positionally different convention rather than a
+// fourth quote character to add to OPEN/CLOSE/STRAIGHT.
+//
 // THE SPEECH VERB IS NOT A HAND-TYPED LIST. That was the first cut and it
 // is the exact mistake both repos' CLAUDE.md files record ("a 90-word
 // hand-listed verb string was not a simplification of English, it was a
@@ -75,22 +81,84 @@ const countMarks = (s) => {
  *
  * `runs` groups consecutive continued/closing paragraphs into embedded
  * frames — the spans where someone other than the outer narrator is the "I".
+ *
+ * STRAIGHT is a SECOND, INDEPENDENT state machine, never folded into the
+ * curly one — the two marks are not the same kind of thing. OPEN/CLOSE are
+ * directionally distinct glyphs, so "which one appeared" already says
+ * whether a paragraph opens or closes a run. STRAIGHT is one glyph for
+ * both jobs, so the only fact available is PARITY: how many appeared, not
+ * which. `straightOpen` carries that running parity across paragraphs the
+ * same way `open` does for curly; `flips`/`exitState` compute the exit
+ * parity from the entry parity and this paragraph's own count (an even
+ * count leaves the entry state unchanged — a straight quote nested inside
+ * an already-open one closes and reopens net nothing; an odd count flips
+ * it), and the four exit/entry combinations map onto the SAME "closed" /
+ * "continued" / "closing" / "resumed" vocabulary curly already uses, so a
+ * caller walking `marked` never has to know which convention produced a
+ * given entry. Straight is consulted only where curly found nothing to
+ * say about a paragraph (`type === null`): a text mixing both conventions
+ * lets curly win rather than risk one paragraph landing two types.
+ *
+ * Confirmed live, not assumed: a real BBC Türkçe article
+ * (bbc.com/turkce/articles/c3rr448q5xdvo, fetched 2026-09-28) uses ONLY
+ * STRAIGHT quotes — zero curly marks anywhere — for ten real quotations
+ * from four named speakers, and closes every one of them within its own
+ * paragraph (an even count, never carrying a quotation across a
+ * paragraph break the way Frankenstein's own creature narration does) —
+ * this fix reads that specimen as `type: "closed"` at nine of its twelve
+ * paragraphs, where the un-fixed function marked zero.
+ *
+ * A RUN NEVER ABSORBS A MARK-FREE PARAGRAPH (added the same day, found
+ * adversarially, not assumed sound): `open`/`straightOpen` are running
+ * PROPAGATION state — they must survive a mark-free paragraph so a LATER
+ * genuinely-marked paragraph still reads correctly against them — but
+ * being propagated is not the same claim as being PART OF THE RUN. The
+ * two were conflated: `else if (open) { type = "resumed"; ... }` fired
+ * whenever `open` was true, with no check that the paragraph itself
+ * carried any mark at all. A genuinely UNCLOSED quote (an ordinary
+ * truncation/typo artifact, not deliberate authorship — confirmed live
+ * against real, freshly-fetched Wikinews prose) left `open`/`straightOpen`
+ * stuck true, and every following mark-free paragraph — including, in the
+ * adversarial run, entirely unrelated section headings, a bibliography,
+ * and a wholly separate article's own well-formed dialogue — was silently
+ * absorbed into that one corrupted run. Confirmed the identical shape was
+ * already latent in the curly branch (a hand-built control, disclosed as
+ * constructed rather than fetched, since real prose rarely leaves a curly
+ * quote unclosed by accident the way a straight one gets truncated) — this
+ * fix closes it for both at once rather than leaving the branch I did not
+ * touch in a known-bad state. The fix: a paragraph with NO relevant marks
+ * is never typed and never joins `run`/`marked`, regardless of `open`'s
+ * value; the propagation state itself is untouched either way, so a real
+ * multi-paragraph telling (Frankenstein's own founding case — every one of
+ * its "resumed" paragraphs carries its own fresh opening mark) is read
+ * identically to before.
  */
 export function quotationFrames(text, { offset = 0 } = {}) {
   const paras = paragraphs(text, offset);
   const marked = [];
   const runs = [];
   let open = false;
+  let straightOpen = false;
   let run = null;
   for (const para of paras) {
     const n = countMarks(para.text);
     const hasAny = n.open + n.close + n.straight > 0;
-    if (!hasAny && !open) continue;
+    if (!hasAny && !open && !straightOpen) continue;
     let type = null;
     if (!open && n.open > n.close) { type = "continued"; open = true; run = { start: para.start, end: para.end, paragraphs: 1 }; }
     else if (open && n.close >= n.open && n.close > 0) { type = "closing"; open = false; if (run) { run.end = para.end; run.paragraphs += 1; runs.push(freeze({ ...run })); run = null; } }
-    else if (open) { type = "resumed"; if (run) { run.end = para.end; run.paragraphs += 1; } }
+    else if (open && hasAny) { type = "resumed"; if (run) { run.end = para.end; run.paragraphs += 1; } }
     else if (n.open > 0 && n.close > 0) type = "closed";
+    if (type === null && n.straight > 0) {
+      const entering = straightOpen;
+      const flips = n.straight % 2 === 1;
+      const exitState = entering !== flips; // XOR: an odd local count flips the running parity
+      if (!entering && !exitState) type = "closed";
+      else if (!entering && exitState) { type = "continued"; run = { start: para.start, end: para.end, paragraphs: 1 }; }
+      else if (entering && !exitState) { type = "closing"; if (run) { run.end = para.end; run.paragraphs += 1; runs.push(freeze({ ...run })); run = null; } }
+      else { type = "resumed"; if (run) { run.end = para.end; run.paragraphs += 1; } }
+      straightOpen = exitState;
+    }
     if (type) marked.push(freeze({ type, byteStart: para.start, byteEnd: para.end, opener: para.text.slice(0, 60) }));
   }
   if (run) runs.push(freeze({ ...run, unclosed: true }));
@@ -116,10 +184,27 @@ export function quotationFrames(text, { offset = 0 } = {}) {
  * immediately after the closing mark. A speaker tag is adjacent to the
  * QUOTE, not to the block that contains it (P5.5 — check the driver before
  * the theory).
+ *
+ * STRAIGHT quotes pair by POSITION, not by glyph — the same fact
+ * `organs/quotes.js::extractQuotedSpans` already found and disclosed in
+ * its own header ("straight quotes pair by position — consecutive marks
+ * delimit a span... measured in the handbook tool this is ported from"):
+ * the first STRAIGHT in a run opens, the next one closes, regardless of
+ * what either looks like. `quotedSpans` had never applied that — it
+ * checked only `ch === OPEN`/`ch === CLOSE`, so it found zero spans in
+ * any text using STRAIGHT alone (confirmed live: a real BBC Türkçe
+ * article, zero curly marks, ten real quotations, all invisible here
+ * before this fix). Ported into this function's own single streaming
+ * pass rather than reused wholesale from quotes.js, whose own return
+ * shape (segments, minWords, citation fields) answers a different
+ * question (is this quotation real) than this one does (who is
+ * speaking); a shared primitive underneath both is real, disclosed,
+ * unattempted follow-up work, not done under this fix's own scope.
  */
 export function quotedSpans(text, { offset = 0 } = {}) {
   const spans = [];
   let open = -1;
+  let straightOpen = -1;
   for (let i = 0; i < text.length; i += 1) {
     const ch = text[i];
     if (ch === OPEN) { open = i; continue; }
@@ -134,9 +219,117 @@ export function quotedSpans(text, { offset = 0 } = {}) {
         text: text.slice(open, i + 1),
       }));
       open = -1;
+      continue;
+    }
+    if (ch === STRAIGHT) {
+      if (straightOpen < 0) { straightOpen = i; continue; }
+      spans.push(freeze({
+        byteStart: straightOpen + offset,
+        byteEnd: i + 1 + offset,
+        before: text.slice(Math.max(0, straightOpen - 90), straightOpen),
+        after: text.slice(i + 1, i + 91),
+        text: text.slice(straightOpen, i + 1),
+      }));
+      straightOpen = -1;
     }
   }
-  return freeze({ schema: "EOQuotedSpans@1", spans: freeze(spans), unclosed: open >= 0 ? 1 : 0 });
+  // A span is pushed when its CLOSING mark is found, so a straight span
+  // nested inside a still-open curly one (or vice versa) can push out of
+  // byteStart order; sorting keeps a mixed-convention text's spans in
+  // document order regardless of which convention closed first.
+  spans.sort((a, b) => a.byteStart - b.byteStart);
+  return freeze({ schema: "EOQuotedSpans@1", spans: freeze(spans), unclosed: (open >= 0 ? 1 : 0) + (straightOpen >= 0 ? 1 : 0) });
+}
+
+// ── THE RAYA: a second, structurally different dialogue convention ─────────
+//
+// Confirmed live against real fetched Spanish prose (es.wikisource.org's
+// transcription of Galdós's "Marianela", ch. I — public domain, genuinely
+// downloaded, not fabricated): "—No puedo equivocarme—murmuró.—Me dijeron
+// que atravesara el rio..." carries ZERO of OPEN/CLOSE/STRAIGHT anywhere,
+// so quotationFrames/quotedSpans (above) find no dialogue in it at all —
+// every line of Spanish (and much French and Catalan) literary dialogue
+// was invisible to this module.
+//
+// This is not "one more quote mark to add to the set": the raya's own
+// grammar is positional, not a balanced open/close pair. A paragraph that
+// OPENS with an em-dash is a speech turn for its whole paragraph; a second
+// em-dash inside that SAME paragraph does not mean "still open" (quote-
+// mark logic) — it closes the utterance into a narration/attribution
+// clause ("—murmuró."), and a THIRD dash (if the writer resumes the
+// speech, as this exact specimen does) reopens it. So the alternation is
+// speech/narration/speech/narration…, never "open until closed". Gating
+// on PARAGRAPH-INITIAL position, never a bare dash count, is what keeps
+// this from misreading an ordinary sentence's own parenthetical em-dash
+// ("the weather — cold and gray — matched his mood") as dialogue: that
+// dash sits mid-paragraph, never at its head, so it is never touched here.
+const RAYA = "—"; // U+2014, the RAE-standard raya
+
+/**
+ * One entry per paragraph that opens with the raya — the SAME "per
+ * paragraph, byte-addressed" shape quotationFrames returns, so a caller
+ * already walking one convention's frames can walk this one identically.
+ * `dashes` is the paragraph's own em-dash count; an EVEN total means some
+ * opened clause (speech or attribution) never closed — a convention this
+ * reader does not recognize, disclosed as `wellFormed: false` rather than
+ * guessed past.
+ */
+export function rayaFrames(text, { offset = 0 } = {}) {
+  const paras = paragraphs(text, offset);
+  const marked = [];
+  for (const para of paras) {
+    const lead = para.text.length - para.text.replace(/^\s+/, "").length;
+    if (para.text.slice(lead, lead + RAYA.length) !== RAYA) continue;
+    let dashes = 0;
+    for (const ch of para.text) if (ch === RAYA) dashes += 1;
+    marked.push(freeze({ byteStart: para.start + lead, byteEnd: para.end, dashes, wellFormed: dashes % 2 === 1 }));
+  }
+  return freeze({
+    schema: "EORayaFrames@1",
+    basis: "the received bytes' own raya convention (RAE): a paragraph opening with an em-dash is a speech turn for its whole paragraph",
+    paragraphs: paras.length,
+    marked: freeze(marked),
+    counted: freeze({ turns: marked.length, malformed: marked.filter((m) => !m.wellFormed).length }),
+  });
+}
+
+/**
+ * The individual SPOKEN spans inside a raya paragraph — quotedSpans' own
+ * reason for existing, one register over: a speaker tag sits beside the
+ * spoken words, not beside the paragraph that contains them, and a raya
+ * paragraph can hold more than one spoken segment ("—speech—tag.—more
+ * speech" is one paragraph, two speech spans either side of one
+ * attribution clause). Dashes alternate speech-opening/speech-closing;
+ * the odd-indexed boundary (the 1st, 3rd, 5th… dash) always OPENS a
+ * spoken span, exactly the way `positions[i]`/`i += 2` below reads them.
+ * An unpaired final dash's speech runs to the paragraph's own end — no
+ * closing mark is ever expected for the LAST segment, the same "no
+ * closing" fact rayaFrames' own header already states for a whole
+ * one-dash paragraph.
+ */
+export function raySpans(text, { offset = 0 } = {}) {
+  const paras = paragraphs(text, offset);
+  const spans = [];
+  for (const para of paras) {
+    const local = para.text;
+    const lead = local.length - local.replace(/^\s+/, "").length;
+    if (local.slice(lead, lead + RAYA.length) !== RAYA) continue;
+    const positions = [];
+    for (let i = lead; i < local.length; i += 1) if (local[i] === RAYA) positions.push(i);
+    for (let i = 0; i < positions.length; i += 2) {
+      const segEndLocal = i + 1 < positions.length ? positions[i + 1] : local.length;
+      const byteStart = para.start + positions[i];
+      const byteEnd = para.start + segEndLocal;
+      spans.push(freeze({
+        byteStart,
+        byteEnd,
+        before: text.slice(Math.max(0, byteStart - offset - 90), byteStart - offset),
+        after: text.slice(byteEnd - offset, byteEnd - offset + 91),
+        text: local.slice(positions[i], segEndLocal),
+      }));
+    }
+  }
+  return freeze({ schema: "EORaySpans@1", spans: freeze(spans) });
 }
 
 /**
