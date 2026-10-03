@@ -56,14 +56,33 @@ const PY = () => process.env.ER7_PYTHON ?? "python3";
 // runs (a fresh dir per run would print "building the font cache" to stderr every time).
 const MPLCFG = path.join(os.tmpdir(), "nb-mplconfig");
 
+/** dataFiles(files) -> { "data/<name>": text } — exactly the files a python cell sees (the export bundle writes the same ones). */
+export function dataFiles(files = {}) {
+  const out = {};
+  for (const [name, f] of Object.entries(files)) {
+    const safe = name.replace(/[^\w.-]/g, "_");
+    out[`data/${safe}.txt`] = f.text ?? "";
+    (f.tables ?? []).forEach((t, i) => { out[`data/${safe}${f.tables.length > 1 ? `.${t.name ?? i}` : ""}.csv`] = csv(t); });
+  }
+  return out;
+}
+export const ER7PY_DIR = ER7PY;
+export { RUNNER };
+/** envOf() -> { python, numpy, matplotlib, er7py } — the environment a run happens in, recorded on every exec entry so a Methods
+ *  paragraph can name it FROM THE LEDGER. er7py is the SHA-256 of the helper library's files (the library's version, by content). */
+let envCache;
+export function envOf() {
+  if (envCache) return envCache;
+  const r = spawnSync("python3", ["-c", "import sys,json\nv={'python':sys.version.split()[0]}\nfor m in ('numpy','matplotlib'):\n    try:\n        v[m]=__import__(m).__version__\n    except Exception:\n        v[m]=None\nprint(json.dumps(v))"], { encoding: "utf8" });
+  let v = {}; try { v = JSON.parse(r.stdout); } catch { v = { python: null, numpy: null, matplotlib: null }; }
+  const h = createHash("sha256"); for (const f of fs.readdirSync(ER7PY).filter((x) => x.endsWith(".py")).sort()) h.update(f + "\0" + fs.readFileSync(path.join(ER7PY, f)));
+  return (envCache = { ...v, er7py: h.digest("hex").slice(0, 16), isolated: canIsolate() });
+}
+
 export function runPython(code, files = {}, { timeoutMs = 60000 } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "nb-"));
   fs.mkdirSync(path.join(dir, "data"));
-  for (const [name, f] of Object.entries(files)) {
-    const safe = name.replace(/[^\w.-]/g, "_");
-    fs.writeFileSync(path.join(dir, "data", `${safe}.txt`), f.text ?? "");
-    (f.tables ?? []).forEach((t, i) => fs.writeFileSync(path.join(dir, "data", `${safe}${f.tables.length > 1 ? `.${t.name ?? i}` : ""}.csv`), csv(t)));
-  }
+  for (const [rel, text] of Object.entries(dataFiles(files))) fs.writeFileSync(path.join(dir, rel), text);
   fs.writeFileSync(path.join(dir, "user.py"), code); fs.writeFileSync(path.join(dir, "cell.py"), RUNNER);
   const iso = canIsolate();
   const py = PY();
@@ -79,7 +98,9 @@ export function runPython(code, files = {}, { timeoutMs = 60000 } = {}) {
   const timedOut = r.error?.code === "ETIMEDOUT" || r.signal === "SIGTERM";
   const out = [r.stdout ?? "", r.stderr ? `\n[stderr]\n${r.stderr.slice(-1500)}` : "", timedOut ? "\n[stopped: time limit]" : "", iso ? "" : "\n[note: network isolation unavailable on this host; this run was NOT network-isolated]"].join("");
   fs.rmSync(dir, { recursive: true, force: true });
-  return { ok: r.status === 0 && !timedOut, output: out.trim(), figures, ms: Date.now() - t0 };
+  // the run directory is a fresh random temp path; a traceback names it, which made the SAME failing code record DIFFERENT output on
+  // every run (found by the Holodeck falsification run, F3). It is recorded as a fixed placeholder, so output depends only on what ran.
+  return { ok: r.status === 0 && !timedOut, output: out.trim().split(dir).join("<run dir>"), figures, ms: Date.now() - t0 };
 }
 
 /** runCell(state, cellId) -> { state, exec } | { error } */
@@ -88,5 +109,5 @@ export function runCell(state, cellId) {
   if (!c || c.type !== "code") return { error: "not a code cell" };
   const code = sourceOf(state.nb, cellId);
   const r = c.lang === "js" ? (() => { const t = Date.now(); const x = runSandboxedJs(`(function(){\n${code}\n})()`); return { ...x, figures: [], ms: Date.now() - t }; })() : runPython(code, state.files);
-  return recordExec(state, { cell: cellId, output: r.output, ok: r.ok, figures: r.figures, ms: r.ms });
+  return recordExec(state, { cell: cellId, output: r.output, ok: r.ok, figures: r.figures, ms: r.ms, env: c.lang === "js" ? { js: "vm" } : envOf() });
 }

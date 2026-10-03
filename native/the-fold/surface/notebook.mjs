@@ -14,11 +14,11 @@
 // on the bench, so the ladder (stated → conjectured → computed_in_range → proved) is the bench's
 // and nothing here can move a status. Promotion is the bench's: a named human, never a model.
 
-import { createHash } from "node:crypto";
+import { sha256 } from "../../kernel/sha256.js"; // pure, so a page can re-verify a seal (was node:crypto; byte-identical, conformance/sha256.test.mjs)
 import { seal, verifyChain, parseRun, canon, emptyBench, addCard, addRun } from "./bench.mjs";
 
 export const NOTEBOOK_SCHEMA = "EONotebook@1";
-const sha = (s) => createHash("sha256").update(s).digest("hex");
+const sha = (s) => sha256(s);
 const isModel = (w) => /^model:/i.test(String(w ?? ""));
 const isHuman = (w) => /^(human|checker):\S+/i.test(String(w ?? ""));
 
@@ -64,14 +64,14 @@ export function editCell(state, { cell, source, by }) {
 
 /** recordExec(state, { cell, output, ok, figures, ms, run }) — the runner's result becomes an entry.
  *  Scope and result are PARSED from the output (bench.parseRun), never supplied. */
-export function recordExec(state, { cell, output, ok, figures = [], ms = null }) {
+export function recordExec(state, { cell, output, ok, figures = [], ms = null, env = null }) {
   const c = cellOf(state.nb, cell);
   if (!c || c.type !== "code") return { error: "not a code cell" };
   const code = sourceOf(state.nb, cell);
   const { scope, result } = parseRun(output);
   const dataShas = Object.fromEntries(dataOf(state.nb).map((d) => [d.name, d.sha]));
   const n = execsOf(state.nb, cell).length + 1;
-  const nb = seal(state.nb, { kind: "exec", cell, n, code, codeSha: sha(code), lang: c.lang, dataShas, output: String(output).slice(0, 20000), ok, figures, scope, result, ms });
+  const nb = seal(state.nb, { kind: "exec", cell, n, code, codeSha: sha(code), lang: c.lang, dataShas, output: String(output).slice(0, 20000), ok, figures, scope, result, ms, ...(env ? { env } : {}) });
   let bench = state.bench;
   if (c.for) { const r = addRun(bench, { id: `${cell}#${n}`, card: c.for, role: c.role, code, output, ok, inputs: Object.keys(dataShas), ms }); if (r.error) return r; bench = r.log; }
   return { state: { ...state, nb, bench }, exec: nb.entries[nb.entries.length - 1] };

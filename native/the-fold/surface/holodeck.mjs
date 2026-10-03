@@ -22,7 +22,13 @@ import { dataOf } from "./notebook.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-export function holodeck({ dir, learned = learnedDir(), by = "human:you", swarm, mouth } = {}) {
+// WHO MAY DRIVE THIS SERVER FROM A BROWSER. A page on another origin can call this server only if its origin is a loopback address or
+// is named explicitly (--allow-origin / ER7_HOLODECK_ORIGINS, comma-separated) — never "*": the server runs python as the person who
+// started it, so an arbitrary website must not be able to. Private Network Access preflights are answered for the same origins only.
+export const LOOPBACK_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/;
+export function originAllowed(origin, extra = []) { return Boolean(origin) && (LOOPBACK_ORIGIN.test(origin) || extra.includes(origin)); }
+
+export function holodeck({ dir, learned = learnedDir(), by = "human:you", swarm, mouth, allowOrigins = String(process.env.ER7_HOLODECK_ORIGINS ?? "").split(",").map((x) => x.trim()).filter(Boolean) } = {}) {
   const nb = notebookHandler({ dir, by, learned, base: "/notebook", skillsBase: "/skills/", swarm, mouth });
   const collect = () => collectSkills({ learnedDir: learned, layoutRules: fileURLToPath(new URL("./layout-conventions.json", import.meta.url)) });
   const sk = skillsHandler({ learnedDir: learned, collect, base: "/skills" });
@@ -38,7 +44,10 @@ export function holodeck({ dir, learned = learnedDir(), by = "human:you", swarm,
 <a class="card" href="/notebook/?style=chat&drawer=1&tab=audit"><b>Audit</b> — how every claim was produced<div class="k">claim → method → who wrote it → what admitted it → who switched it.</div></a>
 <p class="k">JSON: <a href="/health">/health</a></p></main>`; };
   return async (req, res) => {
-    const url = new URL(req.url, "http://x"), p = url.pathname;
+    const url = new URL(req.url, "http://x"), p = url.pathname, origin = req.headers.origin;
+    if (origin && originAllowed(origin, allowOrigins)) { res.setHeader("access-control-allow-origin", origin); res.setHeader("vary", "origin"); res.setHeader("access-control-allow-methods", "GET, POST"); res.setHeader("access-control-allow-headers", "content-type"); if (req.headers["access-control-request-private-network"]) res.setHeader("access-control-allow-private-network", "true"); }
+    if (req.method === "OPTIONS") { res.statusCode = origin && originAllowed(origin, allowOrigins) ? 204 : 403; res.end(); return; }
+    if (req.method === "POST" && origin && !originAllowed(origin, allowOrigins)) { res.statusCode = 403; res.setHeader("content-type", "application/json"); res.end(JSON.stringify({ error: `origin ${origin} may not drive this server (loopback only, or start it with --allow-origin ${origin})` })); return; }
     if (p === "/health") { res.setHeader("content-type", "application/json"); res.end(JSON.stringify(facts())); return; }
     if (p === "/") { res.setHeader("content-type", "text/html"); res.end(hub()); return; }
     if (p === "/notebook") { res.statusCode = 302; res.setHeader("location", "/notebook/"); res.end(); return; }
@@ -51,6 +60,7 @@ export function holodeck({ dir, learned = learnedDir(), by = "human:you", swarm,
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
   const a = process.argv.slice(2), opt = (k, d) => { const i = a.indexOf(`--${k}`); return i >= 0 ? a[i + 1] : d; };
+  const extra = [opt("allow-origin", null)].filter(Boolean);
   const dir = opt("dir", path.join(process.env.HOME ?? ".", ".er7", "notebook")), learned = opt("learned", learnedDir()), port = Number(opt("port", 8900));
-  http.createServer(holodeck({ dir, learned, by: opt("by", "human:you") })).listen(port, "127.0.0.1", () => console.log(`holodeck on http://127.0.0.1:${port}/  (notebook ${dir} · ledgers ${learned})`));
+  http.createServer(holodeck({ dir, learned, by: opt("by", "human:you"), ...(extra.length ? { allowOrigins: extra } : {}) })).listen(port, "127.0.0.1", () => console.log(`holodeck on http://127.0.0.1:${port}/  (notebook ${dir} · ledgers ${learned})`));
 }

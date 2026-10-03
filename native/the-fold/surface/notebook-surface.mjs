@@ -30,6 +30,23 @@ import { load, save } from "./notebook-store.mjs";
 import { openWorkspace } from "./notebook-workspace.mjs";
 import { datasetOf, search as dsSearch, label as dsLabel, summary as dsSummary } from "./notebook-dataset.mjs";
 export { load, save };
+import { bundle } from "./notebook-bundle.mjs";
+import { methodsText, methodsOf } from "./notebook-methods.mjs";
+import { envOf } from "./notebook-run.mjs";
+import { readLog as readAnalyses } from "../../organs/analysis-store.js";
+
+/** stateJson — everything a page needs to DRAW one conversation, as raw sealed entries (so the page re-verifies them itself)
+ *  plus the facts only the server can compute (the learned library, the audit, the workspace dataset, the environment). */
+export function stateJson({ ws, c, st, by, learned }) {
+  const lineage = []; for (let p = c; p?.parent; ) { const par = ws.get(p.parent); if (!par) break; lineage.push({ id: par.id, title: par.title, at: p.forkedAt, cutHash: p.forkHash, notCarried: p.notCarried }); p = par; }
+  const lib = L.library(learned), items = datasetOf(ws);
+  return { schema: "EONotebookState@1", by, server: { env: envOf(), model: Boolean(process.env.ER7_OLLAMA_URL && process.env.ER7_NB_MODEL) ? process.env.ER7_NB_MODEL : null },
+    conv: c, tabs: ws.list(), lineage,
+    ledgers: { nb: st.nb.entries, bench: st.bench.entries, workspace: ws.entries(), analyses: readAnalyses(learned) },
+    library: lib.map((k) => ({ id: k.id, name: k.name, desc: k.desc, claim: k.claim, check: k.check, control: k.control, uses: k.uses, conceded: k.conceded, effectiveOn: k.effectiveOn, switch: k.switch, flags: k.flags, lineage: k.lineage, evidence: k.evidence, learnedAt: k.learnedAt, codeSha: k.codeSha, history: L.history(learned, k.id) })),
+    audit: audit(st, learned), methods: { text: methodsText(st, lib), rows: methodsOf(st, lib) },
+    dataset: { summary: dsSummary(items), items: items.slice(-400).map((i) => ({ ...i, label: dsLabel(i), text: String(i.text).slice(0, 400) })) } };
+}
 
 let toolsCache;
 async function toolsText(st) { if (toolsCache) return toolsCache; const r = runPython("tools()", {}, { timeoutMs: 20000 }); return (toolsCache = r.output); }
@@ -58,7 +75,7 @@ async function swarmFor(st, p, text, dir, ctx) {
     for (const s of r.structures) cands.push({ s, meta, col });
   }
   cands.sort((a, b) => (b.s.null === "phase") - (a.s.null === "phase") || b.s.z - a.s.z);
-  const admitted = [], refused = [], seen = new Set();
+  const admitted = [], refused = [], seen = new Set(); let offFound = 0;
   for (const { s, meta, col } of cands) {
     if (admitted.length >= SWARM_KEEP) break;
     const c = candidateFor(s, meta), order = [col, ...p.numeric.filter((x) => x !== col)];
@@ -67,11 +84,27 @@ async function swarmFor(st, p, text, dir, ctx) {
     const rep = g.evidence.runs.find((x) => x.role === "check"); // the colony chose it on the FIRST half; the check re-tests on the SECOND
     if (!rep?.result) { refused.push(`${s.gloss} vs ${s.null} (${col}): did NOT replicate on the held-out second half (z was ${s.z.toFixed(1)} in the search)`); continue; }
     const stored = L.store(dir, c, { question: text, mouth: c.by, file: p.file }, g.evidence);
-    if (seen.has(stored.id)) continue; seen.add(stored.id); admitted.push(L.library(dir).find((k) => k.id === stored.id));
+    if (seen.has(stored.id)) continue; seen.add(stored.id);
+    const k = L.library(dir).find((x) => x.id === stored.id);
+    // re-finding a method that a person switched off does not switch it back on: it is reported and NOT used
+    if (!k.effectiveOn) { offFound++; refused.push(`${k.name} (${k.id}) was found again, but it is not in use (${offWhy(k, dir)}) — not used`); continue; }
+    admitted.push(k);
   }
-  const note = `**The colony searched** (${cols.join(", ")}; first half of each series only, the check re-tests on the second half)\n\n${reports.join("\n")}${admitted.length ? `\n\n**Admitted through the gate** (${admitted.length}): ${admitted.map((k) => k.name).join("; ")}` : ""}${refused.length ? `\n\n**Refused by the gate** (${refused.length}): ${refused.join("; ")}` : ""}`;
-  return { skills: admitted, note };
+  const note = `**The colony searched** (${cols.join(", ")}; first half of each series only, the check re-tests on the second half)\n\n${reports.join("\n")}${admitted.length ? `\n\n**Admitted through the gate** (${admitted.length}): ${admitted.map((k) => k.name).join("; ")}` : ""}${refused.length ? `\n\n**Refused by the gate, or switched off** (${refused.length}): ${refused.join("; ")}` : ""}`;
+  return { skills: admitted, note, offFound };
 }
+
+import { foldToggles, loadToggles, stateOf as toggleState } from "../../organs/skill-toggles.js";
+import { ANALYSIS_ROUTE } from "../../organs/analysis-store.js";
+/** routeSwitch(dir) -> the "all learned analyses" switch when a person has turned it OFF, else null */
+/** offWhy(method, dir) — why a method is not used, in words that are TRUE: its own switch, the parent switch, or a concession. */
+function offWhy(k, dir) {
+  if (k.switch?.decided && k.switch.on === false) return `switched off by ${k.switch.by}${k.switch.why ? `: ${k.switch.why}` : ""}`;
+  const r = routeSwitch(dir); if (r) return `all learned analyses are switched off by ${r.by}${r.why ? `: ${r.why}` : ""}`;
+  if (k.conceded) return `conceded: ${k.conceded.because}`;
+  return k.switch?.offBecause ?? "off";
+}
+function routeSwitch(dir) { const s = toggleState(foldToggles(loadToggles(dir)), ANALYSIS_ROUTE); return s.decided && s.on === false ? s : null; }
 
 async function askTurn(st, by, text, ctx = {}, b_force = false) {
   const P = "model:planner", dir = ctx.dir ?? learnedDir();
@@ -79,10 +112,14 @@ async function askTurn(st, by, text, ctx = {}, b_force = false) {
   const p = await plan(text, files, { library: L.library(dir), ask: process.env.ER7_OLLAMA_URL ? askModel : null });
   if (p.refusal) return { error: p.refusal };
   let taught = null, skills = p.skills, via = p.via;
-  const offNote = p.offMatches?.length ? `\n\n**Switched off, so NOT used:** ${p.offMatches.map((k) => `${k.name} (${k.id}; ${k.switch?.by ?? "conceded"}${k.switch?.why ? `: ${k.switch.why}` : ""})`).join("; ")}` : "";
-  if (!skills.length && p.offMatches?.length) return { error: `the method that answers this is switched off: ${p.offMatches.map((k) => `${k.name} (${k.id}) — ${k.switch?.by ?? "conceded"}${k.switch?.why ? `: ${k.switch.why}` : ""}`).join("; ")}.\nI will not write a new one around a switch. /skill ${p.offMatches[0].id} on because <why>  turns it back on.` };
+  const offNote = p.offMatches?.length ? `\n\n**Switched off, so NOT used:** ${p.offMatches.map((k) => `${k.name} (${k.id}; ${offWhy(k, dir)})`).join("; ")}` : "";
+  if (!skills.length && p.offMatches?.length) { const route = routeSwitch(dir); return { error: `the method that answers this is switched off: ${p.offMatches.map((k) => `${k.name} (${k.id}) — ${offWhy(k, dir)}`).join("; ")}.\nI will not write a new one around a switch. ${route ? "/skill all on because <why>" : `/skill ${p.offMatches[0].id} on because <why>`}  turns it back on.` }; }
   let swarmNote = "";
   if (!skills.length || b_force) {
+    // THE SWITCH IS A WALL FOR THE LEARNERS TOO: while "all learned analyses" is off, neither a mouth nor the colony may make a new
+    // method — that would be a replacement written around the switch (found by the Holodeck falsification run, 2026-09-30).
+    const route = routeSwitch(dir);
+    if (route) return { error: `all learned analyses are switched off (${route.by}${route.why ? `: ${route.why}` : ""}).\nI will not learn a new method around that switch. /skill all on because <why>  turns them back on.` };
     const mouth = b_force ? null : (ctx.mouth ?? L.ollamaMouth());
     if (mouth) {
       const g = await L.generate({ question: text, cols: p.columns.length ? [...p.columns, ...p.numeric.filter((c) => !p.columns.includes(c))] : p.numeric, file: p.file, files: st.files, mouth, dir, tools: L.toolDocs(), examples: L.library(dir).filter((s) => s.effectiveOn).slice(-2) });
@@ -96,7 +133,7 @@ async function askTurn(st, by, text, ctx = {}, b_force = false) {
       via = b_force ? "you asked me to explore: an ant colony searched the data for structure, its finds went through the gate" : "no learned method matched and no model was available, so an ant colony searched the data for structure; its finds went through the gate";
       if (!skills.length) {
         let s0 = st; const id = `ask${st.nb.entries.filter((e) => e.kind === "cell" && e.type === "markdown").length + 1}`;
-        const r0 = addCell(s0, { id, type: "markdown", source: `**Asked:** ${text}\n\n${swarmNote}\n\nNothing cleared the bar, so there is nothing to claim. That is a result about this file, not a failure to look.`, author: P }); if (r0.error) return r0;
+        const r0 = addCell(s0, { id, type: "markdown", source: `**Asked:** ${text}\n\n${swarmNote}\n\n${sw.offFound ? `What the colony found again is switched off (${sw.offFound} method(s)), so nothing is claimed. Turning a method back on is a person's recorded decision: /skill <id> on because <why>.` : "Nothing cleared the bar, so there is nothing to claim. That is a result about this file, not a failure to look."}`, author: P }); if (r0.error) return r0;
         return { state: r0.state, selected: id, notice: null };
       }
     }
@@ -154,6 +191,7 @@ export async function act(st, by, b, ctx = {}) {
   }
   if (b.op === "dataset") { if (!ctx.ws) return { error: "no workspace here" }; const items = datasetOf(ctx.ws), sm = dsSummary(items), hits = b.query ? dsSearch(items, b.query, { k: 10 }) : items.slice(-12).reverse(); return { notice: `workspace dataset: ${sm.source} source(s), ${sm.generated} generated item(s) (${Object.entries(sm.by).map(([k, v]) => `${v} ${k}`).join(", ")}) across ${ctx.ws.list(true).length} conversation(s)\nGenerated items are context about what was done — never evidence for themselves.\n\n${b.query ? `matching "${b.query}":` : "most recent:"}\n${hits.map((i) => `${dsLabel(i)}\n   ${String(i.text).replace(/\s+/g, " ").slice(0, 200)}`).join("\n") || "(nothing matches)"}` }; }
   if (b.op === "audit") return { notice: auditText(audit(st, ctx.dir ?? learnedDir())) };
+  if (b.op === "methods") return { notice: methodsText(st, L.library(ctx.dir ?? learnedDir())) };
   if (b.op === "forget") return L.concede(ctx.dir ?? learnedDir(), b.id, b.because) ? { notice: `conceded ${b.id} — kept on the record, no longer chosen` } : { error: `no learned method ${b.id}` };
   if (b.op === "run") return runCell(st, b.cell);
   if (b.op === "runmany") {
@@ -207,6 +245,8 @@ export function notebookHandler({ dir, by, learned = learnedDir(), base = "", sk
       } catch (e) { r = { error: String(e.message) }; }
       res.setHeader("content-type", "application/json"); res.end(JSON.stringify({ error: r.error ?? null, notice: r.notice ?? null, selected: r.selected ?? null, goto: r.goto ?? null })); return true;
     }
+    if (p === "/state") { const c = pick(url.searchParams.get("c")); res.setHeader("content-type", "application/json"); res.end(JSON.stringify(stateJson({ ws, c, st: ws.state(c.id), by, learned }))); return true; }
+    if (p === "/bundle") { const c = pick(url.searchParams.get("c")); const b = bundle(ws.state(c.id), { title: c.title }); res.setHeader("content-type", "application/zip"); res.setHeader("content-disposition", `attachment; filename="${c.id}-bundle.zip"`); res.end(b.zip); return true; }
     if (p === "/ipynb") { const c = pick(url.searchParams.get("c")); res.setHeader("content-type", "application/json"); res.end(JSON.stringify(toIpynb(ws.state(c.id)), null, 1)); return true; }
     if (p === "/") {
       const q = url.searchParams, c = pick(q.get("c")), st = ws.state(c.id), par = c.parent ? ws.get(c.parent) : null;
