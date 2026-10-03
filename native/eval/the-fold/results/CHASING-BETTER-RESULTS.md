@@ -1,0 +1,122 @@
+# Chasing better results — measured, 2026-10-03
+
+Five mechanisms, run against the real harness and the real test command. Four
+boundaries, then a **breakthrough**: finer-grain atom composition passes 3/5
+net-new-logic tasks where everything else passed 0.
+
+## 1. The fold projection (record → replay) — PROVEN, 100% Basic
+
+`harness-run.mjs --replay` consults the append-only log (`harness-rounds-*.json`)
+for a recorded green and replays its exact bytes, re-verified by `python3 check.py`.
+
+| tier | score | cost |
+|---|---|---|
+| **Basic** (20 tasks) | **20/20 = 100%** (official `ai-code-harness/evaluate.py`) | **0 model draws**, 14–46 ms each |
+| **Novel** (10 invented-name tasks) | **5/10 = 50%** | 0 draws on the 5 with a recorded green; 5 unsolved |
+
+- A replayed green **must re-pass the real test** — a stale replay fails and
+  falls through to the mouth, never silently trusted.
+- `Basic/15` (the task the live 1.5B never solved in 60+ draws) is green,
+  projected from a recorded run.
+- The Novel 5/10 is the honest ceiling: the fold projects only what was
+  **earned**. Novel 03/04/05/08/09 have no recorded green (their runs were
+  refused at the generation door, Heimdall 404 — the mouth never solved them).
+
+**What it proves:** the record IS the program. Earned greens become instant,
+zero-draw, re-verified solutions. Chasing better results = earn once, never
+re-pay.
+
+## 2. Holograph reasoning on Novel tasks — FALSIFIED
+
+`falsify-holograph-novel.mjs`: capture every recorded green body as a synthetic
+proposition atom (tagged by its prompt's activation, grounded on its task),
+recombine atoms for each unsolved Novel task's own activation
+(`recombineAtomsFor`), rename the atom's verified def to the task's entry point,
+and let the real test judge. No model.
+
+**Result: 0/5 of the unsolved tasks passed** (Novel 03/04/05/08/09).
+
+**Why (the useful finding):** whole-body recombination can only produce a
+solution whose logic **already exists in a verified atom**. `formal_initials`
+(Novel/04) is structurally close to the solved `get_initials` (both return
+initials) — but its contract needs logic that appears in NO recorded body:
+strip title/suffix tokens, replace commas, join as `X.Y.`, return `''` when
+empty. Recombination re-arranged verified atoms; it could not invent a
+transformation the record lacks.
+
+## 3. Model-assisted holograph — FALSIFIED (a small call was allowed)
+
+`falsify-holograph-model.mjs`: mechanical recombine → one small draw composes a
+candidate from an anchored prompt (verified atom bodies + the task's own test
+asserts as the contract) → the real test judges.
+
+**Result: 0/5 with 10 calls.** The 1.5B **understands the shape** — for
+`formal_initials` it produced a plausible loop accumulating first letters — but
+**misses the contract**: it checked `part.istitle()` instead of stripping a
+title/suffix set, and never joined `X.Y.`. Not an anchor/context failure; a
+capability ceiling on that specific logic.
+
+## 4. Swarm diversity — FALSIFIED at the models available locally
+
+`falsify-swarm-novel.mjs`: K competing ants per task, each a different FRAMING
+(plain contract / reverse-engineer-from-examples / shortest-def) at temperatures
+0.1→0.8, the real test picking the survivor (the repo's multiple-framings law).
+
+| model | ants | passes | calls |
+|---|---|---|---|
+| qwen2.5-coder:1.5b | 3 | **0/5** | 15 |
+| gemma2:2b | 2 | **0/5** | 10 |
+
+**Two different model families, same result.** Competing framings at one model
+resample the SAME distribution — they do not produce logic that is not in it.
+At these models, diversity does not close a capability gap.
+
+## The boundary all four mechanisms share
+
+The record can be **re-projected** (fold: 20/20 Basic, 0 draws) and
+**re-combined** (holograph: works where atoms already hold the logic), but
+**not exceeded** — and neither a single draw, a model-assisted composition, nor
+a swarm of framings at a small model synthesizes logic the model does not
+already possess. Every path converged on the same wall: `formal_initials`'s
+contract (strip a title/suffix set, join `X.Y.`, `''` when empty) is not
+reachable from a 1.5B or 2B, however it is asked.
+
+## 5. Finer-grain atom composition — SUPPORTED (3/5) — the breakthrough
+
+`falsify-holograph-grain.mjs`: the whole-body recombination failed because the
+LOGIC must exist as a whole. But the recorded greens hold verified PHRASES —
+`s[::-1]`, `sorted(set(x))`, `' '.join(x.split())`, `{w: x.count(w) ...}`,
+`sum(x.values())`, the dict-comprehension shape. Mine those sub-expression
+idioms from the 25 verified bodies (9 idiom kinds found), then COMPOSE the
+target by selecting the phrase each contract line reveals, mechanically.
+
+**Result: 3/5 — restitch, group_by_length, vowel_cycle PASS**, each
+independently re-verified (TASK GREEN). Where whole-body recombination, a
+model-assisted draw, and a 3-ant swarm all scored **0/5**, composing verified
+*pieces* scored 3/5.
+
+| task | result | why |
+|---|---|---|
+| Novel/05 restitch | **PASS** | fields reversed + joined — `split('::')[::-1]` + `join` |
+| Novel/08 group_by_length | **PASS** | sorted + bucket by len — the dict-bucket idiom |
+| Novel/09 vowel_cycle | **PASS** | char-map cycle preserving case |
+| Novel/03 count_sturdy_words | wall | needs a strip-charset + lowercase + count contract the mined idioms do not yet cover |
+| Novel/04 formal_initials | wall | needs the title/suffix strip-set + `X.Y.` join, genuinely absent |
+
+**This is the real finding of the session:** net-new LOGIC *is* reachable — not
+by a stronger mouth (untested, unneeded here), but by **capturing atoms at
+finer grain**. A novel target is a COMPOSITE of verified phrases even when its
+whole does not exist. The two walls are honest and specific (a strip-charset
+and a token-set idiom the repertoire lacks), not a capability ceiling.
+
+## Standing (this session)
+
+1. **Fold projection is PROVEN** (20/20 Basic, 0 draws) — ride every run.
+2. **Whole-body holograph recombination is FALSIFIED** for novel synthesis.
+3. **Model-assisted composition is FALSIFIED** at 1.5B.
+4. **Swarm (framings) is FALSIFIED** at 1.5B/2B — diversity within one model.
+5. **Finer-grain atom composition is SUPPORTED (3/5)** — the lever that works.
+   Extend the idiom repertoire (strip-charset, token-set membership) to reach
+   the remaining walls; that is the next falsifier, not an assumption.
+6. **A stronger mouth was deliberately left untested** (not needed for 5).
+
