@@ -6280,3 +6280,13 @@ The public reading door previously trimmed input and silently cut it at 60,000
 characters. It now preserves the source coordinate origin and declares the
 read extent, total extent, budget, truncation and stages not run. A response
 from a prefix names itself as such (S2).
+
+## S138 — Experience is not capacity: grounded-learning falsification (2026-10-03)
+
+**Measured assembly:** existing stigmergy route organ over literal territory indexes; existing coding forecast over real Python assertion exits; native causal recursive text assembly with `experienced-new-book.mjs` adapters and received English POS prior. Zero model calls. No production mechanism replaced. Prior constraints checked: S1 assembly disclosure, S2 complete material, S3 causal target reading, S7 named priors, S8 append failed attempts, S9 priors do not manufacture evidence. The legacy P0–P7/A1–A25 source is absent from this checkout; this experiment relies on their explicit restatement above and changes no reading mechanism.
+
+**Attempt and falsifier:** `eval/grounded-learning-falsify.mjs` and `eval/results/grounded-learning-falsify-RESULTS.md`. Existing experience halves route attempts on 40 unseen stable-distribution tasks, but doubles attempts after the useful source changes. Under a deliberately weak hit-equals-success harness, experienced selection accepts 40/40 distractors; independent exact-answer verification refuses all 40 and recovers correct answers. This is a harness counterexample, not an assertion about untested production guards. Forecast Brier loss improves from .25 to .090363 in scope, worsens to .699887 after an unrepresented difficulty change, and changes no candidate pass rate. Complete short synthetic reading produces byte-identical graph entries with and without two learned relation forms: no capacity gain demonstrated there. Memory removed/disabled and serialized restart controls are measured.
+
+**Standing rule:** an improvement in route cost or calibration is named precisely as that. General capacity growth requires improved verified task success on withheld transfer tasks, independently judged, with individual-capability ablations, false-admission controls, and declared scope. Passing ordinary regression tests does not establish this improvement.
+
+**Generality:** specimen-scoped for the numerical findings; universal for the requirement to falsify learning claims against independent evidence and ablations. A seven-day decay probe also finds e^-1 remaining strength despite the organ's half-life terminology; no decay semantics changed in this attempt.
