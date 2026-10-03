@@ -128,3 +128,32 @@ and the real test — not the model — certifies it.
    certifies every composition.
 6. **A stronger mouth was deliberately left untested** (not needed for 5).
 
+## 6. Coding lessons as a generation lever — FALSIFIED (no effect)
+
+The 93 lessons in `CODING-LESSONS.md` were atomized by intent
+(`atomize-lessons.mjs` → `CodingLessonAtoms@2`) and wired as a consumer
+(`lesson-atoms.js`): given a task, select the lesson atoms whose clause-core
+intent matches the task's, render a grounded brief, and carry it into the draw.
+`run-pipeline-with-lessons.mjs` ran the five unsolved Novel tasks BARE vs WITH
+the lesson brief, each judged by the real test:
+
+| task | bare | +lessons | lessons selected |
+|---|---|---|---|
+| Novel/03 | wall | wall | #43 #49 #62 #70 #86 |
+| Novel/04 | wall | wall | #43 #49 #70 #39 #58 |
+| Novel/05 | wall | wall | #43 #49 #70 |
+| Novel/08 | wall | wall | #43 #49 #70 |
+
+**No effect.** And the selection is noise: the same three lessons (#43 "the run
+that measured the harness", #49 "the cube as a grammar", #70 "a lint nobody has
+seen fire") match *every* task — shared-noun intent overlap cannot tell what a
+task is about. The lessons are **behavior rules for the loop**, not solution
+content; injecting them as prompt context does not help a small model solve
+net-new logic. Consistent with lesson 97 (extra context hurts a small mouth).
+
+**Conclusion:** the coding lessons are an **index/record**, not a
+novel-generation lever. That is fine — the point of this work was novel
+generation, and the lever that DID work is section 5 (finer-grain atom
+composition, 5/5). The lessons stay atomized and consultable; they are not the
+path to new solutions.
+
