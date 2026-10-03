@@ -1,0 +1,399 @@
+{
+  "schema": "EOCPULLMLearningFalsification@1",
+  "model": {
+    "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+  },
+  "runtime": {
+    "torch": "2.14.1+cpu",
+    "device": "cpu",
+    "threads": 4,
+    "parameterCount": 134515008,
+    "loadSeconds": 0.16994381199947384,
+    "weightsChanged": false,
+    "frontierCalls": 0
+  },
+  "scope": "Standalone bounded synthetic procedure-transfer assay, not production Heimdall integration or broad intelligence benchmark. CPU model receives scaffolding and a narrow DSL/AST gate; no independent invention claim.",
+  "proposals": [
+    {
+      "raw": "```python\ndef solve(text):\n    return sum(int(char) for char in text if char.isalnum())\n```\n\nThis function uses a generator expression to iterate over each character in the input text, converting it to an integer using the `isalnum()` method. It then uses the built-in `sum()` function to add up all the integers. The `isalnum()` method returns `True` if a character is alphanumeric (either a letter or a number), and `False` otherwise.",
+      "code": null,
+      "refusal": "refused AST: AssertionError"
+    },
+    {
+      "raw": "```python\ndef solve(text):\n    return sum(int(x) for x in text.split())\n```\n\nExample usage:\n\n```python\nprint(solve(\"1 2 3\"))  # Output: 6\nprint(solve(\"4 5\"))  # Output: 9\n```",
+      "code": "def solve(text):\n    return sum(int(x) for x in text.split())\n",
+      "refusal": null,
+      "training": [
+        {
+          "input": "1 2 3",
+          "expected": 6,
+          "actual": 6,
+          "pass": true
+        },
+        {
+          "input": "4 5",
+          "expected": 9,
+          "actual": 9,
+          "pass": true
+        }
+      ],
+      "validation": [
+        {
+          "input": "2 -5",
+          "expected": -3,
+          "actual": -3,
+          "pass": true
+        },
+        {
+          "input": "",
+          "expected": 0,
+          "actual": 0,
+          "pass": true
+        },
+        {
+          "input": " 3\n4\t-2 ",
+          "expected": 5,
+          "actual": 5,
+          "pass": true
+        },
+        {
+          "input": "0 0",
+          "expected": 0,
+          "actual": 0,
+          "pass": true
+        }
+      ]
+    }
+  ],
+  "promoted": true,
+  "procedureHash": "53c23483afcf01f2b944e64318488694e6994f7d80597c430243314b288952e2",
+  "heldout": {
+    "modelAlone": [
+      {
+        "input": "8 11",
+        "expected": 19,
+        "raw": "\"8 + 11 = 19\"",
+        "actual": null,
+        "pass": false,
+        "refused": true,
+        "semanticActual": 19,
+        "semanticPass": true
+      },
+      {
+        "input": "-9 -4",
+        "expected": -13,
+        "raw": "-9 - 4 = 3",
+        "actual": null,
+        "pass": false,
+        "refused": true,
+        "semanticActual": 3,
+        "semanticPass": false
+      },
+      {
+        "input": "12 -12",
+        "expected": 0,
+        "raw": "12 - 12 = 0",
+        "actual": null,
+        "pass": false,
+        "refused": true,
+        "semanticActual": 0,
+        "semanticPass": true
+      },
+      {
+        "input": "7\n8\n9",
+        "expected": 24,
+        "raw": "The integer answer is 7.",
+        "actual": null,
+        "pass": false,
+        "refused": true,
+        "semanticActual": 7,
+        "semanticPass": false
+      },
+      {
+        "input": "  -3\t10  ",
+        "expected": 7,
+        "raw": "The integer answer is 10.",
+        "actual": null,
+        "pass": false,
+        "refused": true,
+        "semanticActual": 10,
+        "semanticPass": false
+      },
+      {
+        "input": "1000 23",
+        "expected": 1023,
+        "raw": "1000 23",
+        "actual": null,
+        "pass": false,
+        "refused": true,
+        "semanticActual": null,
+        "semanticPass": false
+      },
+      {
+        "input": "0",
+        "expected": 0,
+        "raw": "```python\ndef sum_empty_input_sums(input_sums):\n    return sum(input_sums)\n\n# Test the",
+        "actual": null,
+        "pass": false,
+        "refused": true,
+        "semanticActual": null,
+        "semanticPass": false
+      },
+      {
+        "input": "  ",
+        "expected": 0,
+        "raw": "The sum of the integers is 0.",
+        "actual": null,
+        "pass": false,
+        "refused": true,
+        "semanticActual": 0,
+        "semanticPass": true
+      }
+    ],
+    "learnedProcedure": [
+      {
+        "input": "8 11",
+        "expected": 19,
+        "actual": 19,
+        "pass": true
+      },
+      {
+        "input": "-9 -4",
+        "expected": -13,
+        "actual": -13,
+        "pass": true
+      },
+      {
+        "input": "12 -12",
+        "expected": 0,
+        "actual": 0,
+        "pass": true
+      },
+      {
+        "input": "7\n8\n9",
+        "expected": 24,
+        "actual": 24,
+        "pass": true
+      },
+      {
+        "input": "  -3\t10  ",
+        "expected": 7,
+        "actual": 7,
+        "pass": true
+      },
+      {
+        "input": "1000 23",
+        "expected": 1023,
+        "actual": 1023,
+        "pass": true
+      },
+      {
+        "input": "0",
+        "expected": 0,
+        "actual": 0,
+        "pass": true
+      },
+      {
+        "input": "  ",
+        "expected": 0,
+        "actual": 0,
+        "pass": true
+      }
+    ],
+    "restart": [
+      {
+        "input": "8 11",
+        "expected": 19,
+        "actual": 19,
+        "pass": true
+      },
+      {
+        "input": "-9 -4",
+        "expected": -13,
+        "actual": -13,
+        "pass": true
+      },
+      {
+        "input": "12 -12",
+        "expected": 0,
+        "actual": 0,
+        "pass": true
+      },
+      {
+        "input": "7\n8\n9",
+        "expected": 24,
+        "actual": 24,
+        "pass": true
+      },
+      {
+        "input": "  -3\t10  ",
+        "expected": 7,
+        "actual": 7,
+        "pass": true
+      },
+      {
+        "input": "1000 23",
+        "expected": 1023,
+        "actual": 1023,
+        "pass": true
+      },
+      {
+        "input": "0",
+        "expected": 0,
+        "actual": 0,
+        "pass": true
+      },
+      {
+        "input": "  ",
+        "expected": 0,
+        "actual": 0,
+        "pass": true
+      }
+    ],
+    "modelCorrect": 0,
+    "modelSemanticCorrect": 3,
+    "classicalBaseline": [
+      {
+        "input": "8 11",
+        "expected": 19,
+        "actual": 19
+      },
+      {
+        "input": "-9 -4",
+        "expected": -13,
+        "actual": -13
+      },
+      {
+        "input": "12 -12",
+        "expected": 0,
+        "actual": 0
+      },
+      {
+        "input": "7\n8\n9",
+        "expected": 24,
+        "actual": 24
+      },
+      {
+        "input": "  -3\t10  ",
+        "expected": 7,
+        "actual": 7
+      },
+      {
+        "input": "1000 23",
+        "expected": 1023,
+        "actual": 1023
+      },
+      {
+        "input": "0",
+        "expected": 0,
+        "actual": 0
+      },
+      {
+        "input": "  ",
+        "expected": 0,
+        "actual": 0
+      }
+    ],
+    "scopeControls": [
+      {
+        "input": "3.5 2",
+        "admitted": false,
+        "gap": "outside_signed_integer_scope"
+      },
+      {
+        "input": "1,2",
+        "admitted": false,
+        "gap": "outside_signed_integer_scope"
+      },
+      {
+        "input": "three 4",
+        "admitted": false,
+        "gap": "outside_signed_integer_scope"
+      },
+      {
+        "input": "8 kg",
+        "admitted": false,
+        "gap": "outside_signed_integer_scope"
+      },
+      {
+        "input": "1; import os",
+        "admitted": false,
+        "gap": "outside_signed_integer_scope"
+      }
+    ],
+    "procedureRemoved": {
+      "status": "no_learned_procedure",
+      "modelFreeAnswers": 0
+    },
+    "procedureCorrect": 8
+  },
+  "callCounts": {
+    "proposal": 2,
+    "modelAloneHeldout": 8,
+    "procedureHeldout": 0,
+    "procedureRestart": 0
+  },
+  "generations": [
+    {
+      "prompt": "Write only Python code, no explanation. Define solve(text) returning the sum of whitespace-separated signed integers in text. Empty or whitespace-only text returns 0. Use no imports. Use exactly one return statement.",
+      "text": "```python\ndef solve(text):\n    return sum(int(char) for char in text if char.isalnum())\n```\n\nThis function uses a generator expression to iterate over each character in the input text, converting it to an integer using the `isalnum()` method. It then uses the built-in `sum()` function to add up all the integers. The `isalnum()` method returns `True` if a character is alphanumeric (either a letter or a number), and `False` otherwise.",
+      "tokens": 113,
+      "seconds": 6.283719713999744
+    },
+    {
+      "prompt": "Write only Python code, no explanation. Define solve(text) returning the sum of whitespace-separated signed integers in text. Empty or whitespace-only text returns 0. Use no imports. Use exactly one return statement.\nExamples: solve(\"1 2 3\") == 6; solve(\"4 5\") == 9.",
+      "text": "```python\ndef solve(text):\n    return sum(int(x) for x in text.split())\n```\n\nExample usage:\n\n```python\nprint(solve(\"1 2 3\"))  # Output: 6\nprint(solve(\"4 5\"))  # Output: 9\n```",
+      "tokens": 69,
+      "seconds": 3.8380355190001865
+    },
+    {
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"8 11\"",
+      "text": "\"8 + 11 = 19\"",
+      "tokens": 12,
+      "seconds": 0.6740600709999853
+    },
+    {
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"-9 -4\"",
+      "text": "-9 - 4 = 3",
+      "tokens": 9,
+      "seconds": 0.5295641680004337
+    },
+    {
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"12 -12\"",
+      "text": "12 - 12 = 0",
+      "tokens": 10,
+      "seconds": 0.5895643440017011
+    },
+    {
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"7\\n8\\n9\"",
+      "text": "The integer answer is 7.",
+      "tokens": 8,
+      "seconds": 0.475061832999927
+    },
+    {
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"  -3\\t10  \"",
+      "text": "The integer answer is 10.",
+      "tokens": 9,
+      "seconds": 0.5270157909999398
+    },
+    {
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"1000 23\"",
+      "text": "1000 23",
+      "tokens": 8,
+      "seconds": 0.491688014999454
+    },
+    {
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"0\"",
+      "text": "```python\ndef sum_empty_input_sums(input_sums):\n    return sum(input_sums)\n\n# Test the",
+      "tokens": 32,
+      "seconds": 1.7647094010008004
+    },
+    {
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"  \"",
+      "text": "The sum of the integers is 0.",
+      "tokens": 10,
+      "seconds": 0.5558014799989905
+    }
+  ]
+}
