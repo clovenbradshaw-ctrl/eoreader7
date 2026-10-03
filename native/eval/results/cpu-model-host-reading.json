@@ -1,0 +1,1237 @@
+{
+  "schema": "EOCPUModelHostReading@1",
+  "inputHash": "295676c5732e9866b03074c32ba98f4604c83aa35b5f1fb35d09b0cc1d7703d6",
+  "model": {
+    "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "sha": "12fd25f77366fa6b3b4b768ec3050bf629380bac"
+  },
+  "assembly": "constitutional-host: createSession -> admitChunked -> sessionReferents / sessionRelations; additionally real proxy POST /v1/read",
+  "material": "all ten original CPU generations, distinct documents in one HOST session; full material, no labels added to sources",
+  "modelCalls": 0,
+  "proxyMode": "passive door, supervised by assay; no model daemon reconciliation",
+  "truncated": false,
+  "priors": {
+    "languageDeclared": "en",
+    "abbreviationPriorReceived": false,
+    "coreference": [],
+    "gap": "no_abbreviation_prior_for_language"
+  },
+  "stagesRun": [
+    "perception",
+    "byte-addressed source admission (except disclosed short-material span gaps)",
+    "name-variant identity",
+    "pronoun binding attempts",
+    "5a directional relation extraction"
+  ],
+  "stagesNotRun": [
+    "5b emergence/binding",
+    "6 altitude",
+    "7 population",
+    "8 kind",
+    "code AST reading",
+    "arithmetic evaluation",
+    "holograph semantic chase"
+  ],
+  "summary": {
+    "sources": 10,
+    "sourceTextsRetained": 10,
+    "registeredSpans": 6,
+    "exactSpanChecks": 6,
+    "sourcesWithoutSpans": 4,
+    "perSourceReferents": 3,
+    "relations": 0,
+    "httpParityChecks": 10,
+    "roundtripParityChecks": 10
+  },
+  "sources": [
+    {
+      "source": "doc:cpu-model-0",
+      "text": "```python\ndef solve(text):\n    return sum(int(char) for char in text if char.isalnum())\n```\n\nThis function uses a generator expression to iterate over each character in the input text, converting it to an integer using the `isalnum()` method. It then uses the built-in `sum()` function to add up all the integers. The `isalnum()` method returns `True` if a character is alphanumeric (either a letter or a number), and `False` otherwise.",
+      "prompt": "Write only Python code, no explanation. Define solve(text) returning the sum of whitespace-separated signed integers in text. Empty or whitespace-only text returns 0. Use no imports. Use exactly one return statement.",
+      "sha256": "989b538f1e96c563bc7b65709533879e7a393fdd50732e2d85d626a72538168f",
+      "characters": 436,
+      "utf8Bytes": 436,
+      "admission": {
+        "chunks": 1,
+        "admitted": [
+          {
+            "id": "doc:cpu-model-0:chunk-0",
+            "text": "```python\ndef solve(text):\n    return sum(int(char) for char in text if char.isalnum())\n```\n\nThis function uses a generator expression to iterate over each character in the input text, converting it to an integer using the `isalnum()` method. It then uses the built-in `sum()` function to add up all the integers. The `isalnum()` method returns `True` if a character is alphanumeric (either a letter or a number), and `False` otherwise.",
+            "byteStart": 0,
+            "byteEnd": 436
+          }
+        ]
+      },
+      "cast": {
+        "referents": [
+          {
+            "id": "ref:auto:true",
+            "display": "True",
+            "surfaces": [
+              "True"
+            ],
+            "mentions": 1,
+            "frames": 1,
+            "firstFrame": 0,
+            "lastFrame": 0,
+            "pronounMentions": 0,
+            "pronounFrames": 0,
+            "namingSentenceShare": 0.25,
+            "fromPrior": false,
+            "individuation": "apparatus"
+          },
+          {
+            "id": "ref:auto:false",
+            "display": "False",
+            "surfaces": [
+              "False"
+            ],
+            "mentions": 1,
+            "frames": 1,
+            "firstFrame": 0,
+            "lastFrame": 0,
+            "pronounMentions": 0,
+            "pronounFrames": 0,
+            "namingSentenceShare": 0.25,
+            "fromPrior": false,
+            "individuation": "apparatus"
+          }
+        ],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "pronoun_and_descriptor_mentions_unresolved",
+            "tier": "model",
+            "needsWitness": true,
+            "referents": 2,
+            "detail": "2 discovered referents: name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+          }
+        ]
+      },
+      "relations": {
+        "relations": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "pronoun_and_descriptor_mentions_unresolved",
+            "tier": "model",
+            "needsWitness": true,
+            "referents": 2,
+            "detail": "2 discovered referents: name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+          }
+        ]
+      },
+      "spanChecks": [
+        {
+          "id": "span:fnv128:3c2ef78c1fe2b336ff1d167206091480",
+          "source": "doc:cpu-model-0:chunk-0",
+          "start": 0,
+          "end": 436,
+          "exact": true
+        }
+      ],
+      "coverage": "registered_source_spans"
+    },
+    {
+      "source": "doc:cpu-model-1",
+      "text": "```python\ndef solve(text):\n    return sum(int(x) for x in text.split())\n```\n\nExample usage:\n\n```python\nprint(solve(\"1 2 3\"))  # Output: 6\nprint(solve(\"4 5\"))  # Output: 9\n```",
+      "prompt": "Write only Python code, no explanation. Define solve(text) returning the sum of whitespace-separated signed integers in text. Empty or whitespace-only text returns 0. Use no imports. Use exactly one return statement.\nExamples: solve(\"1 2 3\") == 6; solve(\"4 5\") == 9.",
+      "sha256": "5f2516c2251859bd50070acfae2bc9d192c5ddf7831bfd9d9264ecad2ee21d3d",
+      "characters": 174,
+      "utf8Bytes": 174,
+      "admission": {
+        "chunks": 1,
+        "admitted": [
+          {
+            "id": "doc:cpu-model-1:chunk-0",
+            "text": "```python\ndef solve(text):\n    return sum(int(x) for x in text.split())\n```\n\nExample usage:\n\n```python\nprint(solve(\"1 2 3\"))  # Output: 6\nprint(solve(\"4 5\"))  # Output: 9\n```",
+            "byteStart": 0,
+            "byteEnd": 174
+          }
+        ]
+      },
+      "cast": {
+        "referents": [
+          {
+            "id": "ref:auto:output",
+            "display": "Output",
+            "surfaces": [
+              "Output"
+            ],
+            "mentions": 2,
+            "frames": 1,
+            "firstFrame": 0,
+            "lastFrame": 0,
+            "pronounMentions": 0,
+            "pronounFrames": 0,
+            "namingSentenceShare": 0.3333333333333333,
+            "fromPrior": false,
+            "individuation": "apparatus"
+          }
+        ],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "pronoun_and_descriptor_mentions_unresolved",
+            "tier": "model",
+            "needsWitness": true,
+            "referents": 1,
+            "detail": "1 discovered referents: name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+          }
+        ]
+      },
+      "relations": {
+        "relations": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "pronoun_and_descriptor_mentions_unresolved",
+            "tier": "model",
+            "needsWitness": true,
+            "referents": 1,
+            "detail": "1 discovered referents: name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+          }
+        ]
+      },
+      "spanChecks": [
+        {
+          "id": "span:fnv128:b0ce88127b1dd1d731bb0c5e754f8fff",
+          "source": "doc:cpu-model-1:chunk-0",
+          "start": 0,
+          "end": 174,
+          "exact": true
+        }
+      ],
+      "coverage": "registered_source_spans"
+    },
+    {
+      "source": "doc:cpu-model-2",
+      "text": "\"8 + 11 = 19\"",
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"8 11\"",
+      "sha256": "3947e585a25a1dd896eb2cd623cc92dd4a68e376f78ec531990fad877bd807c1",
+      "characters": 13,
+      "utf8Bytes": 13,
+      "admission": {
+        "chunks": 0,
+        "admitted": []
+      },
+      "cast": {
+        "referents": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "no_candidate_surfaces",
+            "tier": "engine",
+            "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast."
+          }
+        ]
+      },
+      "relations": {
+        "relations": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "no_candidate_surfaces",
+            "tier": "engine",
+            "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast."
+          }
+        ]
+      },
+      "spanChecks": [],
+      "coverage": "source_retained_but_no_registered_span",
+      "gap": "host_short_material_not_indexed"
+    },
+    {
+      "source": "doc:cpu-model-3",
+      "text": "-9 - 4 = 3",
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"-9 -4\"",
+      "sha256": "6071b28f127213b310be6fad2d20c243725187df8570229abf2cffc372bc5aaa",
+      "characters": 10,
+      "utf8Bytes": 10,
+      "admission": {
+        "chunks": 0,
+        "admitted": []
+      },
+      "cast": {
+        "referents": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "no_candidate_surfaces",
+            "tier": "engine",
+            "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast."
+          }
+        ]
+      },
+      "relations": {
+        "relations": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "no_candidate_surfaces",
+            "tier": "engine",
+            "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast."
+          }
+        ]
+      },
+      "spanChecks": [],
+      "coverage": "source_retained_but_no_registered_span",
+      "gap": "host_short_material_not_indexed"
+    },
+    {
+      "source": "doc:cpu-model-4",
+      "text": "12 - 12 = 0",
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"12 -12\"",
+      "sha256": "5d38b3adf1a840e5c2eb8bd64a635d972cdb58342aca8f71c6c1d6df32b28c26",
+      "characters": 11,
+      "utf8Bytes": 11,
+      "admission": {
+        "chunks": 0,
+        "admitted": []
+      },
+      "cast": {
+        "referents": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "no_candidate_surfaces",
+            "tier": "engine",
+            "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast."
+          }
+        ]
+      },
+      "relations": {
+        "relations": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "no_candidate_surfaces",
+            "tier": "engine",
+            "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast."
+          }
+        ]
+      },
+      "spanChecks": [],
+      "coverage": "source_retained_but_no_registered_span",
+      "gap": "host_short_material_not_indexed"
+    },
+    {
+      "source": "doc:cpu-model-5",
+      "text": "The integer answer is 7.",
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"7\\n8\\n9\"",
+      "sha256": "b8f9f2cbf9887d0a7d53b32566eba2faaef14019bd84e9216af05bcf8b9cbc76",
+      "characters": 24,
+      "utf8Bytes": 24,
+      "admission": {
+        "chunks": 1,
+        "admitted": [
+          {
+            "id": "doc:cpu-model-5:chunk-0",
+            "text": "The integer answer is 7.",
+            "byteStart": 0,
+            "byteEnd": 24
+          }
+        ]
+      },
+      "cast": {
+        "referents": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "no_candidate_surfaces",
+            "tier": "engine",
+            "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast."
+          }
+        ]
+      },
+      "relations": {
+        "relations": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "no_candidate_surfaces",
+            "tier": "engine",
+            "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast."
+          }
+        ]
+      },
+      "spanChecks": [
+        {
+          "id": "span:fnv128:fe42c763c5a19de88ff572e74c22de2c",
+          "source": "doc:cpu-model-5:chunk-0",
+          "start": 0,
+          "end": 24,
+          "exact": true
+        }
+      ],
+      "coverage": "registered_source_spans"
+    },
+    {
+      "source": "doc:cpu-model-6",
+      "text": "The integer answer is 10.",
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"  -3\\t10  \"",
+      "sha256": "ec970f2b59e05df83dca65b738e24ed192598b5ae652e13c1c576164a0f4eb75",
+      "characters": 25,
+      "utf8Bytes": 25,
+      "admission": {
+        "chunks": 1,
+        "admitted": [
+          {
+            "id": "doc:cpu-model-6:chunk-0",
+            "text": "The integer answer is 10.",
+            "byteStart": 0,
+            "byteEnd": 25
+          }
+        ]
+      },
+      "cast": {
+        "referents": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "no_candidate_surfaces",
+            "tier": "engine",
+            "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast."
+          }
+        ]
+      },
+      "relations": {
+        "relations": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "no_candidate_surfaces",
+            "tier": "engine",
+            "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast."
+          }
+        ]
+      },
+      "spanChecks": [
+        {
+          "id": "span:fnv128:04c7bc9cad530352ccf7bb6a7d2d35fc",
+          "source": "doc:cpu-model-6:chunk-0",
+          "start": 0,
+          "end": 25,
+          "exact": true
+        }
+      ],
+      "coverage": "registered_source_spans"
+    },
+    {
+      "source": "doc:cpu-model-7",
+      "text": "1000 23",
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"1000 23\"",
+      "sha256": "0946580df2167dd633b7045332f5db9f7f818b5389ed6ba3e9e73a18eb71eb2f",
+      "characters": 7,
+      "utf8Bytes": 7,
+      "admission": {
+        "chunks": 0,
+        "admitted": []
+      },
+      "cast": {
+        "referents": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "no_candidate_surfaces",
+            "tier": "engine",
+            "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast."
+          }
+        ]
+      },
+      "relations": {
+        "relations": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "no_candidate_surfaces",
+            "tier": "engine",
+            "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast."
+          }
+        ]
+      },
+      "spanChecks": [],
+      "coverage": "source_retained_but_no_registered_span",
+      "gap": "host_short_material_not_indexed"
+    },
+    {
+      "source": "doc:cpu-model-8",
+      "text": "```python\ndef sum_empty_input_sums(input_sums):\n    return sum(input_sums)\n\n# Test the",
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"0\"",
+      "sha256": "e992e8a333d016a751e26a12e3fbad74870515802ad6345bfeb7fe53554a63b2",
+      "characters": 86,
+      "utf8Bytes": 86,
+      "admission": {
+        "chunks": 1,
+        "admitted": [
+          {
+            "id": "doc:cpu-model-8:chunk-0",
+            "text": "```python\ndef sum_empty_input_sums(input_sums):\n    return sum(input_sums)\n\n# Test the",
+            "byteStart": 0,
+            "byteEnd": 86
+          }
+        ]
+      },
+      "cast": {
+        "referents": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "no_candidate_surfaces",
+            "tier": "engine",
+            "detail": "2 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast."
+          }
+        ]
+      },
+      "relations": {
+        "relations": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "no_candidate_surfaces",
+            "tier": "engine",
+            "detail": "2 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast."
+          }
+        ]
+      },
+      "spanChecks": [
+        {
+          "id": "span:fnv128:42a48da9357d414430312cf16296f86c",
+          "source": "doc:cpu-model-8:chunk-0",
+          "start": 0,
+          "end": 86,
+          "exact": true
+        }
+      ],
+      "coverage": "registered_source_spans"
+    },
+    {
+      "source": "doc:cpu-model-9",
+      "text": "The sum of the integers is 0.",
+      "prompt": "Sum these whitespace-separated integers. Empty input sums to 0. Reply with only the integer answer.\nInput: \"  \"",
+      "sha256": "640157740e67ade5d3602f408f69aad14b8c97274b5a1bad0b62a20c4ba637bf",
+      "characters": 29,
+      "utf8Bytes": 29,
+      "admission": {
+        "chunks": 1,
+        "admitted": [
+          {
+            "id": "doc:cpu-model-9:chunk-0",
+            "text": "The sum of the integers is 0.",
+            "byteStart": 0,
+            "byteEnd": 29
+          }
+        ]
+      },
+      "cast": {
+        "referents": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "no_candidate_surfaces",
+            "tier": "engine",
+            "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast."
+          }
+        ]
+      },
+      "relations": {
+        "relations": [],
+        "gaps": [
+          {
+            "reason": "no_abbreviation_prior_for_language",
+            "tier": "witness",
+            "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor"
+          },
+          {
+            "reason": "no_candidate_surfaces",
+            "tier": "engine",
+            "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast."
+          }
+        ]
+      },
+      "spanChecks": [
+        {
+          "id": "span:fnv128:ba58bb4eb8955cd4aeeb2044e280e4ce",
+          "source": "doc:cpu-model-9:chunk-0",
+          "start": 0,
+          "end": 29,
+          "exact": true
+        }
+      ],
+      "coverage": "registered_source_spans"
+    }
+  ],
+  "shared": {
+    "referents": [
+      {
+        "id": "ref:auto:output",
+        "display": "Output",
+        "surfaces": [
+          "Output"
+        ],
+        "sources": [
+          {
+            "sourceId": "doc:cpu-model-1",
+            "mentions": 2,
+            "frames": 1,
+            "firstFrame": 0,
+            "lastFrame": 0
+          }
+        ],
+        "mentions": 2,
+        "frames": 1,
+        "individuation": null,
+        "fromPrior": false
+      },
+      {
+        "id": "ref:auto:true",
+        "display": "True",
+        "surfaces": [
+          "True"
+        ],
+        "sources": [
+          {
+            "sourceId": "doc:cpu-model-0",
+            "mentions": 1,
+            "frames": 1,
+            "firstFrame": 0,
+            "lastFrame": 0
+          }
+        ],
+        "mentions": 1,
+        "frames": 1,
+        "individuation": null,
+        "fromPrior": false
+      },
+      {
+        "id": "ref:auto:false",
+        "display": "False",
+        "surfaces": [
+          "False"
+        ],
+        "sources": [
+          {
+            "sourceId": "doc:cpu-model-0",
+            "mentions": 1,
+            "frames": 1,
+            "firstFrame": 0,
+            "lastFrame": 0
+          }
+        ],
+        "mentions": 1,
+        "frames": 1,
+        "individuation": null,
+        "fromPrior": false
+      }
+    ],
+    "gaps": [
+      {
+        "reason": "no_abbreviation_prior_for_language",
+        "tier": "witness",
+        "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor",
+        "sourceId": "doc:cpu-model-0"
+      },
+      {
+        "reason": "no_abbreviation_prior_for_language",
+        "tier": "witness",
+        "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor",
+        "sourceId": "doc:cpu-model-1"
+      },
+      {
+        "reason": "no_abbreviation_prior_for_language",
+        "tier": "witness",
+        "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor",
+        "sourceId": "doc:cpu-model-2"
+      },
+      {
+        "reason": "no_candidate_surfaces",
+        "tier": "engine",
+        "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast.",
+        "sourceId": "doc:cpu-model-2"
+      },
+      {
+        "reason": "no_abbreviation_prior_for_language",
+        "tier": "witness",
+        "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor",
+        "sourceId": "doc:cpu-model-3"
+      },
+      {
+        "reason": "no_candidate_surfaces",
+        "tier": "engine",
+        "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast.",
+        "sourceId": "doc:cpu-model-3"
+      },
+      {
+        "reason": "no_abbreviation_prior_for_language",
+        "tier": "witness",
+        "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor",
+        "sourceId": "doc:cpu-model-4"
+      },
+      {
+        "reason": "no_candidate_surfaces",
+        "tier": "engine",
+        "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast.",
+        "sourceId": "doc:cpu-model-4"
+      },
+      {
+        "reason": "no_abbreviation_prior_for_language",
+        "tier": "witness",
+        "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor",
+        "sourceId": "doc:cpu-model-5"
+      },
+      {
+        "reason": "no_candidate_surfaces",
+        "tier": "engine",
+        "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast.",
+        "sourceId": "doc:cpu-model-5"
+      },
+      {
+        "reason": "no_abbreviation_prior_for_language",
+        "tier": "witness",
+        "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor",
+        "sourceId": "doc:cpu-model-6"
+      },
+      {
+        "reason": "no_candidate_surfaces",
+        "tier": "engine",
+        "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast.",
+        "sourceId": "doc:cpu-model-6"
+      },
+      {
+        "reason": "no_abbreviation_prior_for_language",
+        "tier": "witness",
+        "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor",
+        "sourceId": "doc:cpu-model-7"
+      },
+      {
+        "reason": "no_candidate_surfaces",
+        "tier": "engine",
+        "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast.",
+        "sourceId": "doc:cpu-model-7"
+      },
+      {
+        "reason": "no_abbreviation_prior_for_language",
+        "tier": "witness",
+        "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor",
+        "sourceId": "doc:cpu-model-8"
+      },
+      {
+        "reason": "no_candidate_surfaces",
+        "tier": "engine",
+        "detail": "2 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast.",
+        "sourceId": "doc:cpu-model-8"
+      },
+      {
+        "reason": "no_abbreviation_prior_for_language",
+        "tier": "witness",
+        "detail": "document declared language \"en\" but bin/priors/lang/en.json does not exist — falling back to the engine's own derived abbreviation floor",
+        "sourceId": "doc:cpu-model-9"
+      },
+      {
+        "reason": "no_candidate_surfaces",
+        "tier": "engine",
+        "detail": "1 sentences were read and no surface survived the capitalisation filter. extractSurfaces detects names by mid-sentence capitalisation, which is a property of Latin/Greek/Cyrillic script — on a caseless script (Han, Arabic, Hebrew) this detector does not apply, and its silence is not evidence that the text has no cast.",
+        "sourceId": "doc:cpu-model-9"
+      },
+      {
+        "reason": "pronoun_and_descriptor_mentions_unresolved",
+        "tier": "model",
+        "needsWitness": true,
+        "referents": 3,
+        "detail": "3 discovered referents, pooled across 10 document(s): name-variant coreference is engine-tier and complete; binding pronouns and definite descriptions to this referent is not derivable (eoreader5 measured distributional coref failing twice). Supply a per-text prior to close this gap."
+      }
+    ],
+    "sourceIds": [
+      "doc:cpu-model-0",
+      "doc:cpu-model-1",
+      "doc:cpu-model-2",
+      "doc:cpu-model-3",
+      "doc:cpu-model-4",
+      "doc:cpu-model-5",
+      "doc:cpu-model-6",
+      "doc:cpu-model-7",
+      "doc:cpu-model-8",
+      "doc:cpu-model-9"
+    ]
+  },
+  "http": [
+    {
+      "source": "doc:cpu-model-0",
+      "status": 200,
+      "response": {
+        "schema": "EORead@1",
+        "ms": 12,
+        "source": "doc:cpu-model-0",
+        "truncated": false,
+        "sourceCharacters": 436,
+        "readCharacters": 436,
+        "maxCharacters": 1000000,
+        "assembly": "constitutional-host",
+        "priorsInjected": [
+          "language:en"
+        ],
+        "stagesNotRun": [
+          "5b",
+          "6",
+          "7",
+          "8"
+        ],
+        "basis": "constitutional reader (legacy host): createSession → admitChunked → sessionReferents; model-free; priors: language en (declared — bin/priors/lang/en.json absent, engine floor used, gap disclosed); stages 1-5a run, 5b-8 not run",
+        "sentences": [],
+        "relations": [],
+        "referents": [
+          {
+            "surfaces": [
+              "True"
+            ],
+            "routes": [
+              "witnessed",
+              "grain:apparatus"
+            ],
+            "grain": "apparatus"
+          },
+          {
+            "surfaces": [
+              "False"
+            ],
+            "routes": [
+              "witnessed",
+              "grain:apparatus"
+            ],
+            "grain": "apparatus"
+          }
+        ],
+        "descriptorBeings": [],
+        "gaps": [
+          "no_abbreviation_prior_for_language",
+          "pronoun_and_descriptor_mentions_unresolved"
+        ],
+        "disclosure": {
+          "giver": "heimdall",
+          "standing": "disclosed",
+          "rule": "a read is not a draw — the mouth is never consulted; the ground is a hypothesis (standing: hypothesis, half-life'd), never asserted (S1/P2/P3, khora)"
+        }
+      }
+    },
+    {
+      "source": "doc:cpu-model-1",
+      "status": 200,
+      "response": {
+        "schema": "EORead@1",
+        "ms": 4,
+        "source": "doc:cpu-model-1",
+        "truncated": false,
+        "sourceCharacters": 174,
+        "readCharacters": 174,
+        "maxCharacters": 1000000,
+        "assembly": "constitutional-host",
+        "priorsInjected": [
+          "language:en"
+        ],
+        "stagesNotRun": [
+          "5b",
+          "6",
+          "7",
+          "8"
+        ],
+        "basis": "constitutional reader (legacy host): createSession → admitChunked → sessionReferents; model-free; priors: language en (declared — bin/priors/lang/en.json absent, engine floor used, gap disclosed); stages 1-5a run, 5b-8 not run",
+        "sentences": [],
+        "relations": [],
+        "referents": [
+          {
+            "surfaces": [
+              "Output"
+            ],
+            "routes": [
+              "witnessed",
+              "grain:apparatus"
+            ],
+            "grain": "apparatus"
+          }
+        ],
+        "descriptorBeings": [],
+        "gaps": [
+          "no_abbreviation_prior_for_language",
+          "pronoun_and_descriptor_mentions_unresolved"
+        ],
+        "disclosure": {
+          "giver": "heimdall",
+          "standing": "disclosed",
+          "rule": "a read is not a draw — the mouth is never consulted; the ground is a hypothesis (standing: hypothesis, half-life'd), never asserted (S1/P2/P3, khora)"
+        }
+      }
+    },
+    {
+      "source": "doc:cpu-model-2",
+      "status": 200,
+      "response": {
+        "schema": "EORead@1",
+        "ms": 1,
+        "source": "doc:cpu-model-2",
+        "truncated": false,
+        "sourceCharacters": 13,
+        "readCharacters": 13,
+        "maxCharacters": 1000000,
+        "assembly": "constitutional-host",
+        "priorsInjected": [
+          "language:en"
+        ],
+        "stagesNotRun": [
+          "5b",
+          "6",
+          "7",
+          "8"
+        ],
+        "basis": "constitutional reader (legacy host): createSession → admitChunked → sessionReferents; model-free; priors: language en (declared — bin/priors/lang/en.json absent, engine floor used, gap disclosed); stages 1-5a run, 5b-8 not run",
+        "sentences": [],
+        "relations": [],
+        "referents": [],
+        "descriptorBeings": [],
+        "gaps": [
+          "no_abbreviation_prior_for_language",
+          "no_candidate_surfaces"
+        ],
+        "disclosure": {
+          "giver": "heimdall",
+          "standing": "disclosed",
+          "rule": "a read is not a draw — the mouth is never consulted; the ground is a hypothesis (standing: hypothesis, half-life'd), never asserted (S1/P2/P3, khora)"
+        }
+      }
+    },
+    {
+      "source": "doc:cpu-model-3",
+      "status": 200,
+      "response": {
+        "schema": "EORead@1",
+        "ms": 0,
+        "source": "doc:cpu-model-3",
+        "truncated": false,
+        "sourceCharacters": 10,
+        "readCharacters": 10,
+        "maxCharacters": 1000000,
+        "assembly": "constitutional-host",
+        "priorsInjected": [
+          "language:en"
+        ],
+        "stagesNotRun": [
+          "5b",
+          "6",
+          "7",
+          "8"
+        ],
+        "basis": "constitutional reader (legacy host): createSession → admitChunked → sessionReferents; model-free; priors: language en (declared — bin/priors/lang/en.json absent, engine floor used, gap disclosed); stages 1-5a run, 5b-8 not run",
+        "sentences": [],
+        "relations": [],
+        "referents": [],
+        "descriptorBeings": [],
+        "gaps": [
+          "no_abbreviation_prior_for_language",
+          "no_candidate_surfaces"
+        ],
+        "disclosure": {
+          "giver": "heimdall",
+          "standing": "disclosed",
+          "rule": "a read is not a draw — the mouth is never consulted; the ground is a hypothesis (standing: hypothesis, half-life'd), never asserted (S1/P2/P3, khora)"
+        }
+      }
+    },
+    {
+      "source": "doc:cpu-model-4",
+      "status": 200,
+      "response": {
+        "schema": "EORead@1",
+        "ms": 0,
+        "source": "doc:cpu-model-4",
+        "truncated": false,
+        "sourceCharacters": 11,
+        "readCharacters": 11,
+        "maxCharacters": 1000000,
+        "assembly": "constitutional-host",
+        "priorsInjected": [
+          "language:en"
+        ],
+        "stagesNotRun": [
+          "5b",
+          "6",
+          "7",
+          "8"
+        ],
+        "basis": "constitutional reader (legacy host): createSession → admitChunked → sessionReferents; model-free; priors: language en (declared — bin/priors/lang/en.json absent, engine floor used, gap disclosed); stages 1-5a run, 5b-8 not run",
+        "sentences": [],
+        "relations": [],
+        "referents": [],
+        "descriptorBeings": [],
+        "gaps": [
+          "no_abbreviation_prior_for_language",
+          "no_candidate_surfaces"
+        ],
+        "disclosure": {
+          "giver": "heimdall",
+          "standing": "disclosed",
+          "rule": "a read is not a draw — the mouth is never consulted; the ground is a hypothesis (standing: hypothesis, half-life'd), never asserted (S1/P2/P3, khora)"
+        }
+      }
+    },
+    {
+      "source": "doc:cpu-model-5",
+      "status": 200,
+      "response": {
+        "schema": "EORead@1",
+        "ms": 0,
+        "source": "doc:cpu-model-5",
+        "truncated": false,
+        "sourceCharacters": 24,
+        "readCharacters": 24,
+        "maxCharacters": 1000000,
+        "assembly": "constitutional-host",
+        "priorsInjected": [
+          "language:en"
+        ],
+        "stagesNotRun": [
+          "5b",
+          "6",
+          "7",
+          "8"
+        ],
+        "basis": "constitutional reader (legacy host): createSession → admitChunked → sessionReferents; model-free; priors: language en (declared — bin/priors/lang/en.json absent, engine floor used, gap disclosed); stages 1-5a run, 5b-8 not run",
+        "sentences": [],
+        "relations": [],
+        "referents": [],
+        "descriptorBeings": [],
+        "gaps": [
+          "no_abbreviation_prior_for_language",
+          "no_candidate_surfaces"
+        ],
+        "disclosure": {
+          "giver": "heimdall",
+          "standing": "disclosed",
+          "rule": "a read is not a draw — the mouth is never consulted; the ground is a hypothesis (standing: hypothesis, half-life'd), never asserted (S1/P2/P3, khora)"
+        }
+      }
+    },
+    {
+      "source": "doc:cpu-model-6",
+      "status": 200,
+      "response": {
+        "schema": "EORead@1",
+        "ms": 0,
+        "source": "doc:cpu-model-6",
+        "truncated": false,
+        "sourceCharacters": 25,
+        "readCharacters": 25,
+        "maxCharacters": 1000000,
+        "assembly": "constitutional-host",
+        "priorsInjected": [
+          "language:en"
+        ],
+        "stagesNotRun": [
+          "5b",
+          "6",
+          "7",
+          "8"
+        ],
+        "basis": "constitutional reader (legacy host): createSession → admitChunked → sessionReferents; model-free; priors: language en (declared — bin/priors/lang/en.json absent, engine floor used, gap disclosed); stages 1-5a run, 5b-8 not run",
+        "sentences": [],
+        "relations": [],
+        "referents": [],
+        "descriptorBeings": [],
+        "gaps": [
+          "no_abbreviation_prior_for_language",
+          "no_candidate_surfaces"
+        ],
+        "disclosure": {
+          "giver": "heimdall",
+          "standing": "disclosed",
+          "rule": "a read is not a draw — the mouth is never consulted; the ground is a hypothesis (standing: hypothesis, half-life'd), never asserted (S1/P2/P3, khora)"
+        }
+      }
+    },
+    {
+      "source": "doc:cpu-model-7",
+      "status": 200,
+      "response": {
+        "schema": "EORead@1",
+        "ms": 0,
+        "source": "doc:cpu-model-7",
+        "truncated": false,
+        "sourceCharacters": 7,
+        "readCharacters": 7,
+        "maxCharacters": 1000000,
+        "assembly": "constitutional-host",
+        "priorsInjected": [
+          "language:en"
+        ],
+        "stagesNotRun": [
+          "5b",
+          "6",
+          "7",
+          "8"
+        ],
+        "basis": "constitutional reader (legacy host): createSession → admitChunked → sessionReferents; model-free; priors: language en (declared — bin/priors/lang/en.json absent, engine floor used, gap disclosed); stages 1-5a run, 5b-8 not run",
+        "sentences": [],
+        "relations": [],
+        "referents": [],
+        "descriptorBeings": [],
+        "gaps": [
+          "no_abbreviation_prior_for_language",
+          "no_candidate_surfaces"
+        ],
+        "disclosure": {
+          "giver": "heimdall",
+          "standing": "disclosed",
+          "rule": "a read is not a draw — the mouth is never consulted; the ground is a hypothesis (standing: hypothesis, half-life'd), never asserted (S1/P2/P3, khora)"
+        }
+      }
+    },
+    {
+      "source": "doc:cpu-model-8",
+      "status": 200,
+      "response": {
+        "schema": "EORead@1",
+        "ms": 0,
+        "source": "doc:cpu-model-8",
+        "truncated": false,
+        "sourceCharacters": 86,
+        "readCharacters": 86,
+        "maxCharacters": 1000000,
+        "assembly": "constitutional-host",
+        "priorsInjected": [
+          "language:en"
+        ],
+        "stagesNotRun": [
+          "5b",
+          "6",
+          "7",
+          "8"
+        ],
+        "basis": "constitutional reader (legacy host): createSession → admitChunked → sessionReferents; model-free; priors: language en (declared — bin/priors/lang/en.json absent, engine floor used, gap disclosed); stages 1-5a run, 5b-8 not run",
+        "sentences": [],
+        "relations": [],
+        "referents": [],
+        "descriptorBeings": [],
+        "gaps": [
+          "no_abbreviation_prior_for_language",
+          "no_candidate_surfaces"
+        ],
+        "disclosure": {
+          "giver": "heimdall",
+          "standing": "disclosed",
+          "rule": "a read is not a draw — the mouth is never consulted; the ground is a hypothesis (standing: hypothesis, half-life'd), never asserted (S1/P2/P3, khora)"
+        }
+      }
+    },
+    {
+      "source": "doc:cpu-model-9",
+      "status": 200,
+      "response": {
+        "schema": "EORead@1",
+        "ms": 0,
+        "source": "doc:cpu-model-9",
+        "truncated": false,
+        "sourceCharacters": 29,
+        "readCharacters": 29,
+        "maxCharacters": 1000000,
+        "assembly": "constitutional-host",
+        "priorsInjected": [
+          "language:en"
+        ],
+        "stagesNotRun": [
+          "5b",
+          "6",
+          "7",
+          "8"
+        ],
+        "basis": "constitutional reader (legacy host): createSession → admitChunked → sessionReferents; model-free; priors: language en (declared — bin/priors/lang/en.json absent, engine floor used, gap disclosed); stages 1-5a run, 5b-8 not run",
+        "sentences": [],
+        "relations": [],
+        "referents": [],
+        "descriptorBeings": [],
+        "gaps": [
+          "no_abbreviation_prior_for_language",
+          "no_candidate_surfaces"
+        ],
+        "disclosure": {
+          "giver": "heimdall",
+          "standing": "disclosed",
+          "rule": "a read is not a draw — the mouth is never consulted; the ground is a hypothesis (standing: hypothesis, half-life'd), never asserted (S1/P2/P3, khora)"
+        }
+      }
+    }
+  ]
+}

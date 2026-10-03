@@ -1,0 +1,402 @@
+{
+  "schema": "CorpusSession@1",
+  "apiVersion": 2,
+  "spanCap": 2000,
+  "engineVersion": null,
+  "spans": [
+    [
+      "span:fnv128:3c2ef78c1fe2b336ff1d167206091480",
+      {
+        "span_id": "span:fnv128:3c2ef78c1fe2b336ff1d167206091480",
+        "source_id": "doc:cpu-model-0:chunk-0",
+        "byte_start": 0,
+        "byte_end": 436,
+        "text": "```python\ndef solve(text):\n    return sum(int(char) for char in text if char.isalnum())\n```\n\nThis function uses a generator expression to iterate over each character in the input text, converting it to an integer using the `isalnum()` method. It then uses the built-in `sum()` function to add up all the integers. The `isalnum()` method returns `True` if a character is alphanumeric (either a letter or a number), and `False` otherwise.",
+        "preview": "```python\ndef solve(text):\n    return sum(int(char) for char in text if char.isalnum())\n```\n\nThis function use",
+        "score": 0,
+        "coverage": 0,
+        "phrase": "```python\ndef solve(text):\n    return sum(int(char) for char",
+        "chunk_index": 0
+      }
+    ],
+    [
+      "span:fnv128:b0ce88127b1dd1d731bb0c5e754f8fff",
+      {
+        "span_id": "span:fnv128:b0ce88127b1dd1d731bb0c5e754f8fff",
+        "source_id": "doc:cpu-model-1:chunk-0",
+        "byte_start": 0,
+        "byte_end": 174,
+        "text": "```python\ndef solve(text):\n    return sum(int(x) for x in text.split())\n```\n\nExample usage:\n\n```python\nprint(solve(\"1 2 3\"))  # Output: 6\nprint(solve(\"4 5\"))  # Output: 9\n```",
+        "preview": "```python\ndef solve(text):\n    return sum(int(x) for x in text.split())\n```\n\nExample usage:\n\n```python\nprint(s",
+        "score": 0,
+        "coverage": 0,
+        "phrase": "```python\ndef solve(text):\n    return sum(int(x) for x in te",
+        "chunk_index": 0
+      }
+    ],
+    [
+      "span:fnv128:fe42c763c5a19de88ff572e74c22de2c",
+      {
+        "span_id": "span:fnv128:fe42c763c5a19de88ff572e74c22de2c",
+        "source_id": "doc:cpu-model-5:chunk-0",
+        "byte_start": 0,
+        "byte_end": 24,
+        "text": "The integer answer is 7.",
+        "preview": "The integer answer is 7.",
+        "score": 0,
+        "coverage": 0,
+        "phrase": "The integer answer is 7.",
+        "chunk_index": 0
+      }
+    ],
+    [
+      "span:fnv128:04c7bc9cad530352ccf7bb6a7d2d35fc",
+      {
+        "span_id": "span:fnv128:04c7bc9cad530352ccf7bb6a7d2d35fc",
+        "source_id": "doc:cpu-model-6:chunk-0",
+        "byte_start": 0,
+        "byte_end": 25,
+        "text": "The integer answer is 10.",
+        "preview": "The integer answer is 10.",
+        "score": 0,
+        "coverage": 0,
+        "phrase": "The integer answer is 10.",
+        "chunk_index": 0
+      }
+    ],
+    [
+      "span:fnv128:42a48da9357d414430312cf16296f86c",
+      {
+        "span_id": "span:fnv128:42a48da9357d414430312cf16296f86c",
+        "source_id": "doc:cpu-model-8:chunk-0",
+        "byte_start": 0,
+        "byte_end": 86,
+        "text": "```python\ndef sum_empty_input_sums(input_sums):\n    return sum(input_sums)\n\n# Test the",
+        "preview": "```python\ndef sum_empty_input_sums(input_sums):\n    return sum(input_sums)\n\n# Test the",
+        "score": 0,
+        "coverage": 0,
+        "phrase": "```python\ndef sum_empty_input_sums(input_sums):\n    return s",
+        "chunk_index": 0
+      }
+    ],
+    [
+      "span:fnv128:ba58bb4eb8955cd4aeeb2044e280e4ce",
+      {
+        "span_id": "span:fnv128:ba58bb4eb8955cd4aeeb2044e280e4ce",
+        "source_id": "doc:cpu-model-9:chunk-0",
+        "byte_start": 0,
+        "byte_end": 29,
+        "text": "The sum of the integers is 0.",
+        "preview": "The sum of the integers is 0.",
+        "score": 0,
+        "coverage": 0,
+        "phrase": "The sum of the integers is 0.",
+        "chunk_index": 0
+      }
+    ]
+  ],
+  "documents": [
+    [
+      "doc:cpu-model-0",
+      {
+        "id": "doc:cpu-model-0",
+        "path": "doc:cpu-model-0",
+        "chunks": [
+          {
+            "id": "doc:cpu-model-0:chunk-0",
+            "text": "```python\ndef solve(text):\n    return sum(int(char) for char in text if char.isalnum())\n```\n\nThis function uses a generator expression to iterate over each character in the input text, converting it to an integer using the `isalnum()` method. It then uses the built-in `sum()` function to add up all the integers. The `isalnum()` method returns `True` if a character is alphanumeric (either a letter or a number), and `False` otherwise.",
+            "byteStart": 0,
+            "byteEnd": 436
+          }
+        ],
+        "pieces": [
+          {
+            "byteStart": 0,
+            "text": "```python\ndef solve(text):\n    return sum(int(char) for char in text if char.isalnum())\n```\n\nThis function uses a generator expression to iterate over each character in the input text, converting it to an integer using the `isalnum()` method. It then uses the built-in `sum()` function to add up all the integers. The `isalnum()` method returns `True` if a character is alphanumeric (either a letter or a number), and `False` otherwise.",
+            "length": 436
+          }
+        ],
+        "text": "```python\ndef solve(text):\n    return sum(int(char) for char in text if char.isalnum())\n```\n\nThis function uses a generator expression to iterate over each character in the input text, converting it to an integer using the `isalnum()` method. It then uses the built-in `sum()` function to add up all the integers. The `isalnum()` method returns `True` if a character is alphanumeric (either a letter or a number), and `False` otherwise.",
+        "language": "en",
+        "admissionHashes": [
+          "fnv128:5a2638db68b5c65c865949eb27dd84ec"
+        ]
+      }
+    ],
+    [
+      "doc:cpu-model-1",
+      {
+        "id": "doc:cpu-model-1",
+        "path": "doc:cpu-model-1",
+        "chunks": [
+          {
+            "id": "doc:cpu-model-1:chunk-0",
+            "text": "```python\ndef solve(text):\n    return sum(int(x) for x in text.split())\n```\n\nExample usage:\n\n```python\nprint(solve(\"1 2 3\"))  # Output: 6\nprint(solve(\"4 5\"))  # Output: 9\n```",
+            "byteStart": 0,
+            "byteEnd": 174
+          }
+        ],
+        "pieces": [
+          {
+            "byteStart": 0,
+            "text": "```python\ndef solve(text):\n    return sum(int(x) for x in text.split())\n```\n\nExample usage:\n\n```python\nprint(solve(\"1 2 3\"))  # Output: 6\nprint(solve(\"4 5\"))  # Output: 9\n```",
+            "length": 174
+          }
+        ],
+        "text": "```python\ndef solve(text):\n    return sum(int(x) for x in text.split())\n```\n\nExample usage:\n\n```python\nprint(solve(\"1 2 3\"))  # Output: 6\nprint(solve(\"4 5\"))  # Output: 9\n```",
+        "language": "en",
+        "admissionHashes": [
+          "fnv128:66ee57b32e39f851ede240edc9e694bb"
+        ]
+      }
+    ],
+    [
+      "doc:cpu-model-2",
+      {
+        "id": "doc:cpu-model-2",
+        "path": "doc:cpu-model-2",
+        "chunks": [],
+        "pieces": [],
+        "text": "\"8 + 11 = 19\"",
+        "language": "en",
+        "admissionHashes": [
+          "fnv128:708da205745daf6cb7926be5a2d550e4"
+        ]
+      }
+    ],
+    [
+      "doc:cpu-model-3",
+      {
+        "id": "doc:cpu-model-3",
+        "path": "doc:cpu-model-3",
+        "chunks": [],
+        "pieces": [],
+        "text": "-9 - 4 = 3",
+        "language": "en",
+        "admissionHashes": [
+          "fnv128:a07dcb41d4a68fbd438bf9f79d5f9da7"
+        ]
+      }
+    ],
+    [
+      "doc:cpu-model-4",
+      {
+        "id": "doc:cpu-model-4",
+        "path": "doc:cpu-model-4",
+        "chunks": [],
+        "pieces": [],
+        "text": "12 - 12 = 0",
+        "language": "en",
+        "admissionHashes": [
+          "fnv128:3b2f48a34402582ab7fdebab1514faea"
+        ]
+      }
+    ],
+    [
+      "doc:cpu-model-5",
+      {
+        "id": "doc:cpu-model-5",
+        "path": "doc:cpu-model-5",
+        "chunks": [
+          {
+            "id": "doc:cpu-model-5:chunk-0",
+            "text": "The integer answer is 7.",
+            "byteStart": 0,
+            "byteEnd": 24
+          }
+        ],
+        "pieces": [
+          {
+            "byteStart": 0,
+            "text": "The integer answer is 7.",
+            "length": 24
+          }
+        ],
+        "text": "The integer answer is 7.",
+        "language": "en",
+        "admissionHashes": [
+          "fnv128:07169d707faa7548201efdfe6f09b4be"
+        ]
+      }
+    ],
+    [
+      "doc:cpu-model-6",
+      {
+        "id": "doc:cpu-model-6",
+        "path": "doc:cpu-model-6",
+        "chunks": [
+          {
+            "id": "doc:cpu-model-6:chunk-0",
+            "text": "The integer answer is 10.",
+            "byteStart": 0,
+            "byteEnd": 25
+          }
+        ],
+        "pieces": [
+          {
+            "byteStart": 0,
+            "text": "The integer answer is 10.",
+            "length": 25
+          }
+        ],
+        "text": "The integer answer is 10.",
+        "language": "en",
+        "admissionHashes": [
+          "fnv128:8ddf5957d6d09d1c298efcaf41befb4c"
+        ]
+      }
+    ],
+    [
+      "doc:cpu-model-7",
+      {
+        "id": "doc:cpu-model-7",
+        "path": "doc:cpu-model-7",
+        "chunks": [],
+        "pieces": [],
+        "text": "1000 23",
+        "language": "en",
+        "admissionHashes": [
+          "fnv128:a65623384cdb71ef8a4a0cf409d25f4f"
+        ]
+      }
+    ],
+    [
+      "doc:cpu-model-8",
+      {
+        "id": "doc:cpu-model-8",
+        "path": "doc:cpu-model-8",
+        "chunks": [
+          {
+            "id": "doc:cpu-model-8:chunk-0",
+            "text": "```python\ndef sum_empty_input_sums(input_sums):\n    return sum(input_sums)\n\n# Test the",
+            "byteStart": 0,
+            "byteEnd": 86
+          }
+        ],
+        "pieces": [
+          {
+            "byteStart": 0,
+            "text": "```python\ndef sum_empty_input_sums(input_sums):\n    return sum(input_sums)\n\n# Test the",
+            "length": 86
+          }
+        ],
+        "text": "```python\ndef sum_empty_input_sums(input_sums):\n    return sum(input_sums)\n\n# Test the",
+        "language": "en",
+        "admissionHashes": [
+          "fnv128:f6841724b7ce4fe23fee652ef32794f8"
+        ]
+      }
+    ],
+    [
+      "doc:cpu-model-9",
+      {
+        "id": "doc:cpu-model-9",
+        "path": "doc:cpu-model-9",
+        "chunks": [
+          {
+            "id": "doc:cpu-model-9:chunk-0",
+            "text": "The sum of the integers is 0.",
+            "byteStart": 0,
+            "byteEnd": 29
+          }
+        ],
+        "pieces": [
+          {
+            "byteStart": 0,
+            "text": "The sum of the integers is 0.",
+            "length": 29
+          }
+        ],
+        "text": "The sum of the integers is 0.",
+        "language": "en",
+        "admissionHashes": [
+          "fnv128:964a9cfd588ccd62a7b1dc017c6b4d26"
+        ]
+      }
+    ]
+  ],
+  "provenance": {
+    "tick": 6,
+    "entries": [
+      [
+        "ae02781e",
+        {
+          "refId": "ae02781e",
+          "sourceId": "doc:cpu-model-0:chunk-0",
+          "byteStart": 0,
+          "byteEnd": 436,
+          "text": "```python\ndef solve(text):\n    return sum(int(char) for char in text if char.isalnum())\n```\n\nThis function uses a generator expression to iterate over each character in the input text, converting it to an integer using the `isalnum()` method. It then uses the built-in `sum()` function to add up all the integers. The `isalnum()` method returns `True` if a character is alphanumeric (either a letter or a number), and `False` otherwise.",
+          "spec": null,
+          "registeredAt": 0
+        }
+      ],
+      [
+        "350e6760",
+        {
+          "refId": "350e6760",
+          "sourceId": "doc:cpu-model-1:chunk-0",
+          "byteStart": 0,
+          "byteEnd": 174,
+          "text": "```python\ndef solve(text):\n    return sum(int(x) for x in text.split())\n```\n\nExample usage:\n\n```python\nprint(solve(\"1 2 3\"))  # Output: 6\nprint(solve(\"4 5\"))  # Output: 9\n```",
+          "spec": null,
+          "registeredAt": 1
+        }
+      ],
+      [
+        "7eb2d29f",
+        {
+          "refId": "7eb2d29f",
+          "sourceId": "doc:cpu-model-5:chunk-0",
+          "byteStart": 0,
+          "byteEnd": 24,
+          "text": "The integer answer is 7.",
+          "spec": null,
+          "registeredAt": 2
+        }
+      ],
+      [
+        "8920ca6e",
+        {
+          "refId": "8920ca6e",
+          "sourceId": "doc:cpu-model-6:chunk-0",
+          "byteStart": 0,
+          "byteEnd": 25,
+          "text": "The integer answer is 10.",
+          "spec": null,
+          "registeredAt": 3
+        }
+      ],
+      [
+        "88e8a275",
+        {
+          "refId": "88e8a275",
+          "sourceId": "doc:cpu-model-8:chunk-0",
+          "byteStart": 0,
+          "byteEnd": 86,
+          "text": "```python\ndef sum_empty_input_sums(input_sums):\n    return sum(input_sums)\n\n# Test the",
+          "spec": null,
+          "registeredAt": 4
+        }
+      ],
+      [
+        "0dbced5e",
+        {
+          "refId": "0dbced5e",
+          "sourceId": "doc:cpu-model-9:chunk-0",
+          "byteStart": 0,
+          "byteEnd": 29,
+          "text": "The sum of the integers is 0.",
+          "spec": null,
+          "registeredAt": 5
+        }
+      ]
+    ]
+  },
+  "discourse": {
+    "motifs": [],
+    "topicStack": [],
+    "commitments": [],
+    "location": null,
+    "tick": 0
+  }
+}
