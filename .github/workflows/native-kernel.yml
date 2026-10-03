@@ -20,6 +20,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Install root dependencies for the real reasoning gate
+        run: npm ci
+      - name: Install native adapter dependencies
+        working-directory: native
+        run: npm ci
       # pyodide is a declared, lock-pinned dependency of native/eval/the-fold
       # (package.json + package-lock.json). postprocess.mjs::getPyodide
       # resolves it by file URL from native/eval/the-fold/node_modules, and
@@ -46,3 +51,13 @@ jobs:
       - name: Run native Fold parity gate
         working-directory: native
         run: npm test
+      - name: Run organ gate
+        working-directory: native
+        run: npm run test:organs
+      - name: Run Heimdall gate
+        working-directory: native
+        run: npm run test:heimdall
+      - name: Run root acceptance gate
+        run: npm test
+      - name: Run coding loop and void gates
+        run: npm run test:code

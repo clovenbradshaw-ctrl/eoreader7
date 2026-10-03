@@ -6255,3 +6255,28 @@ The first cut admitted "the time", "the thing", "the world", "the people", "her 
 **Enforced.** `the-fold/lowercase-lane-falsify.test.mjs`, 10 cases: the tail against a direct sum and at n where the direct sum overflows; the standing rule at unit level and end to end (a coined-noun text where "the time" ×4 is refused and "the pawl" ×4 admitted); the naming gate's cue reading; lowercase beings resolving from an ask; case-invariance; name precedence on a text where it is actually exercised; the typed abstention (an opt-in with no prior is told apart from never having asked), and a gate that throws refusing, counted, not silently admitting. Each mechanism mutation-tested: keyness always true, naming gate always true, precedence removed, memo ignoring the lane, abstention removed, unsettled cue allowed, a throwing gate admitting, a missing prior returning null — each turns a named case red. The first version of the precedence case passed with precedence removed (its text held no multiword name for it to protect); it was rebuilt on a text where the name lane holds «Cumberland River» and two key descriptors collide with it.
 
 **Files.** `adapters/text/keyness.js`, `adapters/text/descriptor-lane.js` (new); `adapters/text/nominal-beings.js` (`namingGate`); `the-fold/reading-log.js` (the lane, the memo keyed on it, `descriptorBeings` / `descriptorsSkipped` / `descriptorLane` on the index); `the-fold/lowercase-lane-falsify.test.mjs` (new).
+
+
+## Restoration finding — executable claims require an executable checkout (2026-10-03)
+
+At `420e7f08`, the native gate failed because `fragment-relations.js` and
+`kernel/mouth.js` were missing. Loading the coding loop additionally required
+absent `arrow-gate.js`, `organs/territory.js` and `adapters/sources/folder-index.js`;
+the public proxy required `territory-door.mjs`. Document holograph retrieval
+swallowed a missing `activation-wiring.js` import and later called an undefined
+`activate`. The production module graph now has a transitive import gate.
+
+The fragment implementation, learned ConstructionPrior@2, builder and assay
+named by CHORUS-LOG's baby-learning entry could not be recovered from tracked
+history. The restored seam is **text/fragment-transitive**, a narrower English
+lens gated by measured heads and a declared language prior. It carries
+`fragmentDisclosure`, including the missing register-learned assembly and
+implicit-endpoint resolution in `stagesNotRun`. It never supplies an absent
+speaker or copula. The historic baby-learning counts are NOT measurements of
+this replacement. Re-establishing that assembly requires its own paired corpus
+assay and prior provenance; passing native CI is not that measurement (S1/S7/S8).
+
+The public reading door previously trimmed input and silently cut it at 60,000
+characters. It now preserves the source coordinate origin and declares the
+read extent, total extent, budget, truncation and stages not run. A response
+from a prefix names itself as such (S2).

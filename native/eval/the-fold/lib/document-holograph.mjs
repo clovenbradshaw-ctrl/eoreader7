@@ -2,7 +2,7 @@
 // The caller supplies the constitutional reading log and the ledger projection;
 // this module never scans a document to discover identity.
 import { dmdWindow } from "../../../kernel/activation.js";
-import { resolveFoldSibling, requireFoldAvailable } from "./fold-sibling.mjs";
+import { resolveFoldSibling, requireFoldAvailable, FoldUnavailableError } from "./fold-sibling.mjs";
 
 // reading-log.js, activation-wiring.js (the fold's binding of the activation-retrieval organ that now lives in native/organs) and resolutions.js are the sibling
 // the-fold checkout's own modules, which this repo's CI never checks out
@@ -17,8 +17,9 @@ const foldModule = async (name) => {
   if (!FOLD_OK) return {};
   try {
     return await import(new URL(`${FOLD_UP}${name}`, import.meta.url).href);
-  } catch {
-    return {}; // a named module genuinely absent from the fold (e.g. activation-wiring.js) is a soft miss, never a crash
+  } catch (err) {
+    if (err.code !== "ERR_MODULE_NOT_FOUND") throw err;
+    throw new FoldUnavailableError(`document-holograph.mjs cannot load ${name}: ${err.message}`);
   }
 };
 const { foldReading, readingIndexFromLog, mentionBookFromLog } = await foldModule("reading-log.js");

@@ -4,6 +4,11 @@ The perceiver and the ground-producer. [KHORA.md](KHORA.md) is the re-claim —
 the triad (khora → penelope → the surfaces), the discipline, what was stripped.
 This README tracks what got built and measured: the machine, never the self.
 
+Runtime restoration and its remaining named gaps are recorded in
+[native/docs/RESTORATION-2026-10-03.md](native/docs/RESTORATION-2026-10-03.md).
+The native parity, organs, Heimdall, root acceptance and coding-loop suites
+are all CI gates; the root `npm test` alone is not the complete check.
+
 ## Byte addressing — the physics system (2026-09-21)
 
 A thing is found by its **byte address** in the field, never by a pattern

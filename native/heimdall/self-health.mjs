@@ -109,6 +109,14 @@ export async function readSelfCpu({ now = Date.now() } = {}) {
   if (selfCpu != null && now - cpuReadAt < CPU_SAMPLE_MS) return selfCpu;
   const out = await execOut("ps", ["-p", String(process.pid), "-o", "%cpu="], 2000);
   selfCpu = out ? Number(out.trim()) : null;
+  if (selfCpu == null || !Number.isFinite(selfCpu)) {
+    // PID namespaces can expose a /proc tree in which ps cannot see this PID.
+    // Node's own OS CPU counters measure the same lifetime average, without
+    // requiring /proc visibility. Never invent a zero for an unavailable read.
+    const usage = process.cpuUsage();
+    const elapsedMicros = process.uptime() * 1e6;
+    selfCpu = elapsedMicros > 0 ? 100 * (usage.user + usage.system) / elapsedMicros : null;
+  }
   cpuReadAt = now;
   return selfCpu;
 }
