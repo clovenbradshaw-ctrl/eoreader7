@@ -32,6 +32,8 @@ import { ticsOf, takesUp } from "./finish.js";
 import { segmentSentences } from "./admission.js";
 import { spliceCeiling, detectSplice } from "./restatement.js";
 import { isMetaSentence } from "./referent-verify.js";
+import { readStance } from "../organs/stance.js";
+import { buildReferents } from "./referents.js";
 
 const partsOf = (ctx) => (Array.isArray(ctx?.piece) ? ctx.piece : null);
 const sentencesOf = (part) => (part.pieces ?? []).map((pc) => pc.text);
@@ -222,6 +224,53 @@ function subjectOf(draft) {
  *   DIAPHANEITY — the share of the piece's sentences transparent to a witnessed
  *     statement. Reported, never gated: connective prose is legitimate, and a
  *     piece that was nothing but its sources would be a floor, not a piece. */
+/** GORNICK (macro.pathos, what the piece is emotionally about underneath its
+ *  ostensible subject) — TAUGHT 2026-10-02: THE STANCE THE PIECE ASSERTS AGAINST
+ *  THE STANCE ITS MATERIAL HOLDS. Found by a fold experiment: a mouth handed the
+ *  facet of the Elizabethan Poor Law ("work was provided… pensions… no
+ *  complaints from the impotent poor") returned "the law's effectiveness… its
+ *  success… a sense of fairness" — asserting a POSITIVE stance where the
+ *  material's own stance is negative (the law was harshly enforced). The
+ *  emotional undercurrent was inverted. The probe compares the piece's net
+ *  stance (organs/stance.js, STANCE_GIVER — an English lens, recorded as such)
+ *  against the ground's, per part where parts exist: a piece that argues the
+ *  opposite evaluation of the material it stands on is a pathos error, and it
+ *  licenses a fold — the sentence is dropped back to its own source, the piece's
+ *  rhetoric removed from it. Reported with the words that carried the stance,
+ *  never just a sign. */
+export function gornickStance(text, ctx = {}) {
+  const ground = String(ctx.ground ?? "");
+  if (!ground.trim()) return [];
+  const out = [];
+  const piece = partsOf(ctx);
+  const parts = piece ?? [{ id: null, pieces: segmentSentences(String(text ?? "")).map((s) => ({ text: s })) }];
+  // the holon the piece stands on: the ground's own referents (emergent — the
+  // being the material names, never a list)
+  let referents = null;
+  try { referents = buildReferents(ground); } catch { referents = null; }
+  const holon = { theme: ctx.theme ?? "", ground, material: ground, referents, passages: [{ ref: null, text: ground }] };
+  for (const p of parts) {
+    const said = sentencesOf(p).join(" ");
+    if (!said.trim()) continue;
+    // READ THE STANCE AT THE LEVEL (the join), not the two-sign lexicon.
+    const r = readStance(said, holon, { level: "whole" });
+    // STANCE IS EMERGENT: the words that carried it are the material's OWN
+    // distinctive words the piece holds (carried), or the relation that inverted
+    // it — never a lexicon.
+    const words = (r.strain && r.strain.carried ? r.strain.carried : []).slice(0, 6);
+    if (r.stance === "against" || r.stance === "off_being") {
+      out.push({ kind: r.stance === "against" ? "stance_against" : "off_being", cell: "macro.pathos", part: p.id,
+        stance: r.stance, sign: r.sign,
+        words,
+        detail: r.stance === "against"
+          ? `the piece reads ${r.sign < 0 ? "against" : "off"} the material it stands on${words.length ? " — it carries none of the material's commitment (" + words.slice(0, 4).join(", ") + ")" : ""}`
+          : "the piece lands off the being the material names (theme word only)",
+        basis: r.basis, licenses: "fold" });
+    }
+  }
+  return out;
+}
+
 export function gebserArrival({ piece = [], draft = null, findings = [] } = {}) {
   const anchors = draft ? anchorsFor(draft) : new Map();
   const sentences = piece.flatMap((p) => (p.pieces ?? []).map((pc) => ({ part: p.id, ...pc })));

@@ -88,7 +88,16 @@ test("S4 — the spiral descends macro→meso→micro and records every rotation
 test("S5 — the grid names capacities honestly: cells without a mechanical probe say so", () => {
   const gornick = cellOf("macro.pathos");
   assert.equal(gornick.editor, "Vivian Gornick");
-  assert.equal(gornick.probe == null, true, "the macro.pathos cell carries a charge, not a fake mechanical probe");
+  // TAUGHT 2026-10-02 (stance organ): Gornick now HAS a mechanical probe —
+  // readStance's join (shape ∧ ground ∧ strain-tied-to-being). The doctrine
+  // this test guards still holds: pathos does not CUT. A Gornick finding
+  // licenses only `fold` (drop the part back to its source), never a word
+  // strip; a prose part with no stance finding is untouched.
+  assert.equal(gornick.probe != null, true, "the macro.pathos cell carries a mechanical probe (readStance)");
+  const unshaped = "One. Two. Three. Four.";
+  const gornFound = gornick.probe(unshaped, { ground: "the law harshly punished the poor" });
+  assert.ok(Array.isArray(gornFound), "the probe returns a list");
+  for (const f of gornFound) assert.equal(f.licenses, "fold", "pathos names, never cuts — a finding licenses the fold, not a word-strip");
   // TAUGHT 2026-09-21 (user: "if you have new rules for the archons, teach
   // them"): Lish/Klinkenborg now read Murch's flatline per passage. The
   // doctrine this test guards still holds — pathos does not CUT: every finding
