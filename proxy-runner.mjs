@@ -270,7 +270,7 @@ const MODEL_REGISTRY = Object.freeze({
   quant: "Q4_0",
 });
 export const MODEL_GIVER = (model) => {
-  const m = String(model ?? "").replace(/^er7:/, "").replace(/:q\d+(_\d+)?$/, "");
+  const m = String(model ?? "").replace(/^(?:fold|er7):/, "").replace(/:q\d+(_\d+)?$/, "");
   if (m === "gemma2:2b" || m === "gemma2:latest" || m === "gemma2:2b-instruct") return MODEL_REGISTRY;
   return { id: model ?? "?", hfUrl: null, name: String(model ?? "?") };
 };
@@ -3038,7 +3038,7 @@ export async function offeredOllamaModels({ timeoutMs = 8000 } = {}) {
 // come in er7-aliased and are un-prefixed for the raw Ollama endpoint.
 const _hot = new Set();
 const _hotting = new Map();
-const hotModelName = (model) => String(model ?? "").replace(/^er7:/, "");
+const hotModelName = (model) => String(model ?? "").replace(/^(?:fold|er7):/, "");
 export async function keepModelHot(model) {
   const m = hotModelName(model);
   if (!m) return;
@@ -3719,7 +3719,7 @@ const reader = res.body.getReader();
       // instead of rediscovering the same silence. Lazily imported, never
       // awaited — the mark must not slow the error's own path home.
       if (err?.code === "ollama_first_byte_timeout") {
-        const bare = String(drawModel ?? "").replace(/^er7:/, "");
+        const bare = String(drawModel ?? "").replace(/^(?:fold|er7):/, "");
         import("./heimdall.mjs").then((h) => h.markUnservable(bare, "first_byte_timeout")).catch(() => {});
       }
       // the host that failed this attempt: a refusal stands it down (the
@@ -4333,7 +4333,7 @@ export function detectModelSwitch(task, roster = []) {
   if (!ref) {
     const frags = new Map();
     for (const id of ids) {
-      for (const f of id.toLowerCase().replace(/^er7:/, "").split(/[/:._-]+/)) {
+      for (const f of id.toLowerCase().replace(/^(?:fold|er7):/, "").split(/[/:._-]+/)) {
         if (f.length < 3) continue;
         if (!frags.has(f)) frags.set(f, []);
         frags.get(f).push(id);
@@ -4369,7 +4369,7 @@ export function resolveModelTarget(ref, roster = [], { current = null } = {}) {
     const exact = ids.find((id) => low(id) === low(ref));
     if (exact) return exact;
     const cands = ids.filter((id) => {
-      const bare = low(id).replace(/^er7:/, "");
+      const bare = low(id).replace(/^(?:fold|er7):/, "");
       return bare.split(/[/:._-]+/).includes(low(ref)) || bare.includes(low(ref));
     });
     if (!cands.length) return null;
@@ -4381,7 +4381,7 @@ export function resolveModelTarget(ref, roster = [], { current = null } = {}) {
     return cands[0];
   }
   const cls = ref.slice(1);
-  const bare = (id) => String(id).replace(/^er7:/i, "");
+  const bare = (id) => String(id).replace(/^(?:fold|er7):/i, "");
   const local = ids.filter((id) => !bare(id).includes("/"));
   const remote = ids.filter((id) => bare(id).includes("/"));
   const flagship = (list) => {
@@ -4404,7 +4404,7 @@ export function resolveModelTarget(ref, roster = [], { current = null } = {}) {
     case "big": case "bigger": case "best": case "strong":
       return flagship(remote.length ? remote : ids);
     case "local": case "offline":
-      if (current && local.some((id) => low(id).replace(/^er7:/, "") === low(current))) return current;
+      if (current && local.some((id) => low(id).replace(/^(?:fold|er7):/, "") === low(current))) return current;
       return local.find((id) => /gemma/i.test(id)) ?? local[0] ?? null;
     case "remote": case "cloud":
       return flagship(remote);
@@ -4532,16 +4532,16 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       let roster = [];
       try {
         const up = await ollamaReachable();
-        roster = [...(up ?? []).map((m) => `er7:${m.name ?? m.model}`)];
+        roster = [...(up ?? []).map((m) => `fold:${m.name ?? m.model}`)];
       } catch { /* ollama down — the opencode lane may still resolve */ }
       try {
         await refreshOpencodeModels().catch(() => null);
-        for (const id of knownOpencodeModels()) roster.push(`er7:${id}`);
+        for (const id of knownOpencodeModels()) roster.push(`fold:${id}`);
       } catch { /* the local roster stands alone */ }
       try {
         await refreshAnthropicModels().catch(() => null);
         for (const id of knownAnthropicModels()) {
-          const rid = id.includes("/") ? `er7:${id}` : `er7:anthropic/${id}`;
+          const rid = id.includes("/") ? `fold:${id}` : `fold:anthropic/${id}`;
           if (!roster.includes(rid)) roster.push(rid);
         }
       } catch { /* a keyless box offers no frontier models */ }
@@ -4549,9 +4549,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       if (hit) {
         const target = resolveModelTarget(hit.ref, roster, { current: model });
         if (target) {
-          // Roster ids are er7:-prefixed; the turn runs on BARE ids (the
+          // Roster ids are fold:-prefixed; the turn runs on BARE ids (the
           // door strips the prefix — Ollama would 400 a prefixed name).
-          const bare = String(target).replace(/^er7:/, "");
+          const bare = String(target).replace(/^(?:fold|er7):/, "");
           session.modelOverride = bare;
           session.overrideBasis = model;
           session.lastEffectiveModel = bare;
@@ -5712,7 +5712,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // expires during it, so the first draw cold-loads and can blow the job
     // timeout. This is NOT keep-warm (which stays off): it is a scoped
     // residency ping for the duration of active setup work, cleared after.
-    const residentTimer = keepResidentDuringSetup(typeof model === "string" && model ? model.replace(/^er7:/, "") : MODEL_REGISTRY.id);
+    const residentTimer = keepResidentDuringSetup(typeof model === "string" && model ? model.replace(/^(?:fold|er7):/, "") : MODEL_REGISTRY.id);
     try {
     const hlTerms = wikisourceTermsOf(hyperlexicon.composition, WIKI_MAX_CONCEPTS);
     const primary = [];

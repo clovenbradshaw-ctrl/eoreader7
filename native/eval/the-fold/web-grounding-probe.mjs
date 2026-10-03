@@ -22,7 +22,7 @@ import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ER7 = (process.env.ER7 ?? "http://127.0.0.1:11436").replace(/\/+$/, "");
-const MODEL = (process.env.ER7_MODEL ?? process.env.MODEL ?? "gemma2:2b").replace(/^er7:/, "");
+const MODEL = (process.env.ER7_MODEL ?? process.env.MODEL ?? "gemma2:2b").replace(/^(?:fold|er7):/, "");
 
 // Open-world facts: none of these are anywhere in the attached corpus
 // (gold/titanic/saturn/wright/reef). The expected atoms are the mechanical

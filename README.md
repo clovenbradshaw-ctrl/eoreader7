@@ -62,7 +62,7 @@ short links, one install script, same result.
 It clones the repo, checks the local model harness (installing Ollama if no
 local model runner is present), pulls a few small models so the proxy has a
 mouth, links `er7-proxy` onto PATH, starts the proxy on `:11436`, and wires
-every opencode config it can find to the `er7:` provider. Overrides: `ER7_DIR`
+every opencode config it can find to the `fold:` provider. Overrides: `ER7_DIR`
 (where to clone), `ER7_MODELS` (space-separated model tags to pull),
 `ER7_PROXY_PORT`, `ER7_UPSTREAM`. `./install.sh --no-link --no-config
 --no-models` skips the corresponding steps.
@@ -113,10 +113,13 @@ Heimdall admission gate, so a busy box refuses new work with a typed 429 +
   than silently wasting a round. Every round's proposal, applied diff, and
   real test output ride the response as a disclosed audit trail.
 - **OpenAI-compatible** — `GET /v1/models`, `POST /v1/chat/completions`,
-  model id `er7:<real-ollama-model>`. Any OpenAI-SDK client, or app built
-  against one, works by pointing its base URL here.
-- **Ollama-compatible** — `GET /api/tags`, `POST /api/chat`, same `er7:`
-  model id. Any Ollama-based app or UI works unmodified.
+  model id `fold:<real-ollama-model>` (legacy `er7:` still accepted). Any
+  OpenAI-SDK client, or app built against one, works by pointing its base URL
+  here.
+- **Ollama-compatible** — `GET /api/tags`, `POST /api/chat`, same `fold:`
+  model id. Any Ollama-based app or UI works unmodified. Ready-made configs
+  for opencode, LibreChat, Continue, Cursor, Claude Code, Ollama, LangChain
+  and raw curl live in `integrations/`; the formal contract is `openapi.yaml`.
 - **Reason** — `POST /v1/reason` with a `cli/reason.mjs` spec (claims,
   inferences, universals, equations, orderings) → the engine's verdict, its
   exit code in `x-er7-exit`; flags in `x-er7-reason-flags` (`--ants`,

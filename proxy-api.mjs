@@ -1,7 +1,11 @@
 // proxy-api.mjs — pure wire-shape module for the EOReader7 proxy.
 // No fetch, no node:*, no engine imports.
 
-export const MODEL_PREFIX = "er7:";
+export const MODEL_PREFIX = "fold:";
+// Legacy prefixes still accepted on the wire so existing callers (er7:...) keep
+// working. The canonical prefix emitted on the roster is MODEL_PREFIX.
+export const LEGACY_MODEL_PREFIXES = ["er7:"];
+export const MODEL_PREFIXES = [MODEL_PREFIX, ...LEGACY_MODEL_PREFIXES];
 export const DISCOURSE_MAX_CHARS = 300;
 
 export function prefixModel(realName) {
@@ -10,7 +14,9 @@ export function prefixModel(realName) {
 
 export function stripModelPrefix(modelId) {
   if (!modelId || typeof modelId !== "string") return null;
-  if (modelId.startsWith(MODEL_PREFIX)) return modelId.slice(MODEL_PREFIX.length);
+  for (const prefix of MODEL_PREFIXES) {
+    if (modelId.startsWith(prefix)) return modelId.slice(prefix.length);
+  }
   return null;
 }
 
@@ -40,7 +46,7 @@ export function parseProxyRequest(body) {
   const model = stripModelPrefix(body?.model);
   if (!model)
     return {
-      error: `model must be an er7-prefixed id, e.g. "${prefixModel("llama3.1:8b")}" — got ${JSON.stringify(body?.model ?? null)}`,
+      error: `model must be a fold-prefixed id, e.g. "${prefixModel("llama3.1:8b")}" — got ${JSON.stringify(body?.model ?? null)}`,
     };
   const turn = turnFromMessages(body?.messages);
   if (turn.error) return { error: turn.error };
@@ -116,7 +122,7 @@ export function parseAnthropicRequest(body) {
   const model = stripModelPrefix(body?.model);
   if (!model)
     return {
-      error: `model must be an er7-prefixed id, e.g. "${prefixModel("llama3.1:8b")}" — got ${JSON.stringify(body?.model ?? null)}`,
+      error: `model must be a fold-prefixed id, e.g. "${prefixModel("llama3.1:8b")}" — got ${JSON.stringify(body?.model ?? null)}`,
     };
   const messages = Array.isArray(body?.messages) ? body.messages : [];
   if (!messages.length) return { error: "messages must be a non-empty array" };

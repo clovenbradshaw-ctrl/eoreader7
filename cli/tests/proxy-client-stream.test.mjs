@@ -86,10 +86,10 @@ test("chatCompletion with onToken streams deltas live and resolves the full enve
     onRetry: (r) => retries.push(r),
   });
   assert.equal(res.text, "Hello world");
-  assert.equal(res.model, "er7:gemma2:2b");
+  assert.equal(res.model, "fold:gemma2:2b");
   assert.equal(res.reading.relationEdges, 3);
   assert.equal(lastRequest.body.stream, true);
-  assert.equal(lastRequest.body.model, "er7:gemma2:2b");
+  assert.equal(lastRequest.body.model, "fold:gemma2:2b");
   assert.deepEqual(deltas.map((x) => x.d), ["Hello ", "world"]);
   assert.ok(deltas[1].at - deltas[0].at >= 15, "deltas arrive incrementally, not batched at DONE");
   assert.deepEqual(notes, ["a pipeline note\n"]);

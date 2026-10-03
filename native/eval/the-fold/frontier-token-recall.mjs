@@ -41,10 +41,10 @@ const SHARED = (process.env.SHARED ?? "0") === "1";
 // hybrid); default all. HYBRID_LOCAL names the free notes-writer for the
 // hybrid arm (default: the first non-frontier mouth in MODELS).
 const MODELS = (process.env.MODELS ?? process.env.MODEL ?? "gemma2:2b,anthropic/claude-sonnet-4-6")
-  .split(",").map((s) => s.trim().replace(/^er7:/, "")).filter(Boolean);
+  .split(",").map((s) => s.trim().replace(/^(?:fold|er7):/, "")).filter(Boolean);
 const ARMS = (process.env.ARMS ?? "local,frontier,raw,hybrid").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
 const isFrontier = (m) => /claude|anthropic/i.test(m);
-const HYBRID_LOCAL = (process.env.HYBRID_LOCAL ?? "").trim().replace(/^er7:/, "")
+const HYBRID_LOCAL = (process.env.HYBRID_LOCAL ?? "").trim().replace(/^(?:fold|er7):/, "")
   || MODELS.find((m) => !isFrontier(m)) || "gemma2:2b";
 
 // ── the battery: three planted documents, nine questions ─────────────────────
@@ -103,7 +103,7 @@ async function pickFrontierModel() {
   const ids = (body?.data ?? []).map((m) => m.id);
   return ids.find((id) => /sonnet/i.test(id)) ?? ids[0] ?? (() => { throw new Error("no models on the account"); })();
 }
-const bareModel = (m) => String(m).replace(/^er7:/, "").replace(/^anthropic\//i, "");
+const bareModel = (m) => String(m).replace(/^(?:fold|er7):/, "").replace(/^anthropic\//i, "");
 
 async function groundedArm(model, task, sessionId) {
   const res = await fetch(`${ER7}/v1/ask`, {

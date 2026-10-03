@@ -37,7 +37,7 @@ function startFakeProxy() {
         res.end(JSON.stringify({ status: "ok" }));
       } else if (req.url === "/v1/models") {
         res.writeHead(200, { "content-type": "application/json" });
-        res.end(JSON.stringify({ object: "list", data: [{ id: "er7:gemma2:2b", object: "model" }, { id: "er7:llama3.2:latest", object: "model" }] }));
+        res.end(JSON.stringify({ object: "list", data: [{ id: "fold:gemma2:2b", object: "model" }, { id: "fold:llama3.2:latest", object: "model" }] }));
       } else if (req.url === "/v1/chat/completions" && req.method === "POST") {
         if (forceOnce) {
           const { status, body: b } = forceOnce;
@@ -66,21 +66,23 @@ function startFakeProxy() {
 test.before(startFakeProxy);
 test.after(() => new Promise((resolve) => server.close(resolve)));
 
-test("withPrefix/stripPrefix round-trip", () => {
-  assert.equal(withPrefix("gemma2:2b"), "er7:gemma2:2b");
-  assert.equal(withPrefix("er7:gemma2:2b"), "er7:gemma2:2b");
-  assert.equal(stripPrefix("er7:gemma2:2b"), "gemma2:2b");
+test("withPrefix/stripPrefix round-trip (fold: canonical, er7: legacy)", () => {
+  assert.equal(withPrefix("gemma2:2b"), "fold:gemma2:2b");
+  assert.equal(withPrefix("fold:gemma2:2b"), "fold:gemma2:2b");
+  assert.equal(withPrefix("er7:gemma2:2b"), "er7:gemma2:2b"); // legacy prefix kept as-is
+  assert.equal(stripPrefix("fold:gemma2:2b"), "gemma2:2b");
+  assert.equal(stripPrefix("er7:gemma2:2b"), "gemma2:2b"); // legacy accepted
   assert.equal(stripPrefix("gemma2:2b"), "gemma2:2b");
 });
 
 test("listModels parses the real GET /v1/models shape", async () => {
   const models = await listModels();
-  assert.deepEqual(models, ["er7:gemma2:2b", "er7:llama3.2:latest"]);
+  assert.deepEqual(models, ["fold:gemma2:2b", "fold:llama3.2:latest"]);
 });
 
 test("chatCompletion posts the right shape and parses the real response shape", async () => {
   const res = await chatCompletion({
-    model: "er7:gemma2:2b",
+    model: "fold:gemma2:2b",
     history: [{ role: "user", content: "earlier" }, { role: "assistant", content: "earlier reply" }],
     task: "what is this",
     sessionId: "sess-1",
@@ -90,7 +92,7 @@ test("chatCompletion posts the right shape and parses the real response shape", 
   assert.equal(res.reading.relationEdges, 3);
 
   assert.equal(lastRequest.url, "/v1/chat/completions");
-  assert.equal(lastRequest.body.model, "er7:gemma2:2b");
+  assert.equal(lastRequest.body.model, "fold:gemma2:2b");
   assert.equal(lastRequest.body.stream, false);
   assert.deepEqual(lastRequest.body.messages, [
     { role: "user", content: "earlier" },
@@ -103,14 +105,14 @@ test("chatCompletion posts the right shape and parses the real response shape", 
 
 test("chatCompletion accepts a bare (unprefixed) model id and prefixes it", async () => {
   await chatCompletion({ model: "gemma2:2b", history: [], task: "hi" });
-  assert.equal(lastRequest.body.model, "er7:gemma2:2b");
+  assert.equal(lastRequest.body.model, "fold:gemma2:2b");
 });
 
 test("chatCompletion retries automatically on heimdall's lane_full 429 and succeeds", async () => {
   busyForNCalls = 2;
   busyType = "lane_full";
   const retries = [];
-  const res = await chatCompletion({ model: "er7:gemma2:2b", history: [], task: "hey", onRetry: (info) => retries.push(info) });
+  const res = await chatCompletion({ model: "fold:gemma2:2b", history: [], task: "hey", onRetry: (info) => retries.push(info) });
   assert.equal(res.text, "a grounded answer"); // the request that looked like an error to the caller actually just needed to wait
   assert.equal(retries.length, 2);
   assert.deepEqual(retries.map((r) => r.attempt), [1, 2]);
@@ -121,13 +123,13 @@ test("chatCompletion retries on saturated the same way as lane_full", async () =
   busyForNCalls = 1;
   busyType = "saturated";
   const retries = [];
-  await chatCompletion({ model: "er7:gemma2:2b", history: [], task: "hey", onRetry: (info) => retries.push(info) });
+  await chatCompletion({ model: "fold:gemma2:2b", history: [], task: "hey", onRetry: (info) => retries.push(info) });
   assert.equal(retries[0].type, "saturated");
 });
 
 test("chatCompletion gives up after CHAT_MAX_RETRIES and surfaces a real error", async () => {
   busyForNCalls = CHAT_MAX_RETRIES + 1; // never actually clears within the retry budget
-  await assert.rejects(() => chatCompletion({ model: "er7:gemma2:2b", history: [], task: "hey" }), /busy/);
+  await assert.rejects(() => chatCompletion({ model: "fold:gemma2:2b", history: [], task: "hey" }), /busy/);
   busyForNCalls = 0; // don't leak into later tests
 });
 
@@ -135,7 +137,7 @@ test("chatCompletion does NOT retry a non-retryable 4xx (a real client error sta
   forceOnce = { status: 400, body: { error: { message: "bad model name", type: "invalid_request" } } };
   let calls = 0;
   await assert.rejects(
-    () => chatCompletion({ model: "er7:gemma2:2b", history: [], task: "hey", onRetry: () => { calls += 1; } }),
+    () => chatCompletion({ model: "fold:gemma2:2b", history: [], task: "hey", onRetry: () => { calls += 1; } }),
     /bad model name/,
   );
   assert.equal(calls, 0, "a plain 400 must never trigger the busy-retry loop");

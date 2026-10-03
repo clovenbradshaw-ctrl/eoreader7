@@ -1,0 +1,20 @@
+{
+  "//": "The Fold in Continue. Merge the models array into ~/.continue/config.json.",
+  "models": [
+    {
+      "title": "The Fold (grounded, local)",
+      "provider": "openai",
+      "model": "fold:gemma2:2b",
+      "apiBase": "http://127.0.0.1:11436/v1",
+      "apiKey": "not-needed",
+      "contextLength": 8192
+    },
+    {
+      "title": "The Fold (Claude Sonnet 4.6, grounded)",
+      "provider": "openai",
+      "model": "fold:opencode/claude-sonnet-4-6",
+      "apiBase": "http://127.0.0.1:11436/v1",
+      "apiKey": "not-needed"
+    }
+  ]
+}

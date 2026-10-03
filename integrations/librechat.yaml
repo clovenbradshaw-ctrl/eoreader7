@@ -1,0 +1,18 @@
+# The Fold as a LibreChat custom endpoint.
+# Drop into your LibreChat root and point CONFIG_PATH at it.
+version: 1.2.8
+cache: true
+endpoints:
+  custom:
+    - name: "The Fold"
+      apiKey: "not-needed"
+      baseURL: "http://127.0.0.1:11436/v1"
+      models:
+        default:
+          - "fold:gemma2:2b"
+          - "fold:qwen2.5-coder:1.5b"
+          - "fold:opencode/claude-sonnet-4-6"
+        fetch: true          # pull the live roster from GET /v1/models
+      titleConvo: true
+      titleModel: "fold:gemma2:2b"
+      modelDisplayLabel: "The Fold"

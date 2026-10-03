@@ -30,7 +30,7 @@ import { personaOf } from "../../lavar/eo-swarm.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ER7 = (process.env.ER7 ?? "http://127.0.0.1:11436").replace(/\/+$/, "");
-const MODEL = (process.env.MODEL ?? "anthropic/claude-sonnet-4-6").replace(/^er7:/, "");
+const MODEL = (process.env.MODEL ?? "anthropic/claude-sonnet-4-6").replace(/^(?:fold|er7):/, "");
 const IDS = (process.env.IDS ?? "M2,L2").split(",").map((s) => s.trim()).filter(Boolean);
 
 // ── the ant space: pipeline dimensions + instruction flags ───────────────────

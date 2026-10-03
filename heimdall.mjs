@@ -452,16 +452,16 @@ export function markUnservable(model, reason) {
   // Same key as markServable/isServable below: strip er7: here too, so a
   // caller that ever passes the prefixed form doesn't leave a stuck entry
   // neither of those can find (they both strip before touching this Map).
-  unservable.set(String(model).replace(/^er7:/, ""), { at: Date.now(), reason });
+  unservable.set(String(model).replace(/^(?:fold|er7):/, ""), { at: Date.now(), reason });
   appendLog({ act: "eva", finding: "unservable", model, reason, giver: "heimdall", standing: "disclosed" });
 }
 export function markServable(model) {
   if (!model) return;
-  unservable.delete(String(model).replace(/^er7:/, ""));
+  unservable.delete(String(model).replace(/^(?:fold|er7):/, ""));
 }
 export function isServable(model, quirks = MODEL_QUIRKS) {
   if (!model) return false;
-  const bare = String(model).replace(/^er7:/, "");
+  const bare = String(model).replace(/^(?:fold|er7):/, "");
   const q = quirks?.[bare] ?? {};
   if (q?.systemRole === "hangs" || /hang/i.test(q?.note ?? "")) return false;
   const u = unservable.get(bare);
@@ -469,7 +469,7 @@ export function isServable(model, quirks = MODEL_QUIRKS) {
   return true;
 }
 function unservableRemainingS(model) {
-  const u = unservable.get(String(model ?? "").replace(/^er7:/, ""));
+  const u = unservable.get(String(model ?? "").replace(/^(?:fold|er7):/, ""));
   if (!u) return 0;
   return Math.max(1, Math.ceil((UNSERVABLE_COOLDOWN_MS - (Date.now() - u.at)) / 1000));
 }
@@ -1899,7 +1899,7 @@ export function loadedModels() {
  *  nothing" is not offered — it has to prove itself to get back on the
  *  roster. A name with no size marker is left alone. */
 export function modelIsBiggerThan(name, floorB = 4) {
-  const m = /(?:^|[^a-z0-9.])(\d+(?:\.\d+)?)b(?:$|[^a-z0-9])/i.exec(String(name).replace(/^er7:/, ""));
+  const m = /(?:^|[^a-z0-9.])(\d+(?:\.\d+)?)b(?:$|[^a-z0-9])/i.exec(String(name).replace(/^(?:fold|er7):/, ""));
   if (!m) return false;
   return Number(m[1]) > floorB;
 }
@@ -1907,7 +1907,7 @@ export function seedUnservableLarge(models = loadedModels()) {
   for (const m of models) {
     const name = m?.name ?? m?.model ?? m;
     if (!name) continue;
-    const bare = String(name).replace(/^er7:/, "");
+    const bare = String(name).replace(/^(?:fold|er7):/, "");
     if (modelIsBiggerThan(bare) && !unservable.has(bare)) {
       unservable.set(bare, { at: Date.now(), reason: "large_unproven" });
       appendLog({ act: "eva", finding: "unservable_seeded", model: bare, reason: "large_unproven", giver: "heimdall", standing: "disclosed" });
@@ -2042,7 +2042,7 @@ export const __tiersTest = { setInstalled(list) { installedModels = list; } };
 //   5. else the asked model, exactly as before.
 // Every substitution is disclosed: recorded on the turn's scope (the proxy
 // returns it as `served`), logged, and named after the fact — never silent.
-const bareModel = (m) => String(m ?? "").replace(/^er7:/, "");
+const bareModel = (m) => String(m ?? "").replace(/^(?:fold|er7):/, "");
 function localDaemon() { return hosts.find((h) => h.kind !== "bridge" && !h.auto) ?? hosts[0]; }
 function countMouth(scope, asked, d) {
   if (!scope) return;
@@ -2913,7 +2913,7 @@ const installedLocally = (bare) => (installedModels ?? []).some((m) => {
 });
 /** Does a call to `model` leave this device? Pure of the fast-pass switch. */
 export function leavesDevice(model) {
-  const bare = String(model ?? "").replace(/^er7:/, "").trim().toLowerCase();
+  const bare = String(model ?? "").replace(/^(?:fold|er7):/, "").trim().toLowerCase();
   if (!bare || bare === "unknown") return false;
   if (installedLocally(bare)) return false;
   return OFF_DEVICE_PREFIXES.some((p) => p === "*" || bare.startsWith(p));
@@ -3849,7 +3849,7 @@ export function admitChat(body = "{}", headers = {}) {
     // failed daemon read into refusals.
     const loaded = loadedModels();
     const residencyKnown = Array.isArray(loaded);
-    const bare = String(model).replace(/^er7:/, "");
+    const bare = String(model).replace(/^(?:fold|er7):/, "");
     // Resident on ANOTHER inference host (a paired phone, a second box) is
     // resident too: the turn goes there and loads nothing on this box.
     // Excluded by URL, not by name (2026-09-28): `loaded` above already
@@ -3931,7 +3931,7 @@ export function admitChat(body = "{}", headers = {}) {
   // in words, instead of queueing silently inside the daemon (NUM_PARALLEL
   // is invisible from here). Unmeasured hosts never hold: no evidence, no
   // conviction.
-  const ew = expectedWaitMs(String(model ?? "").replace(/^er7:/, ""));
+  const ew = expectedWaitMs(String(model ?? "").replace(/^(?:fold|er7):/, ""));
   if (ew.ms != null && ew.ms > SLA_MAX_WAIT_MS) {
     note({ act: "eva", finding: "expected_wait", key, model, family, waitMs: ew.ms, host: ew.host, inflight: ew.inflight, meanMs: ew.meanMs });
     return {

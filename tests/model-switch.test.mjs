@@ -15,11 +15,11 @@ import assert from "node:assert/strict";
 import { detectModelSwitch, resolveModelTarget } from "../proxy-runner.mjs";
 
 const ROSTER = [
-  "er7:gemma2:2b",
-  "er7:qwen3:4b",
-  "er7:opencode/claude-haiku-4-5",
-  "er7:opencode/claude-sonnet-4-6",
-  "er7:opencode/deepseek-v4-pro",
+  "fold:gemma2:2b",
+  "fold:qwen3:4b",
+  "fold:opencode/claude-haiku-4-5",
+  "fold:opencode/claude-sonnet-4-6",
+  "fold:opencode/deepseek-v4-pro",
 ];
 
 test("S1 — intent needs BOTH a switch verb and a model reference", () => {
@@ -34,7 +34,7 @@ test("S1 — intent needs BOTH a switch verb and a model reference", () => {
     "change to the fast one",
     "i want to use haiku for this",
     "use something faster",
-    "switch to er7:opencode/claude-sonnet-4-6",
+    "switch to fold:opencode/claude-sonnet-4-6",
   ];
   for (const t of fires) {
     assert.ok(detectModelSwitch(t, ROSTER), `"${t}" should be a switch ask`);
@@ -50,7 +50,7 @@ test("S1 — intent needs BOTH a switch verb and a model reference", () => {
     "change my answer to be shorter",
     "tell me everything I told you, exactly",
     "hello — before we start, remember this: my dog is Pancake",
-    "er7:opencode/claude-sonnet-4-6 please", // bare id, no verb — mention, not instruction (/model is the precise command)
+    "fold:opencode/claude-sonnet-4-6 please", // bare id, no verb — mention, not instruction (/model is the precise command)
     "sonnet keeps timing out on me",
   ];
   for (const t of quiet) {
@@ -59,27 +59,27 @@ test("S1 — intent needs BOTH a switch verb and a model reference", () => {
 });
 
 test("S2 — references resolve against the roster; unknown names do not", () => {
-  assert.equal(resolveModelTarget("er7:opencode/claude-sonnet-4-6", ROSTER), "er7:opencode/claude-sonnet-4-6");
-  assert.equal(resolveModelTarget("haiku", ROSTER), "er7:opencode/claude-haiku-4-5");
-  assert.equal(resolveModelTarget("sonnet", ROSTER), "er7:opencode/claude-sonnet-4-6");
-  assert.equal(resolveModelTarget("gemma", ROSTER), "er7:gemma2:2b");
-  assert.equal(resolveModelTarget("deepseek", ROSTER), "er7:opencode/deepseek-v4-pro");
-  assert.equal(resolveModelTarget("qwen", ROSTER), "er7:qwen3:4b");
+  assert.equal(resolveModelTarget("fold:opencode/claude-sonnet-4-6", ROSTER), "fold:opencode/claude-sonnet-4-6");
+  assert.equal(resolveModelTarget("haiku", ROSTER), "fold:opencode/claude-haiku-4-5");
+  assert.equal(resolveModelTarget("sonnet", ROSTER), "fold:opencode/claude-sonnet-4-6");
+  assert.equal(resolveModelTarget("gemma", ROSTER), "fold:gemma2:2b");
+  assert.equal(resolveModelTarget("deepseek", ROSTER), "fold:opencode/deepseek-v4-pro");
+  assert.equal(resolveModelTarget("qwen", ROSTER), "fold:qwen3:4b");
   assert.equal(resolveModelTarget("gpt-99", ROSTER), null);
   assert.equal(resolveModelTarget("sydney", ROSTER), null);
   // end-to-end through detect: full id in a sentence
-  assert.equal(detectModelSwitch("switch to er7:qwen3:4b", ROSTER)?.ref, "er7:qwen3:4b");
+  assert.equal(detectModelSwitch("switch to fold:qwen3:4b", ROSTER)?.ref, "fold:qwen3:4b");
 });
 
 test("S3 — ambiguous refs resolve deterministically by flagship preference", () => {
-  assert.equal(resolveModelTarget("claude", ROSTER), "er7:opencode/claude-sonnet-4-6");
+  assert.equal(resolveModelTarget("claude", ROSTER), "fold:opencode/claude-sonnet-4-6");
   const again = resolveModelTarget("claude", ROSTER);
-  assert.equal(again, "er7:opencode/claude-sonnet-4-6", "same input, same target, every time");
-  assert.equal(resolveModelTarget("@fast", ROSTER), "er7:opencode/claude-haiku-4-5");
-  assert.equal(resolveModelTarget("@smart", ROSTER), "er7:opencode/claude-sonnet-4-6");
-  assert.equal(resolveModelTarget("@frontier", ROSTER), "er7:opencode/claude-sonnet-4-6");
-  assert.equal(resolveModelTarget("@local", ROSTER, { current: "er7:gemma2:2b" }), "er7:gemma2:2b");
-  assert.equal(resolveModelTarget("@remote", ROSTER), "er7:opencode/claude-sonnet-4-6");
+  assert.equal(again, "fold:opencode/claude-sonnet-4-6", "same input, same target, every time");
+  assert.equal(resolveModelTarget("@fast", ROSTER), "fold:opencode/claude-haiku-4-5");
+  assert.equal(resolveModelTarget("@smart", ROSTER), "fold:opencode/claude-sonnet-4-6");
+  assert.equal(resolveModelTarget("@frontier", ROSTER), "fold:opencode/claude-sonnet-4-6");
+  assert.equal(resolveModelTarget("@local", ROSTER, { current: "fold:gemma2:2b" }), "fold:gemma2:2b");
+  assert.equal(resolveModelTarget("@remote", ROSTER), "fold:opencode/claude-sonnet-4-6");
 });
 
 test("S4 — no guessing: slow/unknown aliases refuse", () => {

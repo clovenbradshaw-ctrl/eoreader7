@@ -1,0 +1,37 @@
+// The Fold as an opencode provider. Merge the "provider.fold" block into
+// ~/.config/opencode/opencode.jsonc, then restart opencode.
+// Select a model as  fold/fold:gemma2:2b  (provider/model).
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "fold": {
+      "name": "The Fold",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://127.0.0.1:11436/v1"
+      },
+      "models": {
+        "fold:gemma2:2b": {
+          "name": "The Fold · Gemma 2 2B (grounded, local)",
+          "tool_call": false,
+          "reasoning": false
+        },
+        "fold:qwen2.5-coder:1.5b": {
+          "name": "The Fold · Qwen2.5 Coder 1.5B (grounded, local)",
+          "tool_call": false,
+          "reasoning": false
+        },
+        "fold:opencode/claude-sonnet-4-6": {
+          "name": "The Fold · Claude Sonnet 4.6 (grounded)",
+          "tool_call": false,
+          "reasoning": false
+        },
+        "fold:opencode/claude-haiku-4-5": {
+          "name": "The Fold · Claude Haiku 4.5 (grounded, fast)",
+          "tool_call": false,
+          "reasoning": false
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,432 @@
+openapi: 3.1.0
+info:
+  title: The Fold pipeline
+  version: 1.0.0
+  description: |
+    The Fold is one pipeline with four compatible doorways (OpenAI, Ollama,
+    Anthropic) plus a set of native doors. Every model id is `fold:<real-model>`;
+    the legacy `er7:` prefix is still accepted. `GET /` returns this same map
+    as JSON for a caller with no other documentation.
+
+    A read (`/v1/read`) is model-free — the mouth is never consulted. A draw
+    (`/v1/ask`, `/v1/chat/completions`, ...) routes through Penelope's mouth.
+servers:
+  - url: http://127.0.0.1:11436
+    description: local (default)
+tags:
+  - name: meta
+  - name: doors
+  - name: llm-compatible
+  - name: surfaces
+components:
+  securitySchemes:
+    session:
+      type: apiKey
+      in: header
+      name: x-er7-session
+      description: Optional. Sticks a conversation to one accumulating reader fold.
+  schemas:
+    ChatMessage:
+      type: object
+      required: [role, content]
+      properties:
+        role:
+          type: string
+          enum: [system, user, assistant]
+        content:
+          type: string
+    Attachment:
+      type: object
+      properties:
+        name: { type: string }
+        text: { type: string }
+    Model:
+      type: object
+      properties:
+        id: { type: string, example: "fold:gemma2:2b" }
+        object: { type: string, example: model }
+        created: { type: integer }
+        owned_by: { type: string, example: eoreader7 }
+    ModelList:
+      type: object
+      properties:
+        object: { type: string, example: list }
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/Model" }
+    AskRequest:
+      type: object
+      required: [task]
+      properties:
+        task: { type: string, description: The question or instruction. }
+        model: { type: string, description: Optional bare or fold-prefixed model id. }
+        mode: { type: string, enum: [auto, chat, long, projection, origami] }
+        sessionId: { type: string }
+        workspace: { type: string, description: Absolute path to admit real files. }
+        attachments:
+          type: array
+          items: { $ref: "#/components/schemas/Attachment" }
+        chatHistory:
+          type: array
+          items: { $ref: "#/components/schemas/ChatMessage" }
+        buildStream: { type: boolean, description: NDJSON per-unit build trace. }
+    AskResponse:
+      type: object
+      properties:
+        answer: { type: string }
+        sessionId: { type: string }
+        kind: { type: string }
+        units: { type: array, items: { type: string } }
+        disclosure: { type: object, additionalProperties: true }
+    ReadRequest:
+      type: object
+      required: [text]
+      properties:
+        name: { type: string }
+        text: { type: string, description: The document to read (first 60000 chars). }
+    EORead:
+      type: object
+      description: EORead@1 — the model-free constitutional read.
+      properties:
+        schema: { type: string, example: EORead@1 }
+        ms: { type: integer }
+        basis: { type: string }
+        relations: { type: array, items: { type: object, additionalProperties: true } }
+        referents:
+          type: array
+          items:
+            type: object
+            properties:
+              surfaces: { type: array, items: { type: string } }
+              routes: { type: array, items: { type: string } }
+              grain: { type: [string, "null"] }
+        gaps: { type: array, items: { type: string } }
+        disclosure: { type: object, additionalProperties: true }
+    SwarmRequest:
+      type: object
+      properties:
+        task: { type: string }
+        text: { type: string }
+        name: { type: string }
+        query: { type: string }
+        claim: { type: string }
+        attachments:
+          type: array
+          items: { $ref: "#/components/schemas/Attachment" }
+    DocumentRequest:
+      type: object
+      required: [task]
+      properties:
+        task: { type: string }
+        model: { type: string }
+        workspace: { type: string }
+        documents:
+          type: array
+          items: { $ref: "#/components/schemas/Attachment" }
+        sessionId: { type: string }
+        holonLevel: { type: integer }
+        webConsent: { type: boolean }
+    CodeRequest:
+      type: object
+      required: [task, workspace, testCommand]
+      properties:
+        task: { type: string }
+        workspace: { type: string }
+        testCommand: { type: string, description: Your command; it decides pass/fail for real. }
+        maxRounds: { type: integer, default: 3 }
+    Error:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: string
+            - type: object
+              properties:
+                message: { type: string }
+paths:
+  /:
+    get:
+      tags: [meta]
+      summary: Self-describing door map
+      responses:
+        "200": { description: The API map as JSON. }
+  /health:
+    get:
+      tags: [meta]
+      summary: Liveness
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: ok }
+                  upstream: { type: string }
+                  eoreader7: { type: boolean }
+  /content-rules:
+    get:
+      tags: [meta]
+      summary: The ant-swarm's standing rules for hard content types
+      responses:
+        "200": { description: The content-rules ledger. }
+  /v1/models:
+    get:
+      tags: [llm-compatible]
+      summary: The roster (OpenAI shape)
+      responses:
+        "200":
+          description: Available fold-prefixed models.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ModelList" }
+  /api/tags:
+    get:
+      tags: [llm-compatible]
+      summary: The roster (Ollama shape)
+      responses:
+        "200": { description: Available fold-prefixed models. }
+  /v1/ask:
+    post:
+      tags: [doors]
+      summary: Send a task, get an answer (no roles, no history required)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AskRequest" }
+      responses:
+        "200":
+          description: The answer.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AskResponse" }
+        "400": { description: Bad request., content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "429": { description: "Busy — typed 429 + Retry-After." }
+  /v1/read:
+    post:
+      tags: [doors]
+      summary: The reading door — model-free constitutional read (EORead@1)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ReadRequest" }
+      responses:
+        "200":
+          description: The read.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EORead" }
+  /v1/swarm:
+    post:
+      tags: [doors]
+      summary: Explicit capacity-swarm (pure organ reads, no model, no admission)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SwarmRequest" }
+      responses:
+        "200": { description: The swarm report plus `answer` prose. }
+  /v1/documents:
+    post:
+      tags: [doors]
+      summary: Start a long-form document (projection mode)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DocumentRequest" }
+      responses:
+        "200": { description: The document id and first projection. }
+  /v1/documents/{id}:
+    get:
+      tags: [doors]
+      summary: Poll a document's live projection
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: The current projection. }
+  /v1/territory:
+    post:
+      tags: [doors]
+      summary: Index a whole folder, map its territories, answer from the index
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                root: { type: string, description: Defaults to x-er7-workspace. }
+                k: { type: integer }
+                id: { type: string }
+                q: { type: string }
+                territory: { type: string }
+      responses:
+        "200": { description: The territory map, an answer, or documents. }
+  /v1/search:
+    get:
+      tags: [doors]
+      summary: The named search-term registry
+      responses:
+        "200": { description: The registry. }
+    post:
+      tags: [doors]
+      summary: The unified target resolver (exact, regex, near-miss, four shape kinds)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target: { type: string }
+                candidates: { type: array, items: { type: string } }
+                pattern: { type: object, properties: { source: { type: string }, flags: { type: string } } }
+                shape: { type: object, properties: { kind: { type: string }, args: {} } }
+                allowNearMiss: { type: boolean }
+      responses:
+        "200": { description: The resolution. }
+  /v1/code:
+    post:
+      tags: [doors]
+      summary: The physics-gated coding loop
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CodeRequest" }
+      responses:
+        "200":
+          description: The audit trail and result.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  done: { type: boolean }
+                  rounds: { type: array, items: { type: object, additionalProperties: true } }
+                  finalTestOutput: { type: string }
+  /v1/agent:
+    post:
+      tags: [doors]
+      summary: The open coding agent loop
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CodeRequest" }
+      responses:
+        "200": { description: The loop result. }
+  /v1/chat/completions:
+    post:
+      tags: [llm-compatible]
+      summary: OpenAI-compatible chat completions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [model, messages]
+              properties:
+                model: { type: string, example: "fold:gemma2:2b" }
+                messages:
+                  type: array
+                  items: { $ref: "#/components/schemas/ChatMessage" }
+                stream: { type: boolean }
+                mode: { type: string, enum: [auto, chat, long, projection] }
+                attachments:
+                  type: array
+                  items: { $ref: "#/components/schemas/Attachment" }
+      responses:
+        "200": { description: OpenAI chat completion (or SSE when stream=true). }
+  /api/chat:
+    post:
+      tags: [llm-compatible]
+      summary: Ollama-compatible chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                model: { type: string, example: "fold:gemma2:2b" }
+                messages:
+                  type: array
+                  items: { $ref: "#/components/schemas/ChatMessage" }
+                stream: { type: boolean }
+      responses:
+        "200": { description: Ollama chat response. }
+  /v1/messages:
+    post:
+      tags: [llm-compatible]
+      summary: Anthropic-compatible messages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                model: { type: string, example: "fold:gemma2:2b" }
+                messages: { type: array, items: { type: object, additionalProperties: true } }
+                max_tokens: { type: integer }
+                stream: { type: boolean }
+      responses:
+        "200": { description: Anthropic message response. }
+  /v1/messages/count_tokens:
+    post:
+      tags: [llm-compatible]
+      summary: Anthropic-compatible token count
+      responses:
+        "200": { description: "{ input_tokens }" }
+  /v1/reason:
+    get:
+      tags: [doors]
+      summary: Print the reason.mjs spec format
+      responses:
+        "200": { description: The spec format. }
+    post:
+      tags: [doors]
+      summary: The reasoning check (claims, inferences, universals, equations, orderings)
+      responses:
+        "200": { description: "reason.mjs's report; exit code in x-er7-exit." }
+  /v1/hooks/claude-code:
+    post:
+      tags: [doors]
+      summary: Claude Code hook doorway
+      responses:
+        "200": { description: The answer in Claude Code's hook format. }
+  /v1/sessions:
+    get:
+      tags: [surfaces]
+      summary: Every live reader fold on this proxy, newest first
+      responses:
+        "200": { description: The session list. }
+  /v1/archons:
+    get:
+      tags: [surfaces]
+      summary: The archon roster
+      responses:
+        "200": { description: The roster, or a disclosed gap. }
+  /v1/held/{id}:
+    get:
+      tags: [doors]
+      summary: Collect a held turn's finished answer
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: The finished answer, or the receipt while it runs. }
+  /v1/revisions/{id}:
+    get:
+      tags: [doors]
+      summary: Fetch a provisional revision by id
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: The revision. }

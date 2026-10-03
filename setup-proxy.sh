@@ -13,7 +13,7 @@
 #   3. Installs `er7-proxy` so it's on PATH (npm link).
 #   4. Starts the proxy on :11436 if it isn't already running.
 #   5. Wires EVERY opencode config it can find (project + global) to the
-#      er7: provider with streaming models.
+#      fold: provider with streaming models.
 #   6. Installs the er7-session opencode plugin so each conversation keeps
 #      its own accumulating EOReader7 reader fold.
 #
@@ -155,7 +155,7 @@ curl -s -m 3 "http://127.0.0.1:$PORT/health" && echo || echo "  warning: proxy n
 
 # --- 4. wire opencode configs ---------------------------------------------------
 if [ "$CONFIG" = "1" ]; then
-  say "Wiring opencode configs to the er7: provider..."
+  say "Wiring opencode configs to the fold: provider..."
 
   CONFIG_FILES=()
   # global config
@@ -185,18 +185,17 @@ if [ "$CONFIG" = "1" ]; then
       catch { console.error("    (skip, unparsable json)"); process.exit(0); }
       data.$schema = data.$schema ?? "https://opencode.ai/config.json";
       data.provider = data.provider ?? {};
-      const er = data.provider.er7 ?? {};
-      er.name = "EOReader7";
-      er.options = er.options ?? {};
-      er.options.baseURL = `http://127.0.0.1:${port}/v1`;
-      er.api = "openai";
-      er.models = er.models ?? {};
-      er.models["er7:gemma2:2b"] = { name: "EOReader7 Gemma 2 2B (Grounded)" };
-      er.models["er7:gemma2:2b"] = { name: "EOReader7 Gemma 2 2B (Grounded)" };
-      er.models["er7:llama3.1:8b"] = { name: "EOReader7 Llama 3.1 8B (Grounded)" };
-      er.models["er7:qwen2.5-coder:7b"] = { name: "EOReader7 Qwen2.5 Coder 7B (Grounded)" };
-      er.models["er7:qwen3:8b"] = { name: "EOReader7 Qwen3 8B (Grounded)" };
-      data.provider.er7 = er;
+      const fold = data.provider.fold ?? {};
+      fold.name = "The Fold";
+      fold.npm = fold.npm ?? "@ai-sdk/openai-compatible";
+      fold.options = fold.options ?? {};
+      fold.options.baseURL = `http://127.0.0.1:${port}/v1`;
+      fold.models = fold.models ?? {};
+      fold.models["fold:gemma2:2b"] = { name: "The Fold · Gemma 2 2B (grounded, local)", tool_call: false };
+      fold.models["fold:qwen2.5-coder:1.5b"] = { name: "The Fold · Qwen2.5 Coder 1.5B (grounded, local)", tool_call: false };
+      data.provider.fold = fold;
+      // migrate any legacy er7 provider written by an older installer
+      if (data.provider.er7) delete data.provider.er7;
       fs.writeFileSync(file, text.startsWith("{") && text.includes("//") ? JSON.stringify(data, null, 2) + "\n" : JSON.stringify(data, null, 2) + "\n");
     ' "$cfg"
   done
@@ -218,9 +217,9 @@ fi
 say "Done."
 echo
 echo "  proxy       http://127.0.0.1:$PORT/v1   (health: http://127.0.0.1:$PORT/health)"
-echo "  model       er7/er7:gemma2:2b"
+echo "  model       fold/fold:gemma2:2b"
 echo "  commands    er7-proxy {start|stop|restart|status|log}"
 echo "  fleet       er7-proxy {fleet:start|fleet:stop|fleet:status|fleet:log}"
 echo "  one line    curl -fsSL https://bit.ly/install-eoreader7 | bash   (also https://bit.ly/install-the-fold)"
 echo
-echo "  Restart opencode, then pick the er7 model (e.g. er7/er7:gemma2:2b)."
+echo "  Restart opencode, then pick the fold model (e.g. fold/fold:gemma2:2b)."

@@ -184,7 +184,7 @@ export function knownOpencodeModels() {
   return new Set(_models);
 }
 
-const stripPrefix = (model) => String(model ?? "").replace(/^er7:/, "");
+const stripPrefix = (model) => String(model ?? "").replace(/^(?:fold|er7):/, "");
 
 // upstreamModelFor(model) — the lane decision. Returns { providerID, modelID }
 // when the stripped id names a model of a CONNECTED opencode provider AND

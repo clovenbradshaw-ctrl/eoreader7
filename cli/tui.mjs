@@ -133,12 +133,12 @@ function TabBar({ tabs, activeId }) {
   return h(Box, null, tabs.map((t, i) => {
     const active = t.id === activeId;
     // The SELECTED model rides at the top of the box — on the active tab
-    // only, short form (er7: prefix stripped), never truncated: what answers
+    // only, short form (fold: prefix stripped), never truncated: what answers
     // is what you see, and inactive tabs stay narrow so the bar itself fits
     // on one row. A plain-speech switch lands here the moment the turn
     // returns (the tab adopts res.model below), so the top never lies about
     // the next turn.
-    const msuffix = active && t.model ? ` · ${String(t.model).replace(/^er7:/, "")}` : "";
+    const msuffix = active && t.model ? ` · ${String(t.model).replace(/^(?:fold|er7):/, "")}` : "";
     const label = `${i + 1}:${t.title}${msuffix}${t.mode === "code" ? " [code]" : ""}${t.status === "busy" ? " …" : ""}`;
     return h(Box, { key: t.id, marginRight: 1 },
       h(Text, { backgroundColor: active ? "blue" : undefined, color: active ? "white" : "gray", bold: active }, ` ${label} `));

@@ -12,9 +12,9 @@ export default async ({ client, project, directory, $ }) => {
   return {
     "chat.headers": async (input, output) => {
       if (!output) return;
-      // Only tag EOReader7 providers (er7: prefixed models)
+      // Only tag The Fold pipeline providers (fold: prefixed models; er7 is legacy)
       const providerId = input?.provider?.info?.id ?? input?.model?.providerID ?? "";
-      if (!["er7", "eoreader"].includes(providerId)) return;
+      if (!["fold", "er7", "eoreader"].includes(providerId)) return;
       const sessionID = input?.sessionID;
       const workspace = input?.workspace ?? input?.directory ?? directory;
       if (sessionID) {

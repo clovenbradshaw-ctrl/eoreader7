@@ -50,7 +50,7 @@ function turnTierAsk(req) {
 // then resident — never a hard-coded name that may be seeded unservable (the
 // old `olmo2:7b` default 503'd every model-less ask; measured).
 function pickDefaultModel() {
-  try { const hot = [...hotModelSet()][0]; if (hot) return String(hot).replace(/^er7:/, ""); } catch { /* no hot set */ }
+  try { const hot = [...hotModelSet()][0]; if (hot) return String(hot).replace(/^(?:fold|er7):/, ""); } catch { /* no hot set */ }
   try { const res = loadedModels(); const n = Array.isArray(res) ? res.map((m) => m.name || m.model).find(Boolean) : null; if (n) return n; } catch { /* unknown residency */ }
   return process.env.ER7_DEFAULT_MODEL || "gemma2:2b";
 }
@@ -441,7 +441,7 @@ async function handleRequest(req, res) {
         response: "{ \"done\": bool, \"rounds\": [...], \"finalTestOutput\": \"...\" }",
       },
       llmCompatible: {
-        description: "Point any existing OpenAI/Ollama/Anthropic client at this base URL — eoreader7 answers as an er7-prefixed model.",
+        description: "Point any existing OpenAI/Ollama/Anthropic client at this base URL — The Fold answers as a fold-prefixed model (the legacy er7: prefix is still accepted).",
         openai: { models: "GET /v1/models", chat: "POST /v1/chat/completions", modelId: `${MODEL_PREFIX}<real-ollama-model>` },
         ollama: { tags: "GET /api/tags", chat: "POST /api/chat", modelId: `${MODEL_PREFIX}<real-ollama-model>` },
         anthropic: { messages: "POST /v1/messages", countTokens: "POST /v1/messages/count_tokens" },
@@ -599,7 +599,7 @@ async function handleRequest(req, res) {
     try { const r = await fetch(`${UPSTREAM}/api/ps`, { signal: AbortSignal.timeout(3000) }); if (r.ok) ps = (await r.json()).models ?? []; } catch { /* ollama silent */ }
     try { const r = await fetch(`${UPSTREAM}/api/tags`, { signal: AbortSignal.timeout(3000) }); if (r.ok) tags = (await r.json()).models ?? []; } catch { /* ollama silent */ }
     let hot = [];
-    try { hot = [...hotModelSet()].map((n) => String(n).replace(/^er7:/, "")); } catch { /* no hot set */ }
+    try { hot = [...hotModelSet()].map((n) => String(n).replace(/^(?:fold|er7):/, "")); } catch { /* no hot set */ }
     const st = heimdallStatus();
     res.writeHead(200, { "content-type": "application/json" });
     res.end(JSON.stringify({

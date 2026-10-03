@@ -5,7 +5,7 @@
 //
 // Routes mirrored from proxy-api.mjs/proxy-runner.mjs:
 //   GET  /health            -> { status: "ok", upstream, eoreader7 }
-//   GET  /v1/models         -> er7-prefixed roster (deterministic, fake)
+//   GET  /v1/models         -> fold-prefixed roster (deterministic, fake)
 //   POST /v1/chat/completions -> one-shot grounded answer (rich fixture)
 //   POST /v1/agent          -> a small coding round-trip (list/read/write/run)
 //
@@ -19,9 +19,9 @@ import http from "node:http";
 const PORT = Number(process.env.FIXTURE_PORT ?? process.env.ER7_PROXY_PORT ?? 11993);
 
 const MODELS = [
-  { id: "er7:smollm2:1.7b", object: "model" },
-  { id: "er7:gemma2:2b", object: "model" },
-  { id: "er7:qwen3:30b-a3b", object: "model" },
+  { id: "fold:smollm2:1.7b", object: "model" },
+  { id: "fold:gemma2:2b", object: "model" },
+  { id: "fold:qwen3:30b-a3b", object: "model" },
 ];
 
 const CHAT_ANSWER = `# How the fold reads

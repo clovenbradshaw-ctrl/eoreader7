@@ -62,7 +62,7 @@ test("snipLine names the non-model standing, with or without a source", () => {
   const withUrl = snipLine("https://en.wikisource.org/wiki/Sonnet_18");
   assert.ok(withUrl.includes("non-model"), "standing named");
   assert.ok(withUrl.includes("https://en.wikisource.org/wiki/Sonnet_18"), "address rides along");
-  assert.ok(!withUrl.includes("[er7:"), "never a model tag");
+  assert.ok(!withUrl.includes("[fold:"), "never a model tag");
   const bare = snipLine(null);
   assert.ok(bare.includes("non-model"), "standing named even with no address");
 });

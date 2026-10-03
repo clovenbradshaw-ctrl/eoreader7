@@ -27,7 +27,7 @@ const ER7 = (process.env.ER7 ?? "http://127.0.0.1:11436").replace(/\/+$/, "");
 const ANTHROPIC_URL = (process.env.ER7_ANTHROPIC_URL ?? "https://api.anthropic.com").replace(/\/+$/, "");
 const KEY = process.env.ANTHROPIC_API_KEY ?? "";
 const MODELS = (process.env.MODELS ?? "gemma2:2b,anthropic/claude-sonnet-4-6")
-  .split(",").map((s) => s.trim().replace(/^er7:/, "")).filter(Boolean);
+  .split(",").map((s) => s.trim().replace(/^(?:fold|er7):/, "")).filter(Boolean);
 const isFrontier = (m) => /claude|anthropic/i.test(m);
 const HYBRID_LOCAL = MODELS.find((m) => !isFrontier(m)) ?? MODELS[0];
 

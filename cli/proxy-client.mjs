@@ -24,7 +24,9 @@
 import { isUp, start, PORT } from "./er7-proxy.mjs";
 
 const BASE = `http://127.0.0.1:${PORT}`;
-const MODEL_PREFIX = "er7:";
+const MODEL_PREFIX = "fold:";
+const LEGACY_MODEL_PREFIXES = ["er7:"];
+const MODEL_PREFIXES = [MODEL_PREFIX, ...LEGACY_MODEL_PREFIXES];
 
 export { isUp };
 
@@ -37,14 +39,18 @@ export async function ensureRunning() {
 }
 
 export function stripPrefix(modelId) {
-  return modelId?.startsWith(MODEL_PREFIX) ? modelId.slice(MODEL_PREFIX.length) : modelId;
+  for (const prefix of MODEL_PREFIXES) {
+    if (modelId?.startsWith(prefix)) return modelId.slice(prefix.length);
+  }
+  return modelId;
 }
 
 export function withPrefix(realName) {
-  return realName?.startsWith(MODEL_PREFIX) ? realName : `${MODEL_PREFIX}${realName}`;
+  if (MODEL_PREFIXES.some((prefix) => realName?.startsWith(prefix))) return realName;
+  return `${MODEL_PREFIX}${realName}`;
 }
 
-/** GET /v1/models — the real, currently-pulled Ollama roster, er7-prefixed.
+/** GET /v1/models — the real, currently-pulled Ollama roster, fold-prefixed.
  * Never hardcode a model name: this is what makes /model tab-completion
  * (and the startup default) honest about what will actually answer. */
 export async function listModels() {

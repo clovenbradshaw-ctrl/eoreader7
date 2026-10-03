@@ -29,7 +29,7 @@
 // Model discovery: GET /v1/models (cached for ANTHROPIC_MODELS_CACHE_MS); the
 // turn preflight warms it, the hot draw path only reads the cache.
 
-const _stripEr7 = (model) => String(model ?? "").replace(/^er7:/, "");
+const _stripEr7 = (model) => String(model ?? "").replace(/^(?:fold|er7):/, "");
 
 // The id the ANTHROPIC API itself wants: `anthropic/claude-x` →
 /// `claude-x`. A bare `claude-x` passes through unchanged.
