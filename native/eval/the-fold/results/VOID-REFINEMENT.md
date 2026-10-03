@@ -60,3 +60,35 @@ decomposes to held leaves. The mouth is the last resort for irreducible leaves.
 And the void tree **refines as we learn** — every failure a correction, every
 correction closer to the origin. That is the pipeline the session was reaching
 for: not "generate," but **define the void, recursively, until it arrives.**
+
+## Fully adaptable, order-respecting, auto-poetic (`void-adapt.mjs`)
+
+The three refinements the session earned, in one organ, measured on
+`formal_initials`:
+
+- **ADAPTABLE** — the next sub-void is DERIVED from the failing test, not
+  scripted: the diff between the origin (`'A.L.'`) and the body's output selects
+  the transform that reduces it. Each step's output is shown (`'Dr. Ada Lovelace
+  PhD'` → `['Dr.','Ada','Lovelace','PhD']` → `['Ada','Lovelace']` → `['A','L']`
+  → `'A.L.'`), and the diff picks the next transform. Any task with a test.
+- **ORDER-RESPECTING** — every transform serves a void OPERATOR, and the
+  operators carry the cube's dependency order (NUL SIG INS SEG CON SYN DEF EVA
+  REC = Existence → Structure → Interpretation). The pipeline is built in that
+  order (each operator wraps the prior expression): SIG `split` → INS `drop_set`
+  (what kind may stand) → SEG `first_letter` (cover the extent) → SYN `join_dot`.
+  A move that skips ahead is an **ILLEGAL MOVE, refused and named** — the probe
+  confirms: declaring SYN with only {SIG, INS} declared is REFUSED (missing
+  SEG), and the refinement declares the prerequisite first.
+- **AUTO-POETIC** — each step is rendered in the system's own voice: a GFP claim
+  (Ground·Figure·Pattern) through the engine's own `render()` lens — "split
+  admits Existence", "first_letter admits Structure" — so the process states
+  itself rather than being described.
+
+**Converged: TASK GREEN**, operators declared in order SIG → INS → SEG → SYN,
+body `''.join(w + '.' for w in [w[0].upper() for w in [w for w in name.split()
+if w.strip('.').lower() not in {…}]])`.
+
+The honest remaining gap: the transform repertoire is still authored (four
+transforms); the ADAPTATION is automatic, but a task needing a transform not in
+the repertoire stops at "the irreducible leaf is the mouth's" — which is the
+correct, disclosed behaviour.
