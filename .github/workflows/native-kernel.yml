@@ -39,6 +39,10 @@ jobs:
           python-version: "3.11"
       - name: Install the Python packages the native tests import
         run: python -m pip install -r native/requirements-ci.txt
+      # The screen pipeline (native/conformance/screen-pipeline.test.mjs) decodes screenshots with ffmpeg and reads their
+      # text with tesseract. Without them those tests SKIP with a named reason — they do not pass — so the runner gets both.
+      - name: Install the local binaries the screen pipeline reads with
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg tesseract-ocr
       - name: Run native Fold parity gate
         working-directory: native
         run: npm test
