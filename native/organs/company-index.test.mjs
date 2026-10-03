@@ -6,7 +6,7 @@ import { contextVectors, discoverCompanyKinds } from "./kind-standing.js";
 import { heardSurfaces } from "./heard-surfaces.js";
 import { splitSentences } from "../adapters/text/spans.js";
 
-const text = readFileSync("/home/user/live_priors/01-literature-books/gutenberg/pg84_Frankenstein.txt", "utf8").slice(0, 200000);
+const text = readFileSync(new URL("../eval/fixtures/adversarial/pg84-frankenstein.txt", import.meta.url), "utf8").slice(0, 200000);
 const sentences = splitSentences(text).map((s) => ({ text: s.text.toLowerCase() }));
 const ser = (m) => JSON.stringify([...m].map(([k, v]) => [k, [...v]]));
 

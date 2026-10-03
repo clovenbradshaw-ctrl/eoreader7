@@ -837,7 +837,7 @@ export async function runVoidLoop({ sessionId, userId = null, model, task, works
   }
   let cursor = 0;
   let reopenedTarget = null; // a carried body the whole suite implicates — consumed directly next round
-  const walledTargets = new Set(); // HUNT-FIRST walled units — the gate skips them within their file
+  const walledTargets = new Map(); // file → names; homonyms in another file are different units
   const currentFile = () => (order.length ? order[cursor] : null);
   const historyHere = () => rounds.filter((r) => r.file === currentFile());
   // REOPEN: a carried body the whole suite now implicates — no stub remains,
@@ -902,8 +902,10 @@ export async function runVoidLoop({ sessionId, userId = null, model, task, works
     }
     if (!currentFile()) {
       const test = runWholeSuite();
-      if (test.exitCode === 0) logDone({ action: "done", done: true, verdict: "green" });
-    return { done: true, rounds, finalTestOutput: test.output };
+      if (test.exitCode === 0) {
+        logDone({ action: "done", done: true, verdict: "green" });
+        return { done: true, rounds, finalTestOutput: test.output };
+      }
       logDone({ action: "done", done: false, verdict: "no_stubs" });
     return { done: false, rounds, finalTestOutput: test.output, gap: { kind: "no_stubs", reason: "no stub-bearing files in the code base" } };
     }
@@ -922,7 +924,7 @@ export async function runVoidLoop({ sessionId, userId = null, model, task, works
       // THE ARROW-OF-TIME GATE, riding Kelsen's validity-window precedence
       // (arrow-gate.js), over THIS FILE's own record: the next void is chosen
       // from the PAST only, and only from verdicts still VALID for the present.
-      decision = arrowGate({ units, history: historyHere(), skip: walledTargets });
+      decision = arrowGate({ units, history: historyHere(), skip: walledTargets.get(currentFile()) ?? new Set() });
       target = decision.target;
       by = decision.by;
     }
@@ -935,7 +937,8 @@ export async function runVoidLoop({ sessionId, userId = null, model, task, works
     // stub can never block its file's siblings (2026-10-02, the add_episodes
     // grind).
     if (target && consecutiveReverts(historyHere(), target.name) >= HUNT_EXHAUST_LIMIT) {
-      walledTargets.add(target.name);
+      if (!walledTargets.has(currentFile())) walledTargets.set(currentFile(), new Set());
+      walledTargets.get(currentFile()).add(target.name);
       const next = nextStubFile();
       if (next !== null) {
         push({ round, file: currentFile(), move: `hunt-wall: ${target.name} (${consecutiveReverts(historyHere(), target.name)} consecutive reverts) — walled, moving to ${order[next]}`, target: target.name, basis: decision.basis });
@@ -945,6 +948,11 @@ export async function runVoidLoop({ sessionId, userId = null, model, task, works
       const consec = consecutiveReverts(historyHere(), target.name);
       push({ round, file: currentFile(), target: target.name, by, action: "EVA", verdict: "hunt_exhausted", gap: { kind: "hunt_exhausted", reason: `${target.name} failed ${consec} consecutive real draws — the redraw is the ant-loop wall; the hunt is exhausted, the void stays open and disclosed` }, basis: decision.basis });
       return { done: false, rounds, finalTestOutput, gap: { kind: "hunt_exhausted", reason: `${currentFile()}:${target.name} — ${consec} consecutive reverted draws; HUNT-FIRST exhausted across the code base, the void is left open and disclosed` } };
+    }
+    if (!target) {
+      const next = order.findIndex((rel, idx) => idx !== cursor && readUnits(rel).some((u) => u.isStub && !walledTargets.get(rel)?.has(u.name)));
+      if (next >= 0) { cursor = next; continue; }
+      return { done: false, rounds, finalTestOutput, gap: { kind: "hunt_exhausted", reason: "every remaining void is walled; no draw is justified" } };
     }
 
     // THE HUNT MICRO-LOOP (model-last, 2026-10-02): resolve this void from
@@ -1157,7 +1165,10 @@ function reasoningClaimFor(absPath, find, add) {
     }],
     declare: {},
     inferences: [], universals: [], equations: [], order: {},
-    text: "Mechanically-generated claim for requireReasoning — describes the patch's own byte-level change; not authored by the coding model.",
+    // `text` asks reason.mjs to READ natural-language reasoning. This is a
+    // structured, mechanical patch proposal, not an essay for that reader.
+    // Coherence is checked here; applyOps, syntax and the real test prove bytes.
+    description: "Mechanically-generated proposal for requireReasoning; byte applicability and behavior are checked separately.",
   };
 }
 
@@ -1265,6 +1276,7 @@ function locatedFileFor(territory, task) {
       if (/\.(md|markdown|txt|json|jsonl|log|html|css)$/i.test(n)) return false;
       if (/(^|\/)(test|tests|spec|docs?|__tests__)\//i.test(n)) return false;
       if (/\.(test|spec)\./i.test(n)) return false;
+      if (/(^|\/)(check|test|tests)(?:[_.-]|\.)/i.test(n)) return false;
       return true;
     };
     const source = a.hits.find((h) => isSource(h.name));

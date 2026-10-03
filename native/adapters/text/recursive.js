@@ -10,7 +10,7 @@ import { createCompanyIndex } from "../../organs/company-index.js";
 import { classifyWord, dominantClass } from "./wordclass.js";
 import { GRAMMAR_MIN_SHARE } from "./grain-typing.js";
 import { relationExtractorsFor } from "./relations-language.js";
-import { fragmentRelations } from "./fragment-relations.js";
+import { fragmentRelations, FRAGMENT_DISCLOSURE } from "./fragment-relations.js";
 import { directDescriptorOccurrences, descriptorOccurrence } from "./individuation.js";
 import { createDescriptorAnchoring } from "./anchoring.js";
 import { hyperedge } from "../../kernel/hypergraph.js";
@@ -719,7 +719,8 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       // absent from the prior is a gap, never a refusal.
       const relations = [
         ...parsedRelations,
-        ...(fragmentSeam ? fragmentRelations(encounter.material, { prior: posPrior, verbs: cache.verbs }) : []),
+        ...(fragmentSeam ? fragmentRelations(encounter.material, { prior: posPrior, verbs: cache.verbs }).filter((r) => !parsedRelations.some((p) =>
+          (p.end1 ?? p.subject) === r.end1 && (p.label ?? p.verb) === r.label && (p.end2 ?? p.object) === r.end2 && p.offset === r.offset)) : []),
       ];
       // GUID IDENTITY (2026-09-13, S114): a GUID edge id and witness, so
       // the identity is collision-proof across readings. The hyperlexicon's
@@ -903,6 +904,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       if (edges.length === 0 && seenReferents.length === 0 && lexicalOccurrences.length === 0 && targetedOccurrences.length === 0 && anchorEvidence.length === 0 && descriptorOccsEmitted.length === 0) return [];
       return [{
         candidate: {
+          ...(fragmentSeam ? { fragmentDisclosure: FRAGMENT_DISCLOSURE } : {}),
           distinctions: [
             ...seenReferents.map((ref) => ({ referent: ref.id, surfaces: ref.surfaces })),
             ...edges.map((edge) => ({ relation: edge.relation, participants: edge.participants })),

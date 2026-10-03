@@ -1192,8 +1192,15 @@ async function handleRequest(req, res) {
       let parsed;
       try { parsed = JSON.parse(body); } catch { res.writeHead(400, { "content-type": "application/json" }); res.end(JSON.stringify({ error: "bad json" })); return; }
       const name = String(parsed?.name ?? "").trim();
-      const text = String(parsed?.text ?? "").trim();
-      if (!text) { res.writeHead(400, { "content-type": "application/json" }); res.end(JSON.stringify({ error: "text is required — the document to read" })); return; }
+      const text = String(parsed?.text ?? "");
+      if (!text.trim()) { res.writeHead(400, { "content-type": "application/json" }); res.end(JSON.stringify({ error: "text is required — the document to read" })); return; }
+      const maxCharacters = parsed.maxCharacters ?? 60000;
+      if (!Number.isInteger(maxCharacters) || maxCharacters < 1 || maxCharacters > 1000000) {
+        res.writeHead(400, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: "maxCharacters must be an integer from 1 to 1000000" })); return;
+      }
+      const material = text.slice(0, maxCharacters);
+      const truncated = material.length < text.length;
       const t0 = Date.now();
       try {
         // THE READING DOOR — khora perceives, model-free. The constitutional
@@ -1204,7 +1211,7 @@ async function handleRequest(req, res) {
         const { createSession, admitChunked, sessionReferents, sessionRelations } = await import("./native/legacy-ported/packages/host/corpus.js");
         const sourceId = `doc:${(name || "unnamed").replace(/[^a-zA-Z0-9_.-]/g, "_")}`;
         const session = createSession();
-        admitChunked(session, { text: text.slice(0, 60000), sourceId, language: "en" });
+        admitChunked(session, { text: material, sourceId, language: "en" });
         const cast = sessionReferents(session, { sourceId, priors: [], limit: 200 });
         const relations = sessionRelations(session, { sourceId });
         const referents = (cast.referents ?? []).map((r) => ({
@@ -1216,10 +1223,12 @@ async function handleRequest(req, res) {
         res.writeHead(200, { "content-type": "application/json" });
         res.end(JSON.stringify({
           schema: "EORead@1", ms: Date.now() - t0,
+          source: sourceId, truncated, sourceCharacters: text.length, readCharacters: material.length, maxCharacters,
+          assembly: "constitutional-host", priorsInjected: ["language:en"], stagesNotRun: ["5b", "6", "7", "8"],
           basis: "constitutional reader (legacy host): createSession → admitChunked → sessionReferents; model-free; priors: language en (declared — bin/priors/lang/en.json absent, engine floor used, gap disclosed); stages 1-5a run, 5b-8 not run",
           sentences: [], relations: relations?.relations ?? relations ?? [],
           referents, descriptorBeings: [],
-          gaps: (cast.gaps ?? []).map((g) => (typeof g === "string" ? g : `${g.reason}`)).slice(0, 8),
+          gaps: [...(truncated ? [`input_truncated: read ${material.length} of ${text.length} characters; a prefix is different material (S2)`] : []), ...(cast.gaps ?? []).map((g) => (typeof g === "string" ? g : `${g.reason}`))].slice(0, 8),
           disclosure: { giver: "heimdall", standing: "disclosed", rule: "a read is not a draw — the mouth is never consulted; the ground is a hypothesis (standing: hypothesis, half-life'd), never asserted (S1/P2/P3, khora)" },
         }));
       } catch (e) {
