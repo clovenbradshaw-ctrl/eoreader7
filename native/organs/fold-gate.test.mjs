@@ -25,6 +25,57 @@ test("the kind is DECLARED or the gate refuses to run — a self-derived kind is
   assert.throws(() => reviewMerges([], [], { splitSentences, kind: { members: [], giver: "g" }, alpha: 0.05 }), /DECLARED/);
 });
 
+// ── ADVERSARIAL: malformed/out-of-range input the DECLARED-kind check lets through ─
+//
+// `reviewMerges`'s guard (fold-gate.js:177) only checks `Number.isFinite(alpha)`
+// — NaN and ±Infinity are caught (Number.isFinite is false for both), but
+// nothing bounds alpha to the [0, 1] a significance level must live in. This
+// matters because `foldPermitted`/`kindMembership` compare `p < alpha`
+// directly (kind-standing.js:118): an alpha outside [0,1] does not merely
+// shift the threshold, it can make EVERY comparison read the same verdict,
+// which silently defeats the entire cross-kind veto this file exists for.
+test("ADVERSARIAL: alpha outside [0, 1] is accepted (not rejected as malformed) and silently defeats the cross-kind veto", () => {
+  const lines = [];
+  for (let i = 0; i < 14; i++) {
+    lines.push(`Aldric said the harvest looked thin that year and Aldric greeted the travellers warmly.`);
+    lines.push(`The wagons stood in Karsten Keep and the traders walked to Karsten Keep at dusk.`);
+    lines.push(`The pilgrims stood in Veldt Mill and later walked to Veldt Mill again.`);
+    lines.push(`Aldric Keep said nothing.`);
+  }
+  const passages = [{ ref: "chronicle", text: lines.join(" ") }];
+  const KIND = { members: ["Karsten Keep", "Veldt Mill"], giver: "declared place-kind (test fixture)" };
+  const crossKindMerge = [{ kept: "r2", folded: "Aldric Keep", witness: "Karsten Keep" }];
+
+  // The same cross-kind merge the earlier test correctly vetoes at alpha=0.1
+  // is neither rejected up front nor caught by the statistic once alpha is
+  // out of [0, 1] — every `p < alpha` comparison degenerates to a constant.
+  for (const badAlpha of [1.5, -0.1, 100]) {
+    const out = reviewMerges(passages, crossKindMerge, { splitSentences, kind: KIND, alpha: badAlpha, population: ["Aldric"] });
+    assert.equal(out.vetoed.length, 0,
+      `alpha=${badAlpha} was accepted as valid and the cross-kind merge (place+person, sharing only the token "Keep") is no longer vetoed: ${JSON.stringify(out.permitted)}`);
+    assert.equal(out.permitted.length, 1,
+      `alpha=${badAlpha}: the false merge is silently PERMITTED — this is the over-firing the file's own header calls "the engine's referent discovery... wrong for Castle/Count Dracula", reproduced via an out-of-range significance level instead of a missing gate`);
+  }
+});
+
+test("ADVERSARIAL: alpha=0 and alpha=1 (the exact boundary) never veto — p<alpha with alpha=0 is impossible, alpha=1 is unconditional", () => {
+  const lines = [];
+  for (let i = 0; i < 14; i++) {
+    lines.push(`Aldric said the harvest looked thin that year and Aldric greeted the travellers warmly.`);
+    lines.push(`The wagons stood in Karsten Keep and the traders walked to Karsten Keep at dusk.`);
+    lines.push(`The pilgrims stood in Veldt Mill and later walked to Veldt Mill again.`);
+    lines.push(`Aldric Keep said nothing.`);
+  }
+  const passages = [{ ref: "chronicle", text: lines.join(" ") }];
+  const KIND = { members: ["Karsten Keep", "Veldt Mill"], giver: "declared place-kind (test fixture)" };
+  const crossKindMerge = [{ kept: "r2", folded: "Aldric Keep", witness: "Karsten Keep" }];
+  // alpha=0: no p can ever be < 0, so kindMembership NEVER returns "member" —
+  // both sides always read "not_member", verdicts always agree, so foldPermitted
+  // NEVER vetoes anything: the gate is a no-op that permits every merge.
+  const outZero = reviewMerges(passages, crossKindMerge, { splitSentences, kind: KIND, alpha: 0, population: ["Aldric"] });
+  assert.equal(outZero.vetoed.length, 0, "alpha=0: the gate can structurally never veto, whatever the evidence");
+});
+
 test("a merge of two SAME-KIND surfaces is permitted; a cross-kind merge is VETOED — with kind-standing's own verdicts as evidence", () => {
   // A synthetic chronicle with a declared place-kind and person-kind:
   // places keep place company ("stood in", "walked to"), persons keep
@@ -110,6 +161,22 @@ test("refuteIdentity REFUSES a same-kind false merge: a father and daughter shar
   const vecs = contextVectors([{ text: identitySentences(20) }], ["Pyotr Voronin", "Katya Voronina", ...IDENTITY_POPULATION]);
   const out = refuteIdentity("Pyotr Voronin", "Katya Voronina", vecs, { alpha: 0.1 });
   assert.equal(out.verdict, "refuted", `expected refuted, got ${out.verdict}: ${JSON.stringify(out)}`);
+});
+
+test("ADVERSARIAL: alpha outside [0,1] is not rejected, and alpha>1 CONFIRMS the father/daughter false merge outright", () => {
+  // refuteIdentity's own guard (fold-gate.js:115) is `Number.isFinite(alpha)`
+  // — the same gap reviewMerges has. With alpha=2, `p < alpha` (p is a
+  // proportion, always in [0,1]) is true for EVERY candidate, so
+  // kindMembership always reads "member" and refuteIdentity always reads
+  // "confirmed" — the exact trap the test above this one exists to refuse.
+  const vecs = contextVectors([{ text: identitySentences(20) }], ["Pyotr Voronin", "Katya Voronina", ...IDENTITY_POPULATION]);
+  const bad = refuteIdentity("Pyotr Voronin", "Katya Voronina", vecs, { alpha: 2 });
+  assert.equal(bad.verdict, "confirmed",
+    `alpha=2 (out of range, not rejected) CONFIRMS a father and daughter as the same being: ${JSON.stringify(bad)}`);
+  // and the opposite extreme silently makes the gate unable to ever confirm
+  // ANYTHING, including a genuine single-being merge:
+  const neverConfirms = refuteIdentity("Pyotr Voronin", "Katya Voronina", vecs, { alpha: -1 });
+  assert.notEqual(neverConfirms.verdict, "confirmed", "alpha<0: p<alpha is never true, so nothing can ever confirm");
 });
 
 test("refuteIdentity does NOT refuse a genuine single-being merge: two surfaces of one referent keep identical company, against a real population", () => {
