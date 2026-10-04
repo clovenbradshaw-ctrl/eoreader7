@@ -18,7 +18,8 @@
 // a formalization is never inferred, it is asserted by a named giver and
 // then checked mechanically against every future match).
 
-import { HONESTY_TYPES } from "./embedded-query.js";
+import { HONESTY_TYPES, saysDa } from "./embedded-query.js";
+import { EITHER } from "./distinguishing-plan.js";
 
 export const REFUSALS = Object.freeze({
   no_match: "this text does not match any registered puzzle template's signature — a disclosed absence, never a guessed formalization",
@@ -58,7 +59,7 @@ const ROLE_SYNONYMS = Object.freeze({
   random: ["random", "unpredictable", "erratic"],
 });
 
-function classifyRoleWord(word) {
+export function classifyRoleWord(word) {
   const w = word.toLowerCase();
   for (const [honesty, synonyms] of Object.entries(ROLE_SYNONYMS)) {
     if (synonyms.includes(w)) return honesty;
@@ -119,6 +120,36 @@ const BOOLOS_TEMPLATE = Object.freeze({
     const keyOf = (h) => agents.map((g) => h[g]).join("/");
     const byKey = new Map(hypotheses.map((h) => [keyOf(h), h]));
     return Object.freeze({ agents, hypotheses: [...byKey.keys()], byKey, budget });
+  },
+  /**
+   * candidateQueries(formalized) — the embedding-lemma probes, generalized
+   * from boolos-puzzle.mjs's own hardcoded A/B/C construction to whatever
+   * agents the signature extracted: for every (askedAgent, subject,
+   * checkIdentity) triple, "if I asked you 'SUBJECT is IDENTITY?', would
+   * you say <yesOrNoWords[0]>?" — verified there against all 6 real
+   * hypotheses; this is the SAME recipe, only the agent list varies.
+   */
+  candidateQueries(formalized) {
+    const { agents, byKey } = formalized;
+    const queries = [];
+    for (const askedAgent of agents) {
+      for (const subject of agents) {
+        for (const checkIdentity of ["true", "random"]) { // "false" is redundant given the other two
+          const id = `ask ${askedAgent}: (embedded) is ${subject} ${checkIdentity}?`;
+          queries.push({
+            id,
+            ask(hKey) {
+              const h = byKey.get(hKey);
+              const askedHonesty = h[askedAgent];
+              const propositionTruth = h[subject] === checkIdentity;
+              const signal = saysDa(askedHonesty, propositionTruth);
+              return signal === null ? EITHER : signal;
+            },
+          });
+        }
+      }
+    }
+    return queries;
   },
 });
 
