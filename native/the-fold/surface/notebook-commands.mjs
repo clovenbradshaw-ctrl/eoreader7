@@ -22,6 +22,7 @@ export const COMMANDS = Object.freeze([
   ["/tools", "list the python packages and er7 helpers a cell can use"],
   ["/promote <claim> <status> [evidence]", "move a claim up (conjectured, computed_in_range, proved) — by you, never a model"],
   ["/export", "download this notebook as .ipynb"],
+  ["/methods", "the Methods paragraph for this conversation, written from the ledger: every claim's null, sample count and seed, and the environment"],
   ["/help", "this list"],
 ]);
 const WORD = /^\/(\w+)\s*(.*)$/s;
@@ -52,6 +53,7 @@ export function parseCommand(line) {
     case "tools": case "pip": return { op: "tools" };
     case "promote": { const [card, to, ...ev] = rest.split(/\s+/); return card && to ? { op: "promote", card, to, evidence: ev.join(" ") || null } : { error: "/promote <claim id> <conjectured|computed_in_range|proved> [evidence]" }; }
     case "export": return { op: "export" };
+    case "methods": return { op: "methods" };
     case "help": case "?": return { op: "help" };
     case "rm": case "delete": return { error: "the log is append-only — nothing is deleted. Edit a cell (the old source stays) or add a new claim (the old one stays)." };
     default: return { error: `no command /${w} — /help lists them` };

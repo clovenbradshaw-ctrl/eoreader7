@@ -31,13 +31,13 @@
 // A card authored by a model is `proposed`: it can be read, never promoted
 // on the model's say-so.
 
-import { createHash } from "node:crypto";
+import { sha256 } from "../../kernel/sha256.js"; // pure, so a page can re-verify a seal (was node:crypto; byte-identical, conformance/sha256.test.mjs)
 
 export const BENCH_SCHEMA = "EOBench@1";
 export const STATUSES = Object.freeze(["stated", "conjectured", "computed_in_range", "proved"]);
 const RANK = Object.fromEntries(STATUSES.map((s, i) => [s, i]));
 
-const sha = (s) => createHash("sha256").update(s).digest("hex");
+const sha = (s) => sha256(s);
 // Recursive key-sorted JSON. (A replacer ARRAY would filter nested keys by the
 // top level's names, leaving `scope.lo` outside the seal — so it is not used.)
 export const canon = (v) => Array.isArray(v) ? `[${v.map(canon).join(",")}]`

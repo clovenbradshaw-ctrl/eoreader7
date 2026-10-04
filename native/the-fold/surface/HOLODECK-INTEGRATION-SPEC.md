@@ -34,6 +34,19 @@ Typeset equations, citation management and real-time co-editing (declared out of
 | A4 | The page may also be run against a local server (`serve.mjs` / `explore-server.mjs`) | check for `/api/*` calls | then only mode (b) of D1 exists |
 | A5 | Vendored copies are updated by a script, not by hand | find the update mechanism | never edit vendored files in place — change upstream and re-vendor |
 
+
+### §3 settled (2026-09-30, read in `clovenbradshaw-ctrl/holodeck` @ `72aef8b`)
+
+| # | Verdict | What the repo actually says |
+|---|---|---|
+| A1 | **Partly false.** | The page is one static `index.html` (a Claude Design `.dc.html` export hydrated by `support.js`, 5,921 lines), no build step, served by any static host (README: `python3 -m http.server`). There is no `.github/` workflow in the repo, so the Pages deploy is outside it. The-fold and eoreader7 are **plain copied files** under `vendor/` (not submodules), imported by relative path (`./vendor/eoreader7/native/…`). There are **no `/engine` or `/engine-v7` mounts** — none are needed, paths are relative. |
+| A2 | **True, with a difference.** | "Ask the Fold" is view `ask` in `index.html`, driven by `holodeck-ask.js` (a port of the-fold's `fold.js`/`holon.js`). It already has a Chat / Generate / Notebook segmented control (holodeck `b2b0300`), but that conversation is over the workspace's *reading sources*, answered by an in-tab WebLLM model, with one conversation per workspace in `localStorage`. It is not the notebook's ledger and runs no code. The notebook workspace is therefore mounted **beside** it inside the same view, not in place of it. |
+| A3 | **True.** | No Pyodide, no Python runtime anywhere in the repo. |
+| A4 | **True (the pattern exists).** | The page has no `/api/*` of its own, but it already calls local servers: eoreader7's proxy `POST /v1/read` at `127.0.0.1:11436`/`:11476` and Ollama at `localhost:11434`. A local `holodeck.mjs` on `127.0.0.1:8900` fits the same pattern. |
+| A5 | **False.** | Vendored copies are updated by hand and recorded in `VENDORING.md` (a dated provenance log); there is no script. This work adds one (`vendor-sync.mjs`) that copies the listed files byte-identical from a sibling `../eoreader7` and fails on drift (`--check`). |
+
+One more fact the spec did not ask but the rules depend on: **the holodeck page already loads non-localhost hosts** (jsDelivr, unpkg, esm.run for WebLLM, Google Fonts, Wikipedia, a Cloudflare worker). The fold's `constitution.test.mjs` rule does not govern this repo today. This work adds no host: a test in the holodeck compares the set of hosts in every file the page loads against the set before this work, and fails on any new one.
+
 ## 4. What exists and is to be ported (contracts)
 
 All pure ES modules, tested (`native/conformance/notebook.test.mjs`, `holodeck-e2e.test.mjs`, `structure-swarm.test.mjs`; 20+ passing).
@@ -64,6 +77,14 @@ Operations the UI calls (already implemented in `act()` / `notebookHandler`): `l
 **D3 — one skills ledger or two.** The page already has a Skills surface and switches in the-fold. **Recommend:** learned analyses register into that same `skill-toggles` ledger (they already do: `learned:analysis/<id>`, parent `route:analysis`), so there is exactly one place a switch lives.
 
 **D4 — model.** With a local model configured (`ER7_OLLAMA_URL`, `ER7_NB_MODEL`) the mouth may WRITE a candidate method; without one the ant colony is the learner. Either way nothing is believed before the gate. **Recommend:** keep the model optional; never promote or switch on its say-so.
+
+
+### §5 decided (2026-09-30)
+
+- **D1 → (a) served mode only.** The page talks to a local `holodeck.mjs` (eoreader7) on `127.0.0.1:8900` for everything: ledgers, runs, colony. The header of the notebook pane says which mode is live ("served by 127.0.0.1:8900 · Python x · numpy y · network-isolated yes/no") or says it is absent. **(b) Pyodide was not built**: with no server the pane says the data notebook needs it and how to start it; nothing is simulated.
+- **D2 → server files** (the existing store). Consequence of D1a: the ledgers live where the runner is. The **hash** adapter was built (a pure SHA-256, `kernel/sha256.js`, used by `bench.mjs` and `notebook.mjs`, byte-identical to `node:crypto` under test) so the page **re-verifies every chain it is shown in the browser** instead of trusting the server's word. No OPFS storage adapter — it is only needed for (b).
+- **D3 → one ledger.** The holodeck has no Skills surface of its own (no occurrence of "skill" anywhere in it). Learned analyses stay in the server's `skill-toggles` ledger (`learned:analysis/<id>`, parent `route:analysis`); the pane's Skills drawer and the server's `/skills/` page flip the same recorded switch.
+- **D4 → model optional**, as recommended. The holodeck's in-tab WebLLM is **not** used to write methods (it answers the sources conversation). A method-writing mouth exists only if the server was started with `ER7_OLLAMA_URL`/`ER7_NB_MODEL`; otherwise the ant colony is the learner. Nothing is promoted or switched on a model's say.
 
 ## 6. Requirements
 
