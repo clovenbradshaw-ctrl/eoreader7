@@ -2059,8 +2059,19 @@ export function citationLedger(essay, webSources = new Map(), { maxCitations = 2
 // holds (S78: the log is the artifact, the tree is a projection). A later
 // edit appends; nothing rewrites in place. projectLedgerFile re-folds the
 // file at any moment, so a long essay can be re-projected mid-writing.
-import fs from "node:fs";
-import path from "node:path";
+// node:fs/node:path are ONLY for disk persistence (a server-side concern); the
+// browser port loads the module graph and must not break on them. Guarded:
+// when neither exists, `fs`/`path` are null and every persistence call throws
+// a clear "no disk" error rather than a module-load failure. The khora owns the
+// guard; the fold's vendor refresh copies it byte-identical.
+let fs = null, path = null;
+try {
+  const haveProcess = typeof process !== "undefined" && process.versions && process.versions.node;
+  if (haveProcess) { fs = (await import("node:fs")).default ?? (await import("node:fs")); path = (await import("node:path")).default ?? (await import("node:path")); }
+} catch { fs = null; path = null; }
+const noDisk = () => { throw new Error("document-ledger disk persistence requires node:fs/node:path (server-side only)"); };
+if (!fs) fs = { appendFileSync: noDisk, readFileSync: noDisk, existsSync: () => false, mkdirSync: noDisk, writeFileSync: noDisk };
+if (!path) path = { join: (...p) => p.filter(Boolean).join("/"), basename: (p) => String(p).split("/").pop() };
 
 export function ledgerFilePath(dir, docId) {
   // One physical log per instance: a trailing turn number collapses to :1 so
