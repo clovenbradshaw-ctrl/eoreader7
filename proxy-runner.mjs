@@ -4442,7 +4442,7 @@ export function openProblemOf(task) {
   return null;
 }
 
-export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null, testCommand = "", drawOnly = false }, onToken, onNote = null, onThinking = null) {
+export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null, testCommand = "", drawOnly = false, fastTalk = false }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   // ── ETHOS FIRST (the ground) ──────────────────────────────────────────────
   // The constitution (Charter/Grotius + the spec gate/Brandeis) produces a
@@ -4804,6 +4804,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   {
     const _t = String(task ?? "").trim().toLowerCase();
     const isSmallTalk =
+      fastTalk === true ||
       /^(hi|hello|hey|howdy|greetings|good\s+(morning|afternoon|evening))[\s,!?]*$/.test(_t) ||
       /^(clear|reset|help|status|what\s+can\s+you\s+do|who\s+are\s+you)[\s,!?]*$/.test(_t) ||
       /^(huh|what|really|oh|ok|okay|thanks|thank you|yes|no|yeah|yep|nope|hmm|lol|nice|cool|got it|i see|fair enough|never ?mind|please|wow)[\s.!?]*$/.test(_t) ||

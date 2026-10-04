@@ -106,6 +106,7 @@ import { checkLogicPuzzle } from "./native/the-fold/logic-puzzle.js";
 // there. Proves the search itself is general, not tuned to one puzzle.
 import { checkPreferencePuzzle } from "./native/the-fold/preference-puzzle.js";
 import { runMechanical, precisionWinner, CONCLUSION } from "./native/organs/precision-race.js";
+import { classifyTurn } from "./native/organs/reason-gate.js";
 // Archons on a Matrix homeserver (the-fold/archon-hyphae.mjs): one account +
 // one EOT room per worktree-archon, the operator always an admin of every
 // room, and the same record/print/list verbs reachable from THIS surface —
@@ -1381,6 +1382,42 @@ async function handleRequest(req, res) {
       const observationP = runMechanical(task, MECHANISMS);
       const surface = surfaceFromRequest(req);
 
+      // THE REASON GATE (II.9, 2026-10-03): before any model draw, classify
+      // the turn — a model may phrase a register, narrate a surfaced ground,
+      // and write notes the kernel derives from; it may NEVER reason to a
+      // conclusion. A turn the machine can settle (organ, swarm, derivation)
+      // is settled here; a turn the machine cannot settle without the model
+      // reasoning is refused as a typed gap. The mouth's draw below is the
+      // residue AFTER this gate — never a reasoning step.
+      const gate = await classifyTurn({
+        task,
+        mechanisms: MECHANISMS,
+        history: Array.isArray(parsed?.chatHistory) ? parsed.chatHistory : [],
+      });
+      if (gate.lane === "mechanical" && gate.observation) {
+        log(`ask → gate mechanical: ${gate.observation.mechanism} settled "${task.slice(0, 60)}"`);
+        res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
+        res.end(JSON.stringify({
+          answer: gate.observation.text,
+          sessionId, model, answerShape: "mechanical", lane: gate.lane, gateReason: gate.reason,
+          usage: { promptTokens: 0, completionTokens: 0 },
+          gate: { lane: gate.lane, reason: gate.reason, observation: gate.observation },
+        }));
+        return;
+      }
+      if (gate.lane === "refuse") {
+        log(`ask → gate refuse: "${task.slice(0, 60)}" — no model reasoning (II.9)`);
+        res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
+        res.end(JSON.stringify({
+          answer: `I cannot answer that by reasoning, and the rule here is that I do not reason — I can only phrase a register, narrate what the reading surfaced, and write notes a derivation can settle. ${gate.reason}`,
+          sessionId, model, answerShape: "refused", lane: "refuse", gateReason: gate.reason,
+          usage: { promptTokens: 0, completionTokens: 0 },
+          gate: { lane: "refuse", reason: gate.reason },
+          refused: { article: "II.9", rule: "a model may phrase, order, narrate, translate a register, and propose; it may never originate a fact or reason to a conclusion" },
+        }));
+        return;
+      }
+
       // HELD, NEVER PUNISHED: not tied to the client's socket, never
       // aborted for being slow or for the client leaving — a slow turn says
       // nothing about whether the model works, and dropping it just means
@@ -1773,6 +1810,50 @@ async function handleRequest(req, res) {
       // turn below proceeds exactly as it would without it.
       const observationP = runMechanical(reqData.task, MECHANISMS);
 
+      // THE REASON GATE, ON THE CHAT DOOR TOO (2026-10-04): same as /v1/ask —
+      // classify BEFORE any model draw. A chat turn that is register is
+      // phrased; a settled mechanism answers with zero model tokens; a turn
+      // that needs reasoning the machine cannot settle is refused citing II.9,
+      // never handed to the model as a reasoning task. Only the allowed lanes
+      // (register, grounded, reasoning) reach the model turn below.
+      const chatGate = await classifyTurn({
+        task: reqData.task,
+        mechanisms: MECHANISMS,
+        history: (reqData.chatHistory ?? []).map((m) => ({ role: m.role, content: m.content })),
+      });
+      if (chatGate.lane === "mechanical" && chatGate.observation) {
+        const body = openAIResponse({ id: `er7-${Date.now()}`, model: parsed.model, text: chatGate.observation.text, created: Math.floor(Date.now() / 1000), usage: { promptTokens: 0, completionTokens: 0 } });
+        body.gate = { lane: "mechanical", reason: chatGate.reason, observation: chatGate.observation };
+        res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
+        res.end(JSON.stringify(body));
+        return;
+      }
+      if (chatGate.lane === "refuse") {
+        const body = openAIResponse({
+          id: `er7-${Date.now()}`, model: parsed.model,
+          text: `I cannot answer that by reasoning, and the rule here is that I do not reason — I can only phrase a register, narrate what the reading surfaced, and write notes a derivation can settle. ${chatGate.reason}`,
+          created: Math.floor(Date.now() / 1000), usage: { promptTokens: 0, completionTokens: 0 },
+        });
+        body.gate = { lane: "refuse", reason: chatGate.reason };
+        body.refused = { article: "II.9", rule: "a model may phrase, order, narrate, translate a register, and propose; it may never originate a fact or reason to a conclusion" };
+        res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
+        res.end(JSON.stringify(body));
+        return;
+      }
+      if (chatGate.lane === "register" || chatGate.lane === "context" || chatGate.lane === "grounded" || chatGate.lane === "reasoning") {
+        log(`chat → gate ${chatGate.lane}: "${reqData.task.slice(0, 60)}"`);
+      }
+      const gateLane = chatGate.lane;
+      // THE REGISTER FAST PATH (2026-10-04): a gate-registered turn is small
+      // talk — the mouth phrases it, never reasons. runProxyTurn's own
+      // small-talk regex misses the structurally-registered shapes ("hello
+      // there", "hey everyone" — the regex only matches bare forms), so it
+      // falls into the heavy surf/web/voice pipeline and stalls. The gate's
+      // verdict is the signal: pass `fastTalk` so runProxyTurn takes its
+      // minimal one-draw small-talk path immediately. The mouth still phrases
+      // (no canned answer); it just does it without the heavy pipeline.
+      const fastTalk = chatGate.lane === "register";
+
       if (reqData.stream) {
         res.writeHead(200, {
           "content-type": "text/event-stream",
@@ -1912,7 +1993,7 @@ async function handleRequest(req, res) {
           noteSurfaceActivity(surface, "begin");
           emitLive({ act: "prompt", surface, model: reqData?.model ?? model, sessionId, text: promptTextOf(reqData?.task, reqData?.messages ?? parsed?.messages) });
           const scope = { sessionId, tier: turnTierAsk(req) };
-          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, testCommand: testCommandFrom(req), signal: turnAbort.signal, ...reqData }, emitBoth, onNote, onThinking));
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, testCommand: testCommandFrom(req), signal: turnAbort.signal, fastTalk, ...reqData }, emitBoth, onNote, onThinking));
           endTurn(_ctid);
           _inflight--;
           noteSurfaceActivity(surface, "end");
@@ -1988,6 +2069,7 @@ async function handleRequest(req, res) {
               usage: result.usage ?? null,
               race: raceReading(streamRace),
               served: servedDisclosure(scope, parsed.model),
+              gate: { lane: gateLane, reason: chatGate.reason },
             },
           })}\n\n`);
           res.write("data: [DONE]\n\n");
@@ -2016,7 +2098,7 @@ async function handleRequest(req, res) {
         // not dropped — a slow turn says nothing about whether the model works.
         const entry = holdTurn(holdKey, async () => {
           const scope = { sessionId, tier: turnTierAsk(req) };
-          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, testCommand: testCommandFrom(req), ...reqData }));
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, testCommand: testCommandFrom(req), fastTalk, ...reqData }));
           const answeredBy = result?.model ?? parsed.model; // plain-speech switch disclosed: the envelope names who answered
           const race = precisionWinner({ observation: await observationP, draft: result.text });
           const resp = openAIResponse({ id, model: answeredBy, text: race.text, created, usage: result.usage, reading: result });

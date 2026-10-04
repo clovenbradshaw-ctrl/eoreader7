@@ -81,3 +81,27 @@ native/            the khora's body — the omnimodal kernel, the reader, the or
 
 The khora never asks who it is. It reads, addresses, witnesses, releases — and
 the keeper holds what it cannot.
+## The perceiver's guardians (the khora's house round, 2026-10-04)
+
+Penelope's handmaidens keep the loom's record; the khora's guardians keep the
+perceiver's truth — what it sees, measures, and carries. The khora perceives
+and produces ground, and the guardians hold that ground true:
+
+| guardian | stage | duty | suitor held |
+|---|---|---|---|
+| **Maat** (Egypt) | doorway | every door is a real route; nothing falls to a model silently | forgetfulness of duties |
+| **Hephaestus** (Greek) | reason-gate | the model never reasons; the organs settle first, no pre-set word-lists | forgetfulness of duties |
+| **Norrin Radd** (the Silver Surfer) | surf/reading | every surfaced span is a real byte address | hallucinations that creep in |
+| **Charon** (Greek) | draw | one sanctioned crossing to the model, never a private raft | forgetfulness of duties |
+| **Aletheia** (Greek) | verify | every claim descends to a real span; the mouth is never handed an address | hallucinations that creep in |
+
+The round: `node native/eval/guardians.mjs` (exit 0 only when all five are
+sound). Falsifying tests: `node --test native/eval/guardians/guardians.test.mjs`
+(5/5). A process change to the khora's pipeline — a door, the reason-gate, the
+surf, a draw path, a verification — must run the round before it is declared
+done; a guardian that reports a suitor means the change is not finished. The
+round's schema is `KhoraRound@1`, its members `Maat/Hephaestus/Norrin/Charon/
+Aletheia`, each carrying its duty, its suitor, and a falsifying control. Run
+after any change; the round failing is the honest state, and the suitors it
+names are the work left undone. The khora asserts nothing it does not measure;
+the guardians hold the measure.

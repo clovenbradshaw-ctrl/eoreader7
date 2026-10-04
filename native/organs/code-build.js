@@ -14,6 +14,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { execSync } from "node:child_process";
 import { validatePython, validateHtml } from "../../postprocess.mjs";
 import { MOUTH_URL, MOUTH_IDENTITY } from "../kernel/mouth.js";
@@ -249,7 +250,7 @@ export async function buildCodeTask({ task, model, testCommand = null, out = nul
       provenance.push({ unit: u.name, source: "mouth", lang, bytes: part.length });
     } else if (d?.error) drawErrors.push(d.error);
   }
-  const code = parts.join("\n\n") + "\n";
+  let code = parts.join("\n\n") + "\n";
   const boxUnits = provenance.filter((p) => p.source === "box");
   const mouthCount = provenance.filter((p) => p.source === "mouth").length;
   if (!parts.length) {
@@ -259,7 +260,18 @@ export async function buildCodeTask({ task, model, testCommand = null, out = nul
     const errors = [...new Set(drawErrors)];
     return { ok: false, error: errors.length ? `draw failed: ${errors.join("; ")}` : "no units drawn — the mouth returned nothing extractable (named gap)" };
   }
+  // THE EXPORT SURFACE (mirror of GL-CD-11 in penelope): the assembled file
+  // must be a MODULE an importer can use — a bare `function name` file imports
+  // as `{default, module.exports}` with every unit undefined. Append an
+  // `export { a, b, c }` block for the units actually declared, so a strict
+  // consumer's `import` sees them. Units already exported are left alone.
   const looksJs = /\b(function|=>|const |let |require\(|export )/.test(code) && !/^\s*def |^\s*import |^\s*from /m.test(code);
+  if (looksJs) {
+    const declaredUnits = units.filter((u) => new RegExp(`(?:export\\s+)?(?:async\\s+)?(?:function|class)\\s+${u.name}\\b|(?:export\\s+)?(?:const|let|var)\\s+${u.name}\\b`).test(code));
+    const alreadyExported = (n) => new RegExp(`export\\s+(?:async\\s+)?(?:function|class)\\s+${n}\\b|export\\s*\\{[^}]*\\b${n}\\b|export\\s+(?:const|let|var)\\s+${n}\\b`).test(code);
+    const toExport = declaredUnits.map((u) => u.name).filter((n) => !alreadyExported(n));
+    if (toExport.length) code += `\nexport { ${toExport.join(", ")} };\n`;
+  }
   const looksPy = /^\s*(def |import |from |class )/m.test(code);
   const ext = looksJs ? "js" : "py";
   const target = out || path.join(os.tmpdir(), `er7-build-${Date.now()}.${ext}`);
@@ -285,9 +297,25 @@ export async function buildCodeTask({ task, model, testCommand = null, out = nul
         if (!v.ok) verifyError = (v.findings || []).map((f) => `${f.kind}: ${f.detail}`).join("; ").slice(0, 220);
       } catch (e) { verified = false; verifyError = `validator error: ${e.message}`.slice(0, 220); }
     } else {
-      // no hard validator for this language — a syntax parse only, disclosed.
-      try { execSync(`node --check ${JSON.stringify(target)}`, { timeout: 15000, stdio: "pipe" }); verified = "syntax_only"; }
-      catch (e) { verified = false; verifyError = String(e.stderr || e.message).slice(0, 220); }
+      // JS — THE EXPORT-SURFACE CHECK (mirror of GL-CD-11): write as a real
+      // module (`.mjs`) and IMPORT it, then read each planned unit off the
+      // exports — the same door a strict gate uses. `node --check` alone was
+      // the vacuous pass: it parses CJS syntax and cannot see "exports
+      // nothing". A module that does not import, or whose unit is not an
+      // exported function, is refused with the reason the gate would give.
+      try {
+        const mjs = path.join(path.dirname(target), `${path.basename(target, path.extname(target))}.mjs`);
+        fs.writeFileSync(mjs, code);
+        const modUrl = pathToFileURL(mjs).href;
+        const probe = `import * as __m from ${JSON.stringify(modUrl)};\nconst __out = [];\n${units.map((u) => `__out.push([${JSON.stringify(u.name)}, typeof __m[${JSON.stringify(u.name)}]]);`).join("\n")}\nglobalThis.__c = { exports: __out };`;
+        const p = path.join(os.tmpdir(), `er7-build-probe-${Date.now()}.mjs`);
+        fs.writeFileSync(p, probe);
+        execSync(`node ${JSON.stringify(p)}`, { timeout: 15000, stdio: "pipe" });
+        verified = "validated (module exports)";
+      } catch (e) {
+        verified = false;
+        verifyError = String(e.stderr || e.message).slice(0, 220);
+      }
     }
   }
   const tokens = mouthDraws.reduce((a, d) => a + (d?.tokens || 0), 0);

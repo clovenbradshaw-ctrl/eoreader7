@@ -20,6 +20,7 @@
 import { extractGfpRelations } from "./relations-gfp.js";
 import { relationExtractorsFor } from "./relations-language.js";
 import { splitSentences } from "./spans.js";
+import { clauseSpans } from "./clause-spans.js";
 
 /**
  * composedRelations(text, { posPrior, figures, roleConfig, classifyWord,
@@ -30,9 +31,15 @@ import { splitSentences } from "./spans.js";
 export function composedRelations(text, { posPrior = null, figures = null, roleConfig = null, classifyWord = null, dominantClass = null, verbForms = null, minRec = 2, clauseAware = true } = {}) {
   const body = String(text ?? "");
   // the recurrence leg: the arrangement yield over the whole text
-  const recurrence = extractGfpRelations(body, { posPrior, figures, minRec, clauseAware });
+  const recurrence = extractGfpRelations(body, { posPrior: null, figures, minRec, clauseAware });
 
-  // the positional leg: one clause per sentence, its connector the precise head
+  // the positional leg: one clause per read, its connector the precise head.
+  // Measured wall (2026-10-02): per SENTENCE the reader refuses 47/60 real
+  // sentences as `ambiguous_verb` — a sentence holds several clauses and the
+  // reader honestly reads ONE. Splitting by the engine's OWN clause spans
+  // first (clause-spans.js, the same organ the GFP leg's clauseAware uses)
+  // turns each clause into its own read, so the positional leg settles the
+  // clauses that would otherwise be refused together.
   let positional = [];
   let positionalRan = false;
   if (roleConfig && posPrior && classifyWord && dominantClass) {
@@ -40,33 +47,30 @@ export function composedRelations(text, { posPrior = null, figures = null, roleC
     const readers = relationExtractorsFor({ language: roleConfig.language ?? "eng", roleConfig, posPrior, classifyWord, dominantClass, ...(verbForms ? { verbForms } : {}) });
     for (const s of splitSentences(body)) {
       const st = s.text ?? s;
-      const r = readers.extractRelations(st, {});
-      for (const rel of r) if (rel.end1 && rel.label && rel.end2) positional.push({ ...rel, sentence: st, basis: "positional clause" });
+      const clauses = clauseSpans(st).map((c) => (typeof c === "string" ? c : st.slice(c.start, c.end))).filter((t) => t.trim());
+      for (const clause of clauses.length ? clauses : [st]) {
+        const r = readers.extractRelations(clause, {});
+        for (const rel of r) if (rel.end1 && rel.label && rel.end2) positional.push({ ...rel, sentence: clause, basis: "positional clause" });
+      }
     }
   }
 
-  // COMPOSE: a positional clause OWNS its sentence's connector. Index the
-  // recurrence arrangements by the sentence they fall in; where a positional
-  // clause settled, its arrangement replaces the recurrence ones for that
-  // sentence's figure pair (the precise connector wins). Every recurrence
-  // arrangement in a sentence the positional reader did NOT settle is kept.
-  const settledPairs = new Set(positional.map((p) => `${String(p.end1).toLowerCase()}|${String(p.end2).toLowerCase()}`));
-  const out = [...positional];
-  for (const r of recurrence) {
-    const pair = `${String(r.end1).toLowerCase()}|${String(r.end2).toLowerCase()}`;
-    if (settledPairs.has(pair)) continue; // the clause reader already said this, precisely
-    out.push({ ...r, basis: r.basis ?? "recurrence arrangement" });
-  }
-  // de-duplicate by (end1, label-head, end2), keeping the first (positional
-  // was pushed first, so the precise connector is the survivor)
+  // COMPOSE — ADDITIVE, NEVER REPLACING (2026-10-02, falsified the replace
+  // version: it read 81 fewer relations than the dispatch reader on the
+  // holodeck's own source — a coverage regression, the exact wall). The
+  // positional clause connector PRECEDES the recurrence arrangements for the
+  // same pair (so the precise label wins on the re-read), but every recurrence
+  // relation the clause reader did not already state is KEPT. The reading is
+  // the union, deduped on the exact triple.
+  const out = [...positional, ...recurrence];
   const seen = new Set();
   const unique = [];
   for (const a of out) {
-    const k = `${String(a.end1).toLowerCase()}|${String(a.end2).toLowerCase()}|${String(a.label).toLowerCase().split(/\s+/)[0]}`;
+    const k = `${String(a.end1).toLowerCase()}|${String(a.end2).toLowerCase()}|${String(a.label).toLowerCase()}`;
     if (seen.has(k)) continue;
     seen.add(k); unique.push(a);
   }
-  return { relations: unique, positional: positional.length, recurrence: recurrence.length, positionalRan, basis: positionalRan ? "composed: positional clause connector where it settled, recurrence arrangement elsewhere" : "recurrence only — positional leg disabled (roleConfig/posPrior/classifyWord/dominantClass not all supplied), disclosed" };
+  return { relations: unique, positional: positional.length, recurrence: recurrence.length, positionalRan, basis: positionalRan ? "composed (additive): positional clause connectors + every recurrence arrangement, deduped on the exact triple" : "recurrence only — positional leg disabled (roleConfig/posPrior/classifyWord/dominantClass not all supplied), disclosed" };
 }
 
 export default composedRelations;

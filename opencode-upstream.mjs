@@ -305,9 +305,11 @@ export async function* streamOpencodeText(
   if (!text.trim()) throw new Error("streamOpencodeText: empty prompt");
 
   // Bar 2 first: the sandbox exists before any session does.
+  console.error("[trace-opencode] sandboxDir + toolDisableMap start");
   const dir = sandboxDir();
   const tools = await toolDisableMap({ onNote });
   if (onNote) onNote({ move: "opencode_tools_disabled", count: Object.keys(tools).length, dir });
+  console.error("[trace-opencode] tools disabled:", Object.keys(tools).length);
 
   const session = await fetchJson(`${OPENCODE_URL}/session?directory=${encodeURIComponent(dir)}`, {
     method: "POST", body: { title }, timeoutMs: 15000,
