@@ -91,7 +91,7 @@ mkdirSync(FACES, { recursive: true });
 const INDEX = `${FACES}/index.json`;
 const index = existsSync(INDEX) ? JSON.parse(readFileSync(INDEX, "utf8")) : {};
 const sha16 = (s) => createHash("sha256").update(s).digest("hex").slice(0, 16);
-const UA = "the-fold/ranke-walk (+https://github.com/clovenbradshaw-ctrl/the-fold; primary-source chase eval)";
+const UA = "the-fold/ranke-walk (+https://github.com/scores-patch-points/the-fold; primary-source chase eval)";
 let network = 0;
 async function fetchFace(url, archiveUrl) {
   const key = sha16(url);

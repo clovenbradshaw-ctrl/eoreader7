@@ -9,16 +9,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/clovenbradshaw-ctrl/eoreader7.git"
+    "url": "git+https://github.com/scores-patch-points/khora.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/clovenbradshaw-ctrl/eoreader7/issues"
+    "url": "https://github.com/scores-patch-points/khora/issues"
   },
-  "homepage": "https://github.com/clovenbradshaw-ctrl/eoreader7#readme",
+  "homepage": "https://github.com/scores-patch-points/khora#readme",
   "dependencies": {
     "mathjs": "^15.2.0"
   },

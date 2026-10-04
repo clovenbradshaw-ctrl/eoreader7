@@ -82,7 +82,7 @@ async function askModel(prompt) {
   return (await res.json()).message?.content ?? "";
 }
 const CACHE = "/tmp/void-loop-e2e-cache";
-const UA = "the-fold-void-loop-eval/1.0 (https://github.com/clovenbradshaw-ctrl/the-fold)";
+const UA = "the-fold-void-loop-eval/1.0 (https://github.com/scores-patch-points/the-fold)";
 
 // ── the specimens ────────────────────────────────────────────────────────────
 //

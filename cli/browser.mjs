@@ -76,7 +76,7 @@ export async function serveFold({ open = true, port } = {}) {
     throw new Error(
       `The Fold is not present at ${FOLD_ROOT}.\n` +
       `eoreader7 -browser IS The Fold served locally — clone it as a sibling:\n` +
-      `  git clone --recurse-submodules https://github.com/clovenbradshaw-ctrl/the-fold.git ${FOLD_ROOT}\n` +
+      `  git clone --recurse-submodules https://github.com/scores-patch-points/the-fold.git ${FOLD_ROOT}\n` +
       `then run the fold's own launcher once (${FOLD_ROOT}/fold) to install its node_modules.`);
   }
 

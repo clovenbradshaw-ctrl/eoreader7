@@ -2354,7 +2354,7 @@ export function createSessionReader() {
   // Measured 2026-09-23 (reading-training audit): this perceiver alone
   // scores 0.9% recall / 18.5% precision on held-out core SVO extraction;
   // the trained parser below scores 74.0%/73.7%, confirmed real by a
-  // scrambled-order null (p=1.9e-43) — github.com/clovenbradshaw-ctrl/
+  // scrambled-order null (p=1.9e-43) — github.com/scores-patch-points/
   // reading-training. Added ALONGSIDE, never replacing, the perceiver
   // above: both perceivers' candidates flow through the same existing
   // witness/admission/challenge pipeline unchanged, so nothing downstream
@@ -3220,6 +3220,7 @@ export async function* streamOllamaChat(model, messages, { maxTokens, json, onNo
   if (!gate.allow) {
     throw Object.assign(new Error(gate.reason), { code: "ERR_ANTISTRAUSS_BLOCKED", antistrauss: gate.verdict });
   }
+  console.error("[trace-chat] gate passed, model=", model);
   // ── ANTIStrauss OUTPUT GUARD (streaming) ───────────────────────────────
   // Model output is re-scanned BEFORE it reaches the caller: reviewBlock()
   // re-runs the same law classes over what the model actually emitted.
@@ -3286,6 +3287,7 @@ export async function* streamOllamaChat(model, messages, { maxTokens, json, onNo
   // contract, same heimdall account (ungated: the call never touched the
   // local box — no VRAM, no keep-alive, no reload).
   const anthropicRoute = upstreamAnthropicModelFor(model);
+  console.error("[trace-chat] anthropicRoute=", JSON.stringify(anthropicRoute));
   if (anthropicRoute) {
     if (onNote) onNote({ move: "anthropic_lane", provider: anthropicRoute.providerID, model: anthropicRoute.modelID });
     for (let attempt = 0; attempt < CALL_RETRIES; attempt++) {
@@ -3353,6 +3355,7 @@ export async function* streamOllamaChat(model, messages, { maxTokens, json, onNo
   // The lane decision reads the discovery cache only (no fetch on the hot
   // path); the turn preflight warms it before any draw runs.
   const upstream = upstreamModelFor(model);
+  console.error("[trace-chat] opencodeRoute=", JSON.stringify(upstream));
   if (upstream) {
     if (onNote) onNote({ move: "opencode_lane", provider: upstream.providerID, model: upstream.modelID });
     for (let attempt = 0; attempt < CALL_RETRIES; attempt++) {
@@ -5921,6 +5924,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       const possessiveAsk = factAsk.scope === "closed" ? possessiveOfficeAsk(task) : null;
       const declaredFactCheck = factAsk.fact && (factAsk.scope === "open-now" || Boolean(possessiveAsk)) && (webConsent || WEB_SEARCH_ON);
       const webGround = await voidWebSearchFallback(task, { force: declaredFactCheck });
+      console.error("[trace] voidWebSearchFallback returned");
       factGate.searched = Boolean(webGround);
       if (onNote && factAsk.fact) onNote({ move: "fact_preflight", scope: factAsk.scope, declared: declaredFactCheck, found: webGround?.found ?? null, query: webGround?.query ?? null });
       if (webGround?.found) factGate.ground = [{ text: webGround.text, ref: `web-search:${webGround.query}` }];
@@ -8573,6 +8577,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       }
     } else {
       // ── SINGLE-ANSWER VOICE: chat AND long, one body. ──────────────────
+      console.error("[trace] reached single-answer voice block");
       // THE LONG FORM, AUTO-ENGAGED (2026-09-17): a chat answer that hits the
       // token cap mid-thought is a long answer the shape system didn't foresee
       // (a research/open ask at CALL_MAX_TOKENS) — cutting it there is a
@@ -8645,6 +8650,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         shapeForCheck = "long";
       } else {
         const r = await draw(ollamaMessages, answerShape.maxTokens ?? CALL_MAX_TOKENS, { kelsen: compositionKelsen });
+        console.error("[trace-draw] main draw returned", r ? "ok" : "null");
         if (r?.stopped) truncated = true;
         chunks = 1;
         longRounds.push({ round: 1, chars: r.buf.length, tokenTruncated: r?.tokenTruncated ?? false });

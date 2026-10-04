@@ -69,7 +69,7 @@ import { entityUrl, isQid } from "../../the-fold/wikidata.js";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(HERE, "results", "kinship-reasoning.json");
 const CACHE_DIR = "/tmp/kinship-reasoning-cache";
-const UA = "the-fold-kinship-reasoning-eval/1.0 (https://github.com/clovenbradshaw-ctrl/the-fold)";
+const UA = "the-fold-kinship-reasoning-eval/1.0 (https://github.com/scores-patch-points/the-fold)";
 
 const CHEM_GIVER = "en.wikipedia.org/wiki/Kinship — ordinary English kinship terminology: a person's parent's sibling is their aunt or uncle; declared as two affordance rows by eval/kinship-reasoning.mjs (this driver names its own risk, no giver in the received register vouches for it)";
 

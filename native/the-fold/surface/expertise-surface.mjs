@@ -146,7 +146,7 @@ async function pushToLivePriors(identity) {
   const status = await git(["status", "--porcelain", "--", "derived-priors/expertise-priors"]);
   if (!status.stdout.trim()) { await git(["checkout", "main"]); return { ok: false, error: "nothing to push — no expertise recorded yet" }; }
   await git(["-c", `user.name=${identity.name || identity.login}`, "-c", `user.email=${identity.login}@users.noreply.github.com`, "commit", "-m", `expertise: ${identity.login}'s learned forms, ${new Date().toISOString()}`]);
-  const remote = `https://x-access-token:${identity.token}@github.com/clovenbradshaw-ctrl/live_priors.git`;
+  const remote = `https://x-access-token:${identity.token}@github.com/scores-patch-points/ethos.git`;
   await git(["push", remote, `${branch}:${branch}`]);
   await git(["checkout", "main"]);
   return { ok: true, branch };

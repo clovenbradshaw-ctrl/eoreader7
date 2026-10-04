@@ -25,7 +25,7 @@ curl -fsSL https://bit.ly/install-eoreader7 | bash
 With eoreader7 already running:
 
 ```bash
-claude plugin marketplace add clovenbradshaw-ctrl/eoreader7 --sparse .claude-plugin claude-code
+claude plugin marketplace add scores-patch-points/khora --sparse .claude-plugin claude-code
 claude plugin install eo-reason@eoreader7
 ```
 

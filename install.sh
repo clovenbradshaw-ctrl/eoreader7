@@ -23,7 +23,7 @@ set -e
 
 DEFAULT_DIR="$HOME/eoreader7"
 ER7_DIR="${ER7_DIR:-$DEFAULT_DIR}"
-REPO="https://github.com/clovenbradshaw-ctrl/eoreader7.git"
+REPO="https://github.com/scores-patch-points/khora.git"
 UPSTREAM="${ER7_UPSTREAM:-http://localhost:11434}"
 
 say()  { printf '\n==> %s\n' "$1"; }
