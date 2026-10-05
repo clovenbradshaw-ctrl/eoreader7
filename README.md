@@ -1,3 +1,8 @@
+> ## ⚠️ LEGACY — frozen, no longer maintained
+> This repository is the **old copy** of `eoreader7` and is kept for history only.
+> The Fold now lives under the `scores-patch-points` account: [scores-patch-points/khora](https://github.com/scores-patch-points/khora).
+> Do not file issues or send changes here.
+
 # Khora (formerly EOReader 7)
 
 The perceiver and the ground-producer. [KHORA.md](KHORA.md) is the re-claim —
